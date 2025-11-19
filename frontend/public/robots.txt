@@ -1,0 +1,12 @@
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Disallow authenticated pages
+Disallow: /dashboard
+Disallow: /apply
+Disallow: /applications
+Disallow: /admin
+
+# Sitemap location
+Sitemap: https://youruni.edu/sitemap-index.xml
