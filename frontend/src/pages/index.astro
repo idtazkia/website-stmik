@@ -17,7 +17,7 @@ const localPath = (path: string) => localizePath(locale, path);
       <div class="text-center space-y-8">
         <div class="flex justify-center">
           <img
-            src="/images/logo-stmik-tazkia.svg"
+            src={`${import.meta.env.BASE_URL}images/logo-stmik-tazkia.svg`}
             alt={translate('site.name')}
             class="h-32 w-auto"
           />
