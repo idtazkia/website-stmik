@@ -23,152 +23,131 @@
           - /url: /news
         - link "Kontak" [ref=e16] [cursor=pointer]:
           - /url: /contact
-      - button "Toggle mobile menu" [ref=e17]:
-        - img
-      - generic [ref=e20]:
-        - link "Beranda" [ref=e21] [cursor=pointer]:
-          - /url: /
-        - link "Tentang Kami" [ref=e22] [cursor=pointer]:
-          - /url: /about
-        - link "Program" [ref=e23] [cursor=pointer]:
-          - /url: /programs
-        - link "Pendaftaran" [ref=e24] [cursor=pointer]:
-          - /url: /admissions
-        - link "Berita" [ref=e25] [cursor=pointer]:
-          - /url: /news
-        - link "Kontak" [ref=e26] [cursor=pointer]:
-          - /url: /contact
-      - generic [ref=e27]:
-        - generic [ref=e28]:
-          - button "Change language" [ref=e29]:
-            - img [ref=e30]
-            - text: id
-            - img [ref=e32]
-          - generic [ref=e35]:
-            - link "Bahasa Indonesia" [ref=e36] [cursor=pointer]:
-              - /url: /website-stmik
-            - link "English" [ref=e37] [cursor=pointer]:
-              - /url: /en/website-stmik
-        - link "Masuk" [ref=e38] [cursor=pointer]:
+      - generic [ref=e17]:
+        - button "Change language" [ref=e19]:
+          - img [ref=e20]
+          - generic [ref=e22]: id
+          - img [ref=e23]
+        - link "Masuk" [ref=e25] [cursor=pointer]:
           - /url: /login
-        - link "Daftar" [ref=e39] [cursor=pointer]:
+        - link "Daftar" [ref=e26] [cursor=pointer]:
           - /url: /register
-  - main [ref=e40]:
-    - generic [ref=e43]:
-      - img "STMIK Tazkia" [ref=e45]
-      - heading "STMIK Tazkia" [level=1] [ref=e46]
-      - paragraph [ref=e47]: Belajar pada ahlinya
-      - paragraph [ref=e48]: Menjadi perguruan tinggi yang unggul dalam bidang teknologi informasi yang mencetak lulusan berkompeten dan berkarakter mulia
-      - generic [ref=e49]:
-        - link "Daftar Sekarang" [ref=e50] [cursor=pointer]:
+  - main [ref=e27]:
+    - generic [ref=e30]:
+      - img "STMIK Tazkia" [ref=e32]
+      - heading "STMIK Tazkia" [level=1] [ref=e33]
+      - paragraph [ref=e34]: Belajar pada ahlinya
+      - paragraph [ref=e35]: Menjadi perguruan tinggi yang unggul dalam bidang teknologi informasi yang mencetak lulusan berkompeten dan berkarakter mulia
+      - generic [ref=e36]:
+        - link "Daftar Sekarang" [ref=e37] [cursor=pointer]:
           - /url: /register
-        - link "Pelajari Lebih Lanjut" [ref=e51] [cursor=pointer]:
+        - link "Pelajari Lebih Lanjut" [ref=e38] [cursor=pointer]:
           - /url: /programs
-    - generic [ref=e53]:
-      - heading "Keunggulan Kami" [level=2] [ref=e55]
-      - generic [ref=e56]:
-        - generic [ref=e57]:
-          - img [ref=e59]
-          - heading "Jaminan Kerja" [level=3] [ref=e61]
-          - paragraph [ref=e62]: Program penempatan kerja untuk lulusan terbaik
-        - generic [ref=e63]:
-          - img [ref=e65]
-          - heading "Jadwal Fleksibel" [level=3] [ref=e67]
-          - paragraph [ref=e68]: Jadwal kuliah yang fleksibel untuk pekerja
-        - generic [ref=e69]:
-          - img [ref=e71]
-          - heading "Pembelajaran Hybrid" [level=3] [ref=e73]
-          - paragraph [ref=e74]: Pembelajaran online dan offline yang efektif
-        - generic [ref=e75]:
-          - img [ref=e77]
-          - heading "Dosen Ahli" [level=3] [ref=e79]
-          - paragraph [ref=e80]: Dosen praktisi dengan pengalaman 10+ tahun
-    - generic [ref=e82]:
-      - generic [ref=e83]:
-        - heading "Program Studi" [level=2] [ref=e84]
-        - paragraph [ref=e85]: Pilih program studi sesuai minat dan tujuan karir Anda
-      - generic [ref=e86]:
-        - generic [ref=e87]:
-          - heading "Sistem Informasi" [level=3] [ref=e88]
-          - paragraph [ref=e89]: "Konsentrasi: Project Management, Machine Learning, Data Analytics, Business Information Systems"
-          - link "Pelajari Lebih Lanjut" [ref=e90] [cursor=pointer]:
+    - generic [ref=e40]:
+      - heading "Keunggulan Kami" [level=2] [ref=e42]
+      - generic [ref=e43]:
+        - generic [ref=e44]:
+          - img [ref=e46]
+          - heading "Jaminan Kerja" [level=3] [ref=e48]
+          - paragraph [ref=e49]: Program penempatan kerja untuk lulusan terbaik
+        - generic [ref=e50]:
+          - img [ref=e52]
+          - heading "Jadwal Fleksibel" [level=3] [ref=e54]
+          - paragraph [ref=e55]: Jadwal kuliah yang fleksibel untuk pekerja
+        - generic [ref=e56]:
+          - img [ref=e58]
+          - heading "Pembelajaran Hybrid" [level=3] [ref=e60]
+          - paragraph [ref=e61]: Pembelajaran online dan offline yang efektif
+        - generic [ref=e62]:
+          - img [ref=e64]
+          - heading "Dosen Ahli" [level=3] [ref=e66]
+          - paragraph [ref=e67]: Dosen praktisi dengan pengalaman 10+ tahun
+    - generic [ref=e69]:
+      - generic [ref=e70]:
+        - heading "Program Studi" [level=2] [ref=e71]
+        - paragraph [ref=e72]: Pilih program studi sesuai minat dan tujuan karir Anda
+      - generic [ref=e73]:
+        - generic [ref=e74]:
+          - heading "Sistem Informasi" [level=3] [ref=e75]
+          - paragraph [ref=e76]: "Konsentrasi: Project Management, Machine Learning, Data Analytics, Business Information Systems"
+          - link "Pelajari Lebih Lanjut" [ref=e77] [cursor=pointer]:
             - /url: /programs/information-systems
-        - generic [ref=e91]:
-          - heading "Teknik Informatika" [level=3] [ref=e92]
-          - paragraph [ref=e93]: "Konsentrasi: Cybersecurity, Artificial Intelligence, Web Development, Software Engineering"
-          - link "Pelajari Lebih Lanjut" [ref=e94] [cursor=pointer]:
+        - generic [ref=e78]:
+          - heading "Teknik Informatika" [level=3] [ref=e79]
+          - paragraph [ref=e80]: "Konsentrasi: Cybersecurity, Artificial Intelligence, Web Development, Software Engineering"
+          - link "Pelajari Lebih Lanjut" [ref=e81] [cursor=pointer]:
             - /url: /programs/computer-engineering
-    - generic [ref=e97]:
-      - heading "Siap Bergabung?" [level=2] [ref=e98]
-      - paragraph [ref=e99]: Mulai perjalanan pendidikan Anda di STMIK Tazkia. Daftar sekarang dan raih masa depan cemerlang!
-      - generic [ref=e100]:
-        - link "Daftar Sekarang" [ref=e101] [cursor=pointer]:
+    - generic [ref=e84]:
+      - heading "Siap Bergabung?" [level=2] [ref=e85]
+      - paragraph [ref=e86]: Mulai perjalanan pendidikan Anda di STMIK Tazkia. Daftar sekarang dan raih masa depan cemerlang!
+      - generic [ref=e87]:
+        - link "Daftar Sekarang" [ref=e88] [cursor=pointer]:
           - /url: /register
-        - link "Konsultasi Gratis" [ref=e102] [cursor=pointer]:
+        - link "Konsultasi Gratis" [ref=e89] [cursor=pointer]:
           - /url: https://wa.me/6285123123119
-  - contentinfo [ref=e103]:
-    - generic [ref=e104]:
-      - generic [ref=e105]:
-        - generic [ref=e106]:
-          - generic [ref=e107]:
-            - img "STMIK Tazkia" [ref=e108]
-            - generic [ref=e109]:
-              - generic [ref=e110]: STMIK Tazkia
-              - generic [ref=e111]: Belajar pada ahlinya
-          - paragraph [ref=e112]: Menjadi perguruan tinggi yang unggul dalam bidang teknologi informasi yang mencetak lulusan berkompeten dan berkarakter mulia
-        - generic [ref=e113]:
-          - heading "Tautan Cepat" [level=3] [ref=e114]
-          - list [ref=e115]:
-            - listitem [ref=e116]:
-              - link "Beranda" [ref=e117] [cursor=pointer]:
+  - contentinfo [ref=e90]:
+    - generic [ref=e91]:
+      - generic [ref=e92]:
+        - generic [ref=e93]:
+          - generic [ref=e94]:
+            - img "STMIK Tazkia" [ref=e95]
+            - generic [ref=e96]:
+              - generic [ref=e97]: STMIK Tazkia
+              - generic [ref=e98]: Belajar pada ahlinya
+          - paragraph [ref=e99]: Menjadi perguruan tinggi yang unggul dalam bidang teknologi informasi yang mencetak lulusan berkompeten dan berkarakter mulia
+        - generic [ref=e100]:
+          - heading "Tautan Cepat" [level=3] [ref=e101]
+          - list [ref=e102]:
+            - listitem [ref=e103]:
+              - link "Beranda" [ref=e104] [cursor=pointer]:
                 - /url: /
-            - listitem [ref=e118]:
-              - link "Tentang Kami" [ref=e119] [cursor=pointer]:
+            - listitem [ref=e105]:
+              - link "Tentang Kami" [ref=e106] [cursor=pointer]:
                 - /url: /about
-            - listitem [ref=e120]:
-              - link "Program" [ref=e121] [cursor=pointer]:
+            - listitem [ref=e107]:
+              - link "Program" [ref=e108] [cursor=pointer]:
                 - /url: /programs
-            - listitem [ref=e122]:
-              - link "Pendaftaran" [ref=e123] [cursor=pointer]:
+            - listitem [ref=e109]:
+              - link "Pendaftaran" [ref=e110] [cursor=pointer]:
                 - /url: /admissions
-            - listitem [ref=e124]:
-              - link "Berita" [ref=e125] [cursor=pointer]:
+            - listitem [ref=e111]:
+              - link "Berita" [ref=e112] [cursor=pointer]:
                 - /url: /news
-            - listitem [ref=e126]:
-              - link "Kontak" [ref=e127] [cursor=pointer]:
+            - listitem [ref=e113]:
+              - link "Kontak" [ref=e114] [cursor=pointer]:
                 - /url: /contact
-        - generic [ref=e128]:
-          - heading "Kontak" [level=3] [ref=e129]
-          - list [ref=e130]:
-            - listitem [ref=e131]:
-              - img [ref=e132]
-              - text: Jalan Raya Dramaga Km.7 Kel. Margajaya, Kec. Bogor Barat
-            - listitem [ref=e135]:
-              - img [ref=e136]
-              - link "+6285123123119" [ref=e138] [cursor=pointer]:
+        - generic [ref=e115]:
+          - heading "Kontak" [level=3] [ref=e116]
+          - list [ref=e117]:
+            - listitem [ref=e118]:
+              - img [ref=e119]
+              - generic [ref=e122]: Jalan Raya Dramaga Km.7 Kel. Margajaya, Kec. Bogor Barat
+            - listitem [ref=e123]:
+              - img [ref=e124]
+              - link "+6285123123119" [ref=e126] [cursor=pointer]:
                 - /url: tel:+6285123123119
-            - listitem [ref=e139]:
-              - img [ref=e140]
-              - link "WhatsApp" [ref=e142] [cursor=pointer]:
+            - listitem [ref=e127]:
+              - img [ref=e128]
+              - link "WhatsApp" [ref=e130] [cursor=pointer]:
                 - /url: https://wa.me/6285123123119
-        - generic [ref=e143]:
-          - heading "Ikuti Kami" [level=3] [ref=e144]
-          - generic [ref=e145]:
-            - link "Instagram" [ref=e146] [cursor=pointer]:
+        - generic [ref=e131]:
+          - heading "Ikuti Kami" [level=3] [ref=e132]
+          - generic [ref=e133]:
+            - link "Instagram" [ref=e134] [cursor=pointer]:
               - /url: https://instagram.com/stmiktazkia
-              - text: Instagram
-              - img [ref=e147]
-            - link "Facebook" [ref=e149] [cursor=pointer]:
+              - generic [ref=e135]: Instagram
+              - img [ref=e136]
+            - link "Facebook" [ref=e138] [cursor=pointer]:
               - /url: https://facebook.com/stmiktazkia
-              - text: Facebook
-              - img [ref=e150]
-            - link "YouTube" [ref=e152] [cursor=pointer]:
+              - generic [ref=e139]: Facebook
+              - img [ref=e140]
+            - link "YouTube" [ref=e142] [cursor=pointer]:
               - /url: https://youtube.com/@stmiktazkia
-              - text: YouTube
-              - img [ref=e153]
-            - link "TikTok" [ref=e155] [cursor=pointer]:
+              - generic [ref=e143]: YouTube
+              - img [ref=e144]
+            - link "TikTok" [ref=e146] [cursor=pointer]:
               - /url: https://tiktok.com/@stmiktazkia
-              - text: TikTok
-              - img [ref=e156]
-      - paragraph [ref=e160]: © 2025 STMIK Tazkia. Semua hak dilindungi.
+              - generic [ref=e147]: TikTok
+              - img [ref=e148]
+      - paragraph [ref=e152]: © 2025 STMIK Tazkia. Semua hak dilindungi.
 ```
