@@ -1,4 +1,7 @@
 ---
+import { getLocaleFromUrl } from '../utils/i18n';
+import '../styles/global.css';
+
 interface Props {
   title?: string;
   description?: string;
@@ -12,7 +15,7 @@ const defaultDescription = 'Menjadi perguruan tinggi yang unggul dalam bidang te
 
 const pageTitle = title ? `${title} | ${siteName}` : siteName;
 const pageDescription = description || defaultDescription;
-const currentLocale = 'id';
+const currentLocale = getLocaleFromUrl(Astro.url);
 ---
 
 <!doctype html>
@@ -46,9 +49,6 @@ const currentLocale = 'id';
     <!-- Preload Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-
-    <!-- Global Styles -->
-    <link rel="stylesheet" href="/src/styles/global.css" />
   </head>
   <body class="min-h-screen flex flex-col">
     <slot />
