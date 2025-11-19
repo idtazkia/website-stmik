@@ -1,9 +1,9 @@
 ---
-import MarketingLayout from '../layouts/MarketingLayout.astro';
-import Container from '../components/Container.astro';
-import Section from '../components/Section.astro';
-import Button from '../components/Button.astro';
-import { getLocaleFromUrl, t, localizePath } from '../utils/i18n';
+import MarketingLayout from '../../layouts/MarketingLayout.astro';
+import Container from '../../components/Container.astro';
+import Section from '../../components/Section.astro';
+import Button from '../../components/Button.astro';
+import { getLocaleFromUrl, t, localizePath } from '../../utils/i18n';
 
 const locale = getLocaleFromUrl(Astro.url);
 const translate = (key: string) => t(locale, key);

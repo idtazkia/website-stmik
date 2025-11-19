@@ -1,0 +1,30 @@
+---
+import clsx from 'clsx';
+
+interface Props {
+  padding?: 'sm' | 'md' | 'lg';
+  shadow?: boolean;
+  hover?: boolean;
+  class?: string;
+}
+
+const { padding = 'md', shadow = true, hover = false, class: className, ...props } = Astro.props;
+
+const paddingClasses = {
+  sm: 'p-4',
+  md: 'p-6',
+  lg: 'p-8',
+};
+
+const classes = clsx(
+  'bg-white rounded-lg',
+  paddingClasses[padding],
+  shadow && 'shadow-md',
+  hover && 'transition-shadow hover:shadow-lg',
+  className
+);
+---
+
+<div class={classes} {...props}>
+  <slot />
+</div>

@@ -1,0 +1,56 @@
+{
+  "site": {
+    "name": "STMIK Tazkia",
+    "tagline": "Learn from the Experts",
+    "mission": "To become a superior higher education institution in information technology that produces competent graduates with noble character"
+  },
+  "nav": {
+    "home": "Home",
+    "about": "About Us",
+    "programs": "Programs",
+    "admissions": "Admissions",
+    "news": "News",
+    "contact": "Contact",
+    "login": "Login",
+    "register": "Register",
+    "dashboard": "Dashboard",
+    "logout": "Logout"
+  },
+  "button": {
+    "apply_now": "Apply Now",
+    "learn_more": "Learn More",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "free_consultation": "Free Consultation"
+  },
+  "footer": {
+    "about": "About Us",
+    "quick_links": "Quick Links",
+    "contact": "Contact",
+    "follow_us": "Follow Us",
+    "copyright": "© 2025 STMIK Tazkia. All rights reserved.",
+    "address": "Jalan Raya Dramaga Km.7 Kel. Margajaya, Kec. Bogor Barat",
+    "phone": "+6285123123119"
+  },
+  "language": {
+    "id": "Bahasa Indonesia",
+    "en": "English"
+  },
+  "programs": {
+    "information_systems": "Information Systems",
+    "computer_engineering": "Computer Engineering",
+    "duration": "3.5 years"
+  },
+  "features": {
+    "job_guarantee": "Job Guarantee",
+    "flexible_schedule": "Flexible Schedule",
+    "hybrid_learning": "Hybrid Learning",
+    "expert_faculty": "Expert Faculty"
+  }
+}

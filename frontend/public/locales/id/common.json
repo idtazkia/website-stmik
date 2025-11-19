@@ -1,0 +1,56 @@
+{
+  "site": {
+    "name": "STMIK Tazkia",
+    "tagline": "Belajar pada ahlinya",
+    "mission": "Menjadi perguruan tinggi yang unggul dalam bidang teknologi informasi yang mencetak lulusan berkompeten dan berkarakter mulia"
+  },
+  "nav": {
+    "home": "Beranda",
+    "about": "Tentang Kami",
+    "programs": "Program",
+    "admissions": "Pendaftaran",
+    "news": "Berita",
+    "contact": "Kontak",
+    "login": "Masuk",
+    "register": "Daftar",
+    "dashboard": "Dasbor",
+    "logout": "Keluar"
+  },
+  "button": {
+    "apply_now": "Daftar Sekarang",
+    "learn_more": "Pelajari Lebih Lanjut",
+    "submit": "Kirim",
+    "cancel": "Batal",
+    "save": "Simpan",
+    "edit": "Ubah",
+    "delete": "Hapus",
+    "back": "Kembali",
+    "next": "Lanjut",
+    "previous": "Sebelumnya",
+    "free_consultation": "Konsultasi Gratis"
+  },
+  "footer": {
+    "about": "Tentang Kami",
+    "quick_links": "Tautan Cepat",
+    "contact": "Kontak",
+    "follow_us": "Ikuti Kami",
+    "copyright": "© 2025 STMIK Tazkia. Semua hak dilindungi.",
+    "address": "Jalan Raya Dramaga Km.7 Kel. Margajaya, Kec. Bogor Barat",
+    "phone": "+6285123123119"
+  },
+  "language": {
+    "id": "Bahasa Indonesia",
+    "en": "English"
+  },
+  "programs": {
+    "information_systems": "Sistem Informasi",
+    "computer_engineering": "Teknik Informatika",
+    "duration": "3.5 tahun"
+  },
+  "features": {
+    "job_guarantee": "Jaminan Kerja",
+    "flexible_schedule": "Jadwal Fleksibel",
+    "hybrid_learning": "Pembelajaran Hybrid",
+    "expert_faculty": "Dosen Ahli"
+  }
+}

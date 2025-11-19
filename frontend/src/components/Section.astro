@@ -1,0 +1,31 @@
+---
+import clsx from 'clsx';
+
+interface Props {
+  background?: 'white' | 'gray' | 'blue' | 'gradient';
+  spacing?: 'sm' | 'md' | 'lg' | 'xl';
+  class?: string;
+}
+
+const { background = 'white', spacing = 'lg', class: className, ...props } = Astro.props;
+
+const backgroundClasses = {
+  white: 'bg-white',
+  gray: 'bg-gray-50',
+  blue: 'bg-blue-50',
+  gradient: 'bg-gradient-to-br from-blue-50 to-orange-50',
+};
+
+const spacingClasses = {
+  sm: 'py-8',
+  md: 'py-12',
+  lg: 'py-16',
+  xl: 'py-24',
+};
+
+const classes = clsx(backgroundClasses[background], spacingClasses[spacing], className);
+---
+
+<section class={classes} {...props}>
+  <slot />
+</section>

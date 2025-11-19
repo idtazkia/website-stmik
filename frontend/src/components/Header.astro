@@ -1,0 +1,83 @@
+---
+import { getLocaleFromUrl, t, localizePath } from '../utils/i18n';
+import Navigation from './Navigation.astro';
+import LanguageSwitcher from './LanguageSwitcher.astro';
+import Button from './Button.astro';
+import Container from './Container.astro';
+
+const locale = getLocaleFromUrl(Astro.url);
+const translate = (key: string) => t(locale, key);
+const localPath = (path: string) => localizePath(locale, path);
+
+// Check if user is logged in (will be implemented later)
+const isLoggedIn = false; // TODO: Get from cookie/session
+---
+
+<header class="sticky top-0 z-50 bg-white shadow-sm">
+  <Container>
+    <div class="flex items-center justify-between h-20">
+      <!-- Logo -->
+      <a href={localPath('/')} class="flex items-center space-x-3">
+        <img
+          src="/images/logo-stmik-tazkia.svg"
+          alt={translate('site.name')}
+          class="h-12 w-auto"
+        />
+        <div class="hidden sm:block">
+          <div class="text-xl font-bold text-primary-500">{translate('site.name')}</div>
+          <div class="text-xs text-gray-600">{translate('site.tagline')}</div>
+        </div>
+      </a>
+
+      <!-- Desktop Navigation -->
+      <Navigation locale={locale} />
+
+      <!-- Right Section -->
+      <div class="flex items-center space-x-4">
+        <LanguageSwitcher locale={locale} />
+
+        {
+          isLoggedIn ? (
+            <>
+              <Button
+                href={localPath('/dashboard')}
+                variant="ghost"
+                size="sm"
+                class="hidden lg:inline-flex"
+              >
+                {translate('nav.dashboard')}
+              </Button>
+              <Button
+                href={localPath('/logout')}
+                variant="outline"
+                size="sm"
+                class="hidden lg:inline-flex"
+              >
+                {translate('nav.logout')}
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                href={localPath('/login')}
+                variant="ghost"
+                size="sm"
+                class="hidden lg:inline-flex"
+              >
+                {translate('nav.login')}
+              </Button>
+              <Button
+                href={localPath('/register')}
+                variant="primary"
+                size="sm"
+                class="hidden lg:inline-flex"
+              >
+                {translate('nav.register')}
+              </Button>
+            </>
+          )
+        }
+      </div>
+    </div>
+  </Container>
+</header>

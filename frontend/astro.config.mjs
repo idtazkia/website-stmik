@@ -9,6 +9,10 @@ import sitemap from '@astrojs/sitemap';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://youruni.edu', // Update with actual domain
+  i18n: {
+    defaultLocale: 'id',
+    locales: ['id', 'en'],
+  },
   vite: {
     plugins: [tailwindcss()]
   },

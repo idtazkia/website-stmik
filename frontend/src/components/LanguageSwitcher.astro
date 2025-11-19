@@ -1,0 +1,88 @@
+---
+import { t, type Locale } from '../utils/i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const currentPath = Astro.url.pathname;
+const translate = (key: string) => t(locale, key);
+
+// Remove locale prefix from path to get base path
+const basePath = currentPath.replace(/^\/(id|en)/, '') || '/';
+
+const languages = [
+  { code: 'id' as Locale, label: translate('language.id') },
+  { code: 'en' as Locale, label: translate('language.en') },
+];
+---
+
+<div class="relative inline-block">
+  <button
+    id="language-button"
+    class="flex items-center space-x-2 px-3 py-2 text-gray-700 hover:text-primary-500 rounded-lg hover:bg-gray-100 transition-colors"
+    aria-label="Change language"
+  >
+    <svg
+      class="w-5 h-5"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"
+      ></path>
+    </svg>
+    <span class="text-sm font-medium uppercase">{locale}</span>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M19 9l-7 7-7-7"></path>
+    </svg>
+  </button>
+
+  <div
+    id="language-dropdown"
+    class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50"
+  >
+    <div class="py-1">
+      {
+        languages.map((lang) => (
+          <a
+            href={lang.code === 'id' ? basePath : `/${lang.code}${basePath}`}
+            class:list={[
+              'block px-4 py-2 text-sm hover:bg-gray-100 transition-colors',
+              locale === lang.code
+                ? 'text-primary-500 font-semibold bg-primary-50'
+                : 'text-gray-700',
+            ]}
+          >
+            {lang.label}
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</div>
+
+<script>
+  const button = document.getElementById('language-button');
+  const dropdown = document.getElementById('language-dropdown');
+
+  button?.addEventListener('click', () => {
+    dropdown?.classList.toggle('hidden');
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!button?.contains(e.target as Node) && !dropdown?.contains(e.target as Node)) {
+      dropdown?.classList.add('hidden');
+    }
+  });
+</script>
