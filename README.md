@@ -597,63 +597,185 @@ sequenceDiagram
 
 ---
 
+## Repository Strategy
+
+### Monorepo Approach (Recommended)
+
+This project uses a **single repository** (monorepo) containing both frontend and backend code.
+
+**Why monorepo?**
+- ✅ Single source of truth for all code
+- ✅ Easier to keep frontend/backend in sync
+- ✅ Atomic commits for cross-stack features
+- ✅ Can share TypeScript types, constants, validation schemas
+- ✅ Better code review (see full context of changes)
+- ✅ Simpler for small teams
+
+**Independent deployments:**
+- GitHub Actions can deploy frontend and backend separately
+- Changes to `frontend/` only trigger frontend deployment
+- Changes to `backend/` only trigger backend deployment
+
+---
+
 ## Project Structure
 
 ```
-campus-website/
-├── marketing/                    # Static site repo
-│   ├── .github/
-│   │   └── workflows/
-│   │       └── deploy.yml       # GitHub Actions
+campus-website/                       # Single monorepo
+├── .github/
+│   └── workflows/
+│       ├── deploy-frontend.yml      # Deploy Astro + Workers to Cloudflare
+│       └── deploy-backend.yml       # Deploy Express.js to VPS
+│
+├── frontend/                        # Astro + Cloudflare Workers
 │   ├── src/
-│   │   ├── content/             # Markdown content
+│   │   ├── content/                 # Markdown content
 │   │   │   ├── programs/
+│   │   │   │   ├── computer-science.md
+│   │   │   │   ├── business.md
+│   │   │   │   └── engineering.md
 │   │   │   ├── about/
+│   │   │   │   ├── history.md
+│   │   │   │   └── campus.md
 │   │   │   └── admissions/
-│   │   ├── pages/               # Astro pages
-│   │   ├── components/          # Reusable components
-│   │   └── layouts/             # Page layouts
-│   ├── functions/               # Cloudflare Workers (BFF)
+│   │   │       ├── requirements.md
+│   │   │       └── process.md
+│   │   ├── pages/                   # Astro pages
+│   │   │   ├── index.astro         # Homepage
+│   │   │   ├── login.astro
+│   │   │   ├── register.astro
+│   │   │   ├── dashboard.astro
+│   │   │   └── apply.astro
+│   │   ├── components/              # Reusable components
+│   │   │   ├── Header.astro
+│   │   │   ├── Footer.astro
+│   │   │   └── ApplicationForm.astro
+│   │   └── layouts/                 # Page layouts
+│   │       ├── BaseLayout.astro
+│   │       └── DashboardLayout.astro
+│   ├── functions/                   # Cloudflare Workers (BFF)
 │   │   ├── auth/
 │   │   │   ├── google/
-│   │   │   │   ├── login.js
-│   │   │   │   └── callback.js
-│   │   │   ├── login.js         # Email/password
-│   │   │   └── logout.js
+│   │   │   │   ├── login.js        # Initiate Google OIDC
+│   │   │   │   └── callback.js     # Handle Google callback
+│   │   │   ├── login.js            # Email/password login
+│   │   │   ├── register.js         # User registration
+│   │   │   └── logout.js           # Logout
 │   │   └── applications/
-│   │       ├── submit.js
-│   │       └── status.js
-│   ├── wrangler.toml            # Cloudflare config
-│   ├── astro.config.mjs
+│   │       ├── submit.js           # Submit application
+│   │       ├── status.js           # Get application status
+│   │       └── list.js             # List user's applications
+│   ├── public/                      # Static assets
+│   │   ├── favicon.ico
+│   │   └── images/
+│   ├── wrangler.toml                # Cloudflare Workers config
+│   ├── astro.config.mjs             # Astro config
 │   └── package.json
 │
-└── backend/                     # Backend API repo
-    ├── src/
-    │   ├── routes/
-    │   │   ├── auth.js
-    │   │   ├── applications.js
-    │   │   └── users.js
-    │   ├── middleware/
-    │   │   ├── authenticateToken.js
-    │   │   └── rateLimiter.js
-    │   ├── models/
-    │   │   ├── User.js
-    │   │   └── Application.js
-    │   └── index.js             # Express app
-    ├── migrations/              # Database migrations
-    ├── .env.example
-    └── package.json
+├── backend/                         # Express.js API
+│   ├── src/
+│   │   ├── routes/
+│   │   │   ├── auth.js             # Authentication endpoints
+│   │   │   ├── applications.js     # Application CRUD
+│   │   │   └── users.js            # User management
+│   │   ├── middleware/
+│   │   │   ├── authenticateToken.js # JWT verification
+│   │   │   ├── rateLimiter.js      # Rate limiting
+│   │   │   └── errorHandler.js     # Error handling
+│   │   ├── models/
+│   │   │   ├── User.js             # User model
+│   │   │   └── Application.js      # Application model
+│   │   ├── config/
+│   │   │   └── database.js         # Database connection
+│   │   └── index.js                # Express app entry point
+│   ├── migrations/                  # Database migrations
+│   │   ├── 001_create_users.sql
+│   │   └── 002_create_applications.sql
+│   ├── tests/                       # Backend tests
+│   │   ├── auth.test.js
+│   │   └── applications.test.js
+│   ├── .env.example                 # Environment variables template
+│   └── package.json
+│
+├── shared/                          # Shared code (optional but recommended)
+│   ├── types/                       # TypeScript types
+│   │   ├── User.ts
+│   │   ├── Application.ts
+│   │   └── index.ts
+│   ├── constants/
+│   │   ├── applicationStatus.ts    # 'pending' | 'approved' | 'rejected'
+│   │   └── userRoles.ts            # 'registrant' | 'staff'
+│   └── validators/
+│       └── applicationSchema.ts    # Shared validation logic
+│
+├── docs/                            # Documentation
+│   ├── API.md                       # API documentation
+│   ├── DEPLOYMENT.md                # Deployment guide
+│   └── DEVELOPMENT.md               # Development setup
+│
+├── package.json                     # Root package.json (npm workspaces)
+├── .gitignore
+└── README.md
 ```
+
+### Using npm Workspaces
+
+**Root package.json:**
+```json
+{
+  "name": "campus-website",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend",
+    "shared"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspaces",
+    "build": "npm run build --workspaces",
+    "deploy:frontend": "npm run deploy -w frontend",
+    "deploy:backend": "npm run deploy -w backend",
+    "test": "npm run test --workspaces"
+  }
+}
+```
+
+**Benefits:**
+- Single `npm install` at root installs all packages
+- Shared dependencies are deduplicated
+- Easy to run scripts across workspaces
+- `shared/` package can be imported by both frontend and backend
 
 ---
 
 ## Development Workflow
 
+### Initial Setup
+
+```bash
+# Clone repository
+git clone https://github.com/yourorg/campus-website.git
+cd campus-website
+
+# Install all dependencies (uses npm workspaces)
+npm install
+
+# This installs dependencies for:
+# - frontend/
+# - backend/
+# - shared/
+```
+
 ### Local Development
 
 ```bash
+# Option 1: Run everything
+npm run dev
+
+# Option 2: Run individually
+
 # Frontend (Astro + BFF)
-cd marketing
+cd frontend
 npm install
 npm run dev                      # http://localhost:4321
 
@@ -684,10 +806,100 @@ NODE_ENV=development
 
 ### Deployment
 
+#### Automated Deployment via GitHub Actions
+
+The monorepo uses path-based triggers to deploy only what changed.
+
+**Frontend Deployment (`.github/workflows/deploy-frontend.yml`):**
+```yaml
+name: Deploy Frontend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+      - 'shared/**'
+      - '.github/workflows/deploy-frontend.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Build Astro site
+        working-directory: ./frontend
+        run: npm run build
+
+      - name: Deploy to Cloudflare Pages
+        working-directory: ./frontend
+        run: npx wrangler pages deploy dist --project-name=campus-website
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+      - name: Deploy Cloudflare Workers (BFF)
+        working-directory: ./frontend
+        run: npx wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+```
+
+**Backend Deployment (`.github/workflows/deploy-backend.yml`):**
+```yaml
+name: Deploy Backend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - 'shared/**'
+      - '.github/workflows/deploy-backend.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /var/www/campus-website
+            git pull origin main
+            cd backend
+            npm install --production
+            npm run migrate
+            pm2 restart campus-backend
+```
+
+**Key Features:**
+- ✅ Frontend deploys only when `frontend/` or `shared/` changes
+- ✅ Backend deploys only when `backend/` or `shared/` changes
+- ✅ Both can deploy independently and simultaneously
+- ✅ Shared types trigger both deployments (ensures consistency)
+
+#### Manual Deployment
+
 **Frontend to Cloudflare:**
 ```bash
-# Deploy static site + workers
-npx wrangler deploy
+cd frontend
+npx wrangler pages deploy dist --project-name=campus-website
+npx wrangler deploy  # Deploy Workers (BFF)
 ```
 
 **Backend to VPS:**
@@ -695,18 +907,82 @@ npx wrangler deploy
 # SSH to VPS
 ssh user@your-vps.com
 
+# Navigate to project
+cd /var/www/campus-website
+
 # Pull latest code
 git pull origin main
 
 # Install dependencies
-npm install
+cd backend
+npm install --production
 
 # Run migrations
 npm run migrate
 
 # Restart service
-pm2 restart backend
+pm2 restart campus-backend
 ```
+
+### Sharing Code Between Frontend and Backend
+
+The `shared/` directory contains code used by both frontend and backend.
+
+**Example: Shared TypeScript Types**
+
+**shared/types/Application.ts:**
+```typescript
+export interface Application {
+  id: number;
+  userId: number;
+  program: string;
+  status: 'pending' | 'approved' | 'rejected';
+  submittedAt: Date;
+  documents?: {
+    transcript: string;
+    idCard: string;
+    photo: string;
+  };
+}
+
+export type ApplicationStatus = Application['status'];
+```
+
+**Backend usage (backend/src/routes/applications.js):**
+```javascript
+// Import shared types
+import type { Application } from '../../../shared/types/Application';
+
+router.get('/applications', async (req, res) => {
+  const applications: Application[] = await db.query(
+    'SELECT * FROM applications WHERE user_id = $1',
+    [req.user.userId]
+  );
+
+  res.json(applications);
+});
+```
+
+**Frontend usage (frontend/functions/applications/list.js):**
+```javascript
+// Import shared types
+import type { Application } from '../../../shared/types/Application';
+
+export async function onRequestGet(context) {
+  const response = await fetch(`${env.BACKEND_URL}/applications`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+
+  const applications: Application[] = await response.json();
+  return new Response(JSON.stringify(applications));
+}
+```
+
+**Benefits:**
+- ✅ Type safety across full stack
+- ✅ Single source of truth for data structures
+- ✅ Change types once, reflected everywhere
+- ✅ Catch breaking changes at compile time
 
 ---
 
