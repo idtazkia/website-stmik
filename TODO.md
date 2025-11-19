@@ -1,35 +1,65 @@
 # Campus Website - Implementation TODO
 
+## Current Status (Updated: 2025-01-19)
+
+**Live Site:** https://dev.stmik.tazkia.ac.id/
+
+### ✅ Completed
+- **Phase 1 (Partial):** Repository setup, Cloudflare Pages deployment
+- **Phase 3 (Partial):** Marketing website foundation
+  - Bilingual static site (Indonesian & English)
+  - Homepage, About page, Lecturer profiles
+  - Responsive design with Tailwind CSS
+  - Custom i18n system
+  - SEO optimization (meta tags, sitemap)
+
+### 🚧 In Progress
+- Phase 3: Additional marketing pages (Programs, Contact, Admissions, News)
+
+### 📋 Pending
+- Phase 1: VPS & backend infrastructure (on hold - static site first)
+- Phase 2: Backend API development
+- Phase 3: Authentication pages, Application portal, Admin interface
+- Phase 4-8: BFF layer, deployment, testing, launch
+
+### 📊 Progress
+- Phase 1: 40% complete (infrastructure pending)
+- Phase 2: 0% complete
+- Phase 3: 30% complete (foundation done, dynamic features pending)
+- Overall: ~20% complete
+
+---
+
 ## Phase 1: Project Setup
 
 ### Infrastructure Setup
-- [ ] Set up VPS with local cloud provider
+- [ ] Set up VPS with local cloud provider (DEFERRED - static site first)
   - [ ] Install Node.js 20+
   - [ ] Install PostgreSQL 14+
   - [ ] Configure firewall (allow ports 80, 443, 22)
   - [ ] Install pm2 for process management
   - [ ] Set up nginx as reverse proxy
-- [ ] Create Cloudflare account
-  - [ ] Set up Cloudflare Workers
-  - [ ] Set up Cloudflare Pages
-  - [ ] Configure custom domain
-- [ ] Set up Google Cloud project for OIDC
+- [x] Create Cloudflare account
+  - [ ] Set up Cloudflare Workers (pending)
+  - [x] Set up Cloudflare Pages
+  - [x] Configure custom domain (dev.stmik.tazkia.ac.id)
+- [ ] Set up Google Cloud project for OIDC (pending)
   - [ ] Create OAuth 2.0 credentials
   - [ ] Configure redirect URIs
   - [ ] Save client ID and client secret
 
 ### Repository Setup
-- [ ] Initialize monorepo structure
-  - [ ] Create `frontend/` directory
-  - [ ] Create `backend/` directory
-  - [ ] Create `shared/` directory
-  - [ ] Create `docs/` directory
-  - [ ] Set up root `package.json` with workspaces
-  - [ ] Create `.gitignore`
-- [ ] Set up GitHub Actions
-  - [ ] Create `.github/workflows/deploy-frontend.yml`
-  - [ ] Create `.github/workflows/deploy-backend.yml`
-  - [ ] Configure GitHub secrets (CLOUDFLARE_API_TOKEN, VPS_HOST, etc.)
+- [x] Initialize monorepo structure
+  - [x] Create `frontend/` directory
+  - [ ] Create `backend/` directory (pending)
+  - [ ] Create `shared/` directory (pending)
+  - [x] Create `docs/` directory
+  - [ ] Set up root `package.json` with workspaces (using frontend only currently)
+  - [x] Create `.gitignore`
+- [x] Set up GitHub repository (https://github.com/endymuhardin/website-stmik)
+- [ ] Set up GitHub Actions (REMOVED - using Cloudflare Pages auto-deploy)
+  - [x] ~~Create `.github/workflows/deploy-frontend.yml`~~ (removed in favor of Cloudflare)
+  - [ ] Create `.github/workflows/deploy-backend.yml` (pending)
 
 ---
 
@@ -103,30 +133,42 @@
 ## Phase 3: Frontend Development
 
 ### Astro Site Setup
-- [ ] Initialize Astro project
-  - [ ] Install Astro
-  - [ ] Configure `astro.config.mjs`
-  - [ ] Set up Tailwind CSS
-  - [ ] Install shadcn/ui or similar component library
-- [ ] Create layouts
-  - [ ] `BaseLayout.astro` (main layout)
-  - [ ] `DashboardLayout.astro` (authenticated layout)
-- [ ] Create components
-  - [ ] `Header.astro`
-  - [ ] `Footer.astro`
-  - [ ] `Navigation.astro`
+- [x] Initialize Astro project
+  - [x] Install Astro 5.x
+  - [x] Configure `astro.config.mjs` (site, i18n, integrations)
+  - [x] Set up Tailwind CSS 4.x
+  - [x] Create custom component library (Card, Button, Container, Section)
+- [x] Create layouts
+  - [x] `BaseLayout.astro` (main layout with SEO, i18n)
+  - [x] `MarketingLayout.astro` (public pages with header/footer)
+  - [ ] `DashboardLayout.astro` (authenticated layout) - pending
+- [x] Create components
+  - [x] `Header.astro`
+  - [x] `Footer.astro`
+  - [x] `Navigation.astro` (desktop & mobile with language switcher)
+  - [x] `LanguageSwitcher.astro`
+  - [x] `Card.astro`, `Button.astro`, `Container.astro`, `Section.astro`
+- [x] Implement custom i18n system (no astro-i18next dependency)
+  - [x] `utils/i18n.ts` with locale detection and translation
+  - [x] Translation files: `public/locales/id/common.json`, `public/locales/en/common.json`
+  - [x] Bilingual routing: `/` (ID), `/en/` (EN)
 
 ### Marketing Pages (Static)
-- [ ] Create content files
-  - [ ] `content/programs/*.md` (program descriptions)
-  - [ ] `content/about/*.md` (about campus)
-  - [ ] `content/admissions/*.md` (admission requirements)
-- [ ] Build static pages
-  - [ ] Homepage (`pages/index.astro`)
-  - [ ] Programs listing (`pages/programs/index.astro`)
-  - [ ] Program detail pages (`pages/programs/[slug].astro`)
-  - [ ] About page (`pages/about.astro`)
-  - [ ] Contact page (`pages/contact.astro`)
+- [x] Create content collection system
+  - [x] `content/lecturers/*.md` (faculty profiles with frontmatter)
+  - [ ] `content/programs/*.md` (program descriptions) - pending
+  - [ ] `content/about/*.md` (about campus) - pending
+  - [ ] `content/admissions/*.md` (admission requirements) - pending
+- [x] Build static pages (bilingual)
+  - [x] Homepage (`pages/index.astro`, `pages/en/index.astro`)
+  - [x] About page (`pages/about.astro`, `pages/en/about.astro`)
+  - [x] Lecturers listing (`pages/lecturers/index.astro`, `pages/en/lecturers/index.astro`)
+  - [x] Lecturer profiles (`pages/lecturers/[slug].astro`, `pages/en/lecturers/[slug].astro`)
+  - [ ] Programs listing (`pages/programs/index.astro`) - pending
+  - [ ] Program detail pages (`pages/programs/[slug].astro`) - pending
+  - [ ] Admissions page (`pages/admissions.astro`) - pending
+  - [ ] News listing/detail pages - pending
+  - [ ] Contact page (`pages/contact.astro`) - pending
 
 ### Authentication Pages
 - [ ] Build auth UI

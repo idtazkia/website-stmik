@@ -1,6 +1,33 @@
-# Campus Website
+# Campus Website - STMIK Tazkia
 
 > Modern, secure, and cost-effective campus admission system built with Astro, Express.js, and Cloudflare.
+
+**🌐 Live Site:** https://dev.stmik.tazkia.ac.id/
+
+## 🎯 Current Status (Updated: 2025-01-19)
+
+**Phase:** Marketing Site Foundation (Phase 3 - 30% Complete)
+
+### ✅ Completed
+- Bilingual static site (Indonesian & English)
+- Homepage with hero, features, programs overview
+- About page (vision, mission, programs)
+- Lecturer profiles with content collections
+- Responsive design with Tailwind CSS 4.x
+- Custom i18n system (no external dependencies)
+- SEO optimization (meta tags, sitemap, Open Graph)
+- Cloudflare Pages deployment with auto-deploy
+
+### 🚧 Next Steps
+- Programs detail pages
+- Contact page
+- Admissions information page
+- News/blog system
+- Backend API development
+- Authentication system
+- Application portal
+
+---
 
 ## 📋 Project Overview
 
@@ -142,37 +169,41 @@ campus-website/                       # Monorepo
 
 ### Prerequisites
 - Node.js 20+
-- PostgreSQL 14+
-- Cloudflare account
-- Google Cloud account (for OAuth)
+- npm or yarn
 
-### Local Development
+### Local Development (Frontend Only - Currently Available)
 
 ```bash
 # Clone repository
-git clone https://github.com/yourorg/campus-website.git
-cd campus-website
+git clone https://github.com/endymuhardin/website-stmik.git
+cd website-stmik
 
-# Install all dependencies (monorepo)
+# Navigate to frontend
+cd frontend
+
+# Install dependencies
 npm install
 
-# Set up environment variables
-cp frontend/.dev.vars.example frontend/.dev.vars
-cp backend/.env.example backend/.env
-# Edit both files with your credentials
-
-# Run database migrations
-cd backend
-npm run migrate
-
-# Start development servers
-cd ..
+# Start development server
 npm run dev
 
-# Visit:
-# Frontend: http://localhost:4321
-# Backend: http://localhost:3000
+# Visit: http://localhost:4321
+# - Homepage (ID): http://localhost:4321/
+# - Homepage (EN): http://localhost:4321/en/
+# - About: http://localhost:4321/about
+# - Lecturers: http://localhost:4321/lecturers
 ```
+
+### Build for Production
+
+```bash
+cd frontend
+npm run build        # Build static site
+npm run preview      # Preview production build
+```
+
+### For Backend Development (Coming Soon)
+Backend API, authentication, and application portal are planned for Phase 2. See [TODO.md](TODO.md) for the implementation roadmap.
 
 📖 **[Read Full Deployment Guide →](docs/DEPLOYMENT.md)**
 
@@ -184,27 +215,32 @@ See **[TODO.md](TODO.md)** for the complete implementation roadmap.
 
 ### Quick Status
 
-**Phase 1: Project Setup** - [ ] Not Started
-- [ ] VPS setup
-- [ ] Cloudflare setup
-- [ ] Google OAuth setup
-- [ ] Repository initialization
+**Phase 1: Project Setup** - [x] 40% Complete
+- [x] Repository initialization
+- [x] Cloudflare Pages setup
+- [x] Custom domain configured
+- [ ] VPS setup (deferred)
+- [ ] Google OAuth setup (pending)
 
-**Phase 2: Backend Development** - [ ] Not Started
+**Phase 2: Backend Development** - [ ] 0% Complete
 - [ ] Database schema
 - [ ] Authentication system
 - [ ] API endpoints
+- [ ] File upload system
 
-**Phase 3: Frontend Development** - [ ] Not Started
-- [ ] Marketing pages
+**Phase 3: Frontend Development** - [x] 30% Complete
+- [x] Astro site setup with Tailwind CSS
+- [x] Bilingual system (ID/EN)
+- [x] Homepage, About, Lecturers pages
+- [ ] Programs, Contact, Admissions pages
 - [ ] Application portal
 - [ ] Admin interface
 
-**Phase 4: BFF Layer** - [ ] Not Started
+**Phase 4: BFF Layer** - [ ] 0% Complete
 - [ ] Authentication handlers
 - [ ] API proxy functions
 
-**Phase 5-8:** Shared code, deployment, testing, launch
+**Phase 5-8:** Shared code, deployment, testing, launch (0% complete)
 
 📖 **[View Full Checklist →](TODO.md)**
 
