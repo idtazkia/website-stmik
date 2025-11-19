@@ -13,6 +13,10 @@ dist/
 .vercel/
 .netlify/
 
+# Raw content and source materials
+raw-content/
+frontend/raw-content/
+
 # Test results
 test-results/
 playwright-report/

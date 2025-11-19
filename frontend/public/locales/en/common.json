@@ -52,7 +52,21 @@
     "job_guarantee": "Job Guarantee",
     "flexible_schedule": "Flexible Schedule",
     "hybrid_learning": "Hybrid Learning",
-    "expert_faculty": "Expert Faculty"
+    "expert_faculty": "Expert Faculty",
+    "project_based_learning": "Learn Through Real Projects",
+    "project_based_desc": "16 weeks, 4 integrated courses, 1 industry-ready product"
+  },
+  "stats": {
+    "title": "Our Learning Method",
+    "subtitle": "Real project-based education that prepares you for the professional world",
+    "weeks": "Weeks",
+    "weeks_label": "Project duration per semester",
+    "courses": "Courses",
+    "courses_label": "Integrated in one project",
+    "products": "Real Product",
+    "products_label": "Industry-ready deliverable",
+    "practical": "Practical",
+    "practical_label": "Direct real-world experience"
   },
   "lecturers": {
     "title": "Faculty Profiles",
@@ -78,6 +92,17 @@
     "mission_3": "Provide community service through technology application for independent, productive communities",
     "mission_4": "Maintain governance standards and ethical development supporting lifelong learning",
     "mission_5": "Create empowering learning environments developing communication, analysis, and creative decision-making skills",
-    "mission_6": "Build partnerships with stakeholders and institutions both nationally and internationally"
+    "mission_6": "Build partnerships with stakeholders and institutions both nationally and internationally",
+    "unique_approach_title": "Our Unique Approach",
+    "unique_approach_subtitle": "Real Project-Based Education Integrating 4 Courses",
+    "unique_approach_intro": "At STMIK Tazkia, we implement an innovative learning method that combines 4 courses in one industry project over 16 weeks. This approach ensures students not only learn theory, but immediately apply it in real projects.",
+    "unique_approach_integration_title": "4-Course Integration",
+    "unique_approach_integration_desc": "Each semester, students work on one major project that integrates Project Management, Software Engineering, Prototyping, and Database. All courses run in parallel and support each other.",
+    "unique_approach_industry_title": "Real Industry Collaboration",
+    "unique_approach_industry_desc": "Projects are not simulations, but actual needs from industry partners. Students interact directly with stakeholders, receive professional feedback, and produce ready-to-use products.",
+    "unique_approach_quality_title": "Industry Quality Standards",
+    "unique_approach_quality_desc": "All projects follow CMMI Maturity Level 2 standards and are tested using the System Usability Scale (SUS). Students learn methodologies and tools used in professional work environments.",
+    "unique_approach_outcomes_title": "Measurable Results",
+    "unique_approach_outcomes_desc": "Our graduates have portfolios of real projects, industry connections, and professional skills (communication, teamwork, presentation) that make them job-ready from day one."
   }
 }

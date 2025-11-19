@@ -51,7 +51,7 @@ const localPath = (path: string) => localizePath(locale, path);
           Keunggulan Kami
         </h2>
       </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
         <div class="text-center space-y-4">
           <div class="w-16 h-16 bg-secondary-100 rounded-full flex items-center justify-center mx-auto">
             <svg class="w-8 h-8 text-secondary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -59,7 +59,7 @@ const localPath = (path: string) => localizePath(locale, path);
             </svg>
           </div>
           <h3 class="text-xl font-semibold text-gray-900">{translate('features.job_guarantee')}</h3>
-          <p class="text-gray-600">Program penempatan kerja untuk lulusan terbaik</p>
+          <p class="text-gray-600">Job placement program for top graduates</p>
         </div>
 
         <div class="text-center space-y-4">
@@ -69,7 +69,7 @@ const localPath = (path: string) => localizePath(locale, path);
             </svg>
           </div>
           <h3 class="text-xl font-semibold text-gray-900">{translate('features.flexible_schedule')}</h3>
-          <p class="text-gray-600">Jadwal kuliah yang fleksibel untuk pekerja</p>
+          <p class="text-gray-600">Flexible class schedule for working professionals</p>
         </div>
 
         <div class="text-center space-y-4">
@@ -79,7 +79,7 @@ const localPath = (path: string) => localizePath(locale, path);
             </svg>
           </div>
           <h3 class="text-xl font-semibold text-gray-900">{translate('features.hybrid_learning')}</h3>
-          <p class="text-gray-600">Pembelajaran online dan offline yang efektif</p>
+          <p class="text-gray-600">Effective online and offline learning</p>
         </div>
 
         <div class="text-center space-y-4">
@@ -89,7 +89,53 @@ const localPath = (path: string) => localizePath(locale, path);
             </svg>
           </div>
           <h3 class="text-xl font-semibold text-gray-900">{translate('features.expert_faculty')}</h3>
-          <p class="text-gray-600">Dosen praktisi dengan pengalaman 10+ tahun</p>
+          <p class="text-gray-600">Practitioner lecturers with 10+ years of experience</p>
+        </div>
+
+        <div class="text-center space-y-4 md:col-span-2 lg:col-span-1">
+          <div class="w-16 h-16 bg-secondary-100 rounded-full flex items-center justify-center mx-auto">
+            <svg class="w-8 h-8 text-secondary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 008 10.172V5L7 4z"></path>
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold text-gray-900">{translate('features.project_based_learning')}</h3>
+          <p class="text-gray-600">{translate('features.project_based_desc')}</p>
+        </div>
+      </div>
+    </Container>
+  </Section>
+
+  <!-- Statistics Section -->
+  <Section background="gradient" spacing="lg">
+    <Container>
+      <div class="text-center mb-12">
+        <h2 class="text-3xl md:text-4xl font-bold text-primary-500 mb-4">
+          {translate('stats.title')}
+        </h2>
+        <p class="text-xl text-gray-700 max-w-3xl mx-auto">
+          {translate('stats.subtitle')}
+        </p>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
+        <div class="text-center space-y-2">
+          <div class="text-5xl font-bold text-secondary-500">16</div>
+          <div class="text-xl font-semibold text-gray-900">{translate('stats.weeks')}</div>
+          <p class="text-sm text-gray-600">{translate('stats.weeks_label')}</p>
+        </div>
+        <div class="text-center space-y-2">
+          <div class="text-5xl font-bold text-primary-500">4</div>
+          <div class="text-xl font-semibold text-gray-900">{translate('stats.courses')}</div>
+          <p class="text-sm text-gray-600">{translate('stats.courses_label')}</p>
+        </div>
+        <div class="text-center space-y-2">
+          <div class="text-5xl font-bold text-secondary-500">1</div>
+          <div class="text-xl font-semibold text-gray-900">{translate('stats.products')}</div>
+          <p class="text-sm text-gray-600">{translate('stats.products_label')}</p>
+        </div>
+        <div class="text-center space-y-2">
+          <div class="text-5xl font-bold text-primary-500">100%</div>
+          <div class="text-xl font-semibold text-gray-900">{translate('stats.practical')}</div>
+          <p class="text-sm text-gray-600">{translate('stats.practical_label')}</p>
         </div>
       </div>
     </Container>

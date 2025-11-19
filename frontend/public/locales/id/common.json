@@ -52,7 +52,21 @@
     "job_guarantee": "Jaminan Kerja",
     "flexible_schedule": "Jadwal Fleksibel",
     "hybrid_learning": "Pembelajaran Hybrid",
-    "expert_faculty": "Dosen Ahli"
+    "expert_faculty": "Dosen Ahli",
+    "project_based_learning": "Belajar Melalui Proyek Nyata",
+    "project_based_desc": "16 minggu, 4 mata kuliah terintegrasi, 1 produk industri yang siap pakai"
+  },
+  "stats": {
+    "title": "Metode Pembelajaran Kami",
+    "subtitle": "Kuliah berbasis proyek nyata yang mempersiapkan Anda untuk dunia kerja",
+    "weeks": "Minggu",
+    "weeks_label": "Durasi proyek per semester",
+    "courses": "Mata Kuliah",
+    "courses_label": "Terintegrasi dalam satu proyek",
+    "products": "Produk Nyata",
+    "products_label": "Siap pakai untuk industri",
+    "practical": "Praktis",
+    "practical_label": "Langsung terjun ke dunia nyata"
   },
   "lecturers": {
     "title": "Profil Dosen",
@@ -78,6 +92,17 @@
     "mission_3": "Memberikan layanan kepada masyarakat melalui aplikasi teknologi untuk masyarakat yang mandiri dan produktif",
     "mission_4": "Mempertahankan standar tata kelola dan pengembangan etika yang mendukung pembelajaran sepanjang hayat",
     "mission_5": "Menciptakan lingkungan pembelajaran yang memberdayakan mengembangkan komunikasi, analisis, dan keterampilan pengambilan keputusan yang kreatif",
-    "mission_6": "Membangun kemitraan dengan pemangku kepentingan dan institusi baik nasional maupun internasional"
+    "mission_6": "Membangun kemitraan dengan pemangku kepentingan dan institusi baik nasional maupun internasional",
+    "unique_approach_title": "Pendekatan Unik Kami",
+    "unique_approach_subtitle": "Kuliah Berbasis Proyek Nyata yang Mengintegrasikan 4 Mata Kuliah",
+    "unique_approach_intro": "Di STMIK Tazkia, kami menerapkan metode pembelajaran inovatif yang menggabungkan 4 mata kuliah dalam satu proyek industri selama 16 minggu. Pendekatan ini memastikan mahasiswa tidak hanya belajar teori, tetapi langsung menerapkannya dalam proyek nyata.",
+    "unique_approach_integration_title": "Integrasi 4 Mata Kuliah",
+    "unique_approach_integration_desc": "Setiap semester, mahasiswa mengerjakan satu proyek besar yang mengintegrasikan Project Management, Software Engineering, Prototyping, dan Database. Semua mata kuliah ini berjalan paralel dan saling mendukung.",
+    "unique_approach_industry_title": "Kolaborasi Industri Nyata",
+    "unique_approach_industry_desc": "Proyek yang dikerjakan bukan simulasi, melainkan kebutuhan nyata dari mitra industri. Mahasiswa berinteraksi langsung dengan stakeholder, menerima feedback profesional, dan menghasilkan produk yang siap digunakan.",
+    "unique_approach_quality_title": "Standar Kualitas Industri",
+    "unique_approach_quality_desc": "Semua proyek mengikuti standar CMMI Maturity Level 2 dan diuji menggunakan System Usability Scale (SUS). Mahasiswa belajar metodologi dan tools yang digunakan di dunia kerja profesional.",
+    "unique_approach_outcomes_title": "Hasil yang Terukur",
+    "unique_approach_outcomes_desc": "Lulusan kami memiliki portfolio proyek nyata, koneksi industri, dan keterampilan profesional (komunikasi, teamwork, presentasi) yang membuat mereka siap kerja sejak hari pertama."
   }
 }
