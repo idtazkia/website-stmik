@@ -1,0 +1,23 @@
+# Ansible Vault Password Files
+.vault_password
+.ansible_vault_password
+vault_password.txt
+*.vault
+
+# Ansible Runtime Files
+*.retry
+.ansible/
+
+# Inventory with real IPs (use .example instead)
+inventory/production.ini
+inventory/staging.ini
+
+# Decrypted secrets (should never exist)
+group_vars/production_decrypted.yml
+group_vars/staging_decrypted.yml
+
+# Local configuration with real values
+ansible.cfg
+group_vars/all.yml
+group_vars/production.yml
+group_vars/staging.yml

@@ -106,6 +106,26 @@ Replace `YOUR_VPS_IP` with your actual VPS IP address.
 
 ### 2. Configure Variables
 
+**Step 1: Create Vault Password File**
+
+```bash
+# Create vault password file (NEVER commit this!)
+echo "your-strong-vault-password" > ~/.ansible_vault_password
+
+# Secure the file
+chmod 600 ~/.ansible_vault_password
+```
+
+**Step 2: Configure Ansible to Use Vault Password**
+
+Edit `ansible.cfg`:
+```ini
+[defaults]
+vault_password_file = ~/.ansible_vault_password
+```
+
+**Step 3: Create Non-Sensitive Variables**
+
 Edit `group_vars/all.yml`:
 
 ```yaml
@@ -120,28 +140,58 @@ postgresql_version: "16"
 
 # Domain
 domain: "api.stmik.tazkia.ac.id"
+
+# Environment
+env: production
 ```
 
-Edit `group_vars/production.yml` and encrypt sensitive data:
+**Step 4: Create and Encrypt Sensitive Variables**
+
+Create `group_vars/production.yml` with **encrypted** secrets:
+
+```bash
+# Generate strong random passwords
+DB_PASSWORD=$(openssl rand -base64 32)
+JWT_SECRET=$(openssl rand -base64 64)
+
+# Encrypt and add to group_vars/production.yml
+ansible-vault encrypt_string "$DB_PASSWORD" --name 'database_password' >> group_vars/production.yml
+ansible-vault encrypt_string "$JWT_SECRET" --name 'jwt_secret' >> group_vars/production.yml
+ansible-vault encrypt_string 'your-google-client-id' --name 'google_client_id' >> group_vars/production.yml
+ansible-vault encrypt_string 'your-google-client-secret' --name 'google_client_secret' >> group_vars/production.yml
+```
+
+**Example `group_vars/production.yml` (encrypted):**
 
 ```yaml
-# Database
+# Database Configuration
 database_name: campus
 database_user: campus_user
 database_password: !vault |
-  $ANSIBLE_VAULT;1.1;AES256
-  [encrypted password here]
+          $ANSIBLE_VAULT;1.1;AES256
+          36623262613465646437393739653234656538306461653266623938316566653932643234663331
+          3265326562623539653939636233306333643035613639640a653265343435653831623339616236
+          65346435656335363265626538646164633236353937353364326232343239323963396363663237
+          3034613033313866660a313337613762396165386636393765656438393166653335656565313831
+          6664
 
-# Application
+# Application Secrets
 jwt_secret: !vault |
-  $ANSIBLE_VAULT;1.1;AES256
-  [encrypted JWT secret here]
-```
+          $ANSIBLE_VAULT;1.1;AES256
+          62303936313636323531356137396362646638656564613738346237613962353866613363613262
+          3962333538643233363030353365313436316630303066310a623934323632636339393139653033
+          33643834383439633831323161646537353465666231656234343332336366393738343037633931
+          6364303633656130370a643466373339353030353831383264383361343734386335643335343130
+          3934
 
-To encrypt secrets:
-```bash
-ansible-vault encrypt_string 'your-database-password' --name 'database_password'
-ansible-vault encrypt_string 'your-jwt-secret' --name 'jwt_secret'
+# OAuth Configuration
+google_client_id: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          [encrypted client ID]
+
+google_client_secret: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          [encrypted client secret]
 ```
 
 ---
@@ -382,13 +432,70 @@ ansible-playbook -i inventory/production.ini playbooks/maintenance.yml --tags ba
 
 ## Security
 
+### Ansible Vault Best Practices
+
+**CRITICAL: All sensitive data MUST be encrypted with Ansible Vault**
+
+1. **Create Vault Password File:**
+   ```bash
+   # Generate strong vault password
+   openssl rand -base64 32 > ~/.ansible_vault_password
+   chmod 600 ~/.ansible_vault_password
+   ```
+
+2. **Configure ansible.cfg:**
+   ```ini
+   [defaults]
+   vault_password_file = ~/.ansible_vault_password
+   ```
+
+3. **Never Commit:**
+   - ❌ `~/.ansible_vault_password` - NEVER commit vault password
+   - ❌ Unencrypted secrets in `group_vars/`
+   - ✅ Encrypted vault strings in `group_vars/production.yml`
+
+4. **Encrypt All Secrets:**
+   ```bash
+   # Database password
+   ansible-vault encrypt_string "$(openssl rand -base64 32)" --name 'database_password'
+
+   # JWT secret
+   ansible-vault encrypt_string "$(openssl rand -base64 64)" --name 'jwt_secret'
+
+   # API keys
+   ansible-vault encrypt_string 'your-api-key' --name 'api_key'
+   ```
+
+5. **View Encrypted Data:**
+   ```bash
+   # View encrypted file
+   ansible-vault view group_vars/production.yml
+
+   # Edit encrypted file
+   ansible-vault edit group_vars/production.yml
+   ```
+
+6. **Rotate Vault Password:**
+   ```bash
+   # Rekey with new password
+   ansible-vault rekey group_vars/production.yml
+   ```
+
+### Security Checklist
+
 - ✅ SSH key-only authentication (passwords disabled)
 - ✅ UFW firewall (ports 22, 80, 443 only)
 - ✅ Fail2ban protecting SSH from brute-force
-- ✅ Secrets encrypted with ansible-vault
+- ✅ **ALL secrets encrypted with ansible-vault**
+- ✅ **Vault password file secured (chmod 600)**
+- ✅ **Vault password NOT in version control**
 - ✅ SSL/TLS with Let's Encrypt
 - ✅ Regular security updates
 - ✅ Non-root deployment user
+- ✅ Strong random passwords (32+ characters)
+- ✅ Database password encrypted
+- ✅ JWT secret encrypted
+- ✅ OAuth secrets encrypted
 
 ---
 

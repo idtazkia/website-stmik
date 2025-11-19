@@ -39,3 +39,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+# Ansible Vault Passwords (NEVER commit these!)
+**/.vault_password
+**/.ansible_vault_password
+**/vault_password.txt
+**/*.vault_pass

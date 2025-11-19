@@ -1,0 +1,37 @@
+# Ansible Configuration Example
+# Copy to ansible.cfg and update vault_password_file path
+
+[defaults]
+# Inventory
+inventory = inventory/production.ini
+
+# SSH Configuration
+remote_user = deploy
+host_key_checking = False
+retry_files_enabled = False
+
+# Vault Password File
+# IMPORTANT: Create ~/.ansible_vault_password first
+# Generate with: openssl rand -base64 32 > ~/.ansible_vault_password && chmod 600 ~/.ansible_vault_password
+vault_password_file = ~/.ansible_vault_password
+
+# Performance
+forks = 10
+gathering = smart
+fact_caching = jsonfile
+fact_caching_connection = /tmp/ansible_facts
+fact_caching_timeout = 86400
+
+# Output
+stdout_callback = yaml
+callbacks_enabled = timer, profile_tasks
+
+[privilege_escalation]
+become = True
+become_method = sudo
+become_user = root
+become_ask_pass = False
+
+[ssh_connection]
+pipelining = True
+ssh_args = -o ControlMaster=auto -o ControlPersist=60s

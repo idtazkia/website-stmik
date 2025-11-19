@@ -1,0 +1,46 @@
+# Production Variables - ENCRYPTED WITH ANSIBLE VAULT
+# Copy to production.yml and encrypt all secrets
+
+# IMPORTANT: DO NOT commit unencrypted secrets!
+# Use: ansible-vault encrypt_string "secret-value" --name 'variable_name'
+
+---
+# Database Configuration (non-sensitive)
+database_name: campus
+database_user: campus_user
+database_host: localhost
+database_port: 5432
+
+# Database Password (MUST BE ENCRYPTED)
+# Generate: DB_PASSWORD=$(openssl rand -base64 32)
+# Encrypt: ansible-vault encrypt_string "$DB_PASSWORD" --name 'database_password'
+database_password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          [REPLACE WITH ENCRYPTED PASSWORD]
+
+# JWT Secret (MUST BE ENCRYPTED)
+# Generate: JWT_SECRET=$(openssl rand -base64 64)
+# Encrypt: ansible-vault encrypt_string "$JWT_SECRET" --name 'jwt_secret'
+jwt_secret: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          [REPLACE WITH ENCRYPTED JWT SECRET]
+
+# Google OAuth (MUST BE ENCRYPTED)
+# Encrypt: ansible-vault encrypt_string 'your-client-id' --name 'google_client_id'
+google_client_id: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          [REPLACE WITH ENCRYPTED CLIENT ID]
+
+# Encrypt: ansible-vault encrypt_string 'your-client-secret' --name 'google_client_secret'
+google_client_secret: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          [REPLACE WITH ENCRYPTED CLIENT SECRET]
+
+# Email Configuration (if using SMTP)
+# smtp_host: smtp.gmail.com
+# smtp_port: 587
+# smtp_user: noreply@stmik.tazkia.ac.id
+# Encrypt: ansible-vault encrypt_string 'smtp-password' --name 'smtp_password'
+# smtp_password: !vault |
+#          $ANSIBLE_VAULT;1.1;AES256
+#          [REPLACE WITH ENCRYPTED SMTP PASSWORD]

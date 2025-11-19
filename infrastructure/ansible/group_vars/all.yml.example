@@ -1,0 +1,34 @@
+# Non-Sensitive Global Variables
+# Copy to all.yml
+
+---
+# Application Configuration
+app_name: "campus-backend"
+app_dir: "/var/www/campus-backend"
+app_port: 3000
+app_user: "deploy"
+
+# Software Versions
+nodejs_version: "20.x"
+postgresql_version: "16"
+nginx_version: "latest"
+pm2_version: "latest"
+
+# Domain Configuration
+domain: "api.stmik.tazkia.ac.id"
+ssl_email: "admin@stmik.tazkia.ac.id"
+
+# Environment
+env: production
+
+# Repository
+git_repo: "https://github.com/idtazkia/website-stmik.git"
+git_branch: "main"
+
+# Backup Configuration
+backup_dir: "/var/backups/campus"
+backup_retention_days: 7
+
+# System Configuration
+timezone: "Asia/Jakarta"
+locale: "en_US.UTF-8"

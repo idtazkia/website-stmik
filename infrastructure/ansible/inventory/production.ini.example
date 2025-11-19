@@ -1,0 +1,11 @@
+# Production Inventory Example
+# Copy to production.ini and update with real VPS IP
+
+[webservers]
+backend-vps ansible_host=YOUR_VPS_IP ansible_user=deploy ansible_port=22
+
+[databases]
+backend-vps ansible_host=YOUR_VPS_IP ansible_user=deploy ansible_port=22
+
+[all:vars]
+ansible_python_interpreter=/usr/bin/python3
