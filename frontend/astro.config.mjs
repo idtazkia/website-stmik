@@ -8,8 +8,7 @@ import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://endymuhardin.github.io',
-  base: '/website-stmik',
+  site: 'https://dev.stmik.tazkia.ac.id',
   i18n: {
     defaultLocale: 'id',
     locales: ['id', 'en'],
