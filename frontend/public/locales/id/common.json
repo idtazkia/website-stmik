@@ -62,5 +62,22 @@
     "education": "Pendidikan",
     "research": "Penelitian & Publikasi",
     "contact": "Kontak"
+  },
+  "about": {
+    "title": "Tentang Kami",
+    "subtitle": "Mencetak Generasi Masa Depan Indonesia yang Unggul",
+    "description": "STMIK Tazkia adalah perguruan tinggi di Bogor yang bernaung di bawah Yayasan Tazkia Cendikia",
+    "name_meaning_title": "Makna Nama Tazkia",
+    "name_meaning": "Tazkia berasal dari bahasa Arab yang bermakna pertumbuhan dan perkembangan melalui pembersihan. Institusi ini berkomitmen untuk memfasilitasi perkembangan mahasiswa.",
+    "founder": "Didirikan oleh Prof. Dr. Muhammad Syafi'i Antonio",
+    "vision_title": "Visi",
+    "vision": "Menjadi perguruan tinggi yang unggul dalam bidang teknologi informasi yang mencetak lulusan berkompeten dan berkarakter mulia",
+    "mission_title": "Misi",
+    "mission_1": "Menyelenggarakan pendidikan berkualitas yang menghasilkan lulusan unggul, berkompeten dengan karakter moral, kompetitif secara nasional dan internasional",
+    "mission_2": "Melakukan penelitian teknologi dan sistem informasi yang unggul dengan kepedulian lingkungan",
+    "mission_3": "Memberikan layanan kepada masyarakat melalui aplikasi teknologi untuk masyarakat yang mandiri dan produktif",
+    "mission_4": "Mempertahankan standar tata kelola dan pengembangan etika yang mendukung pembelajaran sepanjang hayat",
+    "mission_5": "Menciptakan lingkungan pembelajaran yang memberdayakan mengembangkan komunikasi, analisis, dan keterampilan pengambilan keputusan yang kreatif",
+    "mission_6": "Membangun kemitraan dengan pemangku kepentingan dan institusi baik nasional maupun internasional"
   }
 }

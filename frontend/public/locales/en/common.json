@@ -62,5 +62,22 @@
     "education": "Education",
     "research": "Research & Publications",
     "contact": "Contact"
+  },
+  "about": {
+    "title": "About Us",
+    "subtitle": "Shaping Indonesia's Excellent Future Generation",
+    "description": "STMIK Tazkia is a higher education institution in Bogor under Yayasan Tazkia Cendikia",
+    "name_meaning_title": "The Meaning of Tazkia",
+    "name_meaning": "Tazkia derives from Arabic, signifying growth and development through purification. The institution commits to fostering student development.",
+    "founder": "Established by Prof. Dr. Muhammad Syafi'i Antonio",
+    "vision_title": "Vision",
+    "vision": "To become an outstanding higher education institution in information technology that produces competent and morally upright graduates",
+    "mission_title": "Mission",
+    "mission_1": "Deliver quality education producing excellent, competent graduates with moral character, competitive nationally and internationally",
+    "mission_2": "Conduct superior technology and information systems research with environmental awareness",
+    "mission_3": "Provide community service through technology application for independent, productive communities",
+    "mission_4": "Maintain governance standards and ethical development supporting lifelong learning",
+    "mission_5": "Create empowering learning environments developing communication, analysis, and creative decision-making skills",
+    "mission_6": "Build partnerships with stakeholders and institutions both nationally and internationally"
   }
 }
