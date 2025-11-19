@@ -13,10 +13,10 @@ expertise:
   - AI & Machine Learning
   - Open Source Development
 education:
-  - degree: S1 Teknik Informatika
-    institution: Universitas Indonesia
-  - degree: S2 Teknologi Informasi
-    institution: Institut Teknologi Bandung
+  - degree: S1 Teknik Industri
+    institution: Sekolah Tinggi Teknologi Telkom
+  - degree: S2 Ekonomi Syariah
+    institution: Universitas Tazkia
 website: https://software.endy.muhardin.com
 github: endymuhardin
 youtube: https://youtube.com/artivisi
