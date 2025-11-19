@@ -96,7 +96,7 @@ graph TB
 ## 📁 Repository Structure
 
 ```
-website-stmik/                        # Frontend-only (backend deferred)
+website-stmik/
 ├── frontend/                         # Astro static site
 │   ├── src/
 │   │   ├── content/                 # Markdown content (lecturers, programs, etc.)
@@ -109,19 +109,34 @@ website-stmik/                        # Frontend-only (backend deferred)
 │   │   ├── images/                  # Static images
 │   │   └── locales/                 # Translation JSON files (id/en)
 │   ├── astro.config.mjs             # Astro configuration
+│   ├── TODO.md                      # Frontend implementation tasks
 │   └── package.json
+├── backend/                          # Express.js API (Phase 2)
+│   └── TODO.md                      # Backend implementation plan
+├── shared/                           # Shared TypeScript types (Phase 5)
+│   └── TODO.md                      # Shared code plan
+├── infrastructure/                   # Infrastructure as Code
+│   ├── ansible/                     # Ansible playbooks for VPS
+│   │   ├── playbooks/              # Deployment automation
+│   │   ├── inventory/              # Server inventory
+│   │   ├── roles/                  # Reusable Ansible roles
+│   │   └── README.md               # Ansible usage guide
+│   ├── scripts/                     # Deployment scripts
+│   ├── TODO.md                      # Infrastructure tasks
+│   └── README.md                    # Infrastructure overview
 ├── docs/                             # Documentation
 │   ├── ARCHITECTURE.md              # Technical design details
 │   └── DEPLOYMENT.md                # Deployment guide
-├── TODO.md                           # Implementation checklist
+├── tests/                            # E2E tests (Playwright)
+│   └── deployment-check.spec.ts    # Browser tests for deployed site
+├── TODO.md                           # High-level project overview
 ├── CLAUDE.md                         # Claude Code guidance
+├── playwright.config.ts             # Playwright configuration
 └── README.md                         # This file
 ```
 
-**Future Structure (when backend is added):**
-- `backend/` - Express.js API + PostgreSQL
-- `shared/` - Shared TypeScript types
-- Monorepo with npm workspaces
+**Current Focus:** Frontend marketing site (Phase 3)
+**Deferred:** Backend, shared types, infrastructure automation (Phase 2+)
 
 ---
 
