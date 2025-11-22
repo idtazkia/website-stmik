@@ -67,25 +67,26 @@ This document tracks all content and assets required to complete the STMIK Tazki
 
 ---
 
-### 3. Programs Pages (/programs/*) ⏳ 0% Complete
+### 3. Programs Pages (/programs/*) ⏳ 50% Complete
 
-#### Information Systems Program (/programs/information-systems)
-- [ ] **Program overview** (description, duration, degree awarded)
-- [ ] **Curriculum structure** (semester-by-semester breakdown)
-- [ ] **Specializations** (Project Management, Machine Learning, Data Analytics, Business IS)
-- [ ] **Career outcomes** (job roles, average salary, top employers)
-- [ ] **Course list** (core courses, electives, credits)
+#### Information Systems Program (/programs/information-systems) ✅ Complete
+- [x] **Program overview** (description, duration, degree awarded)
+- [x] **Curriculum structure** (semester-by-semester breakdown)
+- [x] **Specializations** (Project Management, Machine Learning, Data Analytics, Business IS)
+- [x] **Career outcomes** (job roles)
+- [x] **Course list** (core courses, electives, credits)
 - [ ] **Faculty** (lecturers teaching in this program)
 - [ ] **Admission requirements** (prerequisites, GPA, test scores)
 - [ ] **Tuition & fees** (cost breakdown, payment plans, scholarships)
 - [ ] **Student projects showcase** (3-5 example projects)
 
-#### Computer Engineering Program (/programs/computer-engineering)
-- [ ] **Program overview** (description, duration, degree awarded)
-- [ ] **Curriculum structure** (semester-by-semester breakdown)
-- [ ] **Specializations** (Cybersecurity, AI, Web Dev, Software Engineering)
-- [ ] **Career outcomes** (job roles, average salary, top employers)
-- [ ] **Course list** (core courses, electives, credits)
+#### Computer Engineering Program (/programs/computer-engineering) ✅ Complete
+- [x] **Program overview** (description, duration, degree awarded)
+- [x] **Curriculum structure** (semester-by-semester breakdown - 144 SKS, 8 semesters)
+- [x] **Specializations** (Cyber Security, AI, Software Engineering, Web Development)
+- [x] **Career outcomes** (8 job roles with descriptions)
+- [x] **Course list** (all courses with credits per semester)
+- [x] **Professional certifications** (CEH, CISSP, Google/Azure certs)
 - [ ] **Faculty** (lecturers teaching in this program)
 - [ ] **Admission requirements** (prerequisites, GPA, test scores)
 - [ ] **Tuition & fees** (cost breakdown, payment plans, scholarships)
