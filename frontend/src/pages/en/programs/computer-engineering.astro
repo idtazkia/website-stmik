@@ -9,92 +9,93 @@ const locale = getLocaleFromUrl(Astro.url);
 const translate = (key: string) => t(locale, key);
 const localPath = (path: string) => localizePath(locale, path);
 
-// Curriculum data from Kurikulum Teknik Informatika STMIK Tazkia 2024/2025
+// Curriculum data from mata-kuliah-teknik-informatika.pdf
 const semesters = [
   {
     semester: 1,
     courses: [
-      { code: 'TI.01.101', name: translate('programs.ti.courses.english'), sks: 2, category: 'mkwu' },
-      { code: 'TI.01.102', name: translate('programs.ti.courses.tazkia_value'), sks: 3, category: 'campus' },
-      { code: 'TI.01.103', name: translate('programs.ti.courses.basic_math'), sks: 2, category: 'core' },
-      { code: 'TI.01.104', name: translate('programs.ti.courses.computer_arch'), sks: 3, category: 'core' },
-      { code: 'TI.01.105', name: translate('programs.ti.courses.discrete_math'), sks: 3, category: 'core' },
-      { code: 'TI.01.106', name: translate('programs.ti.courses.basic_programming'), sks: 4, category: 'project' },
-      { code: 'TI.01.107', name: translate('programs.ti.courses.intro_it'), sks: 2, category: 'core' },
+      { code: 'MKN.101', name: translate('programs.ti.courses.indonesian'), sks: 2, category: 'mkwu' },
+      { code: 'UTZ.101', name: translate('programs.ti.courses.ketazkian'), sks: 2, category: 'campus' },
+      { code: 'SIFTIK.101', name: translate('programs.ti.courses.basic_math'), sks: 2, category: 'core' },
+      { code: 'SIFTIK.102', name: translate('programs.ti.courses.discrete_math'), sks: 3, category: 'core' },
+      { code: 'SIFTIK.103', name: translate('programs.ti.courses.basic_programming'), sks: 3, category: 'core' },
+      { code: 'SIFTIK.104', name: translate('programs.ti.courses.intro_it'), sks: 2, category: 'core' },
+      { code: 'SIFTIK.105', name: translate('programs.ti.courses.computer_arch'), sks: 3, category: 'core' },
+      { code: 'UTZ.202', name: translate('programs.ti.courses.fiqh_muamalah'), sks: 3, category: 'campus' },
     ]
   },
   {
     semester: 2,
     courses: [
-      { code: 'TI.02.107', name: translate('programs.ti.courses.citizenship'), sks: 2, category: 'mkwu' },
-      { code: 'TI.02.108', name: translate('programs.ti.courses.islamic_economy'), sks: 2, category: 'campus' },
-      { code: 'TI.02.109', name: translate('programs.ti.courses.statistics'), sks: 3, category: 'core' },
-      { code: 'TI.02.110', name: translate('programs.ti.courses.data_structures'), sks: 4, category: 'core' },
-      { code: 'TI.02.111', name: translate('programs.ti.courses.advanced_programming'), sks: 4, category: 'project' },
-      { code: 'TI.02.112', name: translate('programs.ti.courses.linear_algebra'), sks: 4, category: 'core' },
+      { code: 'UTZ.303', name: translate('programs.ti.courses.islamic_economy'), sks: 3, category: 'campus' },
+      { code: 'SIFTIK.206', name: translate('programs.ti.courses.statistics'), sks: 3, category: 'core' },
+      { code: 'SIFTIK.207', name: translate('programs.ti.courses.data_structures'), sks: 3, category: 'core' },
+      { code: 'SIFTIK.208', name: translate('programs.ti.courses.operating_systems'), sks: 3, category: 'core' },
+      { code: 'SIFTIK.209', name: translate('programs.ti.courses.linear_algebra'), sks: 3, category: 'core' },
+      { code: 'SIFTIK.311', name: translate('programs.ti.courses.system_analysis'), sks: 3, category: 'core' },
+      { code: 'MKN.202', name: translate('programs.ti.courses.english'), sks: 2, category: 'mkwu' },
     ]
   },
   {
     semester: 3,
     courses: [
-      { code: 'TI.03.113', name: translate('programs.ti.courses.indonesian'), sks: 2, category: 'mkwu' },
-      { code: 'TI.03.114', name: translate('programs.ti.courses.fiqh_muamalah'), sks: 3, category: 'campus' },
-      { code: 'TI.03.115', name: translate('programs.ti.courses.software_engineering'), sks: 2, category: 'core' },
-      { code: 'TI.03.116', name: translate('programs.ti.courses.ai_ml'), sks: 3, category: 'core' },
-      { code: 'TI.03.117', name: translate('programs.ti.courses.system_analysis'), sks: 3, category: 'core' },
-      { code: 'TI.03.118', name: translate('programs.ti.courses.operating_systems'), sks: 4, category: 'project' },
-      { code: 'TI.03.119', name: translate('programs.ti.courses.database'), sks: 2, category: 'project' },
+      { code: 'SIFTIK.312', name: translate('programs.ti.courses.database'), sks: 3, category: 'core' },
+      { code: 'SIFTIK.415', name: translate('programs.ti.courses.information_security'), sks: 3, category: 'core' },
+      { code: 'TIF.402', name: translate('programs.ti.courses.data_engineering'), sks: 3, category: 'core' },
+      { code: 'SIFTIK.310', name: translate('programs.ti.courses.ai'), sks: 3, category: 'core' },
+      { code: 'SIFTIK.313', name: translate('programs.ti.courses.machine_learning'), sks: 3, category: 'core' },
+      { code: 'TIK.504', name: translate('programs.ti.courses.cryptography'), sks: 3, category: 'core' },
+      { code: 'TIK.301', name: translate('programs.ti.courses.software_engineering'), sks: 3, category: 'core' },
+      { code: 'MKN.404', name: translate('programs.ti.courses.religion'), sks: 2, category: 'mkwu' },
     ]
   },
   {
     semester: 4,
     courses: [
-      { code: 'TI.04.120', name: translate('programs.ti.courses.religion'), sks: 2, category: 'mkwu' },
-      { code: 'TI.04.121', name: translate('programs.ti.courses.web_development'), sks: 4, category: 'project' },
-      { code: 'TI.04.122', name: translate('programs.ti.courses.information_security'), sks: 3, category: 'core' },
-      { code: 'TI.04.123', name: translate('programs.ti.courses.research_methods'), sks: 3, category: 'core' },
-      { code: 'TI.04.124', name: translate('programs.ti.courses.data_engineering'), sks: 3, category: 'core' },
-      { code: 'TI.04.125', name: translate('programs.ti.courses.networking_cloud'), sks: 4, category: 'project' },
+      { code: 'SIFTIK.416', name: translate('programs.ti.courses.research_methods'), sks: 3, category: 'core' },
+      { code: 'SIFTIK.619', name: translate('programs.ti.courses.project_management'), sks: 3, category: 'core' },
+      { code: 'SITTIK.417', name: translate('programs.ti.courses.networking_cloud'), sks: 3, category: 'core' },
+      { code: 'SIFTIK.620', name: translate('programs.ti.courses.enterprise_arch'), sks: 3, category: 'core' },
+      { code: 'SIFTIK.414', name: translate('programs.ti.courses.web_development'), sks: 3, category: 'project' },
+      { code: 'TIK.503', name: translate('programs.ti.courses.interactive_systems'), sks: 3, category: 'core' },
+      { code: 'SIFTIK.502', name: translate('programs.ti.courses.entrepreneurship'), sks: 3, category: 'core' },
+      { code: '-', name: translate('programs.ti.courses.elective') + ' 1', sks: 3, category: 'elective' },
     ]
   },
   {
     semester: 5,
     courses: [
-      { code: 'TI.05.126', name: translate('programs.ti.courses.industrial_internship'), sks: 12, category: 'internship' },
-      { code: 'TI.05.127', name: translate('programs.ti.courses.interactive_systems'), sks: 2, category: 'core' },
-      { code: 'TI.05.128', name: translate('programs.ti.courses.cryptography'), sks: 4, category: 'core' },
+      { code: 'SIFTIK.621', name: translate('programs.ti.courses.hci'), sks: 3, category: 'core' },
+      { code: 'TIK.605', name: translate('programs.ti.courses.secure_coding'), sks: 2, category: 'core' },
+      { code: 'SIFTIK.622', name: translate('programs.ti.courses.distributed_systems'), sks: 3, category: 'core' },
+      { code: 'TIK.606', name: translate('programs.ti.courses.data_lake'), sks: 3, category: 'core' },
+      { code: 'SIFTIK.724', name: translate('programs.ti.courses.professional_ethics'), sks: 3, category: 'core' },
+      { code: '-', name: translate('programs.ti.courses.optimization_or'), sks: 3, category: 'core' },
+      { code: '-', name: translate('programs.ti.courses.elective') + ' 2', sks: 3, category: 'elective' },
+      { code: '-', name: translate('programs.ti.courses.elective') + ' 3', sks: 3, category: 'elective' },
     ]
   },
   {
     semester: 6,
     courses: [
-      { code: 'TI.06.129', name: translate('programs.ti.courses.project_management'), sks: 3, category: 'core' },
-      { code: 'TI.06.130', name: translate('programs.ti.courses.scientific_writing'), sks: 3, category: 'core' },
-      { code: 'TI.06.131', name: translate('programs.ti.courses.enterprise_arch'), sks: 3, category: 'core' },
-      { code: 'TI.06.132', name: translate('programs.ti.courses.hci'), sks: 3, category: 'core' },
-      { code: 'TI.06.133', name: translate('programs.ti.courses.secure_coding'), sks: 2, category: 'core' },
-      { code: 'TI.06.134', name: translate('programs.ti.courses.distributed_systems'), sks: 3, category: 'core' },
-      { code: 'TI.06.135', name: translate('programs.ti.courses.data_lake'), sks: 3, category: 'project' },
+      { code: 'SIFTIK.518', name: translate('programs.ti.courses.industrial_internship'), sks: 12, category: 'internship' },
+      { code: '-', name: translate('programs.ti.courses.elective') + ' 4', sks: 3, category: 'elective' },
+      { code: '-', name: translate('programs.ti.courses.elective') + ' 5', sks: 3, category: 'elective' },
     ]
   },
   {
     semester: 7,
     courses: [
-      { code: 'TI.07.129', name: translate('programs.ti.courses.thesis_proposal'), sks: 4, category: 'final' },
-      { code: '-', name: translate('programs.ti.courses.elective') + ' 1', sks: 3, category: 'elective' },
-      { code: '-', name: translate('programs.ti.courses.elective') + ' 2', sks: 3, category: 'elective' },
-      { code: '-', name: translate('programs.ti.courses.elective') + ' 3', sks: 3, category: 'elective' },
-      { code: '-', name: translate('programs.ti.courses.elective') + ' 4', sks: 2, category: 'elective' },
+      { code: 'SIFTIK.723', name: translate('programs.ti.courses.thesis_proposal'), sks: 2, category: 'final' },
+      { code: '-', name: translate('programs.ti.courses.elective') + ' 6', sks: 3, category: 'elective' },
+      { code: '-', name: translate('programs.ti.courses.elective') + ' 7', sks: 3, category: 'elective' },
+      { code: 'MKN.303', name: translate('programs.ti.courses.pancasila_citizenship'), sks: 2, category: 'mkwu' },
     ]
   },
   {
     semester: 8,
     courses: [
-      { code: 'TI.08.130', name: translate('programs.ti.courses.professional_ethics'), sks: 2, category: 'core' },
-      { code: '-', name: translate('programs.ti.courses.elective') + ' 5', sks: 3, category: 'elective' },
-      { code: '-', name: translate('programs.ti.courses.elective') + ' 6', sks: 3, category: 'elective' },
-      { code: '-', name: translate('programs.ti.courses.elective') + ' 7', sks: 3, category: 'elective' },
-      { code: 'TI.08.131', name: translate('programs.ti.courses.thesis'), sks: 6, category: 'final' },
+      { code: 'SIFTIK.822', name: translate('programs.ti.courses.thesis'), sks: 6, category: 'final' },
     ]
   }
 ];
