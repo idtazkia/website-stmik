@@ -1,0 +1,465 @@
+---
+import MarketingLayout from '../../../layouts/MarketingLayout.astro';
+import Container from '../../../components/Container.astro';
+import Section from '../../../components/Section.astro';
+import Card from '../../../components/Card.astro';
+import { getLocaleFromUrl, t, localizePath } from '../../../utils/i18n';
+
+const locale = getLocaleFromUrl(Astro.url);
+const translate = (key: string) => t(locale, key);
+const localPath = (path: string) => localizePath(locale, path);
+
+// Curriculum data from Kurikulum Teknik Informatika STMIK Tazkia 2024/2025
+const semesters = [
+  {
+    semester: 1,
+    courses: [
+      { code: 'TI.01.101', name: translate('programs.ti.courses.english'), sks: 2, category: 'mkwu' },
+      { code: 'TI.01.102', name: translate('programs.ti.courses.tazkia_value'), sks: 3, category: 'campus' },
+      { code: 'TI.01.103', name: translate('programs.ti.courses.basic_math'), sks: 2, category: 'core' },
+      { code: 'TI.01.104', name: translate('programs.ti.courses.computer_arch'), sks: 3, category: 'core' },
+      { code: 'TI.01.105', name: translate('programs.ti.courses.discrete_math'), sks: 3, category: 'core' },
+      { code: 'TI.01.106', name: translate('programs.ti.courses.basic_programming'), sks: 4, category: 'project' },
+      { code: 'TI.01.107', name: translate('programs.ti.courses.intro_it'), sks: 2, category: 'core' },
+    ]
+  },
+  {
+    semester: 2,
+    courses: [
+      { code: 'TI.02.107', name: translate('programs.ti.courses.citizenship'), sks: 2, category: 'mkwu' },
+      { code: 'TI.02.108', name: translate('programs.ti.courses.islamic_economy'), sks: 2, category: 'campus' },
+      { code: 'TI.02.109', name: translate('programs.ti.courses.statistics'), sks: 3, category: 'core' },
+      { code: 'TI.02.110', name: translate('programs.ti.courses.data_structures'), sks: 4, category: 'core' },
+      { code: 'TI.02.111', name: translate('programs.ti.courses.advanced_programming'), sks: 4, category: 'project' },
+      { code: 'TI.02.112', name: translate('programs.ti.courses.linear_algebra'), sks: 4, category: 'core' },
+    ]
+  },
+  {
+    semester: 3,
+    courses: [
+      { code: 'TI.03.113', name: translate('programs.ti.courses.indonesian'), sks: 2, category: 'mkwu' },
+      { code: 'TI.03.114', name: translate('programs.ti.courses.fiqh_muamalah'), sks: 3, category: 'campus' },
+      { code: 'TI.03.115', name: translate('programs.ti.courses.software_engineering'), sks: 2, category: 'core' },
+      { code: 'TI.03.116', name: translate('programs.ti.courses.ai_ml'), sks: 3, category: 'core' },
+      { code: 'TI.03.117', name: translate('programs.ti.courses.system_analysis'), sks: 3, category: 'core' },
+      { code: 'TI.03.118', name: translate('programs.ti.courses.operating_systems'), sks: 4, category: 'project' },
+      { code: 'TI.03.119', name: translate('programs.ti.courses.database'), sks: 2, category: 'project' },
+    ]
+  },
+  {
+    semester: 4,
+    courses: [
+      { code: 'TI.04.120', name: translate('programs.ti.courses.religion'), sks: 2, category: 'mkwu' },
+      { code: 'TI.04.121', name: translate('programs.ti.courses.web_development'), sks: 4, category: 'project' },
+      { code: 'TI.04.122', name: translate('programs.ti.courses.information_security'), sks: 3, category: 'core' },
+      { code: 'TI.04.123', name: translate('programs.ti.courses.research_methods'), sks: 3, category: 'core' },
+      { code: 'TI.04.124', name: translate('programs.ti.courses.data_engineering'), sks: 3, category: 'core' },
+      { code: 'TI.04.125', name: translate('programs.ti.courses.networking_cloud'), sks: 4, category: 'project' },
+    ]
+  },
+  {
+    semester: 5,
+    courses: [
+      { code: 'TI.05.126', name: translate('programs.ti.courses.industrial_internship'), sks: 12, category: 'internship' },
+      { code: 'TI.05.127', name: translate('programs.ti.courses.interactive_systems'), sks: 2, category: 'core' },
+      { code: 'TI.05.128', name: translate('programs.ti.courses.cryptography'), sks: 4, category: 'core' },
+    ]
+  },
+  {
+    semester: 6,
+    courses: [
+      { code: 'TI.06.129', name: translate('programs.ti.courses.project_management'), sks: 3, category: 'core' },
+      { code: 'TI.06.130', name: translate('programs.ti.courses.scientific_writing'), sks: 3, category: 'core' },
+      { code: 'TI.06.131', name: translate('programs.ti.courses.enterprise_arch'), sks: 3, category: 'core' },
+      { code: 'TI.06.132', name: translate('programs.ti.courses.hci'), sks: 3, category: 'core' },
+      { code: 'TI.06.133', name: translate('programs.ti.courses.secure_coding'), sks: 2, category: 'core' },
+      { code: 'TI.06.134', name: translate('programs.ti.courses.distributed_systems'), sks: 3, category: 'core' },
+      { code: 'TI.06.135', name: translate('programs.ti.courses.data_lake'), sks: 3, category: 'project' },
+    ]
+  },
+  {
+    semester: 7,
+    courses: [
+      { code: 'TI.07.129', name: translate('programs.ti.courses.thesis_proposal'), sks: 4, category: 'final' },
+      { code: '-', name: translate('programs.ti.courses.elective') + ' 1', sks: 3, category: 'elective' },
+      { code: '-', name: translate('programs.ti.courses.elective') + ' 2', sks: 3, category: 'elective' },
+      { code: '-', name: translate('programs.ti.courses.elective') + ' 3', sks: 3, category: 'elective' },
+      { code: '-', name: translate('programs.ti.courses.elective') + ' 4', sks: 2, category: 'elective' },
+    ]
+  },
+  {
+    semester: 8,
+    courses: [
+      { code: 'TI.08.130', name: translate('programs.ti.courses.professional_ethics'), sks: 2, category: 'core' },
+      { code: '-', name: translate('programs.ti.courses.elective') + ' 5', sks: 3, category: 'elective' },
+      { code: '-', name: translate('programs.ti.courses.elective') + ' 6', sks: 3, category: 'elective' },
+      { code: '-', name: translate('programs.ti.courses.elective') + ' 7', sks: 3, category: 'elective' },
+      { code: 'TI.08.131', name: translate('programs.ti.courses.thesis'), sks: 6, category: 'final' },
+    ]
+  }
+];
+
+const specializations = [
+  {
+    id: 'cyber-security',
+    name: translate('programs.ti.specializations.cyber_security.name'),
+    description: translate('programs.ti.specializations.cyber_security.description'),
+    courses: [
+      translate('programs.ti.specializations.cyber_security.course_1'),
+      translate('programs.ti.specializations.cyber_security.course_2'),
+      translate('programs.ti.specializations.cyber_security.course_3'),
+      translate('programs.ti.specializations.cyber_security.course_4'),
+    ],
+    icon: 'shield',
+    certifications: translate('programs.ti.certifications.cyber')
+  },
+  {
+    id: 'artificial-intelligence',
+    name: translate('programs.ti.specializations.ai.name'),
+    description: translate('programs.ti.specializations.ai.description'),
+    courses: [
+      translate('programs.ti.specializations.ai.course_1'),
+      translate('programs.ti.specializations.ai.course_2'),
+      translate('programs.ti.specializations.ai.course_3'),
+      translate('programs.ti.specializations.ai.course_4'),
+    ],
+    icon: 'brain',
+    certifications: translate('programs.ti.certifications.ai')
+  },
+  {
+    id: 'software-engineering',
+    name: translate('programs.ti.specializations.se.name'),
+    description: translate('programs.ti.specializations.se.description'),
+    courses: [
+      translate('programs.ti.specializations.se.course_1'),
+      translate('programs.ti.specializations.se.course_2'),
+      translate('programs.ti.specializations.se.course_3'),
+      translate('programs.ti.specializations.se.course_4'),
+    ],
+    icon: 'code',
+    certifications: translate('programs.ti.certifications.se')
+  },
+  {
+    id: 'web-development',
+    name: translate('programs.ti.specializations.web.name'),
+    description: translate('programs.ti.specializations.web.description'),
+    courses: [
+      translate('programs.ti.specializations.web.course_1'),
+      translate('programs.ti.specializations.web.course_2'),
+      translate('programs.ti.specializations.web.course_3'),
+      translate('programs.ti.specializations.web.course_4'),
+    ],
+    icon: 'globe',
+    certifications: translate('programs.ti.certifications.web')
+  }
+];
+
+const careerPaths = [
+  { title: translate('programs.ti.careers.security_engineer'), description: translate('programs.ti.careers.security_engineer_desc') },
+  { title: translate('programs.ti.careers.penetration_tester'), description: translate('programs.ti.careers.penetration_tester_desc') },
+  { title: translate('programs.ti.careers.ai_engineer'), description: translate('programs.ti.careers.ai_engineer_desc') },
+  { title: translate('programs.ti.careers.data_scientist'), description: translate('programs.ti.careers.data_scientist_desc') },
+  { title: translate('programs.ti.careers.software_developer'), description: translate('programs.ti.careers.software_developer_desc') },
+  { title: translate('programs.ti.careers.devops_engineer'), description: translate('programs.ti.careers.devops_engineer_desc') },
+  { title: translate('programs.ti.careers.web_developer'), description: translate('programs.ti.careers.web_developer_desc') },
+  { title: translate('programs.ti.careers.cloud_engineer'), description: translate('programs.ti.careers.cloud_engineer_desc') },
+];
+
+const totalSKS = 144;
+const duration = '4';
+---
+
+<MarketingLayout
+  title={translate('programs.ti.title')}
+  description={translate('programs.ti.description')}
+>
+  <!-- Hero Section -->
+  <Section background="gradient" class="pt-32 pb-20">
+    <Container>
+      <div class="max-w-4xl mx-auto text-center">
+        <span class="inline-block px-4 py-2 bg-primary-100 text-primary-700 rounded-full text-sm font-medium mb-4">
+          S1 - {translate('programs.ti.degree')}
+        </span>
+        <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+          {translate('programs.ti.title')}
+        </h1>
+        <p class="text-xl text-gray-700 mb-8">
+          {translate('programs.ti.description')}
+        </p>
+        <div class="flex flex-wrap justify-center gap-6 text-sm">
+          <div class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span class="text-gray-700">{duration} {translate('programs.ti.years')}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+            </svg>
+            <span class="text-gray-700">{totalSKS} SKS</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+            </svg>
+            <span class="text-gray-700">KKNI Level 6</span>
+          </div>
+        </div>
+      </div>
+    </Container>
+  </Section>
+
+  <!-- Program Overview -->
+  <Section background="white">
+    <Container>
+      <div class="max-w-4xl mx-auto">
+        <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">
+          {translate('programs.ti.overview_title')}
+        </h2>
+        <div class="prose prose-lg max-w-none text-gray-700">
+          <p>{translate('programs.ti.overview_1')}</p>
+          <p>{translate('programs.ti.overview_2')}</p>
+        </div>
+
+        <!-- Key Features -->
+        <div class="grid md:grid-cols-3 gap-6 mt-12">
+          <Card>
+            <div class="p-6 text-center">
+              <div class="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                </svg>
+              </div>
+              <h3 class="font-bold text-gray-900 mb-2">{translate('programs.ti.feature_obe')}</h3>
+              <p class="text-sm text-gray-600">{translate('programs.ti.feature_obe_desc')}</p>
+            </div>
+          </Card>
+          <Card>
+            <div class="p-6 text-center">
+              <div class="w-12 h-12 bg-secondary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-6 h-6 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                </svg>
+              </div>
+              <h3 class="font-bold text-gray-900 mb-2">{translate('programs.ti.feature_mbkm')}</h3>
+              <p class="text-sm text-gray-600">{translate('programs.ti.feature_mbkm_desc')}</p>
+            </div>
+          </Card>
+          <Card>
+            <div class="p-6 text-center">
+              <div class="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+                </svg>
+              </div>
+              <h3 class="font-bold text-gray-900 mb-2">{translate('programs.ti.feature_industry')}</h3>
+              <p class="text-sm text-gray-600">{translate('programs.ti.feature_industry_desc')}</p>
+            </div>
+          </Card>
+        </div>
+      </div>
+    </Container>
+  </Section>
+
+  <!-- Specializations -->
+  <Section background="gray">
+    <Container>
+      <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 mb-4">
+            {translate('programs.ti.specializations_title')}
+          </h2>
+          <p class="text-lg text-gray-600">
+            {translate('programs.ti.specializations_subtitle')}
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-8">
+          {specializations.map((spec) => (
+            <Card hover={true}>
+              <div class="p-6">
+                <div class="flex items-start gap-4">
+                  <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    {spec.icon === 'shield' && (
+                      <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                      </svg>
+                    )}
+                    {spec.icon === 'brain' && (
+                      <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                      </svg>
+                    )}
+                    {spec.icon === 'code' && (
+                      <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                      </svg>
+                    )}
+                    {spec.icon === 'globe' && (
+                      <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+                      </svg>
+                    )}
+                  </div>
+                  <div class="flex-1">
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">{spec.name}</h3>
+                    <p class="text-gray-600 mb-4">{spec.description}</p>
+                    <ul class="space-y-1 mb-4">
+                      {spec.courses.map((course) => (
+                        <li class="flex items-center text-sm text-gray-700">
+                          <span class="w-1.5 h-1.5 bg-primary-500 rounded-full mr-2"></span>
+                          {course}
+                        </li>
+                      ))}
+                    </ul>
+                    <div class="text-xs text-gray-500 bg-gray-100 px-3 py-2 rounded">
+                      <strong>{translate('programs.ti.certifications_title')}:</strong> {spec.certifications}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </Container>
+  </Section>
+
+  <!-- Curriculum Structure -->
+  <Section background="white">
+    <Container>
+      <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 mb-4">
+            {translate('programs.ti.curriculum_title')}
+          </h2>
+          <p class="text-lg text-gray-600">
+            {translate('programs.ti.curriculum_subtitle')}
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {semesters.map((sem) => (
+            <Card>
+              <div class="p-4">
+                <div class="flex items-center justify-between mb-4">
+                  <h3 class="font-bold text-primary-600">
+                    {translate('programs.ti.semester')} {sem.semester}
+                  </h3>
+                  <span class="text-sm text-gray-500">
+                    {sem.courses.reduce((acc, c) => acc + c.sks, 0)} SKS
+                  </span>
+                </div>
+                <ul class="space-y-2">
+                  {sem.courses.map((course) => (
+                    <li class="text-sm">
+                      <div class="flex justify-between items-start">
+                        <span class:list={[
+                          'flex-1',
+                          course.category === 'mkwu' && 'text-gray-500',
+                          course.category === 'campus' && 'text-purple-600',
+                          course.category === 'core' && 'text-gray-700',
+                          course.category === 'project' && 'text-primary-600 font-medium',
+                          course.category === 'elective' && 'text-secondary-600',
+                          course.category === 'internship' && 'text-green-600 font-bold',
+                          course.category === 'final' && 'text-primary-700 font-bold',
+                        ]}>
+                          {course.name}
+                        </span>
+                        <span class="text-gray-400 ml-2">{course.sks}</span>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </Card>
+          ))}
+        </div>
+
+        <!-- Legend -->
+        <div class="flex flex-wrap justify-center gap-6 mt-8 text-sm">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 bg-gray-400 rounded"></span>
+            <span class="text-gray-600">MKWU</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 bg-purple-500 rounded"></span>
+            <span class="text-gray-600">{translate('programs.ti.legend_campus')}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 bg-gray-700 rounded"></span>
+            <span class="text-gray-600">{translate('programs.ti.legend_core')}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 bg-primary-500 rounded"></span>
+            <span class="text-gray-600">{translate('programs.ti.legend_project')}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 bg-secondary-500 rounded"></span>
+            <span class="text-gray-600">{translate('programs.ti.legend_elective')}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 bg-green-500 rounded"></span>
+            <span class="text-gray-600">{translate('programs.ti.legend_internship')}</span>
+          </div>
+        </div>
+      </div>
+    </Container>
+  </Section>
+
+  <!-- Career Paths -->
+  <Section background="gradient">
+    <Container>
+      <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 mb-4">
+            {translate('programs.ti.careers_title')}
+          </h2>
+          <p class="text-lg text-gray-600">
+            {translate('programs.ti.careers_subtitle')}
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {careerPaths.map((career) => (
+            <Card hover={true}>
+              <div class="p-6">
+                <h3 class="font-bold text-gray-900 mb-2">{career.title}</h3>
+                <p class="text-sm text-gray-600">{career.description}</p>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </Container>
+  </Section>
+
+  <!-- CTA Section -->
+  <Section background="white">
+    <Container>
+      <div class="max-w-3xl mx-auto text-center">
+        <h2 class="text-3xl font-bold text-gray-900 mb-4">
+          {translate('programs.ti.cta_title')}
+        </h2>
+        <p class="text-lg text-gray-600 mb-8">
+          {translate('programs.ti.cta_subtitle')}
+        </p>
+        <div class="flex flex-wrap justify-center gap-4">
+          <a
+            href={localPath('/admissions')}
+            class="inline-flex items-center px-6 py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-colors"
+          >
+            {translate('button.apply_now')}
+          </a>
+          <a
+            href={localPath('/contact')}
+            class="inline-flex items-center px-6 py-3 border-2 border-primary-600 text-primary-600 font-semibold rounded-lg hover:bg-primary-50 transition-colors"
+          >
+            {translate('button.free_consultation')}
+          </a>
+        </div>
+      </div>
+    </Container>
+  </Section>
+</MarketingLayout>
