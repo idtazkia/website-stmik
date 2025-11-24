@@ -118,14 +118,18 @@ This document tracks all content and assets required to complete the STMIK Tazki
 
 #### Completed
 - [x] Lecturer listing page (grid layout)
-- [x] Individual lecturer profile pages (Endy Muhardin template)
+- [x] Individual lecturer profile pages
 - [x] Content collection system (Markdown frontmatter)
 - [x] Bilingual support
+- [x] **5 lecturer profiles completed:**
+  1. Endy Muhardin (Software Engineering, DevOps)
+  2. Hendri Karisma (AI/ML, Data Engineering)
+  3. Q Fadlan (Data Science, AI)
+  4. Agus Sulaiman (DevOps, Cloud Engineering)
+  5. Ricky Setiadi (Information Security, Cybersecurity)
 
 #### Pending
-- [ ] **Complete lecturer profiles** for all faculty members
-  - Current: 1 profile (Endy Muhardin)
-  - Needed: All faculty profiles
+- [ ] **Complete lecturer profiles** for remaining faculty members
 - [ ] **Research areas** section for each lecturer
 - [ ] **Publications list** (papers, books, conference presentations)
 - [ ] **Industry experience** (companies worked for, consulting projects)
@@ -360,7 +364,8 @@ For each lecturer:
   - All faculty members (consistent style)
   - Format: JPG/PNG, 800x800px (square)
   - Background: Professional, consistent across all
-  - Current: 1 (Endy Muhardin), Needed: All remaining faculty
+  - Current: 5 profiles (Endy Muhardin, Hendri Karisma, Q Fadlan, Agus Sulaiman, Ricky Setiadi)
+  - Needed: Professional photos for all profiles + remaining faculty
   - **Permission required**: Individual consent
 
 - [ ] **Leadership team photos**
@@ -1094,7 +1099,7 @@ Keywords: campus, entrance, building, exterior
 
 ---
 
-**Last Updated:** 2025-01-19
+**Last Updated:** 2025-11-24
 **Document Version:** 2.0 (Comprehensive Site-Wide Version)
 **Next Review:** 2025-02-19
 
@@ -1111,6 +1116,16 @@ Keywords: campus, entrance, building, exterior
 ---
 
 ## Implementation Log
+
+### 2025-11-24 - Lecturer Profiles Update
+**Changes:**
+- Added 4 new lecturer profiles (total now 5):
+  - Hendri Karisma (AI/ML, Data Engineering)
+  - Q Fadlan (Data Science, AI)
+  - Agus Sulaiman (DevOps, Cloud Engineering)
+  - Ricky Setiadi (Information Security, Cybersecurity)
+- Updated lecturer section status to reflect 5 completed profiles
+- Updated faculty headshots section with current profile count
 
 ### 2025-01-19 - Version 2.0: Comprehensive Revision
 **Changes:**
