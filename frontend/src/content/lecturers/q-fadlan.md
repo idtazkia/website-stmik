@@ -1,6 +1,6 @@
 ---
 name: Q Fadlan
-title: Dosen Tetap
+title: Dosen
 position: Cybersecurity and Governance at INPEX Indonesia
 expertise:
   - Cyber Security
@@ -79,7 +79,7 @@ Mengarahkan tim red dan blue team untuk mengevaluasi dan memperkuat postur keama
 
 ## Pengajaran
 
-Sebagai dosen tetap di STMIK Tazkia, Q Fadlan mengajar mata kuliah:
+Sebagai dosen di STMIK Tazkia, Q Fadlan mengajar mata kuliah:
 - Keamanan Siber (Cyber Security)
 - Penetration Testing
 - Manajemen Risiko TI

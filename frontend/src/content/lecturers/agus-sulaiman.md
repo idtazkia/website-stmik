@@ -1,6 +1,6 @@
 ---
 name: Agus Sulaiman
-title: Dosen Tetap
+title: Dosen
 position: DevOps Engineer
 expertise:
   - DevOps
@@ -69,7 +69,7 @@ Mengelola operasi jaringan dan server.
 
 ## Pengajaran
 
-Sebagai dosen tetap di STMIK Tazkia, Agus Sulaiman mengajar mata kuliah:
+Sebagai dosen di STMIK Tazkia, Agus Sulaiman mengajar mata kuliah:
 - Cloud Computing
 - DevOps & Site Reliability Engineering
 - Sistem Operasi
