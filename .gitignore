@@ -22,6 +22,9 @@ test-results/
 playwright-report/
 .last-run.json
 
+# LinkedIn scraper session (contains auth cookies)
+.linkedin-session/
+
 # IDE
 .vscode/
 .idea/
