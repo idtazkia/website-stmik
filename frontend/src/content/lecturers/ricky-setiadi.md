@@ -27,6 +27,12 @@ Ricky Setiadi adalah praktisi keamanan informasi dan cybersecurity dengan pengal
 
 ## Pengalaman Profesional
 
+## ⁠CISO / COO - Cynnexis ## 
+Chief Information Security Officer sekaligus memimpin operasional sebuah perusahaan jasa keamanan siber.
+
+## ⁠SecureMind Founder ## 
+Membangun cybersecurity startup berbasis layanan dan produk keamanan siber.
+
 ### Co-Founder - CyberDIG (2022 - Sekarang)
 Mendirikan perusahaan konsultasi keamanan siber.
 
@@ -50,6 +56,7 @@ Berbagai peran di bidang jaringan dan keamanan di sektor perbankan dan organisas
 
 ## Sertifikasi
 
+- **Comptia SecurityX** - sertifikasi cybersecurity untuk security architect dan senior security engineer
 - **ISO 27001 Lead Auditor** - Auditor standar keamanan informasi internasional
 - **Certified Chief Information Security Officer (CCISO)** - EC-Council
 - **Certified Ethical Hacker (CEH)** - EC-Council
