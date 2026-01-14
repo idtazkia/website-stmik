@@ -68,9 +68,12 @@
           "name": "Cyber Security",
           "description": "Melindungi sistem dan jaringan dari ancaman keamanan siber",
           "course_1": "Pengujian Keamanan / Penetration Testing",
-          "course_2": "Forensik Digital",
-          "course_3": "Keamanan Jaringan dan Web",
-          "course_4": "Analisis Malware"
+          "course_2": "Manajemen Risiko Keamanan",
+          "course_3": "Forensik Digital",
+          "course_4": "Keamanan Jaringan dan Web",
+          "course_5": "Manajemen Insiden Keamanan",
+          "course_6": "Hukum dan Etika dalam Keamanan Siber",
+          "course_7": "Analisis Malware"
         },
         "ai": {
           "name": "Artificial Intelligence",
@@ -78,7 +81,9 @@
           "course_1": "Machine Learning Lanjut",
           "course_2": "Natural Language Processing",
           "course_3": "Computer Vision",
-          "course_4": "High Performance Computing"
+          "course_4": "Secure Computation",
+          "course_5": "Teknologi Mesin Pencari dan GPT",
+          "course_6": "High Performance Computing"
         },
         "se": {
           "name": "Software Engineering",
@@ -86,7 +91,9 @@
           "course_1": "DevOps Engineer",
           "course_2": "Software Quality Assurance",
           "course_3": "Mobile Development",
-          "course_4": "Software Architecture"
+          "course_4": "Desain Perangkat Lunak",
+          "course_5": "UI & UX Design",
+          "course_6": "Software Architecture"
         },
         "web": {
           "name": "Web Development",
@@ -94,7 +101,10 @@
           "course_1": "Desain Responsif dan User Experience (UX)",
           "course_2": "Pemrograman Web Lanjutan",
           "course_3": "Pengembangan API dan Web Service",
-          "course_4": "Framework Web"
+          "course_4": "Sistem Manajemen Konten (CMS)",
+          "course_5": "Arsitektur Web",
+          "course_6": "Manajemen Proyek Web",
+          "course_7": "Framework Web"
         }
       },
       "curriculum_title": "Struktur Kurikulum",
@@ -199,34 +209,38 @@
         "pm": {
           "name": "Project Management",
           "description": "Mengelola proyek TI dari perencanaan hingga implementasi",
-          "course_1": "Manajemen Proyek TI Lanjut",
-          "course_2": "Agile & Scrum Methodology",
-          "course_3": "IT Governance & Risk Management",
-          "course_4": "IT Service Management"
+          "course_1": "Manajemen Risiko Proyek TI",
+          "course_2": "Manajemen Kualitas Proyek TI",
+          "course_3": "Manajemen Sumber Daya Proyek TI",
+          "course_4": "Metodologi Agile & Scrum",
+          "course_5": "Portofolio & Program Management"
         },
         "ml": {
           "name": "Machine Learning",
           "description": "Membangun sistem cerdas berbasis data dan algoritma",
           "course_1": "Deep Learning",
-          "course_2": "Natural Language Processing",
+          "course_2": "Natural Language Processing (NLP)",
           "course_3": "Computer Vision",
-          "course_4": "MLOps & Model Deployment"
+          "course_4": "Reinforcement Learning",
+          "course_5": "Time Series Analysis"
         },
         "da": {
           "name": "Data Analytics",
           "description": "Menganalisis dan memvisualisasikan data untuk pengambilan keputusan",
-          "course_1": "Big Data Analytics",
-          "course_2": "Data Visualization",
-          "course_3": "Predictive Analytics",
-          "course_4": "Data Warehousing"
+          "course_1": "Data Warehousing & ETL",
+          "course_2": "Business Analytics & Visualization Lanjut",
+          "course_3": "Statistika Terapan untuk Bisnis",
+          "course_4": "Data Governance & Quality",
+          "course_5": "Predictive Analytics"
         },
         "bis": {
           "name": "Business Information System",
           "description": "Mengintegrasikan sistem informasi dengan proses bisnis",
-          "course_1": "Enterprise Architecture",
-          "course_2": "Business Process Management",
-          "course_3": "Digital Transformation",
-          "course_4": "IT Strategy & Planning"
+          "course_1": "Enterprise Resource Planning (ERP) Systems",
+          "course_2": "Customer Relationship Management (CRM) Systems",
+          "course_3": "Supply Chain Management (SCM) Systems",
+          "course_4": "Business Process Reengineering (BPR) Lanjut",
+          "course_5": "Knowledge Management Systems"
         }
       },
       "curriculum_title": "Struktur Kurikulum",

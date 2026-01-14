@@ -68,9 +68,12 @@
           "name": "Cyber Security",
           "description": "Protecting systems and networks from cyber security threats",
           "course_1": "Security Testing / Penetration Testing",
-          "course_2": "Digital Forensics",
-          "course_3": "Network and Web Security",
-          "course_4": "Malware Analysis"
+          "course_2": "Security Risk Management",
+          "course_3": "Digital Forensics",
+          "course_4": "Network and Web Security",
+          "course_5": "Security Incident Management",
+          "course_6": "Cyber Security Law and Ethics",
+          "course_7": "Malware Analysis"
         },
         "ai": {
           "name": "Artificial Intelligence",
@@ -78,7 +81,9 @@
           "course_1": "Advanced Machine Learning",
           "course_2": "Natural Language Processing",
           "course_3": "Computer Vision",
-          "course_4": "High Performance Computing"
+          "course_4": "Secure Computation",
+          "course_5": "Search Engine and GPT Technology",
+          "course_6": "High Performance Computing"
         },
         "se": {
           "name": "Software Engineering",
@@ -86,7 +91,9 @@
           "course_1": "DevOps Engineer",
           "course_2": "Software Quality Assurance",
           "course_3": "Mobile Development",
-          "course_4": "Software Architecture"
+          "course_4": "Software Design",
+          "course_5": "UI & UX Design",
+          "course_6": "Software Architecture"
         },
         "web": {
           "name": "Web Development",
@@ -94,7 +101,10 @@
           "course_1": "Responsive Design and User Experience (UX)",
           "course_2": "Advanced Web Programming",
           "course_3": "API and Web Service Development",
-          "course_4": "Web Frameworks"
+          "course_4": "Content Management System (CMS)",
+          "course_5": "Web Architecture",
+          "course_6": "Web Project Management",
+          "course_7": "Web Frameworks"
         }
       },
       "curriculum_title": "Curriculum Structure",
@@ -199,34 +209,38 @@
         "pm": {
           "name": "Project Management",
           "description": "Managing IT projects from planning to implementation",
-          "course_1": "Advanced IT Project Management",
-          "course_2": "Agile & Scrum Methodology",
-          "course_3": "IT Governance & Risk Management",
-          "course_4": "IT Service Management"
+          "course_1": "IT Project Risk Management",
+          "course_2": "IT Project Quality Management",
+          "course_3": "IT Project Resource Management",
+          "course_4": "Agile & Scrum Methodology",
+          "course_5": "Portfolio & Program Management"
         },
         "ml": {
           "name": "Machine Learning",
           "description": "Building intelligent systems based on data and algorithms",
           "course_1": "Deep Learning",
-          "course_2": "Natural Language Processing",
+          "course_2": "Natural Language Processing (NLP)",
           "course_3": "Computer Vision",
-          "course_4": "MLOps & Model Deployment"
+          "course_4": "Reinforcement Learning",
+          "course_5": "Time Series Analysis"
         },
         "da": {
           "name": "Data Analytics",
           "description": "Analyzing and visualizing data for decision making",
-          "course_1": "Big Data Analytics",
-          "course_2": "Data Visualization",
-          "course_3": "Predictive Analytics",
-          "course_4": "Data Warehousing"
+          "course_1": "Data Warehousing & ETL",
+          "course_2": "Advanced Business Analytics & Visualization",
+          "course_3": "Applied Statistics for Business",
+          "course_4": "Data Governance & Quality",
+          "course_5": "Predictive Analytics"
         },
         "bis": {
           "name": "Business Information System",
           "description": "Integrating information systems with business processes",
-          "course_1": "Enterprise Architecture",
-          "course_2": "Business Process Management",
-          "course_3": "Digital Transformation",
-          "course_4": "IT Strategy & Planning"
+          "course_1": "Enterprise Resource Planning (ERP) Systems",
+          "course_2": "Customer Relationship Management (CRM) Systems",
+          "course_3": "Supply Chain Management (SCM) Systems",
+          "course_4": "Advanced Business Process Reengineering (BPR)",
+          "course_5": "Knowledge Management Systems"
         }
       },
       "curriculum_title": "Curriculum Structure",
