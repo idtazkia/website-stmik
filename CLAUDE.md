@@ -119,7 +119,7 @@ npm run migrate:rollback      # Rollback last migration
 | **Styling** | Tailwind CSS + custom design system | Brand colors: primary (blue #194189), secondary (orange #EE7B1D) |
 | **i18n** | Custom implementation | See frontend/src/utils/i18n.ts |
 | **Backend** | Go (Golang) | [Planned] REST API, runs on VPS |
-| **Database** | PostgreSQL 16 | [Planned] Local on VPS, <1ms latency |
+| **Database** | PostgreSQL 18 | [Planned] Local on VPS, <1ms latency |
 | **Reverse Proxy** | Nginx + Let's Encrypt | [Planned] SSL termination, rate limiting |
 | **Deployment** | Cloudflare Pages + VPS | Frontend auto-deploy, backend via GitHub Actions |
 
@@ -195,7 +195,7 @@ See `docs/ARCHITECTURE.md` for authentication flows.
 
 ## Database Schema (Planned)
 
-**Database:** PostgreSQL 16 (local on VPS)
+**Database:** PostgreSQL 18 (local on VPS)
 
 **Tables:**
 - `users` - User accounts (registrants + staff)
@@ -307,7 +307,7 @@ Content collections are configured in `frontend/src/content/config.ts`. Use them
 - The project uses a custom i18n implementation (no external dependencies).
 - Frontend deployment uses Cloudflare Pages auto-deploy (triggered on git push to GitHub).
 - Backend deployment uses GitHub Actions to deploy Go binary to VPS.
-- Database uses PostgreSQL 16 running locally on VPS (<1ms latency).
+- Database uses PostgreSQL 18 running locally on VPS (<1ms latency).
 - File uploads stored on VPS local disk.
 - Simple architecture: single VPS ($5/month) for backend + database.
 - Can scale to 100,000+ leads on same VPS before needing upgrade.

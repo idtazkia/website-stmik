@@ -18,7 +18,7 @@ The backend handles the complete lead-to-registration journey:
 |-------|------------|---------|
 | Language | Go 1.25+ | Performance, single binary deployment |
 | Router | net/http (stdlib) | No external router dependency |
-| Database | PostgreSQL 16 + pgx/v5 | Native driver, connection pooling |
+| Database | PostgreSQL 18 + pgx/v5 | Native driver, connection pooling |
 | Templates | Templ | Type-safe, compiled HTML templates |
 | Interactivity | HTMX | Server-driven UI updates |
 | Client State | Alpine.js | Dropdowns, modals, form interactions |

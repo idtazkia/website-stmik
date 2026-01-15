@@ -78,7 +78,7 @@ graph TB
 | **Static Site** | Astro + Markdown | Cloudflare Pages | Free |
 | **CDN/DDoS** | Cloudflare | Cloudflare | Free |
 | **Backend API** | Go (Golang) | VPS | $5/mo |
-| **Database** | PostgreSQL 16 | VPS | Included |
+| **Database** | PostgreSQL 18 | VPS | Included |
 | **File Storage** | Local Disk | VPS | Included |
 | **Reverse Proxy** | Nginx + Let's Encrypt | VPS | Included |
 | **Build/Deploy** | GitHub Actions | GitHub | Free |

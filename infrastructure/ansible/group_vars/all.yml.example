@@ -10,7 +10,7 @@ app_user: "deploy"
 
 # Software Versions
 nodejs_version: "20.x"
-postgresql_version: "16"
+postgresql_version: "18"
 nginx_version: "latest"
 pm2_version: "latest"
 

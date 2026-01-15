@@ -91,7 +91,7 @@ graph TB
 | **Static Site** | Astro + Markdown | Cloudflare Pages | Free |
 | **CDN/DDoS** | Cloudflare | Cloudflare | Free |
 | **Backend API** | Go (Golang) | VPS | $5/mo |
-| **Database** | PostgreSQL 16 | VPS | Included |
+| **Database** | PostgreSQL 18 | VPS | Included |
 | **Reverse Proxy** | Nginx + Let's Encrypt | VPS | Included |
 | **Build/Deploy** | GitHub Actions | GitHub | Free |
 
@@ -388,7 +388,7 @@ sudo systemctl status postgresql
 psql -U campus_app -d campus -h localhost
 
 # Check logs
-sudo tail -f /var/log/postgresql/postgresql-16-main.log
+sudo tail -f /var/log/postgresql/postgresql-18-main.log
 ```
 
 **Go backend not responding:**
