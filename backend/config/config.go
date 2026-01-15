@@ -81,11 +81,11 @@ func Load() (*Config, error) {
 			Host: getEnv("SERVER_HOST", "localhost"),
 		},
 		Database: DatabaseConfig{
-			Host:     getEnv("DATABASE_HOST", "localhost"),
-			Port:     getEnv("DATABASE_PORT", "5432"),
-			User:     getEnv("DATABASE_USER", "stmik"),
-			Password: getEnv("DATABASE_PASSWORD", "stmik_dev_password"),
-			Name:     getEnv("DATABASE_NAME", "stmik_admission"),
+			Host:     getEnvRequired("DATABASE_HOST"),
+			Port:     getEnvRequired("DATABASE_PORT"),
+			User:     getEnvRequired("DATABASE_USER"),
+			Password: getEnvRequired("DATABASE_PASSWORD"),
+			Name:     getEnvRequired("DATABASE_NAME"),
 			SSLMode:  getEnv("DATABASE_SSL_MODE", "disable"),
 		},
 		JWT: JWTConfig{
