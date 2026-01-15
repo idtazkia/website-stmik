@@ -158,13 +158,61 @@ Outgoing: application.approved (optional)
 └── → Trigger VA generation in payment app
 ```
 
-### 8. Reports & Dashboard
+### 8. Referral Tracking
+
+- Generate unique referral codes for referrers
+- Referrer types: student, alumni, partner, staff
+- Track referral source on prospect registration
+- Referral conversion stats (referred → enrolled)
+- Referrer leaderboard
+- Referral rewards tracking (optional)
+
+**Referral Flow:**
+```
+Referrer gets code → Shares link → Prospect registers with code
+                                          │
+                                          ▼
+                              Prospect linked to referrer
+                                          │
+                                          ▼
+                              Track conversion to enrolled
+```
+
+### 9. Ad Campaign Tracking
+
+Track marketing campaign effectiveness via UTM parameters:
+
+| Parameter | Purpose | Example |
+|-----------|---------|---------|
+| `utm_source` | Traffic source | google, facebook, instagram |
+| `utm_medium` | Marketing medium | cpc, social, email, banner |
+| `utm_campaign` | Campaign name | intake_2025_ganjil |
+| `utm_term` | Paid keywords | kuliah_it_jakarta |
+| `utm_content` | Ad variation | banner_v1, video_ad |
+
+**Additional Tracking:**
+- Landing page URL
+- First touch attribution (first campaign that brought them)
+- Device type (mobile/desktop)
+- Registration timestamp
+
+**Reports:**
+- Conversion by source (Google vs Facebook vs Instagram)
+- Conversion by campaign
+- Conversion by medium (paid vs organic)
+- Cost per acquisition (if cost data provided)
+- ROI per campaign
+
+### 10. Reports & Dashboard
 
 - Funnel overview (counts per stage)
 - This intake vs previous comparison
-- Leads by source
+- Leads by source/campaign
 - Leads by program/track
+- Leads by referrer
 - Staff conversion leaderboard
+- Campaign performance comparison
+- Referrer leaderboard
 - Export to CSV
 
 ## Architecture
@@ -302,6 +350,25 @@ backend/
 ```
 POST /api/prospects              # Create prospect (from landing page)
 GET  /api/health                 # Health check
+GET  /api/referrers/{code}       # Validate referral code (for landing page)
+```
+
+**POST /api/prospects** payload:
+```json
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "whatsapp": "08123456789",
+  "intake_id": 1,
+  "referral_code": "REF123",
+  "utm_source": "google",
+  "utm_medium": "cpc",
+  "utm_campaign": "intake_2025_ganjil",
+  "utm_term": "kuliah it jakarta",
+  "utm_content": "banner_v1",
+  "landing_page": "https://stmik.tazkia.ac.id/promo",
+  "device_type": "mobile"
+}
 ```
 
 ### Portal (Registrants)
@@ -349,6 +416,17 @@ POST /admin/applications/{id}/documents/{docId}/review  # Submit review (HTMX)
 POST /admin/applications/{id}/approve    # Approve application (HTMX)
 POST /admin/applications/{id}/cancel     # Mark cancelled (HTMX)
 
+GET  /admin/referrers            # Referrer list
+GET  /admin/referrers/{id}       # Referrer detail + stats
+POST /admin/referrers            # Create referrer (HTMX)
+PUT  /admin/referrers/{id}       # Update referrer (HTMX)
+POST /admin/referrers/{id}/toggle        # Toggle active (HTMX)
+
+GET  /admin/campaigns            # Campaign list
+GET  /admin/campaigns/{id}       # Campaign detail + stats
+POST /admin/campaigns            # Create campaign (HTMX)
+PUT  /admin/campaigns/{id}       # Update campaign (HTMX)
+
 GET  /admin/settings             # Settings overview
 GET  /admin/settings/intakes     # Intake management
 POST /admin/settings/intakes     # Create intake (HTMX)
@@ -361,6 +439,9 @@ POST /admin/settings/staff/{id}/toggle   # Toggle active (HTMX)
 
 GET  /admin/reports              # Reports page
 GET  /admin/reports/funnel       # Funnel data (HTMX)
+GET  /admin/reports/sources      # Conversion by source (HTMX)
+GET  /admin/reports/campaigns    # Campaign performance (HTMX)
+GET  /admin/reports/referrers    # Referrer leaderboard (HTMX)
 GET  /admin/reports/export       # CSV export
 ```
 
@@ -420,19 +501,62 @@ CREATE TABLE cancel_reasons (
     is_active       BOOLEAN DEFAULT TRUE
 );
 
+-- Referrers (people who refer prospects)
+CREATE TABLE referrers (
+    id              SERIAL PRIMARY KEY,
+    code            VARCHAR(50) UNIQUE NOT NULL,  -- Unique referral code
+    name            VARCHAR(255) NOT NULL,
+    email           VARCHAR(255),
+    whatsapp        VARCHAR(20),
+    type            VARCHAR(50) NOT NULL,  -- 'student', 'alumni', 'partner', 'staff'
+    user_id         INTEGER REFERENCES users(id),  -- If referrer is a registered user
+    is_active       BOOLEAN DEFAULT TRUE,
+    created_at      TIMESTAMP DEFAULT NOW()
+);
+
+-- Campaigns (for tracking ad spend and ROI)
+CREATE TABLE campaigns (
+    id              SERIAL PRIMARY KEY,
+    name            VARCHAR(255) NOT NULL,
+    utm_campaign    VARCHAR(100) UNIQUE NOT NULL,
+    start_date      DATE,
+    end_date        DATE,
+    budget          DECIMAL(15,2),  -- Optional: for ROI calculation
+    is_active       BOOLEAN DEFAULT TRUE,
+    created_at      TIMESTAMP DEFAULT NOW()
+);
+
 -- Prospects (leads)
 CREATE TABLE prospects (
     id              SERIAL PRIMARY KEY,
     name            VARCHAR(255) NOT NULL,
     email           VARCHAR(255) UNIQUE NOT NULL,
     whatsapp        VARCHAR(20) NOT NULL,
-    source          VARCHAR(100),
+
+    -- Assignment
     intake_id       INTEGER REFERENCES intakes(id),
     assigned_to     INTEGER REFERENCES users(id),
     status          VARCHAR(50) DEFAULT 'new',
+
+    -- Referral tracking
+    referrer_id     INTEGER REFERENCES referrers(id),
+
+    -- UTM tracking (ad campaigns)
+    utm_source      VARCHAR(100),  -- google, facebook, instagram, tiktok
+    utm_medium      VARCHAR(100),  -- cpc, social, email, banner, organic
+    utm_campaign    VARCHAR(100),  -- intake_2025_ganjil
+    utm_term        VARCHAR(255),  -- paid keywords
+    utm_content     VARCHAR(255),  -- ad variation identifier
+
+    -- Additional tracking
+    landing_page    VARCHAR(500),  -- URL where they landed
+    device_type     VARCHAR(50),   -- mobile, desktop, tablet
+
+    -- Cancellation
     cancel_reason_id INTEGER REFERENCES cancel_reasons(id),
     cancel_remarks  TEXT,
     cancelled_at    TIMESTAMP,
+
     created_at      TIMESTAMP DEFAULT NOW(),
     updated_at      TIMESTAMP DEFAULT NOW()
 );
@@ -515,10 +639,15 @@ CREATE TABLE communication_log (
 CREATE INDEX idx_prospects_status ON prospects(status);
 CREATE INDEX idx_prospects_intake ON prospects(intake_id);
 CREATE INDEX idx_prospects_assigned ON prospects(assigned_to);
+CREATE INDEX idx_prospects_referrer ON prospects(referrer_id);
+CREATE INDEX idx_prospects_utm_source ON prospects(utm_source);
+CREATE INDEX idx_prospects_utm_campaign ON prospects(utm_campaign);
 CREATE INDEX idx_applications_status ON applications(status);
 CREATE INDEX idx_applications_intake ON applications(intake_id);
 CREATE INDEX idx_documents_application ON documents(application_id);
 CREATE INDEX idx_activity_entity ON activity_log(entity_type, entity_id);
+CREATE INDEX idx_referrers_code ON referrers(code);
+CREATE INDEX idx_campaigns_utm ON campaigns(utm_campaign);
 ```
 
 ## Cancel Reasons (Seed Data)

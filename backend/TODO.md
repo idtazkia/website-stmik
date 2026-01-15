@@ -47,20 +47,24 @@ go get github.com/segmentio/kafka-go
 - [ ] `003_create_programs` - Programs (SI, TI)
 - [ ] `004_create_tracks` - Funding tracks
 - [ ] `005_create_cancel_reasons` - Cancel reason categories
-- [ ] `006_create_prospects` - Prospects/leads
-- [ ] `007_create_applications` - Applications
-- [ ] `008_create_documents` - Uploaded documents
-- [ ] `009_create_document_checklists` - Checklist templates
-- [ ] `010_create_document_reviews` - Review results
-- [ ] `011_create_activity_log` - Audit trail
-- [ ] `012_create_communication_log` - WhatsApp/email log
-- [ ] `013_seed_data` - Programs, tracks, reasons, checklists
+- [ ] `006_create_referrers` - Referral tracking
+- [ ] `007_create_campaigns` - Ad campaign tracking
+- [ ] `008_create_prospects` - Prospects with UTM fields
+- [ ] `009_create_applications` - Applications
+- [ ] `010_create_documents` - Uploaded documents
+- [ ] `011_create_document_checklists` - Checklist templates
+- [ ] `012_create_document_reviews` - Review results
+- [ ] `013_create_activity_log` - Audit trail
+- [ ] `014_create_communication_log` - WhatsApp/email log
+- [ ] `015_seed_data` - Programs, tracks, reasons, checklists
 
 ### 2.3 Models
 - [ ] `internal/models/user.go`
 - [ ] `internal/models/intake.go`
 - [ ] `internal/models/program.go`
 - [ ] `internal/models/track.go`
+- [ ] `internal/models/referrer.go`
+- [ ] `internal/models/campaign.go`
 - [ ] `internal/models/prospect.go`
 - [ ] `internal/models/application.go`
 - [ ] `internal/models/document.go`
@@ -70,8 +74,13 @@ go get github.com/segmentio/kafka-go
   - [ ] Create, FindByEmail, FindByID
 - [ ] `internal/repository/intake.go`
   - [ ] Create, List, GetActive, Update
+- [ ] `internal/repository/referrer.go`
+  - [ ] Create, FindByCode, List, Update, GetStats
+- [ ] `internal/repository/campaign.go`
+  - [ ] Create, FindByUTM, List, Update, GetStats
 - [ ] `internal/repository/prospect.go`
-  - [ ] Create, FindByID, FindByEmail, List (with filters), UpdateStatus, Cancel
+  - [ ] Create (with UTM + referrer), FindByID, FindByEmail
+  - [ ] List (filter by source, campaign, referrer), UpdateStatus, Cancel
 - [ ] `internal/repository/application.go`
   - [ ] Create, FindByID, FindByProspectID, List, UpdateStatus, Cancel
 - [ ] `internal/repository/document.go`
@@ -143,7 +152,7 @@ go get github.com/segmentio/kafka-go
 - [ ] `templates/pages/admin/applications.templ` - List with filters
 - [ ] `templates/pages/admin/application_detail.templ` - Docs, review
 - [ ] `templates/pages/admin/document_review.templ` - Checklist modal
-- [ ] `templates/pages/admin/reports.templ` - Funnel, conversion
+- [ ] `templates/pages/admin/reports.templ` - Funnel, conversion, source/campaign/referrer
 
 ### 4.5 Admin Settings Pages
 - [ ] `templates/pages/admin/settings/intakes.templ`
@@ -151,6 +160,8 @@ go get github.com/segmentio/kafka-go
 - [ ] `templates/pages/admin/settings/cancel_reasons.templ`
 - [ ] `templates/pages/admin/settings/checklists.templ`
 - [ ] `templates/pages/admin/settings/staff.templ`
+- [ ] `templates/pages/admin/settings/referrers.templ` - Referral partner management
+- [ ] `templates/pages/admin/settings/campaigns.templ` - Ad campaign management
 
 ---
 
@@ -200,11 +211,16 @@ go get github.com/segmentio/kafka-go
   - [ ] Cancel reasons CRUD
   - [ ] Document checklists CRUD
   - [ ] Staff toggle active
+  - [ ] Referrers CRUD (code, name, type, contact)
+  - [ ] Campaigns CRUD (name, utm_campaign, dates, budget)
 
 ### 5.7 Reports Handlers
 - [ ] `internal/handlers/reports.go`
-  - [ ] Funnel data
-  - [ ] CSV export
+  - [ ] Funnel data (by intake, date range)
+  - [ ] Source breakdown (utm_source stats)
+  - [ ] Campaign performance (leads, conversions, cost per lead)
+  - [ ] Referrer performance (leads, conversions by referrer)
+  - [ ] CSV export (prospects, applications, reports)
 
 ---
 
@@ -326,5 +342,9 @@ go get github.com/segmentio/kafka-go
 - [ ] WhatsApp notifications sent
 - [ ] Kafka payment events update status to enrolled
 - [ ] Dashboard shows funnel stats
+- [ ] UTM parameters captured from landing page
+- [ ] Referral codes tracked and linked to prospects
+- [ ] Campaign performance reports available
+- [ ] Referrer performance reports available
 - [ ] All HTMX interactions work (no full page reloads)
 - [ ] Mobile responsive
