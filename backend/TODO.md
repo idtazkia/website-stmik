@@ -10,7 +10,7 @@ Go-based sales funnel management system. See `README.md` for architecture and fe
 
 ### 1.1 Initialize Project
 - [ ] Create `go.mod`
-- [ ] Create directory structure
+- [ ] Create directory structure (`handler/`, `model/`, `migrations/`, `templates/`, `static/`)
 - [ ] Create `.env.example`
 - [ ] Create `cmd/server/main.go`
 - [ ] Create `cmd/migrate/main.go`
@@ -26,7 +26,7 @@ go get github.com/segmentio/kafka-go
 ```
 
 ### 1.3 Configuration
-- [ ] `internal/config/config.go` - Load and validate environment variables
+- [ ] `config.go` - Load and validate environment variables
 
 ### 1.4 Static Assets
 - [ ] Initialize Tailwind CSS in `static/`
@@ -39,7 +39,7 @@ go get github.com/segmentio/kafka-go
 ## Phase 2: Database
 
 ### 2.1 Connection
-- [ ] `internal/database/database.go` - pgx connection pool
+- [ ] `model/db.go` - pgx connection pool
 
 ### 2.2 Migrations
 - [ ] `001_create_users` - Users table
@@ -58,141 +58,105 @@ go get github.com/segmentio/kafka-go
 - [ ] `014_create_communication_log` - WhatsApp/email log
 - [ ] `015_seed_data` - Programs, tracks, reasons, checklists
 
-### 2.3 Models
-- [ ] `internal/models/user.go`
-- [ ] `internal/models/intake.go`
-- [ ] `internal/models/program.go`
-- [ ] `internal/models/track.go`
-- [ ] `internal/models/referrer.go`
-- [ ] `internal/models/campaign.go`
-- [ ] `internal/models/prospect.go`
-- [ ] `internal/models/application.go`
-- [ ] `internal/models/document.go`
-
-### 2.4 Repository
-- [ ] `internal/repository/user.go`
-  - [ ] Create, FindByEmail, FindByID
-- [ ] `internal/repository/intake.go`
-  - [ ] Create, List, GetActive, Update
-- [ ] `internal/repository/referrer.go`
-  - [ ] Create, FindByCode, List, Update, GetStats
-- [ ] `internal/repository/campaign.go`
-  - [ ] Create, FindByUTM, List, Update, GetStats
-- [ ] `internal/repository/prospect.go`
-  - [ ] Create (with UTM + referrer), FindByID, FindByEmail
-  - [ ] List (filter by source, campaign, referrer), UpdateStatus, Cancel
-- [ ] `internal/repository/application.go`
-  - [ ] Create, FindByID, FindByProspectID, List, UpdateStatus, Cancel
-- [ ] `internal/repository/document.go`
-  - [ ] Create, FindByApplicationID, UpdateStatus
-- [ ] `internal/repository/activity.go`
-  - [ ] Log, GetByEntity
+### 2.3 Models (structs + queries in same file)
+- [ ] `model/user.go` - User struct, Create, FindByEmail, FindByID
+- [ ] `model/prospect.go` - Prospect struct + CRUD + list queries
+- [ ] `model/application.go` - Application struct + CRUD
+- [ ] `model/document.go` - Document struct + CRUD + review
+- [ ] `model/lookup.go` - Intake, Program, Track, CancelReason, Referrer, Campaign
 
 ---
 
 ## Phase 3: Authentication
 
-### 3.1 Auth Service
-- [ ] `internal/services/auth.go`
+### 3.1 Auth Utils
+- [ ] `auth.go`
   - [ ] GenerateToken(userID, role)
   - [ ] ValidateToken(token)
   - [ ] HashPassword / VerifyPassword
-
-### 3.2 Google OAuth
-- [ ] `internal/services/oauth.go`
   - [ ] GetAuthURL(redirectURL)
   - [ ] ExchangeCode(code)
   - [ ] GetUserInfo(accessToken)
   - [ ] Staff domain check
 
-### 3.3 Middleware
-- [ ] `internal/middleware/auth.go`
-  - [ ] RequireAuth
-  - [ ] RequireRole(role)
-- [ ] `internal/middleware/logging.go`
-- [ ] `internal/middleware/recovery.go`
+### 3.2 Middleware
+- [ ] `handler/router.go`
+  - [ ] RequireAuth middleware
+  - [ ] RequireRole(role) middleware
+  - [ ] Logging middleware
+  - [ ] Recovery middleware
 
 ---
 
 ## Phase 4: Templates
 
 ### 4.1 Layouts
-- [ ] `templates/layouts/base.templ` - HTML structure, CSS/JS includes
-- [ ] `templates/layouts/portal.templ` - Registrant layout
-- [ ] `templates/layouts/admin.templ` - Staff layout
+- [ ] `templates/layout.templ` - Base HTML, portal layout, admin layout
 
 ### 4.2 Components
-- [ ] `templates/components/button.templ`
-- [ ] `templates/components/input.templ`
-- [ ] `templates/components/select.templ`
-- [ ] `templates/components/card.templ`
-- [ ] `templates/components/modal.templ` (Alpine.js)
-- [ ] `templates/components/table.templ`
-- [ ] `templates/components/pagination.templ`
-- [ ] `templates/components/alert.templ`
-- [ ] `templates/components/dropdown.templ` (Alpine.js)
-- [ ] `templates/components/file_upload.templ`
-- [ ] `templates/components/checklist.templ`
-- [ ] `templates/components/timeline.templ`
-- [ ] `templates/components/stats_card.templ`
+- [ ] `templates/components.templ` - button, input, select, card, modal, table, pagination, alert, dropdown, file_upload, checklist, timeline, stats_card
 
 ### 4.3 Portal Pages
-- [ ] `templates/pages/portal/login.templ`
-- [ ] `templates/pages/portal/register.templ`
-- [ ] `templates/pages/portal/dashboard.templ` - Status overview
-- [ ] `templates/pages/portal/application.templ` - Program/track selection
-- [ ] `templates/pages/portal/documents.templ` - Upload KTP/Ijazah
-- [ ] `templates/pages/portal/cancel.templ` - Cancel confirmation
+- [ ] `templates/portal.templ`
+  - [ ] Login page
+  - [ ] Register page
+  - [ ] Dashboard (status overview)
+  - [ ] Application form (program/track selection)
+  - [ ] Documents (upload KTP/Ijazah)
+  - [ ] Cancel confirmation
 
 ### 4.4 Admin Pages
-- [ ] `templates/pages/admin/login.templ`
-- [ ] `templates/pages/admin/dashboard.templ` - Funnel stats
-- [ ] `templates/pages/admin/prospects.templ` - List with filters
-- [ ] `templates/pages/admin/prospect_detail.templ` - Timeline, actions
-- [ ] `templates/pages/admin/applications.templ` - List with filters
-- [ ] `templates/pages/admin/application_detail.templ` - Docs, review
-- [ ] `templates/pages/admin/document_review.templ` - Checklist modal
-- [ ] `templates/pages/admin/reports.templ` - Funnel, conversion, source/campaign/referrer
+- [ ] `templates/admin.templ`
+  - [ ] Login page
+  - [ ] Dashboard (funnel stats)
+  - [ ] Prospects list (with filters)
+  - [ ] Prospect detail (timeline, actions)
+  - [ ] Applications list
+  - [ ] Application detail (docs, review)
+  - [ ] Document review modal (checklist)
+  - [ ] Reports (funnel, conversion, source/campaign/referrer)
 
 ### 4.5 Admin Settings Pages
-- [ ] `templates/pages/admin/settings/intakes.templ`
-- [ ] `templates/pages/admin/settings/tracks.templ`
-- [ ] `templates/pages/admin/settings/cancel_reasons.templ`
-- [ ] `templates/pages/admin/settings/checklists.templ`
-- [ ] `templates/pages/admin/settings/staff.templ`
-- [ ] `templates/pages/admin/settings/referrers.templ` - Referral partner management
-- [ ] `templates/pages/admin/settings/campaigns.templ` - Ad campaign management
+- [ ] `templates/settings.templ`
+  - [ ] Intakes management
+  - [ ] Tracks management
+  - [ ] Cancel reasons management
+  - [ ] Document checklists management
+  - [ ] Staff management
+  - [ ] Referrers management
+  - [ ] Campaigns management
 
 ---
 
 ## Phase 5: Handlers
 
 ### 5.1 Router Setup
-- [ ] `internal/handlers/router.go`
+- [ ] `handler/router.go`
   - [ ] Configure stdlib mux
   - [ ] Apply middleware
   - [ ] Register routes
   - [ ] Static file serving
 
 ### 5.2 API Handlers
-- [ ] `internal/handlers/api.go`
-  - [ ] `POST /api/prospects` - Create from landing page
+- [ ] `handler/api.go`
+  - [ ] `POST /api/prospects` - Create from landing page (with UTM + referral)
   - [ ] `GET /api/health`
+  - [ ] `GET /api/referrers/{code}` - Validate referral code
 
 ### 5.3 Auth Handlers
-- [ ] `internal/handlers/auth.go`
+- [ ] `handler/auth.go`
   - [ ] Portal: login, register, Google OAuth, logout
   - [ ] Admin: Google OAuth only, logout
 
 ### 5.4 Portal Handlers
-- [ ] `internal/handlers/portal.go`
+- [ ] `handler/portal.go`
   - [ ] Dashboard
   - [ ] Application form (create/update)
   - [ ] Document upload/delete
   - [ ] Cancel application
 
 ### 5.5 Admin Handlers
-- [ ] `internal/handlers/admin.go`
+- [ ] `handler/admin.go`
   - [ ] Dashboard (stats)
   - [ ] Prospects list/detail
   - [ ] Assign prospect (round-robin / manual)
@@ -203,19 +167,10 @@ go get github.com/segmentio/kafka-go
   - [ ] Approve application
   - [ ] Cancel application
   - [ ] Send WhatsApp
+  - [ ] Settings: Intakes, Tracks, Cancel reasons, Checklists, Staff, Referrers, Campaigns CRUD
 
-### 5.6 Admin Settings Handlers
-- [ ] `internal/handlers/settings.go`
-  - [ ] Intakes CRUD
-  - [ ] Tracks CRUD
-  - [ ] Cancel reasons CRUD
-  - [ ] Document checklists CRUD
-  - [ ] Staff toggle active
-  - [ ] Referrers CRUD (code, name, type, contact)
-  - [ ] Campaigns CRUD (name, utm_campaign, dates, budget)
-
-### 5.7 Reports Handlers
-- [ ] `internal/handlers/reports.go`
+### 5.6 Reports Handlers
+- [ ] `handler/admin.go` (reports section)
   - [ ] Funnel data (by intake, date range)
   - [ ] Source breakdown (utm_source stats)
   - [ ] Campaign performance (leads, conversions, cost per lead)
@@ -224,107 +179,66 @@ go get github.com/segmentio/kafka-go
 
 ---
 
-## Phase 6: Services
+## Phase 6: Integrations
 
-### 6.1 Prospect Service
-- [ ] `internal/services/prospect.go`
-  - [ ] CreateProspect (from landing page)
-  - [ ] AssignToStaff (round-robin)
-  - [ ] UpdateStatus
-  - [ ] Cancel
-
-### 6.2 Application Service
-- [ ] `internal/services/application.go`
-  - [ ] Create
-  - [ ] UpdateProgramTrack
-  - [ ] SubmitForReview
-  - [ ] Approve (check all docs approved)
-  - [ ] Cancel
-
-### 6.3 Document Service
-- [ ] `internal/services/document.go`
-  - [ ] Upload (validate type/size)
-  - [ ] Delete
-  - [ ] ReviewDocument (checklist)
-  - [ ] GetMissingDocuments
-
-### 6.4 Assignment Service
-- [ ] `internal/assignment/roundrobin.go`
-  - [ ] GetNextStaff
-  - [ ] AssignProspect
-  - [ ] ReassignProspect
-
----
-
-## Phase 7: Integrations
-
-### 7.1 WhatsApp Service
-- [ ] `internal/services/whatsapp.go`
+### 6.1 WhatsApp
+- [ ] `whatsapp.go`
   - [ ] SendTemplate(phone, template, variables)
-  - [ ] SendWelcome
-  - [ ] SendFollowUp
-  - [ ] SendDocumentReminder
-  - [ ] SendRevisionRequest
-  - [ ] SendApproved
-  - [ ] SendEnrolled
+  - [ ] SendWelcome, SendFollowUp, SendDocumentReminder
+  - [ ] SendRevisionRequest, SendApproved, SendEnrolled
 
-### 7.2 Kafka Consumer
-- [ ] `internal/services/kafka.go`
+### 6.2 Kafka Consumer
+- [ ] `kafka.go`
   - [ ] Consumer for `payment.completed`
   - [ ] Match VA number to application
   - [ ] Update status: approved → enrolled
   - [ ] Log payment details
 
-### 7.3 Email Service (Optional)
-- [ ] `internal/services/email.go`
-  - [ ] Same templates as WhatsApp
-  - [ ] PDF acceptance letter generation
+---
+
+## Phase 7: File Upload
+
+- [ ] `handler/portal.go` (document upload)
+  - [ ] Validate type (PDF, JPG, PNG)
+  - [ ] Validate size (max 5MB)
+  - [ ] Generate unique filename
+  - [ ] Save to upload directory
+  - [ ] Serve files with auth check
 
 ---
 
-## Phase 8: File Upload
+## Phase 8: Testing
 
-- [ ] `internal/services/storage.go`
-  - [ ] SaveFile (validate type: PDF, JPG, PNG)
-  - [ ] SaveFile (validate size: max 5MB)
-  - [ ] GenerateUniqueName
-  - [ ] DeleteFile
-  - [ ] ServeFile (with auth check)
-
----
-
-## Phase 9: Testing
-
-### 9.1 Unit Tests
-- [ ] Auth service (JWT, password)
-- [ ] Assignment service (round-robin)
+### 8.1 Unit Tests
+- [ ] Auth (JWT, password hashing)
+- [ ] Round-robin assignment
 - [ ] Document validation
 
-### 9.2 Integration Tests
+### 8.2 Integration Tests
 - [ ] API endpoints
 - [ ] Auth flow (local + Google)
 - [ ] Document upload
 - [ ] Kafka consumer
 
-### 9.3 E2E Tests
+### 8.3 E2E Tests
 - [ ] Prospect → Application → Enrolled journey
 - [ ] Admin review workflow
 
 ---
 
-## Phase 10: Deployment
+## Phase 9: Deployment
 
-### 10.1 Build
+### 9.1 Build
 - [ ] Build script (binary + Tailwind)
 - [ ] Dockerfile (optional)
 
-### 10.2 VPS Setup
+### 9.2 VPS Setup
 - [ ] Systemd service file
 - [ ] Nginx reverse proxy config
 - [ ] SSL with Certbot
 - [ ] Kafka connection
 
-### 10.3 CI/CD
+### 9.3 CI/CD
 - [ ] GitHub Actions workflow
 - [ ] Auto-deploy on push
 
