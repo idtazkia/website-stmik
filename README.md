@@ -36,46 +36,49 @@ Campus website for marketing and admission processing, serving:
 - **Marketing Staff**: Manage applications and content via Google SSO only
 
 **Target Scale:** 3,000 leads per admission cycle (300 registrations at 10% conversion), 5 staff members
-**Monthly Cost:** $0 (fully free tier - CockroachDB Serverless + Cloudflare)
+**Monthly Cost:** $5 (VPS with Go + PostgreSQL)
 
 ---
 
 ## 🏗️ Architecture
 
-**Hybrid Static Site + BFF (Backend-For-Frontend) Pattern**
+**Static Site + Go Backend Pattern**
 
 ```mermaid
 graph TB
     Browser[🌐 Browser]
 
     subgraph "Edge Layer - Cloudflare (FREE)"
+        CDN[🛡️ Cloudflare CDN<br/>DDoS Protection]
         Pages[📄 Cloudflare Pages<br/>Static Marketing Site]
-        Workers[⚡ Cloudflare Workers<br/>BFF Layer]
-        R2[📁 Cloudflare R2<br/>File Storage]
     end
 
-    subgraph "Database Layer - Cockroach Labs (FREE)"
-        Database[(🗄️ CockroachDB Serverless<br/>50M RUs/month)]
+    subgraph "VPS Layer ($5/month)"
+        Nginx[🔒 Nginx<br/>Reverse Proxy + SSL]
+        GoAPI[🚀 Go Backend<br/>REST API]
+        Database[(🗄️ PostgreSQL<br/>Database)]
     end
 
-    Browser -->|HTTPS| Pages
-    Browser -->|API Calls<br/>Cookie: token| Workers
-    Workers -->|SQL queries| Database
-    Workers -->|Upload/Download| R2
+    Browser -->|HTTPS| CDN
+    CDN -->|Static| Pages
+    CDN -->|API| Nginx
+    Nginx -->|Proxy| GoAPI
+    GoAPI -->|SQL| Database
 
     style Browser fill:#e1f5ff
+    style CDN fill:#c8e6c9
     style Pages fill:#c8e6c9
-    style Workers fill:#c8e6c9
-    style R2 fill:#c8e6c9
-    style Database fill:#c8e6c9
+    style Nginx fill:#fff9c4
+    style GoAPI fill:#fff9c4
+    style Database fill:#fff9c4
 ```
 
 **Why This Stack?**
-- ✅ **Cost-effective**: $0/month on free tiers
-- ✅ **DDoS-proof**: Hard limits, $0 attack cost
-- ✅ **Secure**: HttpOnly cookies, OIDC, industry standards
-- ✅ **Scalable**: Can handle 100,000+ leads on free tier
-- ✅ **Developer-friendly**: Modern stack, Git-based workflow
+- ✅ **Cost-effective**: Fixed $5/month (no usage surprises)
+- ✅ **DDoS-proof**: Cloudflare proxy, VPS IP hidden
+- ✅ **Simple**: Single server, full control
+- ✅ **Fast**: Go + local PostgreSQL (<1ms latency)
+- ✅ **Scalable**: Handles 100,000+ leads on $5 VPS
 
 📖 **[Read Full Architecture Documentation →](docs/ARCHITECTURE.md)**
 
@@ -86,9 +89,10 @@ graph TB
 | Component | Technology | Hosting | Cost |
 |-----------|-----------|---------|------|
 | **Static Site** | Astro + Markdown | Cloudflare Pages | Free |
-| **BFF Layer** | Cloudflare Workers | Cloudflare | Free (100k req/day) |
-| **Database** | CockroachDB Serverless | Cockroach Labs | Free (50M RUs/mo) |
-| **File Storage** | Cloudflare R2 | Cloudflare | Free (10GB) |
+| **CDN/DDoS** | Cloudflare | Cloudflare | Free |
+| **Backend API** | Go (Golang) | VPS | $5/mo |
+| **Database** | PostgreSQL 16 | VPS | Included |
+| **Reverse Proxy** | Nginx + Let's Encrypt | VPS | Included |
 | **Build/Deploy** | GitHub Actions | GitHub | Free |
 
 ---
@@ -170,21 +174,21 @@ website-stmik/
 | Service | Usage | Cost |
 |---------|-------|------|
 | **Cloudflare Pages** | Unlimited bandwidth | **$0** |
-| **Cloudflare Workers** | 2,155 req/day (2.2% of limit) | **$0** |
-| **CockroachDB Serverless** | ~500K RUs/mo (1% of limit) | **$0** |
-| **Cloudflare R2** | File storage (10GB free) | **$0** |
+| **Cloudflare CDN** | DDoS protection, caching | **$0** |
+| **VPS (1GB RAM)** | Go + PostgreSQL + Nginx | **$5** |
 | **GitHub Actions** | Build/deploy automation | **$0** |
 | **Google OAuth** | OIDC authentication | **$0** |
+| **Let's Encrypt** | SSL certificate | **$0** |
 
-**Total: $0/month** 🎉
+**Total: $5/month** 🎉
 
-### Traffic Analysis (3,000 Leads)
+### Capacity Analysis (3,000 Leads)
 
-- **Daily BFF requests:** 2,155 (only 2.2% of 100k free tier)
-- **Monthly database RUs:** ~500K (only 1% of 50M free tier)
-- **Buffer for spikes:** 97%+ remaining on both services
-- **Can scale to:** 100,000+ leads on free tier
-- **DDoS attack cost:** $0 (hard limits block excess)
+- **VPS CPU usage:** <5% (Go is efficient)
+- **VPS RAM usage:** ~300MB of 1GB (~30%)
+- **Database size:** ~10MB (tiny)
+- **Can scale to:** 100,000+ leads without upgrade
+- **DDoS attack cost:** $5 (fixed, Cloudflare absorbs traffic)
 
 📖 **[Read Traffic Analysis →](docs/ARCHITECTURE.md#bff-traffic-analysis)**
 
@@ -325,14 +329,14 @@ See **[TODO.md](TODO.md)** for the complete implementation roadmap.
 ## 📈 Scalability
 
 ### Current Capacity (3,000 leads)
-- Using only 2.2% of Cloudflare Workers free tier
-- Using only 1% of CockroachDB Serverless free tier
-- Can scale to 100,000+ leads without upgrades
+- VPS using <5% CPU, ~30% RAM
+- PostgreSQL using <1% of disk
+- Can scale to 100,000+ leads on same VPS
 
 ### Scaling Path
-1. **0-100K leads:** Current setup ($0/mo - fully free)
-2. **100K-300K leads:** Pay-as-you-go (~$10-20/mo)
-3. **300K+ leads:** Dedicated clusters or self-hosted PostgreSQL
+1. **0-100K leads:** Current 1GB VPS ($5/mo)
+2. **100K-500K leads:** Upgrade to 2-4GB VPS ($10-20/mo)
+3. **500K+ leads:** Load balancer + multiple VPS ($50+/mo)
 
 📖 **[Read Scalability Strategy →](docs/ARCHITECTURE.md#scalability)**
 
@@ -377,21 +381,26 @@ npm install
 
 **Database connection error:**
 ```bash
-# Verify CockroachDB connection string in .env
-# Format: postgresql://user:password@host:26257/database?sslmode=verify-full
+# Check PostgreSQL is running
+sudo systemctl status postgresql
 
-# Test connection using cockroach CLI or psql
-cockroach sql --url "YOUR_CONNECTION_STRING"
+# Test connection
+psql -U campus_app -d campus -h localhost
+
+# Check logs
+sudo tail -f /var/log/postgresql/postgresql-16-main.log
 ```
 
-**Cloudflare Workers not deploying:**
+**Go backend not responding:**
 ```bash
-# Login again
-npx wrangler login
+# Check service status
+sudo systemctl status campus-api
 
-# Deploy with verbose output
-cd frontend
-npx wrangler deploy --verbose
+# View logs
+sudo journalctl -u campus-api -f
+
+# Restart service
+sudo systemctl restart campus-api
 ```
 
 📖 **[Read Full Troubleshooting Guide →](docs/DEPLOYMENT.md#troubleshooting)**
@@ -436,8 +445,9 @@ This is a private project for STMIK Campus. Only authorized developers should co
 
 ### For Production Issues
 - Check Cloudflare Analytics for traffic/errors
-- Check CockroachDB Console for database metrics
-- Check Cloudflare Workers logs in dashboard
+- Check Go logs: `sudo journalctl -u campus-api -f`
+- Check Nginx logs: `sudo tail -f /var/log/nginx/error.log`
+- Check PostgreSQL: `sudo tail -f /var/log/postgresql/*.log`
 
 ---
 
@@ -460,14 +470,14 @@ This project is proprietary and confidential. All rights reserved to STMIK.
 
 ### Why This Solution?
 
-1. **Cost-Effective:** $0/month on free tiers (100% free for up to 100K leads)
-2. **Zero Risk:** Hard limits prevent unexpected bills during DDoS
-3. **Production-Ready:** Industry-standard tech stack with strong community support
-4. **Scalable:** Can grow from 3,000 to 100,000+ leads without paying
-5. **Secure:** OIDC, HttpOnly cookies, rate limiting, DDoS protection
-6. **Developer-Friendly:** Modern stack, serverless, automated deployments
+1. **Cost-Effective:** Fixed $5/month (no usage surprises)
+2. **Simple:** Single VPS to manage (not 3+ cloud services)
+3. **Fast:** Go backend + local PostgreSQL (<1ms latency)
+4. **Scalable:** Can grow from 3,000 to 100,000+ leads on same VPS
+5. **Secure:** OIDC, HttpOnly cookies, Cloudflare DDoS protection
+6. **Developer-Friendly:** Modern stack (Astro, Go), simple deployment
 7. **SEO-Optimized:** Static site generation for excellent search rankings
-8. **Zero Maintenance:** Fully managed services, no servers to maintain
+8. **Full Control:** Direct server access, easy debugging
 
 ### Success Metrics
 
@@ -475,8 +485,8 @@ This project is proprietary and confidential. All rights reserved to STMIK.
 - [ ] Zero security incidents
 - [ ] 99% uptime
 - [ ] <2s page load time
-- [ ] <5% free tier usage (BFF + database)
-- [ ] $0/month hosting cost maintained
+- [ ] <30% VPS resource usage
+- [ ] $5/month hosting cost maintained
 
 ---
 
