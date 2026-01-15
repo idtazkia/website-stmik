@@ -156,6 +156,7 @@ See `frontend/TODO.md` for detailed frontend tasks.
 
 ## Task Organization
 
+- **Implementation plan:** `docs/IMPLEMENTATION_PLAN.md` (consolidated tracking)
 - **Frontend tasks:** `frontend/TODO.md`
 - **Backend tasks:** `backend/TODO.md`
 - **Infrastructure tasks:** `infrastructure/TODO.md`
