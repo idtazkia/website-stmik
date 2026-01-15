@@ -6,9 +6,11 @@ Go-based sales funnel management system for campus admissions.
 
 The backend handles the complete lead-to-registration journey:
 - Lead capture from Astro landing page
-- Portal for leads to complete applications
+- Portal for prospects to complete applications
 - Admin dashboard for marketing staff
-- Application review and approval workflow
+- Document review with checklist
+- Payment verification via Kafka integration
+- WhatsApp notifications via REST API
 
 ## Tech Stack
 
@@ -25,6 +27,145 @@ The backend handles the complete lead-to-registration journey:
 | Password | x/crypto/bcrypt | Secure password hashing |
 | Migrations | golang-migrate | SQL-based migrations |
 | Logging | slog (stdlib) | Structured logging |
+| Messaging | Kafka (segmentio) | Payment event integration |
+
+## Sales Funnel
+
+### Status Flow
+
+```
+PROSPECT                           APPLICATION
+────────                           ───────────
+   │                                    │
+   ▼                                    ▼
+┌─────┐    ┌───────────┐    ┌─────────────────┐    ┌──────────┐    ┌──────────┐
+│ New │───▶│ Contacted │───▶│ Applicant       │───▶│ Approved │───▶│ Enrolled │
+└─────┘    └───────────┘    │ (uploads docs)  │    │ (payment)│    │ (paid)   │
+   │            │           └─────────────────┘    └──────────┘    └──────────┘
+   │            │                   │                   │
+   └────────────┴───────────────────┴───────────────────┘
+                                    ▼
+                              Cancelled
+                         (by registrant)
+```
+
+### Prospect Status
+
+| Status | Description |
+|--------|-------------|
+| `new` | Just submitted form from landing page |
+| `contacted` | Staff has made contact |
+| `applicant` | Started application (uploaded documents) |
+| `cancelled` | Cancelled by registrant |
+
+### Application Status
+
+| Status | Description |
+|--------|-------------|
+| `pending_review` | Documents uploaded, waiting for review |
+| `revision_required` | Documents need revision |
+| `approved` | All documents approved, awaiting payment |
+| `enrolled` | Payment verified |
+| `cancelled` | Cancelled by registrant |
+
+### Document Status
+
+| Status | Description |
+|--------|-------------|
+| `pending` | Uploaded, not yet reviewed |
+| `approved` | Passed all checklist items |
+| `revision_required` | Failed checklist, needs re-upload |
+
+## Features
+
+### 1. Lead Management
+
+- Create prospects from landing page API
+- List with filters (status, source, intake, assigned staff)
+- Round-robin auto-assignment to staff
+- Manual assignment/reassignment
+- Activity timeline per prospect
+- Mark as cancelled with reason
+
+### 2. Application Management
+
+- Select program (SI / TI)
+- Select track (Regular, KIP-K, LPDP, Internal Scholarship)
+- Select intake period (Ganjil / Genap)
+- Upload documents (KTP, Ijazah)
+- Document review with checklist
+- Approve application (when all docs approved)
+- Cancel with reason
+
+### 3. Document Review
+
+Each document type has a checklist:
+
+**KTP Checklist:**
+- Nama jelas terbaca
+- NIK lengkap (16 digit)
+- Foto tidak buram
+- Masih berlaku
+
+**Ijazah Checklist:**
+- Nama sesuai KTP
+- Tahun lulus terlihat
+- Stempel sekolah ada
+- Tanda tangan kepala sekolah
+
+Staff marks each item pass/fail. If any fail, document status becomes `revision_required` with remarks.
+
+### 4. Intake Management
+
+- Create intake periods (e.g., "2025 Ganjil", "2025 Genap")
+- Set registration open/close dates
+- 2 intakes per year
+- No quota limits
+
+### 5. Staff Management
+
+- Round-robin lead assignment
+- Set staff active/inactive for assignment
+- View assigned leads count
+- Manual lead reassignment
+
+### 6. Communication
+
+**WhatsApp (REST API):**
+- Welcome message (new prospect)
+- Follow-up reminder (3 days no activity)
+- Document reminder (7 days incomplete)
+- Revision request (with remarks)
+- Application approved (with VA number)
+- Payment confirmed
+
+**Email (SMTP):**
+- Same templates as WhatsApp
+- Formal acceptance letter (PDF)
+
+### 7. Payment Integration (Kafka)
+
+```
+Incoming: payment.completed
+├── va_number
+├── amount
+├── paid_at
+└── → Update application: approved → enrolled
+
+Outgoing: application.approved (optional)
+├── application_id
+├── prospect_name
+└── → Trigger VA generation in payment app
+```
+
+### 8. Reports & Dashboard
+
+- Funnel overview (counts per stage)
+- This intake vs previous comparison
+- Leads by source
+- Leads by program/track
+- Staff conversion leaderboard
+- Export to CSV
 
 ## Architecture
 
@@ -43,62 +184,21 @@ The backend handles the complete lead-to-registration journey:
                                                    ▼
                                          ┌───────────────────┐
                                          │      Nginx        │
-                                         │  (Reverse Proxy)  │
                                          │  + Rate Limiting  │
-                                         │  + SSL Termination│
+                                         │  + SSL            │
                                          └───────────────────┘
                                                    │
-                                                   ▼
-                                         ┌───────────────────┐
-                                         │    Go Backend     │
-                                         │  ┌─────────────┐  │
-                                         │  │   Handlers  │  │
-                                         │  ├─────────────┤  │
-                                         │  │  Services   │  │
-                                         │  ├─────────────┤  │
-                                         │  │ Repository  │  │
-                                         │  └─────────────┘  │
-                                         └───────────────────┘
-                                                   │
-                                                   ▼
-                                         ┌───────────────────┐
-                                         │   PostgreSQL 16   │
-                                         └───────────────────┘
-```
-
-## User Flows
-
-### Lead Journey
-```
-Astro Landing Page
-       │
-       ▼ (Submit name + email)
-Go Backend: Create Lead
-       │
-       ▼ (Redirect)
-Portal: Complete Profile
-       │
-       ▼
-Portal: Fill Application Form
-       │
-       ▼
-Portal: Upload Documents
-       │
-       ▼
-Portal: Track Status
-```
-
-### Staff Journey
-```
-Admin Login (Google OIDC)
-       │
-       ▼
-Dashboard: View Pipeline
-       │
-       ├── Filter/Search Leads
-       ├── Review Applications
-       ├── Approve/Reject
-       └── Send Notifications
+                              ┌────────────────────┼────────────────────┐
+                              ▼                    ▼                    ▼
+                    ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+                    │  Go Backend  │     │    Kafka     │     │  WhatsApp    │
+                    │              │◀───▶│   (Payment)  │     │  REST API    │
+                    └──────────────┘     └──────────────┘     └──────────────┘
+                              │
+                              ▼
+                    ┌──────────────┐
+                    │ PostgreSQL   │
+                    └──────────────┘
 ```
 
 ## Project Structure
@@ -106,34 +206,44 @@ Dashboard: View Pipeline
 ```
 backend/
 ├── cmd/
-│   └── server/
-│       └── main.go              # Entry point
+│   ├── server/
+│   │   └── main.go              # Entry point
+│   └── migrate/
+│       └── main.go              # Migration CLI
 ├── internal/
 │   ├── config/
 │   │   └── config.go            # Environment configuration
 │   ├── database/
 │   │   └── database.go          # PostgreSQL connection
 │   ├── handlers/
-│   │   ├── api.go               # JSON API handlers (lead capture)
-│   │   ├── portal.go            # Lead portal pages
-│   │   ├── admin.go             # Admin dashboard pages
-│   │   └── auth.go              # Authentication handlers
+│   │   ├── api.go               # JSON API (lead capture)
+│   │   ├── portal.go            # Registrant portal
+│   │   ├── admin.go             # Staff dashboard
+│   │   └── auth.go              # Authentication
 │   ├── middleware/
 │   │   ├── auth.go              # JWT verification
 │   │   ├── logging.go           # Request logging
 │   │   └── recovery.go          # Panic recovery
 │   ├── models/
-│   │   ├── user.go              # User model
-│   │   ├── lead.go              # Lead model
-│   │   └── application.go       # Application model
+│   │   ├── user.go
+│   │   ├── prospect.go
+│   │   ├── application.go
+│   │   ├── document.go
+│   │   └── intake.go
 │   ├── repository/
-│   │   ├── user.go              # User queries
-│   │   ├── lead.go              # Lead queries
-│   │   └── application.go       # Application queries
-│   └── services/
-│       ├── auth.go              # Authentication logic
-│       ├── lead.go              # Lead management
-│       └── application.go       # Application processing
+│   │   ├── user.go
+│   │   ├── prospect.go
+│   │   ├── application.go
+│   │   └── document.go
+│   ├── services/
+│   │   ├── auth.go
+│   │   ├── prospect.go
+│   │   ├── application.go
+│   │   ├── document.go
+│   │   ├── whatsapp.go          # WhatsApp API client
+│   │   └── kafka.go             # Kafka consumer/producer
+│   └── assignment/
+│       └── roundrobin.go        # Staff assignment logic
 ├── migrations/
 │   ├── 001_create_users.up.sql
 │   ├── 001_create_users.down.sql
@@ -141,31 +251,40 @@ backend/
 ├── templates/
 │   ├── components/
 │   │   ├── button.templ
+│   │   ├── input.templ
 │   │   ├── card.templ
-│   │   ├── form.templ
 │   │   ├── modal.templ
-│   │   └── table.templ
+│   │   ├── table.templ
+│   │   ├── pagination.templ
+│   │   ├── alert.templ
+│   │   └── dropdown.templ
 │   ├── layouts/
-│   │   ├── base.templ           # HTML base layout
-│   │   ├── portal.templ         # Portal layout
-│   │   └── admin.templ          # Admin layout
-│   ├── pages/
-│   │   ├── portal/
-│   │   │   ├── login.templ
-│   │   │   ├── profile.templ
-│   │   │   ├── application.templ
-│   │   │   └── status.templ
-│   │   └── admin/
-│   │       ├── dashboard.templ
-│   │       ├── leads.templ
-│   │       ├── lead_detail.templ
-│   │       └── settings.templ
-│   └── emails/
-│       ├── welcome.templ
-│       └── status_update.templ
+│   │   ├── base.templ
+│   │   ├── portal.templ
+│   │   └── admin.templ
+│   └── pages/
+│       ├── portal/
+│       │   ├── login.templ
+│       │   ├── register.templ
+│       │   ├── dashboard.templ
+│       │   ├── application.templ
+│       │   ├── documents.templ
+│       │   └── cancel.templ
+│       └── admin/
+│           ├── login.templ
+│           ├── dashboard.templ
+│           ├── prospects.templ
+│           ├── prospect_detail.templ
+│           ├── applications.templ
+│           ├── application_detail.templ
+│           ├── document_review.templ
+│           └── settings/
+│               ├── intakes.templ
+│               ├── tracks.templ
+│               ├── cancel_reasons.templ
+│               └── staff.templ
 ├── static/
-│   ├── css/
-│   │   └── app.css              # Tailwind output
+│   ├── css/app.css
 │   └── js/
 │       ├── htmx.min.js
 │       └── alpine.min.js
@@ -176,193 +295,274 @@ backend/
 └── TODO.md
 ```
 
-## Request Flow
-
-### HTML Pages (Portal/Admin)
-```
-Request → Middleware Chain → Handler → Service → Repository → DB
-                                           │
-                                           ▼
-                                    Templ Template
-                                           │
-                                           ▼
-                                    HTML Response
-```
-
-### HTMX Partial Updates
-```
-HTMX Request (HX-Request header)
-       │
-       ▼
-Handler detects HTMX
-       │
-       ▼
-Returns HTML fragment (not full page)
-       │
-       ▼
-HTMX swaps DOM element
-```
-
-### JSON API (Lead Capture)
-```
-POST /api/leads (from Astro)
-       │
-       ▼
-Handler → Service → Repository → DB
-       │
-       ▼
-JSON Response
-```
-
 ## Routes
 
 ### Public API
+
 ```
-POST /api/leads                  # Create lead (from landing page)
+POST /api/prospects              # Create prospect (from landing page)
 GET  /api/health                 # Health check
 ```
 
-### Portal (Leads)
+### Portal (Registrants)
+
 ```
 GET  /portal/login               # Login page
 POST /portal/login               # Login submit
 GET  /portal/register            # Register page
 POST /portal/register            # Register submit
-GET  /portal/auth/google         # Google OAuth initiate
+GET  /portal/auth/google         # Google OAuth
 GET  /portal/auth/google/callback
+POST /portal/logout
 
-GET  /portal/profile             # Profile form
-POST /portal/profile             # Update profile (HTMX)
-
+GET  /portal                     # Dashboard (status overview)
 GET  /portal/application         # Application form
-POST /portal/application         # Submit application (HTMX)
+POST /portal/application         # Create/update application (HTMX)
+GET  /portal/documents           # Document upload page
+POST /portal/documents           # Upload document (HTMX)
+DELETE /portal/documents/{id}    # Remove document (HTMX)
 
-GET  /portal/documents           # Document upload
-POST /portal/documents           # Upload file (HTMX)
-
-GET  /portal/status              # Application status
+GET  /portal/cancel              # Cancel confirmation page
+POST /portal/cancel              # Submit cancellation
 ```
 
 ### Admin (Staff)
+
 ```
-GET  /admin/login                # Staff login (Google only)
+GET  /admin/login                # Login (Google only)
 GET  /admin/auth/google
 GET  /admin/auth/google/callback
+POST /admin/logout
 
-GET  /admin/dashboard            # Dashboard with stats
-GET  /admin/leads                # Lead list with filters
-GET  /admin/leads/:id            # Lead detail
-POST /admin/leads/:id/status     # Update status (HTMX)
-POST /admin/leads/:id/notes      # Add note (HTMX)
+GET  /admin                      # Dashboard
+GET  /admin/prospects            # Prospect list
+GET  /admin/prospects/{id}       # Prospect detail
+POST /admin/prospects/{id}/assign        # Assign to staff (HTMX)
+POST /admin/prospects/{id}/status        # Update status (HTMX)
+POST /admin/prospects/{id}/whatsapp      # Send WhatsApp (HTMX)
+POST /admin/prospects/{id}/cancel        # Mark cancelled (HTMX)
 
 GET  /admin/applications         # Application list
-GET  /admin/applications/:id     # Application detail
-POST /admin/applications/:id/approve
-POST /admin/applications/:id/reject
+GET  /admin/applications/{id}    # Application detail
+GET  /admin/applications/{id}/documents/{docId}/review  # Review modal
+POST /admin/applications/{id}/documents/{docId}/review  # Submit review (HTMX)
+POST /admin/applications/{id}/approve    # Approve application (HTMX)
+POST /admin/applications/{id}/cancel     # Mark cancelled (HTMX)
 
-GET  /admin/settings             # Admin settings
-```
+GET  /admin/settings             # Settings overview
+GET  /admin/settings/intakes     # Intake management
+POST /admin/settings/intakes     # Create intake (HTMX)
+PUT  /admin/settings/intakes/{id}        # Update intake (HTMX)
+GET  /admin/settings/tracks      # Track management
+GET  /admin/settings/reasons     # Cancel reasons
+GET  /admin/settings/checklists  # Document checklists
+GET  /admin/settings/staff       # Staff management
+POST /admin/settings/staff/{id}/toggle   # Toggle active (HTMX)
 
-## Middleware Stack
-
-```go
-// Applied to all routes
-mux.Handle("/",
-    recovery(
-        logging(
-            securityHeaders(
-                handler,
-            ),
-        ),
-    ),
-)
-
-// Applied to portal routes
-portalHandler = requireAuth(portalMux)
-
-// Applied to admin routes
-adminHandler = requireAuth(requireRole("staff", adminMux))
+GET  /admin/reports              # Reports page
+GET  /admin/reports/funnel       # Funnel data (HTMX)
+GET  /admin/reports/export       # CSV export
 ```
 
 ## Database Schema
 
-### Core Tables
 ```sql
--- Users (both leads and staff)
+-- Users (registrants and staff)
 CREATE TABLE users (
-    id            SERIAL PRIMARY KEY,
-    email         VARCHAR(255) UNIQUE NOT NULL,
-    name          VARCHAR(255) NOT NULL,
-    password_hash VARCHAR(255),
-    provider      VARCHAR(50) NOT NULL DEFAULT 'local',
-    provider_id   VARCHAR(255),
-    role          VARCHAR(50) NOT NULL DEFAULT 'lead',
-    email_verified BOOLEAN DEFAULT FALSE,
-    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    id              SERIAL PRIMARY KEY,
+    email           VARCHAR(255) UNIQUE NOT NULL,
+    name            VARCHAR(255) NOT NULL,
+    password_hash   VARCHAR(255),
+    provider        VARCHAR(50) NOT NULL DEFAULT 'local',
+    provider_id     VARCHAR(255),
+    role            VARCHAR(50) NOT NULL DEFAULT 'registrant',
+    is_active       BOOLEAN DEFAULT TRUE,
+    last_assigned_at TIMESTAMP,  -- For round-robin (staff only)
+    created_at      TIMESTAMP DEFAULT NOW(),
+    updated_at      TIMESTAMP DEFAULT NOW()
 );
 
--- Lead profiles (extended info)
-CREATE TABLE lead_profiles (
-    id            SERIAL PRIMARY KEY,
-    user_id       INTEGER UNIQUE REFERENCES users(id),
-    phone         VARCHAR(20),
-    address       TEXT,
-    birth_date    DATE,
-    high_school   VARCHAR(255),
-    graduation_year INTEGER,
-    source        VARCHAR(100),  -- How they found us
-    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- Intakes (registration periods)
+CREATE TABLE intakes (
+    id              SERIAL PRIMARY KEY,
+    name            VARCHAR(100) NOT NULL,
+    year            INTEGER NOT NULL,
+    period          VARCHAR(20) NOT NULL,  -- 'ganjil', 'genap'
+    open_date       DATE NOT NULL,
+    close_date      DATE NOT NULL,
+    is_active       BOOLEAN DEFAULT TRUE,
+    created_at      TIMESTAMP DEFAULT NOW()
+);
+
+-- Programs
+CREATE TABLE programs (
+    id              SERIAL PRIMARY KEY,
+    code            VARCHAR(10) NOT NULL,  -- 'SI', 'TI'
+    name            VARCHAR(255) NOT NULL,
+    is_active       BOOLEAN DEFAULT TRUE
+);
+
+-- Tracks (funding types)
+CREATE TABLE tracks (
+    id              SERIAL PRIMARY KEY,
+    code            VARCHAR(50) NOT NULL,
+    name            VARCHAR(255) NOT NULL,
+    type            VARCHAR(50) NOT NULL,  -- 'private', 'government', 'internal'
+    is_active       BOOLEAN DEFAULT TRUE
+);
+
+-- Cancel reasons
+CREATE TABLE cancel_reasons (
+    id              SERIAL PRIMARY KEY,
+    code            VARCHAR(50) NOT NULL,
+    label           VARCHAR(255) NOT NULL,
+    applies_to      VARCHAR(50) NOT NULL,  -- 'prospect', 'application', 'both'
+    is_active       BOOLEAN DEFAULT TRUE
+);
+
+-- Prospects (leads)
+CREATE TABLE prospects (
+    id              SERIAL PRIMARY KEY,
+    name            VARCHAR(255) NOT NULL,
+    email           VARCHAR(255) UNIQUE NOT NULL,
+    whatsapp        VARCHAR(20) NOT NULL,
+    source          VARCHAR(100),
+    intake_id       INTEGER REFERENCES intakes(id),
+    assigned_to     INTEGER REFERENCES users(id),
+    status          VARCHAR(50) DEFAULT 'new',
+    cancel_reason_id INTEGER REFERENCES cancel_reasons(id),
+    cancel_remarks  TEXT,
+    cancelled_at    TIMESTAMP,
+    created_at      TIMESTAMP DEFAULT NOW(),
+    updated_at      TIMESTAMP DEFAULT NOW()
 );
 
 -- Applications
 CREATE TABLE applications (
-    id            SERIAL PRIMARY KEY,
-    user_id       INTEGER REFERENCES users(id),
-    program       VARCHAR(100) NOT NULL,
-    status        VARCHAR(50) DEFAULT 'draft',
-    submitted_at  TIMESTAMP,
-    reviewed_by   INTEGER REFERENCES users(id),
-    reviewed_at   TIMESTAMP,
-    notes         TEXT,
-    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    id              SERIAL PRIMARY KEY,
+    prospect_id     INTEGER REFERENCES prospects(id),
+    user_id         INTEGER REFERENCES users(id),
+    intake_id       INTEGER REFERENCES intakes(id),
+    program_id      INTEGER REFERENCES programs(id),
+    track_id        INTEGER REFERENCES tracks(id),
+    status          VARCHAR(50) DEFAULT 'pending_review',
+    va_number       VARCHAR(50),
+    paid_at         TIMESTAMP,
+    cancel_reason_id INTEGER REFERENCES cancel_reasons(id),
+    cancel_remarks  TEXT,
+    cancelled_at    TIMESTAMP,
+    created_at      TIMESTAMP DEFAULT NOW(),
+    updated_at      TIMESTAMP DEFAULT NOW()
 );
 
 -- Documents
 CREATE TABLE documents (
-    id            SERIAL PRIMARY KEY,
-    user_id       INTEGER REFERENCES users(id),
-    application_id INTEGER REFERENCES applications(id),
-    doc_type      VARCHAR(50) NOT NULL,
-    filename      VARCHAR(255) NOT NULL,
-    filepath      VARCHAR(500) NOT NULL,
-    file_size     INTEGER,
-    uploaded_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    id              SERIAL PRIMARY KEY,
+    application_id  INTEGER REFERENCES applications(id),
+    doc_type        VARCHAR(50) NOT NULL,  -- 'ktp', 'ijazah'
+    filename        VARCHAR(255) NOT NULL,
+    filepath        VARCHAR(500) NOT NULL,
+    status          VARCHAR(50) DEFAULT 'pending',
+    remarks         TEXT,
+    reviewed_by     INTEGER REFERENCES users(id),
+    reviewed_at     TIMESTAMP,
+    uploaded_at     TIMESTAMP DEFAULT NOW()
+);
+
+-- Document checklist templates
+CREATE TABLE document_checklists (
+    id              SERIAL PRIMARY KEY,
+    doc_type        VARCHAR(50) NOT NULL,
+    check_item      VARCHAR(255) NOT NULL,
+    sort_order      INTEGER DEFAULT 0,
+    is_active       BOOLEAN DEFAULT TRUE
+);
+
+-- Document review results
+CREATE TABLE document_reviews (
+    id              SERIAL PRIMARY KEY,
+    document_id     INTEGER REFERENCES documents(id),
+    checklist_id    INTEGER REFERENCES document_checklists(id),
+    passed          BOOLEAN NOT NULL,
+    reviewed_by     INTEGER REFERENCES users(id),
+    reviewed_at     TIMESTAMP DEFAULT NOW()
 );
 
 -- Activity log
 CREATE TABLE activity_log (
-    id            SERIAL PRIMARY KEY,
-    user_id       INTEGER REFERENCES users(id),
-    action        VARCHAR(100) NOT NULL,
-    entity_type   VARCHAR(50),
-    entity_id     INTEGER,
-    metadata      JSONB,
-    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    id              SERIAL PRIMARY KEY,
+    user_id         INTEGER REFERENCES users(id),
+    entity_type     VARCHAR(50) NOT NULL,
+    entity_id       INTEGER NOT NULL,
+    action          VARCHAR(100) NOT NULL,
+    metadata        JSONB,
+    created_at      TIMESTAMP DEFAULT NOW()
 );
+
+-- Communication log
+CREATE TABLE communication_log (
+    id              SERIAL PRIMARY KEY,
+    prospect_id     INTEGER REFERENCES prospects(id),
+    channel         VARCHAR(20) NOT NULL,  -- 'whatsapp', 'email'
+    template        VARCHAR(100),
+    message         TEXT,
+    status          VARCHAR(50),  -- 'sent', 'delivered', 'failed'
+    sent_by         INTEGER REFERENCES users(id),
+    sent_at         TIMESTAMP DEFAULT NOW()
+);
+
+-- Indexes
+CREATE INDEX idx_prospects_status ON prospects(status);
+CREATE INDEX idx_prospects_intake ON prospects(intake_id);
+CREATE INDEX idx_prospects_assigned ON prospects(assigned_to);
+CREATE INDEX idx_applications_status ON applications(status);
+CREATE INDEX idx_applications_intake ON applications(intake_id);
+CREATE INDEX idx_documents_application ON documents(application_id);
+CREATE INDEX idx_activity_entity ON activity_log(entity_type, entity_id);
 ```
 
-### Status Values
-```
-Lead Status:    new → contacted → qualified → converted → lost
-Application:    draft → submitted → under_review → approved → rejected
-```
+## Cancel Reasons (Seed Data)
+
+| Code | Label | Applies To |
+|------|-------|------------|
+| `no_response` | Tidak merespon | prospect |
+| `chose_other` | Memilih kampus lain | both |
+| `financial` | Kendala biaya | both |
+| `changed_mind` | Berubah pikiran | both |
+| `age_requirement` | Tidak memenuhi syarat usia | prospect |
+| `invalid_document` | Dokumen tidak valid | application |
+| `other` | Lainnya | both |
+
+## Document Checklists (Seed Data)
+
+**KTP:**
+| Check Item |
+|------------|
+| Nama jelas terbaca |
+| NIK lengkap (16 digit) |
+| Foto tidak buram |
+| Masih berlaku |
+
+**Ijazah:**
+| Check Item |
+|------------|
+| Nama sesuai KTP |
+| Tahun lulus terlihat |
+| Stempel sekolah ada |
+| Tanda tangan kepala sekolah |
+
+## WhatsApp Templates
+
+| Template | Trigger | Variables |
+|----------|---------|-----------|
+| `welcome` | New prospect | `name` |
+| `followup_3d` | 3 days no activity | `name` |
+| `document_reminder` | 7 days incomplete | `name`, `missing_docs` |
+| `revision_request` | Doc needs revision | `name`, `doc_type`, `remarks` |
+| `approved` | Application approved | `name`, `program`, `va_number` |
+| `enrolled` | Payment confirmed | `name`, `program` |
 
 ## Configuration
-
-Environment variables (`.env`):
 
 ```bash
 # Server
@@ -370,138 +570,68 @@ PORT=3000
 APP_URL=https://yourdomain.com
 
 # Database
-DATABASE_URL=postgres://campus_app:password@localhost:5432/campus?sslmode=disable
+DATABASE_URL=postgres://user:pass@localhost:5432/campus?sslmode=disable
 
 # Authentication
 JWT_SECRET=your-32-char-minimum-secret
-JWT_EXPIRY=168h  # 7 days
-
-# Google OAuth
+JWT_EXPIRY=168h
 GOOGLE_CLIENT_ID=xxx
 GOOGLE_CLIENT_SECRET=xxx
-GOOGLE_REDIRECT_URL=https://yourdomain.com/portal/auth/google/callback
-ADMIN_GOOGLE_REDIRECT_URL=https://yourdomain.com/admin/auth/google/callback
-
-# Staff domain restriction
 STAFF_EMAIL_DOMAIN=tazkia.ac.id
 
 # File uploads
 UPLOAD_DIR=/var/www/uploads
-MAX_FILE_SIZE=5242880  # 5MB
+MAX_FILE_SIZE=5242880
+
+# WhatsApp API
+WHATSAPP_API_URL=https://api.whatsapp.example.com
+WHATSAPP_API_KEY=xxx
+
+# Kafka
+KAFKA_BROKERS=localhost:9092
+KAFKA_CONSUMER_GROUP=campus-backend
+KAFKA_PAYMENT_TOPIC=payment.completed
 ```
 
 ## Development
 
-### Prerequisites
-- Go 1.25+
-- PostgreSQL 16+
-- Node.js (for Tailwind CSS build)
-
-### Setup
 ```bash
-# Clone and enter directory
-cd backend
-
-# Install Go dependencies
+# Install dependencies
 go mod download
-
-# Install Templ
 go install github.com/a-h/templ/cmd/templ@latest
 
-# Install Tailwind (via npm in static/)
-cd static && npm install && cd ..
-
-# Copy environment file
-cp .env.example .env
-# Edit .env with your values
-
-# Run database migrations
+# Setup database
+createdb campus
 go run ./cmd/migrate up
 
-# Generate Templ files
+# Generate templates
 templ generate
 
-# Build Tailwind CSS
-cd static && npm run build && cd ..
-
-# Run development server
+# Run server
 go run ./cmd/server
-```
 
-### Development Commands
-```bash
-# Run server with hot reload (using air)
+# With hot reload
 air
-
-# Generate Templ templates
-templ generate
-
-# Watch Templ files
-templ generate --watch
-
-# Build Tailwind CSS
-cd static && npm run build
-
-# Watch Tailwind
-cd static && npm run watch
-
-# Run tests
-go test ./...
-
-# Run migrations
-go run ./cmd/migrate up
-go run ./cmd/migrate down
 ```
 
 ## Deployment
 
-### Build
 ```bash
-# Build binary
+# Build
 CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o campus-api ./cmd/server
 
-# Build Tailwind for production
-cd static && npm run build:prod
-```
-
-### Deploy to VPS
-```bash
-# Copy binary and static files
+# Deploy
 scp campus-api user@vps:~/
-scp -r static user@vps:~/
-scp -r templates user@vps:~/  # If using file-based templates
-
-# SSH and restart service
-ssh user@vps
-sudo systemctl restart campus-api
+ssh user@vps sudo systemctl restart campus-api
 ```
-
-See `docs/DEPLOYMENT.md` for full deployment instructions.
 
 ## Dependencies
 
 ```
-# Core
-github.com/jackc/pgx/v5           # PostgreSQL driver
-github.com/golang-jwt/jwt/v5       # JWT handling
+github.com/jackc/pgx/v5           # PostgreSQL
+github.com/golang-jwt/jwt/v5       # JWT
 golang.org/x/crypto                # bcrypt
-
-# Templates
-github.com/a-h/templ               # Type-safe templates
-
-# Migrations
-github.com/golang-migrate/migrate  # Database migrations
-
-# Development
-github.com/air-verse/air           # Hot reload (dev only)
+github.com/a-h/templ               # Templates
+github.com/golang-migrate/migrate  # Migrations
+github.com/segmentio/kafka-go      # Kafka
 ```
-
-## Performance
-
-Expected resource usage on 1GB VPS:
-- Go binary: ~50MB RAM
-- PostgreSQL: ~200MB RAM
-- Nginx: ~10MB RAM
-- Total: ~360MB (36% of 1GB)
-
-Capacity: 100,000+ leads without VPS upgrade
