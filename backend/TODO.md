@@ -1,425 +1,623 @@
-# Backend TODO - STMIK Tazkia Admission System
+# Backend TODO - STMIK Tazkia Admission CRM
 
-Feature-wise implementation plan. Each feature is a vertical slice delivering end-to-end functionality.
+Sales-driven admission system with CRM capabilities. Each feature is a vertical slice.
 
 ---
 
-## Feature 1: Health Check API ✅
+## Completed
 
-Basic server setup with health endpoint.
+### Feature 1: Health Check API ✅
 
 - [x] Project structure (`cmd/`, `handler/`, `model/`, `config/`)
 - [x] `config/config.go` - Environment loading
 - [x] `model/db.go` - PostgreSQL connection pool
 - [x] `cmd/server/main.go` - HTTP server with graceful shutdown
-- [x] `GET /health` endpoint
+- [x] `GET /health` endpoint with version info
 - [x] Docker Compose for local PostgreSQL
 - [x] Integration test with testcontainers
 
----
+### Feature 2: UI Infrastructure ✅
 
-## Feature 2: Portal User Registration
-
-Registrants can create account with email/password.
-
-- [ ] Migration: `004_create_users_extended.up.sql` (add provider, provider_id, is_active)
-- [ ] `model/user.go` - User struct, Create, FindByEmail, FindByID
-- [ ] `auth/password.go` - HashPassword, VerifyPassword (bcrypt)
-- [ ] `auth/jwt.go` - GenerateToken, ValidateToken
-- [ ] `handler/middleware.go` - RequireAuth middleware
-- [ ] `templates/layout.templ` - Base HTML layout
-- [ ] `templates/portal/register.templ` - Registration form
-- [ ] `handler/portal_auth.go` - GET/POST /portal/register
-- [ ] Test: Registration flow
+- [x] Templ templates with Portal/Admin layouts
+- [x] Self-hosted HTMX 2.0.8 and Alpine.js CSP 3.15.3
+- [x] Tailwind CSS v4 with brand colors
+- [x] Git version indicator in UI
+- [x] CSRF protection (Go 1.25 stdlib CrossOriginProtection)
+- [x] Playwright E2E tests with page object pattern
+- [x] Makefile with build-time version injection
 
 ---
 
-## Feature 3: Portal User Login
+## Data Model
 
-Registrants can login with email/password.
+### Core Entities
 
-- [ ] `templates/portal/login.templ` - Login form
-- [ ] `handler/portal_auth.go` - GET/POST /portal/login, POST /portal/logout
-- [ ] Cookie-based session (HttpOnly JWT)
-- [ ] Test: Login/logout flow
+```
+CANDIDATE
+├─ id, created_at, updated_at
+├─ name, email, phone, whatsapp
+├─ address, city, province
+├─ high_school, graduation_year
+├─ prodi_id (program choice)
+├─ source_type (instagram, google, expo, referral, walkin)
+├─ source_detail (free text - "Pak Asep guru BK SMAN 1")
+├─ campaign_id (if from tracked campaign)
+├─ referrer_id (nullable - linked by admin after verification)
+├─ referrer_verified_at
+├─ status (registered → prospecting → committed → enrolled / lost)
+├─ assigned_consultant_id
+├─ registration_fee_paid_at
+├─ lost_at, lost_reason_id
+└─ enrolled_at, nim
 
----
+ACADEMIC_CONSULTANT (extends USER)
+├─ supervisor_id (nullable, for hierarchy)
+├─ is_active (for assignment pool)
+├─ Calculated: active_candidate_count, success_rate, activity_score
 
-## Feature 4: Portal Google OAuth
+INTERACTION
+├─ id, created_at
+├─ candidate_id, consultant_id
+├─ channel (call, whatsapp, email, campus_visit, home_visit)
+├─ category_id (interested, hesitant, cold, etc)
+├─ obstacle_id (nullable)
+├─ remarks (free text)
+├─ next_followup_date
+├─ supervisor_suggestion (filled by supervisor)
+└─ suggestion_read_at
 
-Registrants can login/register with Google.
+INTERACTION_CATEGORY (managed by supervisor)
+├─ id, name
+├─ sentiment (positive, neutral, negative)
+└─ is_active
 
-- [ ] `auth/google.go` - OAuth flow (GetAuthURL, ExchangeCode, GetUserInfo)
-- [ ] `handler/portal_auth.go` - GET /portal/auth/google, GET /portal/auth/google/callback
-- [ ] Auto-create user if not exists
-- [ ] Test: Google OAuth flow
+OBSTACLE (managed by supervisor)
+├─ id, name
+├─ suggested_response (template)
+└─ is_active
 
----
+CAMPAIGN
+├─ id, name
+├─ type (promo, event, ads)
+├─ source_channel (instagram, google, expo, referral, walkin)
+├─ start_date, end_date
+├─ registration_fee_override (nullable, for promo)
+└─ is_active
 
-## Feature 5: Lead Capture API
+REFERRER
+├─ id, created_at
+├─ name
+├─ type (alumni, teacher, student, partner)
+├─ institution (SMAN 1 Bogor, etc - helps admin match claims)
+├─ phone, email (optional)
+├─ code (optional - for partners who want trackable links)
+├─ bank_name, bank_account, account_holder
+├─ commission_per_enrollment (amount)
+├─ payout_preference (monthly, per_enrollment)
+├─ notes (admin notes)
+└─ is_active
 
-Landing page can submit prospect data.
+SOURCE_TYPE (enum for registration form)
+├─ instagram, google, tiktok, youtube
+├─ expo, school_visit
+├─ friend_family, teacher_alumni (triggers referral claim field)
+├─ walkin, other
 
-- [ ] Migration: `005_create_intakes.up.sql`
-- [ ] Migration: `006_create_prospects.up.sql` (with UTM fields)
-- [ ] `model/intake.go` - Intake struct, FindActive, FindByID
-- [ ] `model/prospect.go` - Prospect struct, Create, FindByEmail
-- [ ] `handler/api.go` - POST /api/prospects
-- [ ] Validate required fields (name, email, whatsapp, intake_id)
-- [ ] Capture UTM parameters (source, medium, campaign, term, content)
-- [ ] Capture landing_page, device_type
-- [ ] Return prospect ID
-- [ ] Test: Lead capture with various UTM combinations
+COMMISSION_LEDGER
+├─ id, created_at
+├─ referrer_id, candidate_id
+├─ amount
+├─ status (pending, approved, paid)
+├─ approved_at, paid_at
+└─ payout_batch_id
 
----
+PRODI (Program Studi)
+├─ id, name, code
+├─ degree (S1, D3)
+├─ tuition_per_semester
+└─ is_active
 
-## Feature 6: Admin Google Login
+FEE_TYPE
+├─ id, name (registration, tuition, dormitory)
+├─ is_recurring (tuition=yes, registration=no)
+└─ installment_options (JSON: [1] or [1,2,10])
 
-Staff can login with Google (domain-restricted).
+FEE_STRUCTURE
+├─ id, fee_type_id
+├─ prodi_id (nullable - some fees are global)
+├─ academic_year
+├─ amount
+└─ is_active
 
-- [ ] `templates/layout_admin.templ` - Admin layout
-- [ ] `templates/admin/login.templ` - Login page
-- [ ] `handler/admin_auth.go` - GET /admin/login, GET /admin/auth/google, callback
-- [ ] Domain check (STAFF_EMAIL_DOMAIN)
-- [ ] Auto-create staff user if valid domain
-- [ ] `handler/middleware.go` - RequireRole("staff") middleware
-- [ ] Test: Staff login with valid/invalid domain
+BILLING
+├─ id, created_at
+├─ candidate_id, fee_type_id
+├─ academic_year, semester (for tuition)
+├─ total_amount, installment_count
+├─ discount_amount, discount_reason
+└─ status (pending, partial, paid, cancelled)
 
----
+PAYMENT
+├─ id, created_at
+├─ billing_id
+├─ installment_number (1, 2, 3...)
+├─ amount, due_date
+├─ paid_at, payment_method
+├─ proof_url
+└─ verified_by, verified_at
 
-## Feature 7: Admin Dashboard
+DOCUMENT_TYPE
+├─ id, name (ktp, ijazah, transcript, photo, etc)
+├─ is_required
+├─ can_defer (ijazah/transcript can be uploaded later)
+└─ max_file_size_mb
 
-Staff can see funnel overview.
+DOCUMENT
+├─ id, created_at
+├─ candidate_id, document_type_id
+├─ file_url, file_name, file_size
+├─ status (pending, approved, rejected)
+├─ reviewed_by, reviewed_at
+└─ rejection_reason
 
-- [ ] `model/stats.go` - GetFunnelStats(intakeID)
-- [ ] `templates/admin/dashboard.templ` - Stats cards, funnel visualization
-- [ ] `handler/admin.go` - GET /admin
-- [ ] Show: new, contacted, applicant, approved, enrolled counts
-- [ ] Test: Dashboard with sample data
+ASSIGNMENT_ALGORITHM
+├─ id, name
+├─ description
+└─ is_active (only one active at a time)
 
----
+Algorithms:
+- ROUND_ROBIN: Simple rotation
+- LOAD_BALANCED: Lowest active candidates first
+- PERFORMANCE_WEIGHTED: Higher success rate prioritized
+- ACTIVITY_BASED: Higher follow-up activity prioritized
+```
 
-## Feature 8: Prospect List
+### Migration Plan (by dependency)
 
-Staff can view and filter prospects.
+```
+Level 0 - Lookup tables (no dependencies):
+  004_create_prodis.sql
+  005_create_fee_types.sql
+  006_create_campaigns.sql
+  007_create_referrers.sql
+  008_create_users.sql
+  009_create_assignment_algorithms.sql
+  010_create_interaction_categories.sql
+  011_create_obstacles.sql
+  012_create_document_types.sql
+  013_create_lost_reasons.sql
 
-- [ ] `model/prospect.go` - List with filters (status, intake, assigned_to)
-- [ ] `templates/admin/prospects_list.templ` - Table with filters
-- [ ] `templates/components/table.templ` - Reusable table component
-- [ ] `templates/components/pagination.templ` - Pagination component
-- [ ] `handler/admin.go` - GET /admin/prospects
-- [ ] HTMX: Filter without full page reload
-- [ ] Test: List with various filters
+Level 1 - Depends on lookup tables:
+  014_create_fee_structures.sql       → fee_types, prodis
+  015_create_candidates.sql           → prodis, campaigns, referrers, users, lost_reasons
 
----
+Level 2 - Depends on candidates:
+  016_create_billings.sql             → candidates, fee_types
+  017_create_interactions.sql         → candidates, users, categories, obstacles
+  018_create_documents.sql            → candidates, document_types
+  019_create_commission_ledger.sql    → candidates, referrers
 
-## Feature 9: Prospect Detail
+Level 3 - Depends on level 2:
+  020_create_payments.sql             → billings, users
+  021_create_notification_logs.sql    → candidates
 
-Staff can view prospect details and timeline.
-
-- [ ] Migration: `007_create_activity_log.up.sql`
-- [ ] `model/activity.go` - Activity struct, Create, ListByEntity
-- [ ] `templates/admin/prospect_detail.templ` - Detail view with timeline
-- [ ] `templates/components/timeline.templ` - Timeline component
-- [ ] `handler/admin.go` - GET /admin/prospects/{id}
-- [ ] Show: contact info, status, assigned staff, activity history
-- [ ] Test: Detail view with activities
-
----
-
-## Feature 10: Prospect Assignment
-
-Staff can be assigned to prospects (round-robin or manual).
-
-- [ ] `model/user.go` - ListActiveStaff, UpdateLastAssigned
-- [ ] `model/prospect.go` - Assign, GetNextStaffRoundRobin
-- [ ] `handler/admin.go` - POST /admin/prospects/{id}/assign
-- [ ] HTMX: Assign dropdown, update without reload
-- [ ] Log activity on assignment
-- [ ] Test: Round-robin distribution, manual assignment
-
----
-
-## Feature 11: Prospect Status Update
-
-Staff can update prospect status.
-
-- [ ] `model/prospect.go` - UpdateStatus
-- [ ] `handler/admin.go` - POST /admin/prospects/{id}/status
-- [ ] HTMX: Status dropdown, update without reload
-- [ ] Log activity on status change
-- [ ] Test: Status transitions
-
----
-
-## Feature 12: Portal Dashboard
-
-Registrants can see their application status.
-
-- [ ] `templates/portal/dashboard.templ` - Status overview
-- [ ] `handler/portal.go` - GET /portal
-- [ ] Show: current status, next steps, documents checklist
-- [ ] Test: Dashboard for various statuses
-
----
-
-## Feature 13: Application Form
-
-Registrants can create/update application.
-
-- [ ] Migration: `008_create_programs.up.sql`
-- [ ] Migration: `009_create_tracks.up.sql`
-- [ ] Migration: `010_create_applications.up.sql`
-- [ ] `model/program.go` - Program struct, ListActive
-- [ ] `model/track.go` - Track struct, ListActive
-- [ ] `model/application.go` - Application struct, Create, Update, FindByUserID
-- [ ] `templates/portal/application.templ` - Program/track selection form
-- [ ] `handler/portal.go` - GET/POST /portal/application
-- [ ] Link application to prospect (by email)
-- [ ] Test: Create and update application
-
----
-
-## Feature 14: Document Upload
-
-Registrants can upload required documents.
-
-- [ ] Migration: `011_create_documents.up.sql`
-- [ ] `model/document.go` - Document struct, Create, Delete, ListByApplication
-- [ ] `templates/portal/documents.templ` - Upload form with preview
-- [ ] `templates/components/file_upload.templ` - Drag-drop upload component
-- [ ] `handler/portal.go` - GET /portal/documents, POST /portal/documents, DELETE /portal/documents/{id}
-- [ ] Validate: file type (PDF, JPG, PNG), size (max 5MB)
-- [ ] Generate unique filename, save to UPLOAD_DIR
-- [ ] HTMX: Upload without page reload
-- [ ] Test: Upload valid/invalid files
-
----
-
-## Feature 15: Document Review
-
-Staff can review documents with checklist.
-
-- [ ] Migration: `012_create_document_checklists.up.sql`
-- [ ] Migration: `013_create_document_reviews.up.sql`
-- [ ] `model/checklist.go` - Checklist struct, ListByDocType
-- [ ] `model/document.go` - Review, UpdateStatus
-- [ ] `templates/admin/document_review.templ` - Review modal with checklist
-- [ ] `templates/components/checklist.templ` - Checklist component
-- [ ] `handler/admin.go` - GET/POST /admin/applications/{id}/documents/{docId}/review
-- [ ] HTMX: Modal, submit review without reload
-- [ ] Auto-set document status based on checklist results
-- [ ] Log activity on review
-- [ ] Test: Review with pass/fail items
-
----
-
-## Feature 16: Application Approval
-
-Staff can approve applications (when all docs approved).
-
-- [ ] `model/application.go` - Approve, CheckAllDocsApproved
-- [ ] `handler/admin.go` - POST /admin/applications/{id}/approve
-- [ ] Validate: all documents must be approved
-- [ ] Generate VA number (placeholder for payment integration)
-- [ ] Update status: pending_review → approved
-- [ ] Log activity
-- [ ] Test: Approve with all docs approved, reject when docs pending
+Seed data:
+  022_seed_data.sql                   → prodis, fee_types, algorithms, categories,
+                                         obstacles, document_types, lost_reasons
+```
 
 ---
 
-## Feature 17: Application Cancellation
+## Feature 3: Candidate Registration
 
-Registrants or staff can cancel application.
+Public registration form with source tracking and referral claims.
 
-- [ ] Migration: `014_create_cancel_reasons.up.sql`
-- [ ] `model/cancel_reason.go` - CancelReason struct, ListActive
-- [ ] `model/application.go` - Cancel
-- [ ] `model/prospect.go` - Cancel
-- [ ] `templates/portal/cancel.templ` - Cancel confirmation with reason
-- [ ] `handler/portal.go` - GET/POST /portal/cancel
-- [ ] `handler/admin.go` - POST /admin/prospects/{id}/cancel, POST /admin/applications/{id}/cancel
-- [ ] Log activity with reason
-- [ ] Test: Cancel from portal and admin
+**Migrations:** 004, 006, 007, 015
 
----
-
-## Feature 18: WhatsApp Notifications
-
-System sends WhatsApp messages at key events.
-
-- [ ] Migration: `015_create_communication_log.up.sql`
-- [ ] `model/communication.go` - CommunicationLog struct, Create
-- [ ] `integration/whatsapp.go` - Client, SendTemplate
-- [ ] Templates: welcome, followup, document_reminder, revision_request, approved, enrolled
-- [ ] `handler/admin.go` - POST /admin/prospects/{id}/whatsapp (manual send)
-- [ ] Hook into: prospect creation, document revision, approval
-- [ ] Log all communications
-- [ ] Test: Send with mock WhatsApp API
+- [ ] `model/prodi.go` - Prodi CRUD, ListActive
+- [ ] `model/campaign.go` - Campaign CRUD, FindActive
+- [ ] `model/referrer.go` - FindByCode (for ?ref=CODE links)
+- [ ] `model/candidate.go` - Create, FindByEmail, FindByPhone
+- [ ] `templates/public/register.templ` - Registration form
+- [ ] `handler/public.go` - GET/POST /register
+- [ ] Form fields:
+  - Personal: name, email, phone, whatsapp, address
+  - Education: high_school, graduation_year, prodi
+  - Source: source_type (dropdown), source_detail (free text if referral)
+- [ ] If URL has `?ref=CODE`, auto-link to referrer
+- [ ] If source_type is teacher_alumni/friend_family, show "Nama yang mereferensikan" field
+- [ ] Show registration fee (default or campaign override)
+- [ ] Test: Registration with various source types
 
 ---
 
-## Feature 19: Kafka Payment Integration
+## Feature 4: Registration Fee Payment
 
-Payment events update application status to enrolled.
+Candidate pays registration fee (can be waived during promo).
 
-- [ ] `integration/kafka.go` - Consumer for payment.completed topic
-- [ ] Match VA number to application
-- [ ] Update status: approved → enrolled
-- [ ] Log payment details in activity
-- [ ] Send enrolled notification (WhatsApp)
-- [ ] Test: Consume payment event, verify status update
+**Migrations:** 005, 014, 016, 020
+
+- [ ] `model/fee_structure.go` - FindByType, GetRegistrationFee
+- [ ] `model/billing.go` - Create, FindByCandidate, UpdateStatus
+- [ ] `model/payment.go` - Create, MarkPaid, UploadProof
+- [ ] `templates/public/payment.templ` - Payment instructions, proof upload
+- [ ] `handler/public.go` - GET /payment/{token}, POST /payment/{token}/proof
+- [ ] Generate billing on registration (amount from fee_structure or campaign override)
+- [ ] If campaign has 100% discount, auto-mark as paid
+- [ ] Test: Payment flow, promo discount
 
 ---
 
-## Feature 20: Referral Tracking
+## Feature 5: Admin Login (Google OAuth)
 
-Track referrals from students, alumni, partners.
+Staff login with domain-restricted Google.
 
-- [ ] Migration: `016_create_referrers.up.sql`
-- [ ] `model/referrer.go` - Referrer struct, Create, FindByCode, ListActive
-- [ ] `model/prospect.go` - Link referrer on creation
-- [ ] `handler/api.go` - GET /api/referrers/{code} (validate code for landing page)
-- [ ] `templates/admin/referrers.templ` - Referrer management
+**Migrations:** 008
+
+- [ ] `model/user.go` - Create, FindByEmail, FindByGoogleID
+- [ ] `auth/google.go` - OAuth flow
+- [ ] `handler/admin_auth.go` - GET /admin/login, /admin/auth/google, callback
+- [ ] Domain check (STAFF_EMAIL_DOMAIN env var)
+- [ ] Auto-create user with role=consultant if valid domain
+- [ ] `handler/middleware.go` - RequireAuth, RequireRole
+- [ ] Test: Login with valid/invalid domain
+
+---
+
+## Feature 6: Consultant Assignment
+
+Auto-assign new candidates to consultants.
+
+**Migrations:** 009, 022 (seed)
+
+- [ ] `model/assignment.go` - GetNextConsultant(algorithm), Assign
+- [ ] `model/user.go` - ListActiveConsultants, GetConsultantStats
+- [ ] `handler/admin.go` - POST /admin/candidates/{id}/assign (manual override)
+- [ ] Auto-assign on registration (using active algorithm)
+- [ ] Supervisor can reassign
+- [ ] Test: Each algorithm, manual override
+
+---
+
+## Feature 7: Interaction Logging
+
+Consultants log each contact with candidate.
+
+**Migrations:** 010, 011, 017, 022 (seed)
+
+- [ ] `model/interaction.go` - Create, ListByCandidate, ListByConsultant
+- [ ] `model/interaction_category.go` - CRUD (supervisor only)
+- [ ] `model/obstacle.go` - CRUD (supervisor only)
+- [ ] `templates/admin/interaction_form.templ` - Log interaction modal
+- [ ] `handler/admin.go` - POST /admin/candidates/{id}/interactions
+- [ ] Fields: channel, category, obstacle, remarks, next_followup_date
+- [ ] Test: Create interaction, list by candidate
+
+---
+
+## Feature 8: Supervisor Suggestions
+
+Supervisor reviews interactions and provides guidance.
+
+- [ ] `templates/admin/candidate_detail.templ` - Interaction timeline with suggestion field
+- [ ] `handler/admin.go` - POST /admin/interactions/{id}/suggestion
+- [ ] Consultant sees suggestion, marks as read
+- [ ] Test: Add suggestion, mark as read
+
+---
+
+## Feature 9: Candidate List & Filters
+
+Admin views candidates with filters.
+
+- [ ] `model/candidate.go` - List with filters (status, consultant, prodi, date range)
+- [ ] `templates/admin/candidates_list.templ` - Table with filters
+- [ ] `handler/admin.go` - GET /admin/candidates
+- [ ] Filters: status, assigned consultant, prodi, campaign, date range
+- [ ] Sort: newest, oldest, next followup due
+- [ ] Highlight overdue followups
+- [ ] HTMX: Filter without reload
+- [ ] Test: Various filter combinations
+
+---
+
+## Feature 10: Candidate Detail & Timeline
+
+View candidate info and full interaction history.
+
+- [ ] `templates/admin/candidate_detail.templ` - Info + timeline
+- [ ] `handler/admin.go` - GET /admin/candidates/{id}
+- [ ] Show: personal info, prodi, campaign/referrer source, status
+- [ ] Timeline: all interactions, payments, status changes
+- [ ] Quick actions: log interaction, change status, reassign
+- [ ] Test: Detail view with interactions
+
+---
+
+## Feature 11: Commitment & Tuition Billing
+
+When candidate commits, generate tuition billing.
+
+- [ ] `model/candidate.go` - Commit (change status, create billing)
+- [ ] `model/billing.go` - CreateTuitionBilling (with installment plan)
+- [ ] `templates/admin/commitment_form.templ` - Select installment count
+- [ ] `handler/admin.go` - POST /admin/candidates/{id}/commit
+- [ ] Generate billing: tuition (per prodi amount), dormitory (optional)
+- [ ] Support installments: 1x, 2x, or 10x for dormitory
+- [ ] Test: Commit with various installment options
+
+---
+
+## Feature 12: Payment Tracking
+
+Track installment payments.
+
+- [ ] `model/payment.go` - ListByBilling, RecordPayment, VerifyPayment
+- [ ] `templates/admin/payments.templ` - Payment list with status
+- [ ] `templates/admin/payment_detail.templ` - Record/verify payment
+- [ ] `handler/admin.go` - GET /admin/billings/{id}/payments, POST record, POST verify
+- [ ] Show: due date, amount, status (pending/paid/overdue)
+- [ ] Upload payment proof
+- [ ] Admin verifies payment
+- [ ] Test: Record payment, verify, overdue detection
+
+---
+
+## Feature 13: Document Upload (Deferred)
+
+Candidate uploads documents (some can be deferred).
+
+**Migrations:** 012, 018, 022 (seed)
+
+- [ ] `model/document_type.go` - ListActive, FindByID
+- [ ] `model/document.go` - Upload, ListByCandidate, UpdateStatus
+- [ ] `templates/public/documents.templ` - Upload form
+- [ ] `handler/public.go` - GET/POST /documents/{token}
+- [ ] Mark required vs optional, deferrable vs not
+- [ ] Test: Upload, defer ijazah
+
+---
+
+## Feature 14: Document Review
+
+Admin reviews uploaded documents.
+
+- [ ] `templates/admin/documents_review.templ` - Review interface
+- [ ] `handler/admin.go` - GET /admin/candidates/{id}/documents, POST approve/reject
+- [ ] Approve/reject with reason
+- [ ] Test: Review flow
+
+---
+
+## Feature 15: Enrollment
+
+Mark candidate as enrolled when requirements met.
+
+- [ ] `model/candidate.go` - Enroll (validate payments, generate NIM)
+- [ ] `handler/admin.go` - POST /admin/candidates/{id}/enroll
+- [ ] Requirements: registration fee paid, tuition (at least 1st installment) paid
+- [ ] Documents: KTP and photo required, ijazah/transcript can be pending
+- [ ] Generate NIM (format: YYYY-PRODI-SEQUENCE)
+- [ ] Test: Enroll with various states
+
+---
+
+## Feature 16: Lost Candidate
+
+Mark candidate as lost with reason.
+
+**Migrations:** 013, 022 (seed)
+
+- [ ] `model/lost_reason.go` - ListActive, FindByID
+- [ ] `model/candidate.go` - MarkLost
+- [ ] `handler/admin.go` - POST /admin/candidates/{id}/lost
+- [ ] Test: Mark as lost
+
+---
+
+## Feature 17: Referrer Management
+
+Manage referrers and verify referral claims.
+
+**Migrations:** 007, 019
+
+- [ ] `model/referrer.go` - CRUD, GenerateCode, FindByCode, SearchByName
+- [ ] `templates/admin/referrers.templ` - Referrer list
+- [ ] `templates/admin/referrer_form.templ` - Create/edit referrer
 - [ ] `handler/admin.go` - CRUD /admin/referrers
-- [ ] Test: Create prospect with referral code
+- [ ] Generate unique referral code (optional - for partners who want trackable links)
+- [ ] Test: CRUD, code generation
+
+### Referral Claim Verification
+
+- [ ] `templates/admin/referral_claims.templ` - List unverified claims
+- [ ] `handler/admin.go` - GET /admin/referral-claims
+- [ ] Show candidates with source_detail but no referrer_id
+- [ ] Search existing referrers by name/institution
+- [ ] Link to existing referrer OR create new then link
+- [ ] Test: Claim verification flow
 
 ---
 
-## Feature 21: Campaign Tracking
+## Feature 18: Commission Tracking
 
-Track ad campaign performance via UTM parameters.
+Track and pay referrer commissions.
 
-- [ ] Migration: `017_create_campaigns.up.sql`
-- [ ] `model/campaign.go` - Campaign struct, Create, FindByUTM, ListActive
-- [ ] `templates/admin/campaigns.templ` - Campaign management
+- [ ] `model/commission.go` - CreateOnEnrollment, Approve, MarkPaid, ListByReferrer
+- [ ] `templates/admin/commissions.templ` - Commission list
+- [ ] `handler/admin.go` - GET /admin/commissions, POST approve, POST pay
+- [ ] Auto-create commission entry when referred candidate enrolls
+- [ ] Payout modes: monthly batch or per-enrollment
+- [ ] Test: Commission lifecycle
+
+---
+
+## Feature 19: Campaign Management
+
+Manage campaigns with promo pricing.
+
+- [ ] `templates/admin/campaigns.templ` - Campaign list
+- [ ] `templates/admin/campaign_form.templ` - Create/edit
 - [ ] `handler/admin.go` - CRUD /admin/campaigns
-- [ ] Link prospects to campaigns by utm_campaign
-- [ ] Test: Campaign CRUD
+- [ ] Set registration fee override (discount or waive)
+- [ ] Track source channel (instagram, google, expo, etc)
+- [ ] Test: CRUD, fee override
 
 ---
 
-## Feature 22: Reports - Funnel
+## Feature 20: Settings - Categories & Obstacles
 
-Staff can view funnel conversion report.
+Supervisor manages interaction categories and obstacles.
 
-- [ ] `model/stats.go` - GetFunnelByIntake, GetFunnelByDateRange
-- [ ] `templates/admin/reports/funnel.templ` - Funnel chart
+- [ ] `templates/admin/settings/categories.templ` - Category CRUD
+- [ ] `templates/admin/settings/obstacles.templ` - Obstacle CRUD with suggested response
+- [ ] `handler/admin.go` - CRUD for categories, obstacles
+- [ ] Test: CRUD
+
+---
+
+## Feature 21: Settings - Assignment Algorithm
+
+Configure which assignment algorithm is active.
+
+- [ ] `templates/admin/settings/assignment.templ` - Algorithm selection
+- [ ] `handler/admin.go` - GET/POST /admin/settings/assignment
+- [ ] Only one algorithm active at a time
+- [ ] Test: Switch algorithms
+
+---
+
+## Feature 22: Settings - Fee Structure
+
+Manage fee amounts per prodi and academic year.
+
+- [ ] `templates/admin/settings/fees.templ` - Fee structure management
+- [ ] `handler/admin.go` - CRUD /admin/settings/fees
+- [ ] Set registration fee default, tuition per prodi, dormitory fee
+- [ ] Test: CRUD
+
+---
+
+## Feature 23: Settings - Staff Management
+
+Manage consultant active status for assignment pool.
+
+- [ ] `templates/admin/settings/staff.templ` - Staff list
+- [ ] `handler/admin.go` - GET /admin/settings/staff, POST toggle active
+- [ ] Assign supervisor role
+- [ ] Test: Toggle, role assignment
+
+---
+
+## Feature 24: Dashboard - Consultant
+
+Consultant sees their candidates and pending followups.
+
+- [ ] `model/stats.go` - GetConsultantStats
+- [ ] `templates/admin/dashboard_consultant.templ`
+- [ ] `handler/admin.go` - GET /admin (role-based dashboard)
+- [ ] Show: my candidates by status, overdue followups, recent interactions
+- [ ] Test: Dashboard data
+
+---
+
+## Feature 25: Dashboard - Supervisor
+
+Supervisor sees team performance and funnel.
+
+- [ ] `model/stats.go` - GetTeamStats, GetFunnelStats
+- [ ] `templates/admin/dashboard_supervisor.templ`
+- [ ] Show: funnel (registered → committed → enrolled), consultant leaderboard
+- [ ] Candidates stuck > 7 days without interaction
+- [ ] Common obstacles this period
+- [ ] Test: Dashboard data
+
+---
+
+## Feature 26: Reports - Funnel
+
+Conversion funnel report.
+
+- [ ] `model/stats.go` - GetFunnelByDateRange, GetFunnelByProdi
+- [ ] `templates/admin/reports/funnel.templ`
 - [ ] `handler/admin.go` - GET /admin/reports/funnel
-- [ ] Compare current vs previous intake
-- [ ] HTMX: Filter by intake/date without reload
-- [ ] Test: Funnel with sample data
+- [ ] Filter by date range, prodi, campaign
+- [ ] Test: Report with filters
 
 ---
 
-## Feature 23: Reports - Source & Campaign
+## Feature 27: Reports - Consultant Performance
 
-Staff can view conversion by source and campaign.
+Individual consultant metrics.
 
-- [ ] `model/stats.go` - GetConversionBySource, GetConversionByCampaign
-- [ ] `templates/admin/reports/sources.templ` - Source breakdown
-- [ ] `templates/admin/reports/campaigns.templ` - Campaign performance
-- [ ] `handler/admin.go` - GET /admin/reports/sources, GET /admin/reports/campaigns
-- [ ] Show: leads, conversions, conversion rate per source/campaign
-- [ ] Test: Reports with various sources/campaigns
+- [ ] `model/stats.go` - GetConsultantPerformance
+- [ ] `templates/admin/reports/consultants.templ`
+- [ ] `handler/admin.go` - GET /admin/reports/consultants
+- [ ] Show: candidates handled, success rate, avg days to commit, activity score
+- [ ] Test: Performance report
 
 ---
 
-## Feature 24: Reports - Referrer Leaderboard
+## Feature 28: Reports - Campaign ROI
 
-Staff can view referrer performance.
+Campaign performance and conversion.
 
-- [ ] `model/stats.go` - GetReferrerLeaderboard
-- [ ] `templates/admin/reports/referrers.templ` - Referrer leaderboard
+- [ ] `model/stats.go` - GetCampaignStats
+- [ ] `templates/admin/reports/campaigns.templ`
+- [ ] `handler/admin.go` - GET /admin/reports/campaigns
+- [ ] Show: leads, commits, enrollments, conversion rate per campaign
+- [ ] Test: Campaign report
+
+---
+
+## Feature 29: Reports - Referrer Leaderboard
+
+Referrer performance and commissions.
+
+- [ ] `model/stats.go` - GetReferrerStats
+- [ ] `templates/admin/reports/referrers.templ`
 - [ ] `handler/admin.go` - GET /admin/reports/referrers
-- [ ] Show: referrer name, leads, conversions, conversion rate
-- [ ] Test: Leaderboard with sample data
+- [ ] Show: referrals, enrollments, commission earned/paid
+- [ ] Test: Referrer report
 
 ---
 
-## Feature 25: CSV Export
+## Feature 30: CSV Export
 
-Staff can export data to CSV.
+Export data for external analysis.
 
-- [ ] `handler/admin.go` - GET /admin/reports/export
-- [ ] Export options: prospects, applications, funnel report
-- [ ] Filter by intake, date range
+- [ ] `handler/admin.go` - GET /admin/export/candidates, /admin/export/interactions
+- [ ] Filter by date range, status, consultant
 - [ ] Test: Export with filters
 
 ---
 
-## Feature 26: Settings - Intakes
+## Feature 31: WhatsApp Notifications
 
-Admin can manage intake periods.
+Send notifications at key events.
 
-- [ ] `templates/admin/settings/intakes.templ` - Intake CRUD
-- [ ] `handler/admin.go` - GET /admin/settings/intakes, POST (create), PUT (update)
-- [ ] HTMX: Inline edit without reload
-- [ ] Test: Intake CRUD
+**Migrations:** 021
 
----
-
-## Feature 27: Settings - Staff Management
-
-Admin can manage staff active status.
-
-- [ ] `templates/admin/settings/staff.templ` - Staff list with toggle
-- [ ] `handler/admin.go` - GET /admin/settings/staff, POST /admin/settings/staff/{id}/toggle
-- [ ] Toggle active/inactive for round-robin assignment
-- [ ] Test: Toggle staff status
-
----
-
-## Feature 28: Settings - Checklists
-
-Admin can manage document checklists.
-
-- [ ] `templates/admin/settings/checklists.templ` - Checklist management
-- [ ] `handler/admin.go` - CRUD /admin/settings/checklists
-- [ ] Group by document type (KTP, Ijazah)
-- [ ] Test: Checklist CRUD
-
----
-
-## Feature 29: Seed Data
-
-Initial data for lookup tables.
-
-- [ ] Migration: `018_seed_data.up.sql`
-- [ ] Programs: SI, TI
-- [ ] Tracks: Regular, KIP-K, LPDP, Internal Scholarship
-- [ ] Cancel reasons: no_response, chose_other, financial, changed_mind, etc.
-- [ ] Document checklists: KTP items, Ijazah items
-- [ ] Test: Verify seed data exists
-
----
-
-## Feature 30: Static Assets & Styling
-
-Tailwind CSS, HTMX, Alpine.js setup.
-
-- [ ] `static/css/input.css` - Tailwind input
-- [ ] `static/css/output.css` - Compiled Tailwind
-- [ ] `static/js/htmx.min.js` - HTMX
-- [ ] `static/js/alpine.min.js` - Alpine.js (CSP build)
-- [ ] Tailwind config with brand colors (primary: #194189, secondary: #EE7B1D)
-- [ ] Build script for Tailwind
+- [ ] `integration/whatsapp.go` - Send via API (Fonnte/similar)
+- [ ] `model/notification.go` - Log sent messages
+- [ ] Templates: registration_confirmed, followup_reminder, payment_reminder, enrolled
+- [ ] Manual send from candidate detail
+- [ ] Test: Send with mock API
 
 ---
 
 ## Success Criteria
 
-- [ ] Prospect can register from landing page with UTM tracking
-- [ ] Prospect can login (email/password or Google)
-- [ ] Prospect can select program/track and upload documents
-- [ ] Staff can login via Google (domain-restricted)
-- [ ] Staff can view/filter/assign prospects
-- [ ] Staff can review documents with checklist
-- [ ] Staff can approve/cancel applications
-- [ ] Round-robin assignment works
-- [ ] WhatsApp notifications sent at key events
-- [ ] Kafka payment events update status to enrolled
-- [ ] Referral tracking works end-to-end
-- [ ] Campaign/source reports available
-- [ ] All HTMX interactions work (no full page reloads)
+- [ ] Candidate can register, see fee, upload proof
+- [ ] Registration fee can be waived during promo campaigns
+- [ ] Candidates auto-assigned to consultants (configurable algorithm)
+- [ ] Consultants log each interaction with category/obstacle/remarks
+- [ ] Supervisors can review interactions and provide suggestions
+- [ ] Commitment generates tuition billing with installment options
+- [ ] Payment tracking with verification
+- [ ] Documents can be deferred (ijazah/transcript)
+- [ ] Enrollment validates requirements, generates NIM
+- [ ] Referrer commissions tracked and paid
+- [ ] Campaign ROI trackable
+- [ ] All HTMX interactions (no full page reloads)
 - [ ] Mobile responsive
