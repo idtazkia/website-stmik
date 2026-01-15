@@ -168,16 +168,25 @@ func (h *AdminHandler) handleCandidateDetail(w http.ResponseWriter, r *http.Requ
 // Placeholder handlers - will be implemented later
 func (h *AdminHandler) handleCampaigns(w http.ResponseWriter, r *http.Request) {
 	data := NewPageData("Kampanye")
-	w.Header().Set("Content-Type", "text/html")
-	w.Write([]byte(`<html><body><h1>Kampanye - Coming Soon</h1><a href="/admin">Back to Dashboard</a></body></html>`))
-	_ = data
+	campaigns := []admin.CampaignItem{
+		{ID: "1", Name: "Promo Early Bird", Type: "promo", Channel: "all", Period: "1 Jan - 28 Feb 2026", FeeOverride: "Gratis", Status: "active", Leads: "45", Enrolled: "12", Conversion: "26.7%"},
+		{ID: "2", Name: "Education Expo Jakarta", Type: "event", Channel: "expo", Period: "15-17 Jan 2026", FeeOverride: "", Status: "active", Leads: "38", Enrolled: "10", Conversion: "26.3%"},
+		{ID: "3", Name: "Instagram Ads Q1", Type: "ads", Channel: "instagram", Period: "1 Jan - 31 Mar 2026", FeeOverride: "", Status: "active", Leads: "52", Enrolled: "8", Conversion: "15.4%"},
+		{ID: "4", Name: "Kunjungan Sekolah Q1", Type: "event", Channel: "school_visit", Period: "6 Jan - 31 Mar 2026", FeeOverride: "", Status: "active", Leads: "28", Enrolled: "12", Conversion: "42.9%"},
+		{ID: "5", Name: "Google Ads Q4 2025", Type: "ads", Channel: "google", Period: "1 Oct - 31 Dec 2025", FeeOverride: "", Status: "ended", Leads: "35", Enrolled: "8", Conversion: "22.9%"},
+	}
+	admin.SettingsCampaigns(data, campaigns).Render(r.Context(), w)
 }
 
 func (h *AdminHandler) handleReferrers(w http.ResponseWriter, r *http.Request) {
 	data := NewPageData("Referrer")
-	w.Header().Set("Content-Type", "text/html")
-	w.Write([]byte(`<html><body><h1>Referrer - Coming Soon</h1><a href="/admin">Back to Dashboard</a></body></html>`))
-	_ = data
+	referrers := []admin.ReferrerItem{
+		{ID: "1", Name: "Pak Ahmad Fauzi", Type: "guru", Institution: "SMAN 1 Bogor", Phone: "081234567890", Code: "REF-AF01", Commission: "Rp 750.000", Referrals: "8", Enrolled: "5", TotalEarned: "Rp 3.750.000", Status: "active"},
+		{ID: "2", Name: "Siti Nurhaliza", Type: "alumni", Institution: "STMIK Tazkia 2022", Phone: "081234567891", Code: "REF-SN02", Commission: "Rp 500.000", Referrals: "4", Enrolled: "2", TotalEarned: "Rp 1.000.000", Status: "active"},
+		{ID: "3", Name: "PT Edutech Indonesia", Type: "partner", Institution: "Bimbel Edutech", Phone: "021-7654321", Code: "REF-EDU", Commission: "Rp 1.000.000", Referrals: "12", Enrolled: "6", TotalEarned: "Rp 6.000.000", Status: "active"},
+		{ID: "4", Name: "Budi Santoso", Type: "staff", Institution: "STMIK Tazkia", Phone: "081234567893", Code: "REF-BS04", Commission: "Rp 250.000", Referrals: "3", Enrolled: "2", TotalEarned: "Rp 500.000", Status: "active"},
+	}
+	admin.SettingsReferrers(data, referrers).Render(r.Context(), w)
 }
 
 func (h *AdminHandler) handleReferralClaims(w http.ResponseWriter, r *http.Request) {
@@ -189,39 +198,71 @@ func (h *AdminHandler) handleReferralClaims(w http.ResponseWriter, r *http.Reque
 
 func (h *AdminHandler) handleCommissions(w http.ResponseWriter, r *http.Request) {
 	data := NewPageData("Komisi")
-	w.Header().Set("Content-Type", "text/html")
-	w.Write([]byte(`<html><body><h1>Komisi - Coming Soon</h1><a href="/admin">Back to Dashboard</a></body></html>`))
-	_ = data
+	commissions := []admin.CommissionItem{
+		{ID: "1", ReferrerName: "Pak Ahmad Fauzi", ReferrerType: "guru", CandidateName: "Dimas Pratama", CandidateNIM: "2026SI003", Amount: "Rp 750.000", Status: "pending", EnrolledAt: "10 Jan 2026", BankName: "BSI", BankAccount: "7123456789"},
+		{ID: "2", ReferrerName: "Siti Nurhaliza", ReferrerType: "alumni", CandidateName: "Rina Wulandari", CandidateNIM: "2026TI004", Amount: "Rp 500.000", Status: "approved", EnrolledAt: "8 Jan 2026", ApprovedAt: "12 Jan 2026", BankName: "BCA", BankAccount: "1234567890"},
+		{ID: "3", ReferrerName: "PT Edutech Indonesia", ReferrerType: "partner", CandidateName: "Bayu Setiawan", CandidateNIM: "2026SI005", Amount: "Rp 1.000.000", Status: "paid", EnrolledAt: "5 Jan 2026", ApprovedAt: "7 Jan 2026", PaidAt: "10 Jan 2026", BankName: "Mandiri", BankAccount: "0987654321"},
+	}
+	stats := admin.CommissionStats{
+		Pending: "3", PendingAmount: "Rp 2.250.000",
+		Approved: "2", ApprovedAmount: "Rp 1.500.000",
+		Paid: "5", PaidAmount: "Rp 4.000.000",
+	}
+	admin.Commissions(data, commissions, stats).Render(r.Context(), w)
 }
 
 func (h *AdminHandler) handleFunnelReport(w http.ResponseWriter, r *http.Request) {
 	data := NewPageData("Laporan Funnel")
-	w.Header().Set("Content-Type", "text/html")
-	w.Write([]byte(`<html><body><h1>Laporan Funnel - Coming Soon</h1><a href="/admin">Back to Dashboard</a></body></html>`))
-	_ = data
+	stages := []admin.FunnelStage{
+		{Name: "Registered", Count: "97", Percentage: "100", Color: "bg-gray-500"},
+		{Name: "Prospecting", Count: "80", Percentage: "82", Color: "bg-blue-500"},
+		{Name: "Committed", Count: "55", Percentage: "57", Color: "bg-yellow-500"},
+		{Name: "Enrolled", Count: "40", Percentage: "41", Color: "bg-green-500"},
+	}
+	conversions := []admin.FunnelConversion{
+		{From: "Registered", To: "Prospecting", Rate: "82.5%", Change: "+5%", IsPositive: true},
+		{From: "Prospecting", To: "Committed", Rate: "68.8%", Change: "+2%", IsPositive: true},
+		{From: "Committed", To: "Enrolled", Rate: "72.7%", Change: "-3%", IsPositive: false},
+	}
+	admin.ReportFunnel(data, stages, conversions).Render(r.Context(), w)
 }
 
 // handleConsultantsReport is implemented below with real template
 
 func (h *AdminHandler) handleCampaignsReport(w http.ResponseWriter, r *http.Request) {
 	data := NewPageData("ROI Kampanye")
-	w.Header().Set("Content-Type", "text/html")
-	w.Write([]byte(`<html><body><h1>ROI Kampanye - Coming Soon</h1><a href="/admin">Back to Dashboard</a></body></html>`))
-	_ = data
+	campaigns := []admin.CampaignReportItem{
+		{Name: "Promo Early Bird", Type: "promo", Channel: "all", Leads: "45", Prospecting: "38", Committed: "25", Enrolled: "12", Conversion: "26.7%", Cost: "Rp 0", CostPerLead: "Rp 0"},
+		{Name: "Education Expo Jakarta", Type: "event", Channel: "expo", Leads: "38", Prospecting: "30", Committed: "18", Enrolled: "10", Conversion: "26.3%", Cost: "Rp 15.000.000", CostPerLead: "Rp 394.737"},
+		{Name: "Instagram Ads Q1", Type: "ads", Channel: "instagram", Leads: "52", Prospecting: "35", Committed: "15", Enrolled: "8", Conversion: "15.4%", Cost: "Rp 8.000.000", CostPerLead: "Rp 153.846"},
+		{Name: "Kunjungan Sekolah Q1", Type: "event", Channel: "school_visit", Leads: "28", Prospecting: "24", Committed: "18", Enrolled: "12", Conversion: "42.9%", Cost: "Rp 5.000.000", CostPerLead: "Rp 178.571"},
+	}
+	summary := admin.CampaignReportSummary{
+		TotalLeads: "163", TotalEnrolled: "42", AvgConversion: "25.8%",
+		TotalCost: "Rp 28.000.000", AvgCostPerLead: "Rp 171.779", BestCampaign: "Kunjungan Sekolah",
+	}
+	admin.ReportCampaigns(data, campaigns, summary).Render(r.Context(), w)
 }
 
 func (h *AdminHandler) handleUsersSettings(w http.ResponseWriter, r *http.Request) {
 	data := NewPageData("Users")
-	w.Header().Set("Content-Type", "text/html")
-	w.Write([]byte(`<html><body><h1>Users - Coming Soon</h1><a href="/admin">Back to Dashboard</a></body></html>`))
-	_ = data
+	users := []admin.UserItem{
+		{ID: "1", Name: "Admin PMB", Email: "admin@tazkia.ac.id", Role: "admin", Supervisor: "-", Status: "active", LastLogin: "Hari ini"},
+		{ID: "2", Name: "Budi Santoso", Email: "budi@tazkia.ac.id", Role: "supervisor", Supervisor: "-", Status: "active", LastLogin: "Hari ini"},
+		{ID: "3", Name: "Siti Rahayu", Email: "siti@tazkia.ac.id", Role: "konsultan", Supervisor: "Budi Santoso", Status: "active", LastLogin: "Hari ini"},
+		{ID: "4", Name: "Ahmad Hidayat", Email: "ahmad@tazkia.ac.id", Role: "konsultan", Supervisor: "Budi Santoso", Status: "active", LastLogin: "Kemarin"},
+		{ID: "5", Name: "Dewi Lestari", Email: "dewi@tazkia.ac.id", Role: "konsultan", Supervisor: "Budi Santoso", Status: "active", LastLogin: "2 hari lalu"},
+	}
+	admin.SettingsUsers(data, users).Render(r.Context(), w)
 }
 
 func (h *AdminHandler) handleProgramsSettings(w http.ResponseWriter, r *http.Request) {
 	data := NewPageData("Prodi")
-	w.Header().Set("Content-Type", "text/html")
-	w.Write([]byte(`<html><body><h1>Prodi - Coming Soon</h1><a href="/admin">Back to Dashboard</a></body></html>`))
-	_ = data
+	programs := []admin.ProgramItem{
+		{ID: "1", Name: "Sistem Informasi", Code: "SI", Level: "S1", SPPFee: "Rp 7.500.000", Status: "active", Students: "245"},
+		{ID: "2", Name: "Teknik Informatika", Code: "TI", Level: "S1", SPPFee: "Rp 8.000.000", Status: "active", Students: "312"},
+	}
+	admin.SettingsPrograms(data, programs).Render(r.Context(), w)
 }
 
 func (h *AdminHandler) handleFeesSettings(w http.ResponseWriter, r *http.Request) {
@@ -240,9 +281,21 @@ func (h *AdminHandler) handleRewardsSettings(w http.ResponseWriter, r *http.Requ
 
 func (h *AdminHandler) handleCategoriesSettings(w http.ResponseWriter, r *http.Request) {
 	data := NewPageData("Kategori")
-	w.Header().Set("Content-Type", "text/html")
-	w.Write([]byte(`<html><body><h1>Kategori - Coming Soon</h1><a href="/admin">Back to Dashboard</a></body></html>`))
-	_ = data
+	categories := []admin.CategoryItem{
+		{ID: "1", Name: "Tertarik", Sentiment: "positive", Count: "125"},
+		{ID: "2", Name: "Mempertimbangkan", Sentiment: "neutral", Count: "89"},
+		{ID: "3", Name: "Ragu-ragu", Sentiment: "neutral", Count: "45"},
+		{ID: "4", Name: "Dingin", Sentiment: "negative", Count: "32"},
+		{ID: "5", Name: "Tidak bisa dihubungi", Sentiment: "negative", Count: "28"},
+	}
+	obstacles := []admin.ObstacleItem{
+		{ID: "1", Name: "Biaya terlalu mahal", Count: "67"},
+		{ID: "2", Name: "Orang tua belum setuju", Count: "45"},
+		{ID: "3", Name: "Lokasi jauh", Count: "23"},
+		{ID: "4", Name: "Memilih kampus lain", Count: "18"},
+		{ID: "5", Name: "Waktu belum tepat", Count: "12"},
+	}
+	admin.SettingsCategories(data, categories, obstacles).Render(r.Context(), w)
 }
 
 func (h *AdminHandler) handleLogin(w http.ResponseWriter, r *http.Request) {

@@ -1,0 +1,148 @@
+package admin
+
+import "github.com/idtazkia/stmik-admission-api/templates/layouts"
+
+type PaymentVerificationItem struct {
+	ID            string
+	CandidateName string
+	CandidateID   string
+	Type          string
+	Amount        string
+	TransferDate  string
+	UploadedAt    string
+	ProofURL      string
+	Status        string // pending, approved, rejected
+	Note          string
+}
+
+type PaymentVerificationStats struct {
+	Pending  string
+	Approved string
+	Rejected string
+	Total    string
+}
+
+templ PaymentVerification(data layouts.PageData, payments []PaymentVerificationItem, stats PaymentVerificationStats) {
+	@layouts.Admin(data) {
+		<div class="space-y-6">
+			<!-- Header -->
+			<div class="flex items-center justify-between">
+				<div>
+					<h2 class="text-lg font-semibold text-gray-900">Verifikasi Pembayaran</h2>
+					<p class="text-sm text-gray-500">Review dan verifikasi bukti pembayaran kandidat</p>
+				</div>
+				<button class="px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-50 flex items-center gap-2">
+					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+					</svg>
+					Export
+				</button>
+			</div>
+
+			<!-- Stats -->
+			<div class="grid grid-cols-4 gap-4">
+				<div class="bg-white rounded-lg border p-4">
+					<p class="text-sm text-gray-500">Menunggu Verifikasi</p>
+					<p class="text-2xl font-bold text-yellow-600">{ stats.Pending }</p>
+				</div>
+				<div class="bg-white rounded-lg border p-4">
+					<p class="text-sm text-gray-500">Disetujui Hari Ini</p>
+					<p class="text-2xl font-bold text-green-600">{ stats.Approved }</p>
+				</div>
+				<div class="bg-white rounded-lg border p-4">
+					<p class="text-sm text-gray-500">Ditolak Hari Ini</p>
+					<p class="text-2xl font-bold text-red-600">{ stats.Rejected }</p>
+				</div>
+				<div class="bg-white rounded-lg border p-4">
+					<p class="text-sm text-gray-500">Total Bulan Ini</p>
+					<p class="text-2xl font-bold text-gray-900">{ stats.Total }</p>
+				</div>
+			</div>
+
+			<!-- Filter Tabs -->
+			<div class="flex gap-2">
+				<button class="px-4 py-2 bg-yellow-100 text-yellow-700 rounded-lg text-sm font-medium">Pending ({ stats.Pending })</button>
+				<button class="px-4 py-2 bg-white border rounded-lg text-sm text-gray-600 hover:bg-gray-50">Disetujui</button>
+				<button class="px-4 py-2 bg-white border rounded-lg text-sm text-gray-600 hover:bg-gray-50">Ditolak</button>
+				<button class="px-4 py-2 bg-white border rounded-lg text-sm text-gray-600 hover:bg-gray-50">Semua</button>
+			</div>
+
+			<!-- Payment Queue -->
+			<div class="grid grid-cols-2 gap-6">
+				for _, p := range payments {
+					<div class="bg-white rounded-lg border overflow-hidden">
+						<div class="p-4 border-b bg-gray-50 flex items-center justify-between">
+							<div>
+								<p class="font-medium text-gray-900">{ p.CandidateName }</p>
+								<p class="text-sm text-gray-500">ID: { p.CandidateID }</p>
+							</div>
+							if p.Status == "pending" {
+								<span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs">Pending</span>
+							} else if p.Status == "approved" {
+								<span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">Disetujui</span>
+							} else {
+								<span class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs">Ditolak</span>
+							}
+						</div>
+						<div class="p-4">
+							<!-- Payment Info -->
+							<div class="grid grid-cols-2 gap-3 text-sm mb-4">
+								<div>
+									<p class="text-gray-500">Jenis Pembayaran</p>
+									<p class="font-medium text-gray-900">{ p.Type }</p>
+								</div>
+								<div>
+									<p class="text-gray-500">Nominal</p>
+									<p class="font-medium text-gray-900">{ p.Amount }</p>
+								</div>
+								<div>
+									<p class="text-gray-500">Tanggal Transfer</p>
+									<p class="font-medium text-gray-900">{ p.TransferDate }</p>
+								</div>
+								<div>
+									<p class="text-gray-500">Diupload</p>
+									<p class="font-medium text-gray-900">{ p.UploadedAt }</p>
+								</div>
+							</div>
+
+							<!-- Proof Preview -->
+							<div class="bg-gray-100 rounded-lg p-2 mb-4">
+								<div class="aspect-video bg-gray-200 rounded flex items-center justify-center">
+									<div class="text-center">
+										<svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+										</svg>
+										<a href={ templ.SafeURL(p.ProofURL) } target="_blank" class="text-primary-600 text-sm hover:text-primary-800">Lihat Bukti Transfer</a>
+									</div>
+								</div>
+							</div>
+
+							<!-- Actions -->
+							if p.Status == "pending" {
+								<div class="flex gap-2">
+									<button class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center justify-center gap-2">
+										<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+										</svg>
+										Setujui
+									</button>
+									<button class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center justify-center gap-2">
+										<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+										</svg>
+										Tolak
+									</button>
+								</div>
+							} else if p.Status == "rejected" && p.Note != "" {
+								<div class="bg-red-50 rounded-lg p-3 text-sm">
+									<p class="text-red-700 font-medium">Alasan Penolakan:</p>
+									<p class="text-red-600">{ p.Note }</p>
+								</div>
+							}
+						</div>
+					</div>
+				}
+			</div>
+		</div>
+	}
+}

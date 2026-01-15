@@ -1,0 +1,152 @@
+package admin
+
+import "github.com/idtazkia/stmik-admission-api/templates/layouts"
+
+type CategoryItem struct {
+	ID       string
+	Name     string
+	Type     string
+	Sentiment string
+	Count    string
+}
+
+type ObstacleItem struct {
+	ID    string
+	Name  string
+	Count string
+}
+
+templ SettingsCategories(data layouts.PageData, categories []CategoryItem, obstacles []ObstacleItem) {
+	@layouts.Admin(data) {
+		<div class="space-y-6">
+			<!-- Header -->
+			<div>
+				<h2 class="text-lg font-semibold text-gray-900">Kategori & Hambatan</h2>
+				<p class="text-sm text-gray-500">Kelola kategori interaksi dan daftar hambatan kandidat</p>
+			</div>
+
+			<div class="grid grid-cols-2 gap-6">
+				<!-- Interaction Categories -->
+				<div class="bg-white rounded-lg border">
+					<div class="p-4 border-b flex items-center justify-between">
+						<h3 class="font-semibold text-gray-900">Kategori Interaksi</h3>
+						<button class="px-3 py-1 bg-primary-600 text-white rounded text-sm hover:bg-primary-700">+ Tambah</button>
+					</div>
+					<div class="p-4 space-y-3">
+						for _, cat := range categories {
+							<div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+								<div class="flex items-center gap-3">
+									if cat.Sentiment == "positive" {
+										<span class="text-2xl">😊</span>
+									} else if cat.Sentiment == "neutral" {
+										<span class="text-2xl">🤔</span>
+									} else {
+										<span class="text-2xl">😟</span>
+									}
+									<div>
+										<p class="font-medium text-gray-900">{ cat.Name }</p>
+										<p class="text-xs text-gray-500">
+											if cat.Sentiment == "positive" {
+												Positif
+											} else if cat.Sentiment == "neutral" {
+												Netral
+											} else {
+												Negatif
+											}
+										</p>
+									</div>
+								</div>
+								<div class="flex items-center gap-3">
+									<span class="text-sm text-gray-500">{ cat.Count } interaksi</span>
+									<button class="text-primary-600 hover:text-primary-800 text-sm">Edit</button>
+								</div>
+							</div>
+						}
+					</div>
+				</div>
+
+				<!-- Obstacles -->
+				<div class="bg-white rounded-lg border">
+					<div class="p-4 border-b flex items-center justify-between">
+						<h3 class="font-semibold text-gray-900">Daftar Hambatan</h3>
+						<button class="px-3 py-1 bg-primary-600 text-white rounded text-sm hover:bg-primary-700">+ Tambah</button>
+					</div>
+					<div class="p-4 space-y-3">
+						for _, obs := range obstacles {
+							<div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+								<div class="flex items-center gap-3">
+									<span class="w-8 h-8 bg-red-100 text-red-600 rounded flex items-center justify-center">
+										<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+										</svg>
+									</span>
+									<p class="font-medium text-gray-900">{ obs.Name }</p>
+								</div>
+								<div class="flex items-center gap-3">
+									<span class="text-sm text-gray-500">{ obs.Count }x dilaporkan</span>
+									<button class="text-primary-600 hover:text-primary-800 text-sm">Edit</button>
+								</div>
+							</div>
+						}
+					</div>
+				</div>
+			</div>
+
+			<!-- Analytics Summary -->
+			<div class="bg-white rounded-lg border">
+				<div class="p-4 border-b">
+					<h3 class="font-semibold text-gray-900">Analisis Hambatan (30 hari terakhir)</h3>
+				</div>
+				<div class="p-4">
+					<div class="space-y-3">
+						<div>
+							<div class="flex justify-between text-sm mb-1">
+								<span>Biaya terlalu mahal</span>
+								<span class="font-medium">45%</span>
+							</div>
+							<div class="h-2 bg-gray-100 rounded-full">
+								<div class="h-2 bg-red-500 rounded-full" style="width: 45%"></div>
+							</div>
+						</div>
+						<div>
+							<div class="flex justify-between text-sm mb-1">
+								<span>Orang tua belum setuju</span>
+								<span class="font-medium">25%</span>
+							</div>
+							<div class="h-2 bg-gray-100 rounded-full">
+								<div class="h-2 bg-secondary-500 rounded-full" style="width: 25%"></div>
+							</div>
+						</div>
+						<div>
+							<div class="flex justify-between text-sm mb-1">
+								<span>Lokasi jauh</span>
+								<span class="font-medium">15%</span>
+							</div>
+							<div class="h-2 bg-gray-100 rounded-full">
+								<div class="h-2 bg-yellow-500 rounded-full" style="width: 15%"></div>
+							</div>
+						</div>
+						<div>
+							<div class="flex justify-between text-sm mb-1">
+								<span>Memilih kampus lain</span>
+								<span class="font-medium">10%</span>
+							</div>
+							<div class="h-2 bg-gray-100 rounded-full">
+								<div class="h-2 bg-blue-500 rounded-full" style="width: 10%"></div>
+							</div>
+						</div>
+						<div>
+							<div class="flex justify-between text-sm mb-1">
+								<span>Waktu belum tepat</span>
+								<span class="font-medium">5%</span>
+							</div>
+							<div class="h-2 bg-gray-100 rounded-full">
+								<div class="h-2 bg-gray-500 rounded-full" style="width: 5%"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+}

@@ -1,0 +1,103 @@
+package admin
+
+import "github.com/idtazkia/stmik-admission-api/templates/layouts"
+
+type UserItem struct {
+	ID         string
+	Name       string
+	Email      string
+	Role       string
+	Supervisor string
+	Status     string
+	LastLogin  string
+}
+
+templ SettingsUsers(data layouts.PageData, users []UserItem) {
+	@layouts.Admin(data) {
+		<div class="space-y-6">
+			<!-- Header -->
+			<div class="flex items-center justify-between">
+				<div>
+					<h2 class="text-lg font-semibold text-gray-900">Kelola User</h2>
+					<p class="text-sm text-gray-500">Daftar staff yang dapat mengakses sistem</p>
+				</div>
+				<button class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 flex items-center gap-2">
+					<span>+</span> Tambah User
+				</button>
+			</div>
+
+			<!-- Stats -->
+			<div class="grid grid-cols-4 gap-4">
+				<div class="bg-white rounded-lg border p-4">
+					<p class="text-sm text-gray-500">Total User</p>
+					<p class="text-2xl font-bold text-gray-900">8</p>
+				</div>
+				<div class="bg-white rounded-lg border p-4">
+					<p class="text-sm text-gray-500">Admin</p>
+					<p class="text-2xl font-bold text-primary-600">2</p>
+				</div>
+				<div class="bg-white rounded-lg border p-4">
+					<p class="text-sm text-gray-500">Supervisor</p>
+					<p class="text-2xl font-bold text-secondary-600">2</p>
+				</div>
+				<div class="bg-white rounded-lg border p-4">
+					<p class="text-sm text-gray-500">Konsultan</p>
+					<p class="text-2xl font-bold text-green-600">4</p>
+				</div>
+			</div>
+
+			<!-- Table -->
+			<div class="bg-white rounded-lg border overflow-hidden">
+				<table class="w-full">
+					<thead class="bg-gray-50 border-b">
+						<tr>
+							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama</th>
+							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
+							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Supervisor</th>
+							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Login Terakhir</th>
+							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
+						</tr>
+					</thead>
+					<tbody class="divide-y">
+						for _, user := range users {
+							<tr class="hover:bg-gray-50">
+								<td class="px-4 py-3">
+									<div class="flex items-center gap-3">
+										<div class="w-8 h-8 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center text-sm font-medium">
+											{ string(user.Name[0]) }
+										</div>
+										<span class="font-medium text-gray-900">{ user.Name }</span>
+									</div>
+								</td>
+								<td class="px-4 py-3 text-gray-600">{ user.Email }</td>
+								<td class="px-4 py-3">
+									if user.Role == "admin" {
+										<span class="px-2 py-1 bg-primary-100 text-primary-700 rounded text-xs font-medium">Admin</span>
+									} else if user.Role == "supervisor" {
+										<span class="px-2 py-1 bg-secondary-100 text-secondary-700 rounded text-xs font-medium">Supervisor</span>
+									} else {
+										<span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">Konsultan</span>
+									}
+								</td>
+								<td class="px-4 py-3 text-gray-600">{ user.Supervisor }</td>
+								<td class="px-4 py-3">
+									if user.Status == "active" {
+										<span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">Aktif</span>
+									} else {
+										<span class="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">Nonaktif</span>
+									}
+								</td>
+								<td class="px-4 py-3 text-gray-500 text-sm">{ user.LastLogin }</td>
+								<td class="px-4 py-3">
+									<button class="text-primary-600 hover:text-primary-800 text-sm">Edit</button>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	}
+}

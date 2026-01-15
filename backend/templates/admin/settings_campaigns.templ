@@ -1,0 +1,118 @@
+package admin
+
+import "github.com/idtazkia/stmik-admission-api/templates/layouts"
+
+type CampaignItem struct {
+	ID           string
+	Name         string
+	Type         string
+	Channel      string
+	Period       string
+	FeeOverride  string
+	Status       string
+	Leads        string
+	Enrolled     string
+	Conversion   string
+}
+
+templ SettingsCampaigns(data layouts.PageData, campaigns []CampaignItem) {
+	@layouts.Admin(data) {
+		<div class="space-y-6">
+			<!-- Header -->
+			<div class="flex items-center justify-between">
+				<div>
+					<h2 class="text-lg font-semibold text-gray-900">Kampanye Marketing</h2>
+					<p class="text-sm text-gray-500">Kelola kampanye untuk tracking leads dan promo</p>
+				</div>
+				<button class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 flex items-center gap-2">
+					<span>+</span> Buat Kampanye
+				</button>
+			</div>
+
+			<!-- Stats -->
+			<div class="grid grid-cols-4 gap-4">
+				<div class="bg-white rounded-lg border p-4">
+					<p class="text-sm text-gray-500">Kampanye Aktif</p>
+					<p class="text-2xl font-bold text-green-600">5</p>
+				</div>
+				<div class="bg-white rounded-lg border p-4">
+					<p class="text-sm text-gray-500">Total Leads</p>
+					<p class="text-2xl font-bold text-primary-600">156</p>
+				</div>
+				<div class="bg-white rounded-lg border p-4">
+					<p class="text-sm text-gray-500">Total Enrolled</p>
+					<p class="text-2xl font-bold text-secondary-600">42</p>
+				</div>
+				<div class="bg-white rounded-lg border p-4">
+					<p class="text-sm text-gray-500">Avg Conversion</p>
+					<p class="text-2xl font-bold text-gray-900">26.9%</p>
+				</div>
+			</div>
+
+			<!-- Filter Tabs -->
+			<div class="flex gap-2">
+				<button class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm">Semua</button>
+				<button class="px-4 py-2 bg-white border rounded-lg text-sm text-gray-600 hover:bg-gray-50">Aktif</button>
+				<button class="px-4 py-2 bg-white border rounded-lg text-sm text-gray-600 hover:bg-gray-50">Promo</button>
+				<button class="px-4 py-2 bg-white border rounded-lg text-sm text-gray-600 hover:bg-gray-50">Event</button>
+				<button class="px-4 py-2 bg-white border rounded-lg text-sm text-gray-600 hover:bg-gray-50">Ads</button>
+			</div>
+
+			<!-- Campaigns Table -->
+			<div class="bg-white rounded-lg border overflow-hidden">
+				<table class="w-full">
+					<thead class="bg-gray-50 border-b">
+						<tr>
+							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kampanye</th>
+							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipe</th>
+							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Channel</th>
+							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Periode</th>
+							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Override Biaya</th>
+							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Leads</th>
+							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Enrolled</th>
+							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
+						</tr>
+					</thead>
+					<tbody class="divide-y">
+						for _, c := range campaigns {
+							<tr class="hover:bg-gray-50">
+								<td class="px-4 py-3 font-medium text-gray-900">{ c.Name }</td>
+								<td class="px-4 py-3">
+									if c.Type == "promo" {
+										<span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">Promo</span>
+									} else if c.Type == "event" {
+										<span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">Event</span>
+									} else {
+										<span class="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs">Ads</span>
+									}
+								</td>
+								<td class="px-4 py-3 text-gray-600">{ c.Channel }</td>
+								<td class="px-4 py-3 text-gray-600 text-sm">{ c.Period }</td>
+								<td class="px-4 py-3">
+									if c.FeeOverride != "" {
+										<span class="text-green-600 font-medium">{ c.FeeOverride }</span>
+									} else {
+										<span class="text-gray-400">-</span>
+									}
+								</td>
+								<td class="px-4 py-3 font-medium">{ c.Leads }</td>
+								<td class="px-4 py-3 font-medium">{ c.Enrolled }</td>
+								<td class="px-4 py-3">
+									if c.Status == "active" {
+										<span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">Aktif</span>
+									} else {
+										<span class="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">Selesai</span>
+									}
+								</td>
+								<td class="px-4 py-3">
+									<button class="text-primary-600 hover:text-primary-800 text-sm">Edit</button>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	}
+}
