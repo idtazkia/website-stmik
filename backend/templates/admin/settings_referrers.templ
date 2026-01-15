@@ -1,0 +1,150 @@
+package admin
+
+import "github.com/idtazkia/stmik-admission-api/templates/layouts"
+
+type ReferrerItem struct {
+	ID           string
+	Name         string
+	Type         string
+	Institution  string
+	Phone        string
+	Code         string
+	Commission   string
+	Referrals    string
+	Enrolled     string
+	TotalEarned  string
+	Status       string
+}
+
+templ SettingsReferrers(data layouts.PageData, referrers []ReferrerItem) {
+	@layouts.Admin(data) {
+		<div class="space-y-6">
+			<!-- Header -->
+			<div class="flex items-center justify-between">
+				<div>
+					<h2 class="text-lg font-semibold text-gray-900">Daftar Referrer</h2>
+					<p class="text-sm text-gray-500">Guru, alumni, dan partner yang mereferensikan calon mahasiswa</p>
+				</div>
+				<button class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 flex items-center gap-2">
+					<span>+</span> Tambah Referrer
+				</button>
+			</div>
+
+			<!-- Stats -->
+			<div class="grid grid-cols-5 gap-4">
+				<div class="bg-white rounded-lg border p-4">
+					<p class="text-sm text-gray-500">Total Referrer</p>
+					<p class="text-2xl font-bold text-gray-900">24</p>
+				</div>
+				<div class="bg-white rounded-lg border p-4">
+					<p class="text-sm text-gray-500">Alumni</p>
+					<p class="text-2xl font-bold text-primary-600">8</p>
+				</div>
+				<div class="bg-white rounded-lg border p-4">
+					<p class="text-sm text-gray-500">Guru</p>
+					<p class="text-2xl font-bold text-green-600">10</p>
+				</div>
+				<div class="bg-white rounded-lg border p-4">
+					<p class="text-sm text-gray-500">Partner</p>
+					<p class="text-2xl font-bold text-secondary-600">4</p>
+				</div>
+				<div class="bg-white rounded-lg border p-4">
+					<p class="text-sm text-gray-500">Staff</p>
+					<p class="text-2xl font-bold text-purple-600">2</p>
+				</div>
+			</div>
+
+			<!-- Reward Settings Card -->
+			<div class="bg-white rounded-lg border">
+				<div class="p-4 border-b flex items-center justify-between">
+					<h3 class="font-semibold text-gray-900">Default Reward per Tipe</h3>
+					<button class="text-primary-600 text-sm hover:text-primary-800">Edit Reward</button>
+				</div>
+				<div class="p-4 grid grid-cols-5 gap-4">
+					<div class="text-center p-3 bg-gray-50 rounded-lg">
+						<p class="text-sm text-gray-500">Alumni</p>
+						<p class="font-bold text-gray-900">Rp 500.000</p>
+					</div>
+					<div class="text-center p-3 bg-gray-50 rounded-lg">
+						<p class="text-sm text-gray-500">Guru</p>
+						<p class="font-bold text-gray-900">Rp 750.000</p>
+					</div>
+					<div class="text-center p-3 bg-gray-50 rounded-lg">
+						<p class="text-sm text-gray-500">Siswa</p>
+						<p class="font-bold text-gray-900">Rp 300.000</p>
+					</div>
+					<div class="text-center p-3 bg-gray-50 rounded-lg">
+						<p class="text-sm text-gray-500">Partner</p>
+						<p class="font-bold text-gray-900">Rp 1.000.000</p>
+					</div>
+					<div class="text-center p-3 bg-gray-50 rounded-lg">
+						<p class="text-sm text-gray-500">Staff</p>
+						<p class="font-bold text-gray-900">Rp 250.000</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Filter -->
+			<div class="flex gap-2">
+				<button class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm">Semua</button>
+				<button class="px-4 py-2 bg-white border rounded-lg text-sm text-gray-600 hover:bg-gray-50">Alumni</button>
+				<button class="px-4 py-2 bg-white border rounded-lg text-sm text-gray-600 hover:bg-gray-50">Guru</button>
+				<button class="px-4 py-2 bg-white border rounded-lg text-sm text-gray-600 hover:bg-gray-50">Partner</button>
+				<button class="px-4 py-2 bg-white border rounded-lg text-sm text-gray-600 hover:bg-gray-50">Staff</button>
+			</div>
+
+			<!-- Referrers Table -->
+			<div class="bg-white rounded-lg border overflow-hidden">
+				<table class="w-full">
+					<thead class="bg-gray-50 border-b">
+						<tr>
+							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Referrer</th>
+							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipe</th>
+							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Institusi</th>
+							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kode</th>
+							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Komisi</th>
+							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Referrals</th>
+							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Enrolled</th>
+							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Earned</th>
+							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
+						</tr>
+					</thead>
+					<tbody class="divide-y">
+						for _, r := range referrers {
+							<tr class="hover:bg-gray-50">
+								<td class="px-4 py-3">
+									<div>
+										<p class="font-medium text-gray-900">{ r.Name }</p>
+										<p class="text-sm text-gray-500">{ r.Phone }</p>
+									</div>
+								</td>
+								<td class="px-4 py-3">
+									if r.Type == "alumni" {
+										<span class="px-2 py-1 bg-primary-100 text-primary-700 rounded text-xs">Alumni</span>
+									} else if r.Type == "guru" {
+										<span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">Guru</span>
+									} else if r.Type == "partner" {
+										<span class="px-2 py-1 bg-secondary-100 text-secondary-700 rounded text-xs">Partner</span>
+									} else {
+										<span class="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs">Staff</span>
+									}
+								</td>
+								<td class="px-4 py-3 text-gray-600">{ r.Institution }</td>
+								<td class="px-4 py-3">
+									<code class="px-2 py-1 bg-gray-100 rounded text-sm">{ r.Code }</code>
+								</td>
+								<td class="px-4 py-3 text-gray-900">{ r.Commission }</td>
+								<td class="px-4 py-3 font-medium">{ r.Referrals }</td>
+								<td class="px-4 py-3 font-medium text-green-600">{ r.Enrolled }</td>
+								<td class="px-4 py-3 font-medium text-gray-900">{ r.TotalEarned }</td>
+								<td class="px-4 py-3">
+									<button class="text-primary-600 hover:text-primary-800 text-sm">Detail</button>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	}
+}

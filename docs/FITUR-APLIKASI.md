@@ -131,6 +131,8 @@ Admin mengelola akun staff yang bisa login ke sistem.
 
 ![Admin Login](screenshots/admin-login.png)
 
+![Kelola User](screenshots/settings-users.png)
+
 ### 1.2 Setting Program Studi (Prodi)
 
 | Field | Keterangan |
@@ -166,6 +168,8 @@ Tentukan nominal biaya per prodi dan tahun akademik.
 - SPP Sistem Informasi: Rp 7.500.000/semester
 - SPP Teknik Informatika: Rp 8.000.000/semester
 - Asrama: Rp 12.000.000/semester
+
+![Setting Prodi & Biaya](screenshots/settings-programs.png)
 
 ### 1.5 Setting Reward & Komisi
 
@@ -210,6 +214,8 @@ Kampanye digunakan untuk tracking sumber leads dan promo khusus.
 - "Education Expo Jakarta" - tracking peserta expo
 - "Instagram Ads Q1" - tracking dari iklan IG
 
+![Setting Kampanye](screenshots/settings-campaigns.png)
+
 ### 1.7 Setting Referrer
 
 Daftarkan referrer yang akan mendapat komisi.
@@ -223,6 +229,8 @@ Daftarkan referrer yang akan mendapat komisi.
 | Kode Referral | (opsional) untuk link tracking |
 | Bank | Nama bank, no rekening, nama pemilik |
 | Override Komisi | (opsional) jika berbeda dari default |
+
+![Setting Referrer](screenshots/settings-referrers.png)
 
 ### 1.8 Setting Algoritma Assignment
 
@@ -262,6 +270,8 @@ Pilih bagaimana kandidat baru di-assign ke konsultan:
 - Waktu belum tepat
 - Memilih kampus lain
 
+![Setting Kategori & Hambatan](screenshots/settings-categories.png)
+
 ---
 
 ## Fase 2: Pendaftaran Calon Mahasiswa
@@ -287,6 +297,8 @@ sequenceDiagram
     S->>K: Notifikasi kandidat baru
     S->>C: Tampilkan info biaya pendaftaran
 ```
+
+![Form Pendaftaran](screenshots/portal-registration.png)
 
 ### 2.2 Tracking Sumber Pendaftaran
 
@@ -317,6 +329,8 @@ Setelah registrasi, kandidat bisa login ke portal untuk:
 3. **Pembayaran** - Melihat tagihan dan upload bukti bayar
 4. **Pengumuman** - Melihat info dan pengumuman terbaru
 5. **Referral** - (setelah enrolled) Dapatkan kode referral untuk ajak teman
+
+![Portal Dashboard](screenshots/portal-dashboard.png)
 
 ![Portal Dokumen](screenshots/portal-documents.png)
 
@@ -404,6 +418,8 @@ Admin memverifikasi bukti bayar:
 - Approve atau reject dengan alasan
 - Jika reject, kandidat bisa re-upload
 
+![Portal Pembayaran](screenshots/portal-payments.png)
+
 ---
 
 ## Fase 5: Dokumen & Enrollment
@@ -467,6 +483,8 @@ Komisi otomatis dibuat saat kandidat yang direferensikan enrolled:
 3. Admin export data untuk transfer bank
 4. Admin tandai sebagai "Paid"
 
+![Kelola Komisi](screenshots/admin-commissions.png)
+
 ---
 
 ## Fase 7: Laporan & Analitik
@@ -497,6 +515,8 @@ Konversi per tahap:
 
 Filter: periode, prodi, kampanye
 
+![Laporan Funnel](screenshots/report-funnel.png)
+
 ### 7.4 Laporan Performa Konsultan
 
 - Jumlah kandidat ditangani
@@ -512,6 +532,8 @@ Filter: periode, prodi, kampanye
 - Commits per kampanye
 - Enrollments per kampanye
 - Conversion rate per kampanye
+
+![Laporan ROI Kampanye](screenshots/report-campaigns.png)
 
 ### 7.6 Laporan Referrer
 
