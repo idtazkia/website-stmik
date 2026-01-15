@@ -1,0 +1,196 @@
+package admin
+
+import "github.com/idtazkia/stmik-admission-api/templates/layouts"
+
+templ Dashboard(data layouts.PageData, stats DashboardStats) {
+	@layouts.Admin(data) {
+		<div class="space-y-6">
+			<!-- Stats Cards -->
+			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+				<div class="bg-white rounded-lg shadow p-6">
+					<div class="text-sm text-gray-500">Total Kandidat</div>
+					<div class="text-3xl font-bold text-gray-900">{ stats.TotalCandidates }</div>
+					<div class="text-sm text-green-600 mt-1">+{ stats.ThisMonthLeads } bulan ini</div>
+				</div>
+				<div class="bg-white rounded-lg shadow p-6">
+					<div class="text-sm text-gray-500">Prospecting</div>
+					<div class="text-3xl font-bold text-blue-600">{ stats.ProspectingCount }</div>
+					<div class="text-sm text-gray-500 mt-1">Sedang difollow-up</div>
+				</div>
+				<div class="bg-white rounded-lg shadow p-6">
+					<div class="text-sm text-gray-500">Committed</div>
+					<div class="text-3xl font-bold text-yellow-600">{ stats.CommittedCount }</div>
+					<div class="text-sm text-gray-500 mt-1">Menunggu enrollment</div>
+				</div>
+				<div class="bg-white rounded-lg shadow p-6">
+					<div class="text-sm text-gray-500">Enrolled</div>
+					<div class="text-3xl font-bold text-green-600">{ stats.EnrolledCount }</div>
+					<div class="text-sm text-gray-500 mt-1">Mahasiswa baru</div>
+				</div>
+			</div>
+
+			<!-- Quick Actions & Alerts -->
+			<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+				<!-- Overdue Follow-ups -->
+				<div class="bg-white rounded-lg shadow">
+					<div class="px-6 py-4 border-b flex items-center justify-between">
+						<h2 class="font-semibold text-gray-900">Follow-up Terlambat</h2>
+						<span class="bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded">{ stats.OverdueFollowups } kandidat</span>
+					</div>
+					<div class="p-6">
+						if stats.OverdueFollowups != "0" {
+							<div class="space-y-3">
+								<div class="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+									<div>
+										<p class="font-medium text-gray-900">Citra Dewi</p>
+										<p class="text-sm text-gray-500">Terakhir: 3 hari lalu</p>
+									</div>
+									<a href="/admin/candidates/8" class="text-primary-600 hover:text-primary-800 text-sm font-medium">Lihat</a>
+								</div>
+							</div>
+						} else {
+							<p class="text-gray-500 text-center py-4">Tidak ada follow-up terlambat</p>
+						}
+					</div>
+				</div>
+
+				<!-- Today's Tasks -->
+				<div class="bg-white rounded-lg shadow">
+					<div class="px-6 py-4 border-b flex items-center justify-between">
+						<h2 class="font-semibold text-gray-900">Tugas Hari Ini</h2>
+						<span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded">{ stats.TodayFollowups } follow-up</span>
+					</div>
+					<div class="p-6">
+						<div class="space-y-3">
+							<div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+								<div>
+									<p class="font-medium text-gray-900">Putri Amelia</p>
+									<p class="text-sm text-gray-500">Prodi: Teknik Informatika</p>
+								</div>
+								<a href="/admin/candidates/2" class="text-primary-600 hover:text-primary-800 text-sm font-medium">Follow-up</a>
+							</div>
+							<div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+								<div>
+									<p class="font-medium text-gray-900">Bayu Setiawan</p>
+									<p class="text-sm text-gray-500">Prodi: Sistem Informasi</p>
+								</div>
+								<a href="/admin/candidates/7" class="text-primary-600 hover:text-primary-800 text-sm font-medium">Follow-up</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Funnel Overview -->
+			<div class="bg-white rounded-lg shadow">
+				<div class="px-6 py-4 border-b">
+					<h2 class="font-semibold text-gray-900">Funnel Overview</h2>
+				</div>
+				<div class="p-6">
+					<div class="flex items-center justify-between">
+						<div class="flex-1 text-center">
+							<div class="text-2xl font-bold text-gray-900">{ stats.RegisteredCount }</div>
+							<div class="text-sm text-gray-500">Registered</div>
+							<div class="h-2 bg-gray-200 rounded mt-2 mx-4">
+								<div class="h-2 bg-gray-400 rounded" style="width: 100%"></div>
+							</div>
+						</div>
+						<div class="text-gray-300 text-2xl">→</div>
+						<div class="flex-1 text-center">
+							<div class="text-2xl font-bold text-blue-600">{ stats.ProspectingCount }</div>
+							<div class="text-sm text-gray-500">Prospecting</div>
+							<div class="h-2 bg-gray-200 rounded mt-2 mx-4">
+								<div class="h-2 bg-blue-400 rounded" style="width: 75%"></div>
+							</div>
+						</div>
+						<div class="text-gray-300 text-2xl">→</div>
+						<div class="flex-1 text-center">
+							<div class="text-2xl font-bold text-yellow-600">{ stats.CommittedCount }</div>
+							<div class="text-sm text-gray-500">Committed</div>
+							<div class="h-2 bg-gray-200 rounded mt-2 mx-4">
+								<div class="h-2 bg-yellow-400 rounded" style="width: 50%"></div>
+							</div>
+						</div>
+						<div class="text-gray-300 text-2xl">→</div>
+						<div class="flex-1 text-center">
+							<div class="text-2xl font-bold text-green-600">{ stats.EnrolledCount }</div>
+							<div class="text-sm text-gray-500">Enrolled</div>
+							<div class="h-2 bg-gray-200 rounded mt-2 mx-4">
+								<div class="h-2 bg-green-400 rounded" style="width: 25%"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Recent Candidates -->
+			<div class="bg-white rounded-lg shadow">
+				<div class="px-6 py-4 border-b flex items-center justify-between">
+					<h2 class="font-semibold text-gray-900">Kandidat Terbaru</h2>
+					<a href="/admin/candidates" class="text-primary-600 hover:text-primary-800 text-sm font-medium">Lihat Semua →</a>
+				</div>
+				<div class="overflow-x-auto">
+					<table class="w-full">
+						<thead class="bg-gray-50">
+							<tr>
+								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama</th>
+								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Prodi</th>
+								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Konsultan</th>
+								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tanggal</th>
+							</tr>
+						</thead>
+						<tbody class="divide-y divide-gray-200">
+							<tr class="hover:bg-gray-50">
+								<td class="px-6 py-4">
+									<a href="/admin/candidates/10" class="font-medium text-gray-900 hover:text-primary-600">Fina Rahmawati</a>
+								</td>
+								<td class="px-6 py-4 text-sm text-gray-500">Teknik Informatika</td>
+								<td class="px-6 py-4">
+									<span class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">Registered</span>
+								</td>
+								<td class="px-6 py-4 text-sm text-gray-500">Ahmad Hidayat</td>
+								<td class="px-6 py-4 text-sm text-gray-500">Hari ini</td>
+							</tr>
+							<tr class="hover:bg-gray-50">
+								<td class="px-6 py-4">
+									<a href="/admin/candidates/7" class="font-medium text-gray-900 hover:text-primary-600">Bayu Setiawan</a>
+								</td>
+								<td class="px-6 py-4 text-sm text-gray-500">Sistem Informasi</td>
+								<td class="px-6 py-4">
+									<span class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">Registered</span>
+								</td>
+								<td class="px-6 py-4 text-sm text-gray-500">Ahmad Hidayat</td>
+								<td class="px-6 py-4 text-sm text-gray-500">Kemarin</td>
+							</tr>
+							<tr class="hover:bg-gray-50">
+								<td class="px-6 py-4">
+									<a href="/admin/candidates/1" class="font-medium text-gray-900 hover:text-primary-600">Muhammad Rizky</a>
+								</td>
+								<td class="px-6 py-4 text-sm text-gray-500">Sistem Informasi</td>
+								<td class="px-6 py-4">
+									<span class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">Registered</span>
+								</td>
+								<td class="px-6 py-4 text-sm text-gray-500">Siti Rahayu</td>
+								<td class="px-6 py-4 text-sm text-gray-500">2 hari lalu</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	}
+}
+
+// DashboardStats holds dashboard statistics
+type DashboardStats struct {
+	TotalCandidates    string
+	RegisteredCount    string
+	ProspectingCount   string
+	CommittedCount     string
+	EnrolledCount      string
+	LostCount          string
+	OverdueFollowups   string
+	TodayFollowups     string
+	ThisMonthLeads     string
+}

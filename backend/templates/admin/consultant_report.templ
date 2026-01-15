@@ -1,0 +1,245 @@
+package admin
+
+import "github.com/idtazkia/stmik-admission-api/templates/layouts"
+
+templ ConsultantReport(data layouts.PageData, filter ReportFilter, consultants []ConsultantPerformance, summary ReportSummary) {
+	@layouts.Admin(data) {
+		<div class="space-y-6">
+			<!-- Filter -->
+			<div class="bg-white rounded-lg shadow p-4">
+				<form class="flex flex-wrap gap-4 items-end">
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">Periode</label>
+						<select name="period" class="border border-gray-300 rounded-md px-3 py-2 text-sm">
+							<option value="this_month" selected?={ filter.Period == "this_month" }>Bulan Ini</option>
+							<option value="last_month" selected?={ filter.Period == "last_month" }>Bulan Lalu</option>
+							<option value="this_quarter" selected?={ filter.Period == "this_quarter" }>Kuartal Ini</option>
+							<option value="this_year" selected?={ filter.Period == "this_year" }>Tahun Ini</option>
+							<option value="custom" selected?={ filter.Period == "custom" }>Custom</option>
+						</select>
+					</div>
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">Dari</label>
+						<input type="date" name="start_date" value={ filter.StartDate } class="border border-gray-300 rounded-md px-3 py-2 text-sm"/>
+					</div>
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">Sampai</label>
+						<input type="date" name="end_date" value={ filter.EndDate } class="border border-gray-300 rounded-md px-3 py-2 text-sm"/>
+					</div>
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">Supervisor</label>
+						<select name="supervisor" class="border border-gray-300 rounded-md px-3 py-2 text-sm">
+							<option value="">Semua Supervisor</option>
+							<option value="2">Budi Santoso</option>
+						</select>
+					</div>
+					<button type="submit" class="bg-primary-600 text-white px-4 py-2 rounded-md text-sm hover:bg-primary-700">
+						Terapkan
+					</button>
+					<a href="/admin/reports/consultants" class="text-gray-600 hover:text-gray-800 text-sm">Reset</a>
+				</form>
+			</div>
+
+			<!-- Summary Cards -->
+			<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+				<div class="bg-white rounded-lg shadow p-6">
+					<div class="text-sm text-gray-500">Total Leads</div>
+					<div class="text-3xl font-bold text-gray-900">{ summary.TotalLeads }</div>
+				</div>
+				<div class="bg-white rounded-lg shadow p-6">
+					<div class="text-sm text-gray-500">Total Interaksi</div>
+					<div class="text-3xl font-bold text-blue-600">{ summary.TotalInteractions }</div>
+				</div>
+				<div class="bg-white rounded-lg shadow p-6">
+					<div class="text-sm text-gray-500">Total Commits</div>
+					<div class="text-3xl font-bold text-yellow-600">{ summary.TotalCommits }</div>
+				</div>
+				<div class="bg-white rounded-lg shadow p-6">
+					<div class="text-sm text-gray-500">Total Enrollments</div>
+					<div class="text-3xl font-bold text-green-600">{ summary.TotalEnrollments }</div>
+				</div>
+			</div>
+
+			<!-- Leaderboard -->
+			<div class="bg-white rounded-lg shadow">
+				<div class="px-6 py-4 border-b flex items-center justify-between">
+					<h3 class="font-semibold text-gray-900">Performa Konsultan</h3>
+					<button class="text-primary-600 hover:text-primary-800 text-sm font-medium">Export CSV</button>
+				</div>
+				<div class="overflow-x-auto">
+					<table class="w-full">
+						<thead class="bg-gray-50">
+							<tr>
+								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rank</th>
+								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Konsultan</th>
+								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Supervisor</th>
+								<th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Leads</th>
+								<th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Interaksi</th>
+								<th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Commits</th>
+								<th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Enrollments</th>
+								<th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Conversion</th>
+								<th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Avg Days to Commit</th>
+								<th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Interaksi/Kandidat</th>
+							</tr>
+						</thead>
+						<tbody class="divide-y divide-gray-200">
+							for i, c := range consultants {
+								<tr class="hover:bg-gray-50">
+									<td class="px-6 py-4">
+										if i == 0 {
+											<span class="text-2xl">🥇</span>
+										} else if i == 1 {
+											<span class="text-2xl">🥈</span>
+										} else if i == 2 {
+											<span class="text-2xl">🥉</span>
+										} else {
+											<span class="text-gray-500">{ c.Rank }</span>
+										}
+									</td>
+									<td class="px-6 py-4">
+										<div class="font-medium text-gray-900">{ c.Name }</div>
+										<div class="text-sm text-gray-500">{ c.Email }</div>
+									</td>
+									<td class="px-6 py-4 text-sm text-gray-500">{ c.SupervisorName }</td>
+									<td class="px-6 py-4 text-center text-gray-900">{ c.Leads }</td>
+									<td class="px-6 py-4 text-center text-blue-600 font-medium">{ c.Interactions }</td>
+									<td class="px-6 py-4 text-center text-yellow-600 font-medium">{ c.Commits }</td>
+									<td class="px-6 py-4 text-center text-green-600 font-medium">{ c.Enrollments }</td>
+									<td class="px-6 py-4 text-center">
+										<span class={ "px-2 py-1 text-xs font-medium rounded", templ.KV("bg-green-100 text-green-800", c.ConversionRate >= 20), templ.KV("bg-yellow-100 text-yellow-800", c.ConversionRate >= 10 && c.ConversionRate < 20), templ.KV("bg-red-100 text-red-800", c.ConversionRate < 10) }>
+											{ c.ConversionRateStr }%
+										</span>
+									</td>
+									<td class="px-6 py-4 text-center text-gray-500">{ c.AvgDaysToCommit } hari</td>
+									<td class="px-6 py-4 text-center text-gray-500">{ c.InteractionsPerCandidate }</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<!-- Activity Breakdown -->
+			<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+				<!-- Interactions by Channel -->
+				<div class="bg-white rounded-lg shadow">
+					<div class="px-6 py-4 border-b">
+						<h3 class="font-semibold text-gray-900">Interaksi per Channel</h3>
+					</div>
+					<div class="p-6">
+						<div class="space-y-4">
+							<div class="flex items-center justify-between">
+								<span class="text-gray-700">📞 Telepon</span>
+								<div class="flex items-center gap-2">
+									<div class="w-48 bg-gray-200 rounded-full h-2">
+										<div class="bg-purple-600 h-2 rounded-full" style="width: 35%"></div>
+									</div>
+									<span class="text-sm text-gray-500 w-12 text-right">35%</span>
+								</div>
+							</div>
+							<div class="flex items-center justify-between">
+								<span class="text-gray-700">💬 WhatsApp</span>
+								<div class="flex items-center gap-2">
+									<div class="w-48 bg-gray-200 rounded-full h-2">
+										<div class="bg-green-600 h-2 rounded-full" style="width: 45%"></div>
+									</div>
+									<span class="text-sm text-gray-500 w-12 text-right">45%</span>
+								</div>
+							</div>
+							<div class="flex items-center justify-between">
+								<span class="text-gray-700">📧 Email</span>
+								<div class="flex items-center gap-2">
+									<div class="w-48 bg-gray-200 rounded-full h-2">
+										<div class="bg-blue-600 h-2 rounded-full" style="width: 5%"></div>
+									</div>
+									<span class="text-sm text-gray-500 w-12 text-right">5%</span>
+								</div>
+							</div>
+							<div class="flex items-center justify-between">
+								<span class="text-gray-700">🏫 Kunjungan Kampus</span>
+								<div class="flex items-center gap-2">
+									<div class="w-48 bg-gray-200 rounded-full h-2">
+										<div class="bg-orange-600 h-2 rounded-full" style="width: 10%"></div>
+									</div>
+									<span class="text-sm text-gray-500 w-12 text-right">10%</span>
+								</div>
+							</div>
+							<div class="flex items-center justify-between">
+								<span class="text-gray-700">🏠 Kunjungan Rumah</span>
+								<div class="flex items-center gap-2">
+									<div class="w-48 bg-gray-200 rounded-full h-2">
+										<div class="bg-yellow-600 h-2 rounded-full" style="width: 5%"></div>
+									</div>
+									<span class="text-sm text-gray-500 w-12 text-right">5%</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Common Obstacles -->
+				<div class="bg-white rounded-lg shadow">
+					<div class="px-6 py-4 border-b">
+						<h3 class="font-semibold text-gray-900">Hambatan yang Sering Muncul</h3>
+					</div>
+					<div class="p-6">
+						<div class="space-y-4">
+							<div class="flex items-center justify-between">
+								<span class="text-gray-700">💰 Biaya terlalu mahal</span>
+								<span class="text-sm font-medium text-gray-900">42%</span>
+							</div>
+							<div class="flex items-center justify-between">
+								<span class="text-gray-700">📍 Lokasi jauh</span>
+								<span class="text-sm font-medium text-gray-900">25%</span>
+							</div>
+							<div class="flex items-center justify-between">
+								<span class="text-gray-700">👨‍👩‍👧 Orang tua belum setuju</span>
+								<span class="text-sm font-medium text-gray-900">18%</span>
+							</div>
+							<div class="flex items-center justify-between">
+								<span class="text-gray-700">⏰ Waktu belum tepat</span>
+								<span class="text-sm font-medium text-gray-900">10%</span>
+							</div>
+							<div class="flex items-center justify-between">
+								<span class="text-gray-700">🏛️ Memilih kampus lain</span>
+								<span class="text-sm font-medium text-gray-900">5%</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+}
+
+// ReportFilter for filtering report
+type ReportFilter struct {
+	Period     string
+	StartDate  string
+	EndDate    string
+	Supervisor string
+}
+
+// ConsultantPerformance for report display
+type ConsultantPerformance struct {
+	Rank                     string
+	Name                     string
+	Email                    string
+	SupervisorName           string
+	Leads                    string
+	Interactions             string
+	Commits                  string
+	Enrollments              string
+	ConversionRate           float64
+	ConversionRateStr        string
+	AvgDaysToCommit          string
+	InteractionsPerCandidate string
+}
+
+// ReportSummary for report summary
+type ReportSummary struct {
+	TotalLeads        string
+	TotalInteractions string
+	TotalCommits      string
+	TotalEnrollments  string
+}

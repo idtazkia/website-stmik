@@ -1,3 +1,5 @@
+// Package main provides a mockup server without database connection
+// This is for UI validation with stakeholders before real implementation
 package main
 
 import (
@@ -11,32 +13,21 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/idtazkia/stmik-admission-api/config"
 	"github.com/idtazkia/stmik-admission-api/handler"
-	"github.com/idtazkia/stmik-admission-api/model"
 	"github.com/idtazkia/stmik-admission-api/templates/pages"
 	"github.com/idtazkia/stmik-admission-api/version"
-	"github.com/joho/godotenv"
 )
 
 func main() {
-	// Load .env file if it exists (development only)
-	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found, using environment variables")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
 	}
 
-	cfg, err := config.Load()
-	if err != nil {
-		log.Fatalf("failed to load config: %v", err)
+	host := os.Getenv("HOST")
+	if host == "" {
+		host = "0.0.0.0"
 	}
-
-	// Initialize database connection
-	ctx := context.Background()
-	if err := model.Connect(ctx, cfg.Database.DSN()); err != nil {
-		log.Fatalf("failed to connect to database: %v", err)
-	}
-	defer model.Close()
-	log.Println("Connected to database")
 
 	mux := http.NewServeMux()
 
@@ -46,9 +37,15 @@ func main() {
 		w.WriteHeader(http.StatusOK)
 		resp := map[string]interface{}{
 			"status":  "ok",
+			"mode":    "mockup",
 			"version": version.Info(),
 		}
 		json.NewEncoder(w).Encode(resp)
+	})
+
+	// Root redirect to admin
+	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/admin", http.StatusFound)
 	})
 
 	// Static files
@@ -58,7 +55,11 @@ func main() {
 	adminHandler := handler.NewAdminHandler()
 	adminHandler.RegisterRoutes(mux)
 
-	// Test routes for Playwright (only in development)
+	// Portal routes (mockup)
+	portalHandler := handler.NewPortalHandler()
+	portalHandler.RegisterRoutes(mux)
+
+	// Test routes for Playwright
 	mux.HandleFunc("GET /test/portal", func(w http.ResponseWriter, r *http.Request) {
 		data := handler.NewPageData("Test Portal")
 		pages.TestPortal(data).Render(r.Context(), w)
@@ -69,19 +70,10 @@ func main() {
 		pages.TestAdmin(data).Render(r.Context(), w)
 	})
 
-	mux.HandleFunc("POST /test/submit", func(w http.ResponseWriter, r *http.Request) {
-		// Test form submission (CSRF protected)
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]string{
-			"status":  "ok",
-			"message": "Form submitted successfully",
-		})
-	})
-
 	// Apply CSRF protection middleware
 	protectedMux := handler.CrossOriginProtection(mux)
 
-	addr := fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.Port)
+	addr := fmt.Sprintf("%s:%s", host, port)
 	server := &http.Server{
 		Addr:         addr,
 		Handler:      protectedMux,
@@ -92,7 +84,14 @@ func main() {
 
 	// Start server in goroutine
 	go func() {
-		log.Printf("Starting server on %s", addr)
+		log.Printf("Starting mockup server on http://%s", addr)
+		log.Println("Available routes:")
+		log.Println("  GET  /admin                - Dashboard")
+		log.Println("  GET  /admin/candidates     - Candidates list")
+		log.Println("  GET  /admin/candidates/:id - Candidate detail")
+		log.Println("  GET  /admin/campaigns      - Campaigns (coming soon)")
+		log.Println("  GET  /admin/referrers      - Referrers (coming soon)")
+		log.Println("  GET  /health               - Health check")
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("server error: %v", err)
 		}
@@ -103,7 +102,7 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
-	log.Println("Shutting down server...")
+	log.Println("Shutting down mockup server...")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -112,5 +111,5 @@ func main() {
 		log.Fatalf("server forced to shutdown: %v", err)
 	}
 
-	log.Println("Server stopped")
+	log.Println("Mockup server stopped")
 }

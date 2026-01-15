@@ -1,0 +1,243 @@
+package admin
+
+import "github.com/idtazkia/stmik-admission-api/templates/layouts"
+
+templ InteractionForm(data layouts.PageData, candidate CandidateSummary, categories []InteractionCategoryOption, obstacles []ObstacleOption) {
+	@layouts.Admin(data) {
+		<div class="max-w-3xl mx-auto">
+			<!-- Header -->
+			<div class="mb-6">
+				<a href={ templ.SafeURL("/admin/candidates/" + candidate.ID) } class="text-gray-500 hover:text-gray-700 text-sm">← Kembali ke Detail Kandidat</a>
+				<h2 class="text-2xl font-bold text-gray-900 mt-2">Log Interaksi Baru</h2>
+				<p class="text-gray-500">Kandidat: { candidate.Name }</p>
+			</div>
+
+			<!-- Form -->
+			<form action={ templ.SafeURL("/admin/candidates/" + candidate.ID + "/interaction") } method="POST" class="bg-white rounded-lg shadow">
+				<div class="p-6 space-y-6">
+					<!-- Candidate Info Summary -->
+					<div class="bg-gray-50 rounded-lg p-4">
+						<div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+							<div>
+								<span class="text-gray-500">Nama</span>
+								<p class="font-medium text-gray-900">{ candidate.Name }</p>
+							</div>
+							<div>
+								<span class="text-gray-500">Prodi</span>
+								<p class="font-medium text-gray-900">{ candidate.ProdiName }</p>
+							</div>
+							<div>
+								<span class="text-gray-500">Status</span>
+								<p class="font-medium text-gray-900">{ candidate.Status }</p>
+							</div>
+							<div>
+								<span class="text-gray-500">WhatsApp</span>
+								<p class="font-medium text-gray-900">
+									<a href={ templ.SafeURL("https://wa.me/" + candidate.WhatsApp) } target="_blank" class="text-green-600 hover:text-green-800">{ candidate.WhatsApp }</a>
+								</p>
+							</div>
+						</div>
+					</div>
+
+					<!-- Channel -->
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-2">Channel Komunikasi <span class="text-red-500">*</span></label>
+						<div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+							<label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 has-[:checked]:border-primary-500 has-[:checked]:bg-primary-50">
+								<input type="radio" name="channel" value="call" class="sr-only" required/>
+								<span class="text-center w-full">
+									<span class="block text-2xl mb-1">📞</span>
+									<span class="text-sm">Telepon</span>
+								</span>
+							</label>
+							<label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 has-[:checked]:border-primary-500 has-[:checked]:bg-primary-50">
+								<input type="radio" name="channel" value="whatsapp" class="sr-only"/>
+								<span class="text-center w-full">
+									<span class="block text-2xl mb-1">💬</span>
+									<span class="text-sm">WhatsApp</span>
+								</span>
+							</label>
+							<label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 has-[:checked]:border-primary-500 has-[:checked]:bg-primary-50">
+								<input type="radio" name="channel" value="email" class="sr-only"/>
+								<span class="text-center w-full">
+									<span class="block text-2xl mb-1">📧</span>
+									<span class="text-sm">Email</span>
+								</span>
+							</label>
+							<label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 has-[:checked]:border-primary-500 has-[:checked]:bg-primary-50">
+								<input type="radio" name="channel" value="campus_visit" class="sr-only"/>
+								<span class="text-center w-full">
+									<span class="block text-2xl mb-1">🏫</span>
+									<span class="text-sm">Visit Kampus</span>
+								</span>
+							</label>
+							<label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 has-[:checked]:border-primary-500 has-[:checked]:bg-primary-50">
+								<input type="radio" name="channel" value="home_visit" class="sr-only"/>
+								<span class="text-center w-full">
+									<span class="block text-2xl mb-1">🏠</span>
+									<span class="text-sm">Visit Rumah</span>
+								</span>
+							</label>
+						</div>
+					</div>
+
+					<!-- Category (Response/Sentiment) -->
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-2">Respon Kandidat <span class="text-red-500">*</span></label>
+						<div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+							for _, cat := range categories {
+								<label class={ "flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 has-[:checked]:border-2", templ.KV("has-[:checked]:border-green-500 has-[:checked]:bg-green-50", cat.Sentiment == "positive"), templ.KV("has-[:checked]:border-yellow-500 has-[:checked]:bg-yellow-50", cat.Sentiment == "neutral"), templ.KV("has-[:checked]:border-red-500 has-[:checked]:bg-red-50", cat.Sentiment == "negative") }>
+									<input type="radio" name="category" value={ cat.Value } class="sr-only" required/>
+									<span class="text-center w-full">
+										<span class={ "block text-2xl mb-1" }>{ cat.Icon }</span>
+										<span class="text-sm">{ cat.Label }</span>
+									</span>
+								</label>
+							}
+						</div>
+					</div>
+
+					<!-- Obstacle (Optional) -->
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-2">Hambatan (jika ada)</label>
+						<select name="obstacle" class="w-full border border-gray-300 rounded-md px-3 py-2">
+							<option value="">- Tidak ada hambatan -</option>
+							for _, obs := range obstacles {
+								<option value={ obs.Value }>{ obs.Label }</option>
+							}
+						</select>
+						<p class="mt-1 text-sm text-gray-500">Pilih hambatan utama yang disampaikan kandidat</p>
+					</div>
+
+					<!-- Contact Person (for visit/call) -->
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-2">Yang Dihubungi/Ditemui</label>
+						<div class="flex gap-4">
+							<label class="flex items-center">
+								<input type="checkbox" name="contact_person[]" value="candidate" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500" checked/>
+								<span class="ml-2 text-sm text-gray-700">Kandidat</span>
+							</label>
+							<label class="flex items-center">
+								<input type="checkbox" name="contact_person[]" value="parent" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500"/>
+								<span class="ml-2 text-sm text-gray-700">Orang Tua</span>
+							</label>
+							<label class="flex items-center">
+								<input type="checkbox" name="contact_person[]" value="other" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500"/>
+								<span class="ml-2 text-sm text-gray-700">Lainnya</span>
+							</label>
+						</div>
+					</div>
+
+					<!-- Duration -->
+					<div class="grid grid-cols-2 gap-4">
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-2">Durasi (menit)</label>
+							<input type="number" name="duration_minutes" min="1" max="180" placeholder="15" class="w-full border border-gray-300 rounded-md px-3 py-2"/>
+						</div>
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-2">Waktu Interaksi</label>
+							<input type="datetime-local" name="interaction_time" class="w-full border border-gray-300 rounded-md px-3 py-2"/>
+						</div>
+					</div>
+
+					<!-- Notes -->
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-2">Catatan/Hasil Percakapan <span class="text-red-500">*</span></label>
+						<textarea name="remarks" rows="4" required class="w-full border border-gray-300 rounded-md px-3 py-2" placeholder="Tuliskan ringkasan percakapan, pertanyaan kandidat, informasi yang disampaikan, dll..."></textarea>
+						<p class="mt-1 text-sm text-gray-500">Minimal 20 karakter</p>
+					</div>
+
+					<!-- Key Points Discussed -->
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-2">Topik yang Dibahas</label>
+						<div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+							<label class="flex items-center">
+								<input type="checkbox" name="topics[]" value="program_info" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500"/>
+								<span class="ml-2 text-sm text-gray-700">Info Program Studi</span>
+							</label>
+							<label class="flex items-center">
+								<input type="checkbox" name="topics[]" value="tuition" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500"/>
+								<span class="ml-2 text-sm text-gray-700">Biaya Kuliah</span>
+							</label>
+							<label class="flex items-center">
+								<input type="checkbox" name="topics[]" value="scholarship" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500"/>
+								<span class="ml-2 text-sm text-gray-700">Beasiswa</span>
+							</label>
+							<label class="flex items-center">
+								<input type="checkbox" name="topics[]" value="facilities" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500"/>
+								<span class="ml-2 text-sm text-gray-700">Fasilitas</span>
+							</label>
+							<label class="flex items-center">
+								<input type="checkbox" name="topics[]" value="dormitory" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500"/>
+								<span class="ml-2 text-sm text-gray-700">Asrama</span>
+							</label>
+							<label class="flex items-center">
+								<input type="checkbox" name="topics[]" value="career" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500"/>
+								<span class="ml-2 text-sm text-gray-700">Prospek Karir</span>
+							</label>
+							<label class="flex items-center">
+								<input type="checkbox" name="topics[]" value="registration" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500"/>
+								<span class="ml-2 text-sm text-gray-700">Proses Pendaftaran</span>
+							</label>
+							<label class="flex items-center">
+								<input type="checkbox" name="topics[]" value="documents" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500"/>
+								<span class="ml-2 text-sm text-gray-700">Dokumen</span>
+							</label>
+							<label class="flex items-center">
+								<input type="checkbox" name="topics[]" value="other" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500"/>
+								<span class="ml-2 text-sm text-gray-700">Lainnya</span>
+							</label>
+						</div>
+					</div>
+
+					<!-- Next Follow-up -->
+					<div class="grid grid-cols-2 gap-4">
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Follow-up Berikutnya</label>
+							<input type="date" name="next_followup_date" class="w-full border border-gray-300 rounded-md px-3 py-2"/>
+						</div>
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-2">Rencana Aksi</label>
+							<input type="text" name="next_action" placeholder="Contoh: Kirim brosur via WA" class="w-full border border-gray-300 rounded-md px-3 py-2"/>
+						</div>
+					</div>
+
+					<!-- Request Supervisor Input -->
+					<div>
+						<label class="flex items-center">
+							<input type="checkbox" name="request_supervisor_input" value="1" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500"/>
+							<span class="ml-2 text-sm text-gray-700">Minta saran dari Supervisor untuk kandidat ini</span>
+						</label>
+					</div>
+				</div>
+
+				<!-- Actions -->
+				<div class="px-6 py-4 bg-gray-50 border-t rounded-b-lg flex items-center justify-between">
+					<a href={ templ.SafeURL("/admin/candidates/" + candidate.ID) } class="text-gray-600 hover:text-gray-800">Batal</a>
+					<div class="flex gap-2">
+						<button type="submit" name="action" value="save" class="bg-primary-600 text-white px-6 py-2 rounded-md hover:bg-primary-700">
+							Simpan
+						</button>
+						<button type="submit" name="action" value="save_and_next" class="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700">
+							Simpan &amp; Kandidat Berikutnya
+						</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	}
+}
+
+// InteractionCategoryOption for dropdown/radio
+type InteractionCategoryOption struct {
+	Value     string
+	Label     string
+	Icon      string
+	Sentiment string // positive, neutral, negative
+}
+
+// ObstacleOption for dropdown
+type ObstacleOption struct {
+	Value string
+	Label string
+}
