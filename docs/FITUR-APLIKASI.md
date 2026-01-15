@@ -8,64 +8,70 @@ Dokumen ini menjelaskan fitur-fitur aplikasi sistem penerimaan mahasiswa baru ST
 
 ```mermaid
 flowchart TD
-    subgraph SETUP["⚙️ SETUP (Admin)"]
-        A1[Setup Google OAuth] --> A2[Kelola User & Role]
-        A2 --> A3[Setting Prodi & Biaya]
-        A3 --> A4[Setting Reward & Komisi]
-        A4 --> A5[Setting Kampanye & Referrer]
-    end
+    A[1. SETUP<br/>Admin konfigurasi sistem] --> B[2. REGISTRASI<br/>Calon mahasiswa daftar online]
+    B --> C[3. FOLLOW-UP<br/>Konsultan hubungi & catat interaksi]
+    C --> D[4. KOMITMEN<br/>Generate tagihan & bayar DP]
+    D --> E[5. DOKUMEN<br/>Upload & review dokumen]
+    E --> F[6. ENROLLMENT<br/>Generate NIM & komisi]
+```
 
-    subgraph REGISTRASI["📝 REGISTRASI (Calon Mahasiswa)"]
-        B1[Buka Form Pendaftaran] --> B2[Isi Data & Buat Password]
-        B2 --> B3[Verifikasi Email OTP]
-        B3 --> B4[Verifikasi WhatsApp OTP]
-        B4 --> B5[Lengkapi Data Diri]
-        B5 --> B6[Pilih Prodi & Sumber Info]
-        B6 --> B7[Auto-assign ke Konsultan]
-    end
+### Detail Setiap Fase
 
-    subgraph FOLLOWUP["📞 FOLLOW-UP (Konsultan)"]
-        C1[Lihat Daftar Kandidat] --> C2[Hubungi Kandidat]
-        C2 --> C3[Catat Interaksi]
-        C3 --> C4{Respon Positif?}
-        C4 -->|Ya| C5[Lanjut Prospecting]
-        C4 -->|Tidak| C6[Catat Hambatan]
-        C6 --> C2
-        C5 --> C7[Supervisor Review]
-        C7 --> C8[Berikan Saran]
-    end
+**1. SETUP (Admin)**
+```mermaid
+flowchart LR
+    A1[Google OAuth] --> A2[User & Role]
+    A2 --> A3[Prodi & Biaya]
+    A3 --> A4[Reward & Komisi]
+    A4 --> A5[Kampanye]
+```
 
-    subgraph KOMITMEN["✅ KOMITMEN (Admin/Konsultan)"]
-        D1[Kandidat Komit] --> D2[Generate Tagihan Kuliah]
-        D2 --> D3[Pilih Skema Cicilan]
-        D3 --> D4[Kandidat Bayar DP]
-        D4 --> D5[Upload Bukti Bayar]
-        D5 --> D6[Verifikasi Pembayaran]
-    end
+**2. REGISTRASI (Calon Mahasiswa)**
+```mermaid
+flowchart LR
+    B1[Isi Data] --> B2[Verifikasi Email]
+    B2 --> B3[Verifikasi WA]
+    B3 --> B4[Data Diri]
+    B4 --> B5[Pilih Prodi]
+    B5 --> B6[Auto-assign]
+```
 
-    subgraph DOKUMEN["📄 DOKUMEN (Calon Mahasiswa)"]
-        E1[Upload KTP] --> E2[Upload Foto]
-        E2 --> E3[Upload Ijazah/Transkrip]
-        E3 --> E4[Admin Review]
-        E4 -->|Ditolak| E5[Re-upload]
-        E5 --> E4
-        E4 -->|Diterima| E6[Dokumen Lengkap]
-    end
+**3. FOLLOW-UP (Konsultan)**
+```mermaid
+flowchart LR
+    C1[Lihat Kandidat] --> C2[Hubungi]
+    C2 --> C3[Catat Interaksi]
+    C3 --> C4{Positif?}
+    C4 -->|Ya| C5[Prospecting]
+    C4 -->|Tidak| C6[Catat Hambatan]
+    C6 --> C2
+```
 
-    subgraph ENROLLMENT["🎓 ENROLLMENT (Admin)"]
-        F1[Cek Syarat Lengkap] --> F2{Memenuhi Syarat?}
-        F2 -->|Ya| F3[Generate NIM]
-        F2 -->|Tidak| F4[Tunggu Kelengkapan]
-        F3 --> F5[Status: Enrolled]
-        F5 --> F6[Generate Kode Referral MGM]
-        F5 --> F7[Hitung Komisi Referrer]
-    end
+**4. KOMITMEN (Admin)**
+```mermaid
+flowchart LR
+    D1[Kandidat Komit] --> D2[Generate Tagihan]
+    D2 --> D3[Bayar DP]
+    D3 --> D4[Upload Bukti]
+    D4 --> D5[Verifikasi]
+```
 
-    SETUP --> REGISTRASI
-    REGISTRASI --> FOLLOWUP
-    FOLLOWUP --> KOMITMEN
-    KOMITMEN --> DOKUMEN
-    DOKUMEN --> ENROLLMENT
+**5. DOKUMEN (Calon Mahasiswa)**
+```mermaid
+flowchart LR
+    E1[Upload Dokumen] --> E2[Admin Review]
+    E2 -->|Ditolak| E3[Re-upload]
+    E3 --> E2
+    E2 -->|Diterima| E4[Lengkap]
+```
+
+**6. ENROLLMENT (Admin)**
+```mermaid
+flowchart LR
+    F1[Cek Syarat] --> F2{Lengkap?}
+    F2 -->|Ya| F3[Generate NIM]
+    F2 -->|Tidak| F4[Tunggu]
+    F3 --> F5[Hitung Komisi]
 ```
 
 ---
