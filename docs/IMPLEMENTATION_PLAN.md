@@ -12,7 +12,7 @@
 |-------|-------------|--------|----------|
 | 1 | Infrastructure Setup | Partial | 60% |
 | 2 | Frontend Marketing Site | In Progress | 85% |
-| 3 | Backend API (Go) | Not Started | 0% |
+| 3 | Backend API (Go) | In Progress | 10% |
 | 4 | Deployment & DevOps | Partial | 20% |
 | 5 | Testing & Polish | Not Started | 0% |
 | 6 | Launch Preparation | Not Started | 0% |
@@ -111,7 +111,9 @@
 - [x] FAQ section (5 questions with accordion)
 - [x] CTA sections
 
-### 2.7 News/Blog System (Not Started)
+### 2.7 News/Blog System (Deferred)
+> Deferred until content migration from old website is complete
+
 - [ ] Content collection for news
 - [ ] `src/pages/news/index.astro` - News listing
 - [ ] `src/pages/news/[slug].astro` - News detail
@@ -137,20 +139,24 @@
 
 ---
 
-## Phase 3: Backend API - Go (0%)
+## Phase 3: Backend API - Go (10%)
 
-### 3.1 Project Setup
-- [ ] Initialize `go.mod`
-- [ ] Create directory structure
-  - [ ] `cmd/server/main.go`
-  - [ ] `cmd/migrate/main.go`
-  - [ ] `handler/`
-  - [ ] `model/`
-  - [ ] `migrations/`
-  - [ ] `templates/`
-  - [ ] `static/`
-- [ ] Create `.env.example`
-- [ ] `config.go` - Environment configuration
+### 3.1 Project Setup (Done)
+- [x] Docker Compose for local development
+  - [x] `docker-compose.yml` with PostgreSQL 18
+  - [x] Volume for data persistence
+  - [x] Health check configuration
+- [x] Initialize `go.mod`
+- [x] Create directory structure
+  - [x] `cmd/server/main.go`
+  - [x] `cmd/migrate/main.go`
+  - [x] `handler/`
+  - [x] `model/`
+  - [x] `migrations/`
+  - [x] `templates/`
+  - [x] `static/`
+- [x] Create `.env.example`
+- [x] `config/config.go` - Environment configuration
 
 ### 3.2 Dependencies
 - [ ] pgx/v5 - PostgreSQL driver
@@ -161,10 +167,10 @@
 - [ ] segmentio/kafka-go - Kafka consumer
 
 ### 3.3 Static Assets
-- [ ] Tailwind CSS setup
+- [ ] Tailwind CSS v4 setup (standalone CLI)
 - [ ] HTMX download
 - [ ] Alpine.js + alpine-csp download
-- [ ] Brand colors configuration
+- [ ] Brand colors from frontend design system
 
 ### 3.4 Database Migrations
 - [ ] `001_create_users`

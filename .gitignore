@@ -42,6 +42,16 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+
+# Go
+backend/bin/
+backend/uploads/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+__debug_bin*
 # Ansible Vault Passwords (NEVER commit these!)
 **/.vault_password
 **/.ansible_vault_password

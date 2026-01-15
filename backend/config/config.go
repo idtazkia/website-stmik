@@ -1,0 +1,129 @@
+package config
+
+import (
+	"fmt"
+	"os"
+	"strconv"
+)
+
+type Config struct {
+	Server   ServerConfig
+	Database DatabaseConfig
+	JWT      JWTConfig
+	Google   GoogleConfig
+	WhatsApp WhatsAppConfig
+	Kafka    KafkaConfig
+	Upload   UploadConfig
+}
+
+type ServerConfig struct {
+	Port string
+	Host string
+}
+
+type DatabaseConfig struct {
+	Host     string
+	Port     string
+	User     string
+	Password string
+	Name     string
+	SSLMode  string
+}
+
+func (d DatabaseConfig) DSN() string {
+	return fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s?sslmode=%s",
+		d.User, d.Password, d.Host, d.Port, d.Name, d.SSLMode,
+	)
+}
+
+type JWTConfig struct {
+	Secret          string
+	ExpirationHours int
+}
+
+type GoogleConfig struct {
+	ClientID        string
+	ClientSecret    string
+	RedirectURL     string
+	StaffEmailDomain string
+}
+
+type WhatsAppConfig struct {
+	APIURL   string
+	APIToken string
+}
+
+type KafkaConfig struct {
+	Brokers      string
+	TopicPayment string
+}
+
+type UploadConfig struct {
+	Dir           string
+	MaxSizeMB     int
+}
+
+func Load() (*Config, error) {
+	jwtExpHours, err := strconv.Atoi(getEnv("JWT_EXPIRATION_HOURS", "168"))
+	if err != nil {
+		return nil, fmt.Errorf("invalid JWT_EXPIRATION_HOURS: %w", err)
+	}
+
+	maxUploadSize, err := strconv.Atoi(getEnv("MAX_UPLOAD_SIZE_MB", "5"))
+	if err != nil {
+		return nil, fmt.Errorf("invalid MAX_UPLOAD_SIZE_MB: %w", err)
+	}
+
+	return &Config{
+		Server: ServerConfig{
+			Port: getEnv("SERVER_PORT", "8080"),
+			Host: getEnv("SERVER_HOST", "localhost"),
+		},
+		Database: DatabaseConfig{
+			Host:     getEnv("DATABASE_HOST", "localhost"),
+			Port:     getEnv("DATABASE_PORT", "5432"),
+			User:     getEnv("DATABASE_USER", "stmik"),
+			Password: getEnv("DATABASE_PASSWORD", "stmik_dev_password"),
+			Name:     getEnv("DATABASE_NAME", "stmik_admission"),
+			SSLMode:  getEnv("DATABASE_SSL_MODE", "disable"),
+		},
+		JWT: JWTConfig{
+			Secret:          getEnvRequired("JWT_SECRET"),
+			ExpirationHours: jwtExpHours,
+		},
+		Google: GoogleConfig{
+			ClientID:        getEnv("GOOGLE_CLIENT_ID", ""),
+			ClientSecret:    getEnv("GOOGLE_CLIENT_SECRET", ""),
+			RedirectURL:     getEnv("GOOGLE_REDIRECT_URL", "http://localhost:8080/auth/google/callback"),
+			StaffEmailDomain: getEnv("STAFF_EMAIL_DOMAIN", "tazkia.ac.id"),
+		},
+		WhatsApp: WhatsAppConfig{
+			APIURL:   getEnv("WHATSAPP_API_URL", ""),
+			APIToken: getEnv("WHATSAPP_API_TOKEN", ""),
+		},
+		Kafka: KafkaConfig{
+			Brokers:      getEnv("KAFKA_BROKERS", ""),
+			TopicPayment: getEnv("KAFKA_TOPIC_PAYMENT", ""),
+		},
+		Upload: UploadConfig{
+			Dir:       getEnv("UPLOAD_DIR", "./uploads"),
+			MaxSizeMB: maxUploadSize,
+		},
+	}, nil
+}
+
+func getEnv(key, defaultValue string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return defaultValue
+}
+
+func getEnvRequired(key string) string {
+	value := os.Getenv(key)
+	if value == "" {
+		panic(fmt.Sprintf("required environment variable %s is not set", key))
+	}
+	return value
+}
