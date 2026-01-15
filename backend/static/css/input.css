@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@source "../../templates/**/*.templ";
+
 @theme {
   /* Brand Colors - Primary (Blue from logo #194189) */
   --color-primary-50: #e8eef7;
