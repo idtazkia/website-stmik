@@ -49,9 +49,43 @@ const currentLocale = getLocaleFromUrl(Astro.url);
     <link rel="alternate" hreflang="id" href={Astro.site} />
     <link rel="alternate" hreflang="en" href={new URL('/en', Astro.site)} />
 
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "EducationalOrganization",
+      "@id": "https://stmik.tazkia.ac.id/#organization",
+      "name": "STMIK Tazkia",
+      "alternateName": "Sekolah Tinggi Manajemen Informatika dan Komputer Tazkia",
+      "url": "https://stmik.tazkia.ac.id",
+      "logo": "https://stmik.tazkia.ac.id/images/logo-stmik-tazkia.svg",
+      "description": pageDescription,
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Jl. Ir. H. Djuanda No. 78",
+        "addressLocality": "Bogor",
+        "addressRegion": "Jawa Barat",
+        "postalCode": "16122",
+        "addressCountry": "ID"
+      },
+      "telephone": "+62251-8376163",
+      "email": "info@stmik.tazkia.ac.id",
+      "sameAs": [
+        "https://instagram.com/stmik.tazkia",
+        "https://youtube.com/@stmiktazkia",
+        "https://linkedin.com/company/stmik-tazkia"
+      ],
+      "parentOrganization": {
+        "@type": "Organization",
+        "name": "Tazkia Group"
+      }
+    })} />
+
     <!-- Preload Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Additional head content from pages -->
+    <slot name="head" />
   </head>
   <body class="min-h-screen flex flex-col">
     <slot />

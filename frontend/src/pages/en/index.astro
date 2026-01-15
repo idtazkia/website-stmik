@@ -10,7 +10,7 @@ const translate = (key: string) => t(locale, key);
 const localPath = (path: string) => localizePath(locale, path);
 ---
 
-<MarketingLayout>
+<MarketingLayout description={translate('site.description')}>
   <!-- Hero Section -->
   <Section background="gradient" spacing="xl">
     <Container>

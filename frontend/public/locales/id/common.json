@@ -2,7 +2,8 @@
   "site": {
     "name": "STMIK Tazkia",
     "tagline": "Belajar pada ahlinya",
-    "mission": "Menjadi perguruan tinggi yang unggul dalam bidang teknologi informasi yang mencetak lulusan berkompeten dan berkarakter mulia"
+    "mission": "Menjadi perguruan tinggi yang unggul dalam bidang teknologi informasi yang mencetak lulusan berkompeten dan berkarakter mulia",
+    "description": "STMIK Tazkia adalah perguruan tinggi teknologi informasi di Bogor dengan program studi S1 Sistem Informasi dan Teknik Informatika berbasis proyek industri nyata"
   },
   "nav": {
     "home": "Beranda",
@@ -15,7 +16,8 @@
     "login": "Masuk",
     "register": "Daftar",
     "dashboard": "Dasbor",
-    "logout": "Keluar"
+    "logout": "Keluar",
+    "breadcrumb": "Breadcrumb"
   },
   "button": {
     "apply_now": "Daftar Sekarang",

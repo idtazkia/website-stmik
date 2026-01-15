@@ -2,7 +2,8 @@
   "site": {
     "name": "STMIK Tazkia",
     "tagline": "Learn from the Experts",
-    "mission": "To become a superior higher education institution in information technology that produces competent graduates with noble character"
+    "mission": "To become a superior higher education institution in information technology that produces competent graduates with noble character",
+    "description": "STMIK Tazkia is an information technology college in Bogor offering undergraduate programs in Information Systems and Computer Engineering with real industry project-based learning"
   },
   "nav": {
     "home": "Home",
@@ -15,7 +16,8 @@
     "login": "Login",
     "register": "Register",
     "dashboard": "Dashboard",
-    "logout": "Logout"
+    "logout": "Logout",
+    "breadcrumb": "Breadcrumb"
   },
   "button": {
     "apply_now": "Apply Now",

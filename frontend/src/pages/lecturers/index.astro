@@ -42,6 +42,7 @@ const lecturers = allLecturers.sort((a, b) => a.data.order - b.data.order);
                     src={lecturer.data.photo}
                     alt={lecturer.data.name}
                     class="w-32 h-32 rounded-full mx-auto mb-4 object-cover border-4 border-primary-100"
+                    loading="lazy"
                   />
                 ) : (
                   <div class="w-32 h-32 rounded-full mx-auto mb-4 bg-primary-100 flex items-center justify-center border-4 border-primary-200">

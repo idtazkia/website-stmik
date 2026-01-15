@@ -1,0 +1,60 @@
+---
+import { type HTMLAttributes } from 'astro/types';
+import clsx from 'clsx';
+import { getLocaleFromUrl, t, localizePath } from '../utils/i18n';
+
+interface BreadcrumbItem {
+  label: string;
+  href?: string;
+}
+
+interface Props extends HTMLAttributes<'nav'> {
+  items: BreadcrumbItem[];
+}
+
+const { items, class: className, ...props } = Astro.props;
+const locale = getLocaleFromUrl(Astro.url);
+const translate = (key: string) => t(locale, key);
+
+// Generate JSON-LD BreadcrumbList schema
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": items.map((item, index) => ({
+    "@type": "ListItem",
+    "position": index + 1,
+    "name": item.label,
+    ...(item.href && { "item": `https://stmik.tazkia.ac.id${item.href}` })
+  }))
+};
+---
+
+<nav
+  aria-label={translate('nav.breadcrumb') || 'Breadcrumb'}
+  class={clsx('py-4', className)}
+  {...props}
+>
+  <ol class="flex flex-wrap items-center gap-2 text-sm text-gray-600">
+    {items.map((item, index) => (
+      <li class="flex items-center gap-2">
+        {index > 0 && (
+          <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        )}
+        {item.href ? (
+          <a href={item.href} class="hover:text-primary-600 transition-colors">
+            {item.label}
+          </a>
+        ) : (
+          <span class="text-gray-900 font-medium" aria-current="page">
+            {item.label}
+          </span>
+        )}
+      </li>
+    ))}
+  </ol>
+</nav>
+
+<!-- Breadcrumb JSON-LD -->
+<script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />

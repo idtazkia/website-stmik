@@ -35,7 +35,7 @@ const isActive = (href: string) => {
 };
 ---
 
-<nav class="hidden lg:flex items-center space-x-8">
+<nav class="hidden lg:flex items-center space-x-8" aria-label="Main navigation">
   {
     navItems.map((item) => (
       item.children ? (
@@ -45,13 +45,15 @@ const isActive = (href: string) => {
               'text-gray-700 hover:text-primary-500 font-medium transition-colors flex items-center gap-1',
               isActive(item.href) && 'text-primary-500',
             ]}
+            aria-haspopup="true"
+            aria-expanded="false"
           >
             {item.label}
-            <svg class="w-4 h-4 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
             </svg>
           </button>
-          <div class="absolute top-full left-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+          <div class="absolute top-full left-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200" role="menu">
             <div class="bg-white rounded-lg shadow-lg border py-2 min-w-48">
               {item.children.map((child) => (
                 <a
@@ -60,6 +62,7 @@ const isActive = (href: string) => {
                     'block px-4 py-2 text-gray-700 hover:bg-primary-50 hover:text-primary-500 transition-colors',
                     isActive(child.href) && 'text-primary-500 bg-primary-50',
                   ]}
+                  role="menuitem"
                 >
                   {child.label}
                 </a>
@@ -87,12 +90,15 @@ const isActive = (href: string) => {
   id="mobile-menu-button"
   class="lg:hidden p-2 text-gray-700 hover:text-primary-500"
   aria-label="Toggle mobile menu"
+  aria-controls="mobile-menu"
+  aria-expanded="false"
 >
   <svg
     class="w-6 h-6"
     fill="none"
     stroke="currentColor"
     viewBox="0 0 24 24"
+    aria-hidden="true"
   >
     <path
       stroke-linecap="round"
@@ -103,9 +109,10 @@ const isActive = (href: string) => {
 </button>
 
 <!-- Mobile Menu -->
-<div
+<nav
   id="mobile-menu"
   class="hidden lg:hidden absolute top-full left-0 right-0 bg-white shadow-lg border-t"
+  aria-label="Mobile navigation"
 >
   <div class="px-4 py-4 space-y-2">
     {
@@ -141,20 +148,22 @@ const isActive = (href: string) => {
       ))
     }
   </div>
-</div>
+</nav>
 
 <script>
   const button = document.getElementById('mobile-menu-button');
   const menu = document.getElementById('mobile-menu');
 
   button?.addEventListener('click', () => {
-    menu?.classList.toggle('hidden');
+    const isHidden = menu?.classList.toggle('hidden');
+    button?.setAttribute('aria-expanded', isHidden ? 'false' : 'true');
   });
 
   // Close menu when clicking outside
   document.addEventListener('click', (e) => {
     if (!button?.contains(e.target as Node) && !menu?.contains(e.target as Node)) {
       menu?.classList.add('hidden');
+      button?.setAttribute('aria-expanded', 'false');
     }
   });
 </script>

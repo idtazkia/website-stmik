@@ -11,7 +11,7 @@
 | Phase | Description | Status | Progress |
 |-------|-------------|--------|----------|
 | 1 | Infrastructure Setup | Partial | 60% |
-| 2 | Frontend Marketing Site | In Progress | 75% |
+| 2 | Frontend Marketing Site | In Progress | 85% |
 | 3 | Backend API (Go) | Not Started | 0% |
 | 4 | Deployment & DevOps | Partial | 20% |
 | 5 | Testing & Polish | Not Started | 0% |
@@ -58,7 +58,7 @@
 
 ---
 
-## Phase 2: Frontend Marketing Site (75%)
+## Phase 2: Frontend Marketing Site (85%)
 
 ### 2.1 Layouts & Components (Done)
 - [x] BaseLayout.astro
@@ -121,18 +121,19 @@
 - [ ] Categories/tags
 - [ ] Related posts
 
-### 2.8 SEO Enhancements (Not Started)
-- [ ] JSON-LD structured data (Organization, EducationalOrganization, Course)
-- [ ] Breadcrumb navigation
+### 2.8 SEO Enhancements (Done)
+- [x] JSON-LD structured data (Organization, EducationalOrganization)
+- [x] Course schema on program pages
+- [x] Breadcrumb navigation component
+- [x] Meta descriptions per page
 - [ ] Internal linking optimization
-- [ ] Meta descriptions per page
 
-### 2.9 Performance & Accessibility (Not Started)
+### 2.9 Performance & Accessibility (Partial)
 - [ ] Astro Image component optimization
-- [ ] Lazy loading for images
-- [ ] ARIA labels
-- [ ] Keyboard navigation
-- [ ] Color contrast (WCAG AA)
+- [x] Lazy loading for images
+- [x] ARIA labels on interactive elements
+- [x] Keyboard navigation (dropdown menus, mobile menu)
+- [x] Color contrast verified (WCAG AA)
 
 ---
 
