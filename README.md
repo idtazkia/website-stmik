@@ -1,6 +1,6 @@
 # Campus Website - STMIK Tazkia
 
-> Modern, secure, and cost-effective campus admission system built with Astro, Express.js, and Cloudflare.
+> Modern, secure, and cost-effective campus admission system built with Astro, Go, and Cloudflare.
 
 **🌐 Live Site:** https://dev.stmik.tazkia.ac.id/
 
@@ -115,10 +115,8 @@ website-stmik/
 │   ├── astro.config.mjs             # Astro configuration
 │   ├── TODO.md                      # Frontend implementation tasks
 │   └── package.json
-├── backend/                          # Express.js API (Phase 2)
+├── backend/                          # Go API (Phase 2)
 │   └── TODO.md                      # Backend implementation plan
-├── shared/                           # Shared TypeScript types (Phase 5)
-│   └── TODO.md                      # Shared code plan
 ├── infrastructure/                   # Infrastructure as Code
 │   ├── ansible/                     # Ansible playbooks for VPS
 │   │   ├── playbooks/              # Deployment automation
@@ -140,7 +138,7 @@ website-stmik/
 ```
 
 **Current Focus:** Frontend marketing site (Phase 3)
-**Deferred:** Backend, shared types, infrastructure automation (Phase 2+)
+**Deferred:** Backend (Go), infrastructure automation (Phase 2+)
 
 ---
 
@@ -251,10 +249,10 @@ See **[TODO.md](TODO.md)** for the complete implementation roadmap.
 - [ ] VPS setup (deferred)
 - [ ] Google OAuth setup (pending)
 
-**Phase 2: Backend Development** - [ ] 0% Complete
-- [ ] Database schema
-- [ ] Authentication system
-- [ ] API endpoints
+**Phase 2: Backend Development (Go)** - [ ] 0% Complete
+- [ ] Database schema (PostgreSQL 18, UUID keys)
+- [ ] Authentication system (JWT + Google OAuth)
+- [ ] API endpoints + Templ templates
 - [ ] File upload system
 
 **Phase 3: Frontend Development** - [x] 30% Complete
@@ -262,14 +260,8 @@ See **[TODO.md](TODO.md)** for the complete implementation roadmap.
 - [x] Bilingual system (ID/EN)
 - [x] Homepage, About, Lecturers pages
 - [ ] Programs, Contact, Admissions pages
-- [ ] Application portal
-- [ ] Admin interface
 
-**Phase 4: BFF Layer** - [ ] 0% Complete
-- [ ] Authentication handlers
-- [ ] API proxy functions
-
-**Phase 5-8:** Shared code, deployment, testing, launch (0% complete)
+**Phase 4-6:** Deployment, testing, launch (0% complete)
 
 📖 **[View Full Checklist →](TODO.md)**
 
@@ -404,21 +396,6 @@ sudo systemctl restart campus-api
 ```
 
 📖 **[Read Full Troubleshooting Guide →](docs/DEPLOYMENT.md#troubleshooting)**
-
----
-
-## 📅 Timeline
-
-**Estimated time to MVP:** 7-10 weeks
-
-- **Phase 1-2:** Backend foundation (1-2 weeks)
-- **Phase 3-4:** Frontend + BFF (2-3 weeks)
-- **Phase 5:** Shared code (3-5 days)
-- **Phase 6:** Deployment (1 week)
-- **Phase 7:** Testing & polish (1-2 weeks)
-- **Phase 8:** Launch prep (1 week)
-
-📖 **[View Detailed Timeline →](TODO.md#notes)**
 
 ---
 

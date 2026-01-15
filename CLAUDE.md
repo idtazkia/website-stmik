@@ -63,10 +63,8 @@ website-stmik/
 │   │       └── en/common.json       # English translations
 │   ├── astro.config.mjs             # Astro configuration
 │   └── TODO.md                       # Frontend implementation tasks
-├── backend/                           # Express.js API [Deferred to Phase 2]
+├── backend/                           # Go API [Deferred to Phase 2]
 │   └── TODO.md                       # Backend implementation plan
-├── shared/                            # Shared TypeScript types [Deferred to Phase 5]
-│   └── TODO.md                       # Shared code plan
 ├── docs/
 │   ├── ARCHITECTURE.md               # Technical design details
 │   └── DEPLOYMENT.md                 # Deployment guide
@@ -95,20 +93,21 @@ npm run format                # Format with Prettier
 npm run format:check          # Check formatting
 ```
 
-### Future Monorepo Commands (when backend is added)
+### Backend Commands (when backend is added)
 
 ```bash
-# Root level
-npm install                   # Install all workspace dependencies
-npm run dev                   # Run all services
-npm run dev -w frontend       # Frontend only
-npm run dev -w backend        # Backend only
-npm run build                 # Build all packages
-
-# Backend specific
 cd backend
-npm run migrate               # Run database migrations
-npm run migrate:rollback      # Rollback last migration
+
+# Development
+go run ./cmd/server           # Run server
+go run ./cmd/migrate up       # Run migrations
+go run ./cmd/migrate down     # Rollback migration
+
+# Build
+go build -o campus-api ./cmd/server
+
+# Generate templates
+templ generate
 ```
 
 ## Tech Stack
@@ -188,7 +187,7 @@ background="gradient" /* Primary gradient (primary-50 to secondary-50) */
 **Security Features:**
 - HttpOnly cookies (XSS protection)
 - JWT tokens (7-day expiration)
-- Rate limiting via Cloudflare Workers
+- Rate limiting via Nginx
 - bcrypt password hashing
 
 See `docs/ARCHITECTURE.md` for authentication flows.
@@ -245,17 +244,11 @@ See `docs/ARCHITECTURE.md#database-schema` for detailed schema.
 
 **Current Phase: Phase 3 - Marketing Site (30% Complete)**
 
-See `TODO.md` for the complete 8-phase implementation plan:
+See `TODO.md` for the implementation plan:
 - Phase 1: Project Setup [PARTIAL - Frontend deployed, backend infrastructure deferred]
-- Phase 2: Backend Development [DEFERRED - not started]
-- Phase 3: Frontend Development [IN PROGRESS - Homepage, About, Lecturers done; Programs, Contact, Admissions, News pending]
-- Phase 4: BFF Layer [DEFERRED - not started]
-- Phase 5: Shared Code [DEFERRED - not started]
-- Phase 6: Deployment & DevOps [PARTIAL - Cloudflare Pages auto-deploy working]
-- Phase 7: Testing & Polish [NOT STARTED]
-- Phase 8: Launch Preparation [NOT STARTED]
-
-Estimated time to MVP: 7-10 weeks
+- Phase 2: Backend Development (Go) [DEFERRED - not started]
+- Phase 3: Frontend Development [IN PROGRESS - Homepage, About, Lecturers done]
+- Phase 4-6: Deployment, Testing, Launch [NOT STARTED]
 
 ## Key Documentation Files
 

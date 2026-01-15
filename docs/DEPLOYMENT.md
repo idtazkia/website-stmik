@@ -25,10 +25,10 @@
 - [ ] Google Cloud account (for OAuth OIDC)
 
 ### Required Software
-- Node.js 20+ (`node --version`)
-- npm 9+ (`npm --version`)
 - Git (`git --version`)
-- Go 1.21+ (`go version`) - for backend development
+- Go 1.25+ (`go version`) - for backend
+- Node.js 20+ (`node --version`) - for frontend build only
+- npm 9+ (`npm --version`) - for frontend build only
 - PostgreSQL client (`psql --version`) - for database management
 
 ### Cost Summary
@@ -205,47 +205,26 @@ psql -U campus_app -d campus -h localhost
 
 ### 4. Create Tables
 
+Database migrations are managed via `golang-migrate`. See `backend/README.md` for the complete schema with UUID primary keys.
+
+Basic users table (full schema in backend/README.md):
+
 ```sql
--- Users table
+-- UUID primary keys (PostgreSQL 13+ has gen_random_uuid() built-in)
 CREATE TABLE users (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email VARCHAR(255) UNIQUE NOT NULL,
     name VARCHAR(255) NOT NULL,
     password_hash VARCHAR(255),
     provider VARCHAR(50) NOT NULL DEFAULT 'local',
     provider_id VARCHAR(255),
     role VARCHAR(50) NOT NULL DEFAULT 'registrant',
-    email_verified BOOLEAN DEFAULT FALSE,
+    is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Applications table
-CREATE TABLE applications (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id),
-    program VARCHAR(255) NOT NULL,
-    status VARCHAR(50) DEFAULT 'pending',
-    submitted_at TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Sessions table
-CREATE TABLE sessions (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id),
-    token_hash VARCHAR(255) NOT NULL,
-    expires_at TIMESTAMP NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Create indexes for performance
 CREATE INDEX idx_users_email ON users(email);
-CREATE INDEX idx_users_provider ON users(provider, provider_id);
-CREATE INDEX idx_applications_user_id ON applications(user_id);
-CREATE INDEX idx_applications_status ON applications(status);
-CREATE INDEX idx_sessions_user_id ON sessions(user_id);
-CREATE INDEX idx_sessions_token_hash ON sessions(token_hash);
 ```
 
 ---
@@ -257,17 +236,20 @@ CREATE INDEX idx_sessions_token_hash ON sessions(token_hash);
 ```
 backend/
 ├── cmd/
-│   └── server/
-│       └── main.go          # Entry point
-├── internal/
-│   ├── handlers/            # HTTP handlers
-│   ├── middleware/          # Auth, logging, etc.
-│   ├── models/              # Database models
-│   └── repository/          # Database queries
+│   ├── server/main.go       # Entry point
+│   └── migrate/main.go      # Migration CLI
+├── handler/                  # HTTP handlers
+├── model/                    # Data structs + DB queries
+├── migrations/               # SQL files
+├── templates/                # Templ templates
+├── static/                   # CSS, JS
+├── config.go
+├── auth.go
 ├── go.mod
-├── go.sum
 └── .env
 ```
+
+See `backend/README.md` for detailed structure.
 
 ### 2. Initialize Go Module
 
