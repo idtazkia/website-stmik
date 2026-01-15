@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Campus website for STMIK Tazkia - a bilingual (Indonesian/English) marketing and admission system built with Astro. The project follows a static site + Go backend architecture pattern designed for simplicity and cost-effectiveness ($5/month VPS) while supporting 3,000 leads per admission cycle (300 registrations at 10% conversion).
 
-**Current Status:** Marketing Site Phase (Phase 3 - 30% Complete) - Deployed to Cloudflare Pages at https://dev.stmik.tazkia.ac.id/
+**Current Status:** Marketing Site Phase (Phase 3 - 30% Complete) - Deployed to Cloudflare Pages at https://stmik.tazkia.ac.id/
 
 **Completed:**
 - Bilingual static site (Indonesian & English)

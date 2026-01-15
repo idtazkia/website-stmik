@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const BASE_URL = 'https://dev.stmik.tazkia.ac.id';
+const BASE_URL = 'https://stmik.tazkia.ac.id';
 
 test.describe('Deployed Website Check', () => {
   test.describe('Indonesian Homepage', () => {
