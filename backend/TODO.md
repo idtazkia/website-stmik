@@ -88,29 +88,51 @@ CAMPAIGN
 ├─ registration_fee_override (nullable)
 └─ is_active
 
+REWARD_CONFIG (for external referrers)
+├─ id, referrer_type (alumni, teacher, student, partner, staff)
+├─ reward_type (cash, tuition_discount, merchandise)
+├─ amount (fixed or percentage)
+├─ is_percentage
+├─ trigger_event (enrollment, commitment, registration)
+├─ description
+└─ is_active
+
+MGM_REWARD_CONFIG (for enrolled student referrals)
+├─ id, academic_year
+├─ reward_type (tuition_discount, cash, merchandise)
+├─ referrer_amount (reward for the referring student)
+├─ referee_amount (discount for new candidate, optional)
+├─ trigger_event (enrollment, commitment)
+├─ description
+└─ is_active
+
 REFERRER
 ├─ id, name
-├─ type (alumni, teacher, student, partner)
+├─ type (alumni, teacher, student, partner, staff)
 ├─ institution (helps match claims)
 ├─ phone, email, code (all optional)
 ├─ bank_name, bank_account, account_holder
-├─ commission_per_enrollment
+├─ commission_override (nullable, overrides reward_config)
 ├─ payout_preference (monthly, per_enrollment)
 └─ is_active
 
 CANDIDATE
 ├─ id, created_at, updated_at
 ├─ name, email, phone, whatsapp
+├─ password_hash
+├─ email_verified_at, phone_verified_at
 ├─ address, city, province
 ├─ high_school, graduation_year
 ├─ prodi_id
 ├─ source_type, source_detail (referral claim text)
 ├─ campaign_id, referrer_id, referrer_verified_at
+├─ referred_by_candidate_id (for member-get-member)
 ├─ status (registered → prospecting → committed → enrolled / lost)
 ├─ assigned_consultant_id
 ├─ registration_fee_paid_at
 ├─ lost_at, lost_reason_id
-└─ enrolled_at, nim
+├─ enrolled_at, nim
+└─ referral_code (generated on enrollment, for MGM)
 
 BILLING
 ├─ id, candidate_id, fee_type_id
@@ -150,6 +172,25 @@ NOTIFICATION_LOG
 ├─ channel (whatsapp, email)
 ├─ template, message, status
 └─ sent_at, error_message
+
+VERIFICATION_TOKEN (email/phone OTP)
+├─ id, candidate_id
+├─ type (email, phone)
+├─ token (6-digit OTP)
+├─ expires_at
+└─ verified_at
+
+ANNOUNCEMENT
+├─ id, created_at
+├─ title, content
+├─ target_status (null=all, or specific status)
+├─ target_prodi_id (null=all)
+├─ published_at
+└─ is_active
+
+ANNOUNCEMENT_READ
+├─ id, announcement_id, candidate_id
+└─ read_at
 ```
 
 ### Migration Plan (by dependency)
@@ -165,22 +206,27 @@ Level 0 - Lookup tables (no dependencies):
   010_create_document_types.sql
   011_create_lost_reasons.sql
   012_create_campaigns.sql
-  013_create_referrers.sql
+  013_create_reward_configs.sql
+  014_create_mgm_reward_configs.sql
+  015_create_referrers.sql
 
 Level 1 - Depends on lookup tables:
-  014_create_fee_structures.sql       → fee_types, prodis
-  015_create_candidates.sql           → prodis, campaigns, referrers, users, lost_reasons
+  016_create_fee_structures.sql       → fee_types, prodis
+  017_create_announcements.sql        → prodis
+  018_create_candidates.sql           → prodis, campaigns, referrers, users, lost_reasons
 
 Level 2 - Depends on candidates:
-  016_create_billings.sql             → candidates, fee_types
-  017_create_payments.sql             → billings, users
-  018_create_interactions.sql         → candidates, users, categories, obstacles
-  019_create_documents.sql            → candidates, document_types
-  020_create_commission_ledger.sql    → candidates, referrers
-  021_create_notification_logs.sql    → candidates
+  019_create_billings.sql             → candidates, fee_types
+  020_create_payments.sql             → billings, users
+  021_create_interactions.sql         → candidates, users, categories, obstacles
+  022_create_documents.sql            → candidates, document_types
+  023_create_commission_ledger.sql    → candidates, referrers
+  024_create_notification_logs.sql    → candidates
+  025_create_verification_tokens.sql  → candidates
+  026_create_announcement_reads.sql   → announcements, candidates
 
 Seed data:
-  022_seed_data.sql                   → all lookup tables
+  027_seed_data.sql                   → all lookup tables
 ```
 
 ---
@@ -197,10 +243,20 @@ All staff (admin, supervisor, consultant) login with domain-restricted Google.
 
 **Migrations:** 004
 
+**Setup:**
+- [ ] Create Google Cloud project (or use existing)
+- [ ] Enable Google+ API / People API
+- [ ] Configure OAuth consent screen (internal for workspace domain)
+- [ ] Create OAuth 2.0 credentials (Web application)
+- [ ] Add authorized redirect URIs: `{BASE_URL}/admin/auth/google/callback`
+- [ ] Store credentials: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET env vars
+- [ ] Set STAFF_EMAIL_DOMAIN env var (e.g., tazkia.ac.id)
+
+**Implementation:**
 - [ ] `model/user.go` - Create, FindByEmail, FindByGoogleID
 - [ ] `auth/google.go` - OAuth flow (GetAuthURL, ExchangeCode, GetUserInfo)
 - [ ] `handler/admin_auth.go` - GET /admin/login, /admin/auth/google, callback
-- [ ] Domain check (STAFF_EMAIL_DOMAIN env var)
+- [ ] Domain check (validate email ends with STAFF_EMAIL_DOMAIN)
 - [ ] Auto-create user with role=consultant if valid domain
 - [ ] `handler/middleware.go` - RequireAuth, RequireRole
 - [ ] Cookie-based session (HttpOnly JWT)
@@ -259,7 +315,7 @@ Admin configures fees per prodi and academic year.
 
 Supervisor manages interaction categories and obstacles.
 
-**Migrations:** 007, 008, 022 (seed)
+**Migrations:** 007, 008, 027 (seed)
 
 - [ ] `model/interaction_category.go` - CRUD, ListActive
 - [ ] `model/obstacle.go` - CRUD, ListActive
@@ -295,27 +351,46 @@ Admin manages campaigns with promo pricing.
 
 ---
 
-## Feature 9: Referrer Management
+## Feature 9: Reward Configuration
+
+Configure default rewards by referrer type and MGM.
+
+**Migrations:** 013, 014, 027 (seed)
+
+- [ ] `model/reward_config.go` - CRUD, FindByType
+- [ ] `model/mgm_reward_config.go` - CRUD, FindActive
+- [ ] `templates/admin/settings/rewards.templ` - Reward config list
+- [ ] `handler/admin.go` - CRUD /admin/settings/rewards
+- [ ] External referrer rewards by type: alumni, teacher, student, partner, staff
+- [ ] Fields: reward_type (cash, tuition_discount, merchandise), amount, is_percentage, trigger_event
+- [ ] MGM rewards: referrer_amount (for enrolled student), referee_amount (for new candidate)
+- [ ] Seed defaults: alumni Rp500k, teacher Rp750k, student Rp300k, MGM Rp200k + 10% tuition discount
+- [ ] Test: CRUD, default lookup
+
+---
+
+## Feature 10: Referrer Management
 
 Admin manages referrers for commission tracking.
 
-**Migrations:** 013
+**Migrations:** 015
 
 - [ ] `model/referrer.go` - CRUD, GenerateCode, FindByCode, SearchByName
 - [ ] `templates/admin/referrers.templ` - Referrer list
 - [ ] `templates/admin/referrer_form.templ` - Create/edit form
 - [ ] `handler/admin.go` - CRUD /admin/referrers
-- [ ] Fields: name, type, institution, contact, bank details, commission rate
+- [ ] Fields: name, type, institution, contact, bank details
+- [ ] commission_override: optional, overrides reward_config default
 - [ ] Generate optional referral code (for partners who want trackable links)
 - [ ] Test: CRUD, code generation, search
 
 ---
 
-## Feature 10: Settings - Assignment Algorithm
+## Feature 11: Settings - Assignment Algorithm
 
 Configure consultant assignment algorithm.
 
-**Migrations:** 009, 022 (seed)
+**Migrations:** 009, 027 (seed)
 
 - [ ] `model/assignment_algorithm.go` - List, SetActive
 - [ ] `templates/admin/settings/assignment.templ` - Algorithm selection
@@ -326,11 +401,11 @@ Configure consultant assignment algorithm.
 
 ---
 
-## Feature 11: Settings - Document Types
+## Feature 12: Settings - Document Types
 
 Configure required documents.
 
-**Migrations:** 010, 022 (seed)
+**Migrations:** 010, 027 (seed)
 
 - [ ] `model/document_type.go` - CRUD, ListActive
 - [ ] `templates/admin/settings/documents.templ` - Document type list
@@ -341,68 +416,173 @@ Configure required documents.
 
 ---
 
-# Phase 3: Public Registration
+# Phase 3: Public Registration & Candidate Portal
 
-Open the app for candidates.
+Candidate-facing features.
 
 ---
 
-## Feature 12: Candidate Registration
+## Feature 13: Candidate Registration
 
-Public registration form with source tracking.
+Registration with password and email/phone verification.
 
-**Migrations:** 015
+**Migrations:** 018, 025
 
+**Setup - Email (for OTP):**
+- [ ] Choose email provider (SMTP, SendGrid, AWS SES, Resend, etc.)
+- [ ] Create account and get API key/credentials
+- [ ] Configure sender email and domain verification
+- [ ] Store credentials: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS (or provider-specific)
+
+**Setup - WhatsApp (for OTP):**
+- [ ] Choose WhatsApp API provider (Fonnte, Wablas, Twilio, etc.)
+- [ ] Create account and get API key
+- [ ] Register sender phone number
+- [ ] Store credentials: WHATSAPP_API_URL, WHATSAPP_API_KEY
+
+**Implementation:**
 - [ ] `model/candidate.go` - Create, FindByEmail, FindByPhone
-- [ ] `templates/public/register.templ` - Registration form
-- [ ] `handler/public.go` - GET/POST /register
-- [ ] Form fields:
-  - Personal: name, email, phone, whatsapp, address, city, province
-  - Education: high_school, graduation_year, prodi
-  - Source: source_type (dropdown), source_detail (free text if referral)
+- [ ] `model/verification_token.go` - Create, Verify, Cleanup
+- [ ] `integration/email.go` - SendOTP via email
+- [ ] `integration/whatsapp.go` - SendOTP via WhatsApp
+- [ ] `templates/public/register.templ` - Multi-step registration form
+- [ ] `handler/public.go` - GET/POST /register, /verify-email, /verify-phone
+- [ ] Step 1: Account (email, password, phone)
+- [ ] Step 2: Email verification (6-digit OTP via email)
+- [ ] Step 3: Phone verification (6-digit OTP via WhatsApp)
+- [ ] Step 4: Personal info (name, address, city, province)
+- [ ] Step 5: Education (high_school, graduation_year, prodi)
+- [ ] Step 6: Source tracking (source_type dropdown, source_detail if referral)
 - [ ] Source types: instagram, google, tiktok, youtube, expo, school_visit, friend_family, teacher_alumni, walkin, other
-- [ ] If source is friend_family/teacher_alumni, show "Siapa yang mereferensikan?" field
-- [ ] If URL has `?ref=CODE`, auto-link to referrer
+- [ ] If URL has `?ref=CODE`, auto-link to referrer or referred_by_candidate
 - [ ] If URL has `?utm_campaign=X`, auto-link to campaign
 - [ ] Auto-assign to consultant (using active algorithm)
-- [ ] Show registration fee (from fee_structure or campaign override)
-- [ ] Test: Registration with various sources
+- [ ] Hash password with bcrypt
+- [ ] Test: Registration flow, OTP verification
 
 ---
 
-## Feature 13: Registration Fee Payment
+## Feature 14: Candidate Login
 
-Candidate pays registration fee.
+Candidate authenticates with email + password.
 
-**Migrations:** 016, 017
-
-- [ ] `model/billing.go` - Create, FindByCandidate, UpdateStatus
-- [ ] `model/payment.go` - Create, UploadProof
-- [ ] `templates/public/payment.templ` - Payment instructions, proof upload
-- [ ] `handler/public.go` - GET /payment/{token}, POST /payment/{token}/proof
-- [ ] Generate billing on registration
-- [ ] Amount from fee_structure, apply campaign discount if any
-- [ ] If 100% discount, auto-mark as paid
-- [ ] Payment proof upload (image)
-- [ ] Email/token-based access (no login required)
-- [ ] Test: Payment flow, promo discount, proof upload
+- [ ] `model/candidate.go` - Authenticate
+- [ ] `templates/public/login.templ` - Login form
+- [ ] `handler/public.go` - GET/POST /login, /logout
+- [ ] Validate email is verified
+- [ ] Cookie-based session (HttpOnly JWT, 30-day expiry)
+- [ ] Redirect to portal dashboard after login
+- [ ] Test: Login, session persistence
 
 ---
 
-## Feature 14: Document Upload
+## Feature 15: Candidate Portal - Dashboard
 
-Candidate uploads required documents.
+Overview of candidate status and actions.
 
-**Migrations:** 019
+- [ ] `templates/portal/dashboard.templ` - Status summary
+- [ ] `handler/portal.go` - GET /portal
+- [ ] `handler/middleware.go` - RequireCandidateAuth
+- [ ] Show: status badge, assigned consultant contact, registration fee status
+- [ ] Show: document checklist (uploaded/pending/rejected)
+- [ ] Show: unread announcements count
+- [ ] Quick links: upload documents, view payments, announcements
+- [ ] Test: Dashboard displays correct info
 
+---
+
+## Feature 16: Candidate Portal - Documents
+
+Candidate uploads and tracks documents.
+
+**Migrations:** 022
+
+**Setup - File Storage:**
+- [ ] Choose storage provider (Cloudflare R2, AWS S3, local disk, etc.)
+- [ ] Create bucket/container for documents
+- [ ] Configure CORS if using object storage
+- [ ] Set up access credentials and permissions
+- [ ] Store credentials: STORAGE_TYPE, STORAGE_BUCKET, STORAGE_ACCESS_KEY, STORAGE_SECRET_KEY, STORAGE_ENDPOINT
+
+**Implementation:**
+- [ ] `storage/storage.go` - Upload, Download, Delete interface
+- [ ] `storage/r2.go` or `storage/s3.go` - Provider implementation
 - [ ] `model/document.go` - Upload, ListByCandidate
-- [ ] `templates/public/documents.templ` - Upload form with checklist
-- [ ] `handler/public.go` - GET/POST /documents/{token}
-- [ ] Show required vs optional, uploaded vs pending
-- [ ] Mark deferrable documents (ijazah, transcript)
-- [ ] File validation: type (PDF, JPG, PNG), size limit
-- [ ] Email/token-based access (no login required)
-- [ ] Test: Upload, validation, defer
+- [ ] `templates/portal/documents.templ` - Upload form with status
+- [ ] `handler/portal.go` - GET/POST /portal/documents
+- [ ] List: document type, status (pending/approved/rejected), rejection reason
+- [ ] Upload: file picker with type/size validation
+- [ ] Re-upload rejected documents
+- [ ] Show deferrable documents with note
+- [ ] Test: Upload, re-upload, status display
+
+---
+
+## Feature 17: Candidate Portal - Payments
+
+Candidate views billing and uploads payment proof.
+
+**Migrations:** 019, 020
+
+- [ ] `model/billing.go` - Create, FindByCandidate
+- [ ] `model/payment.go` - UploadProof
+- [ ] `templates/portal/payments.templ` - Billing list with installments
+- [ ] `handler/portal.go` - GET /portal/payments, POST /portal/payments/{id}/proof
+- [ ] List all billings: registration, tuition, dormitory
+- [ ] Show per billing: total, paid, remaining, installments
+- [ ] Show per installment: amount, due date, status, proof
+- [ ] Upload payment proof (image)
+- [ ] Registration fee: generated on registration
+- [ ] Tuition/dormitory: generated on commitment (by admin)
+- [ ] Test: Billing display, proof upload
+
+---
+
+## Feature 18: Candidate Portal - Announcements
+
+Candidate receives targeted announcements.
+
+**Migrations:** 017, 026
+
+- [ ] `model/announcement.go` - ListForCandidate, MarkRead
+- [ ] `templates/portal/announcements.templ` - Announcement list
+- [ ] `handler/portal.go` - GET /portal/announcements, POST mark-read
+- [ ] Filter by: target_status, target_prodi (or null for all)
+- [ ] Show: title, preview, published date, read status
+- [ ] Detail view with full content
+- [ ] Mark as read on open
+- [ ] Test: Filtering, read status
+
+---
+
+## Feature 19: Announcement Management (Admin)
+
+Admin creates and targets announcements.
+
+- [ ] `model/announcement.go` - CRUD
+- [ ] `templates/admin/announcements.templ` - Announcement list
+- [ ] `templates/admin/announcement_form.templ` - Create/edit form
+- [ ] `handler/admin.go` - CRUD /admin/announcements
+- [ ] Fields: title, content (markdown), target_status, target_prodi, published_at
+- [ ] Schedule future publish
+- [ ] Preview before publish
+- [ ] Test: CRUD, targeting
+
+---
+
+## Feature 20: Member Get Member Referral
+
+Enrolled students refer new candidates.
+
+- [ ] `model/candidate.go` - GenerateReferralCode, FindByReferralCode
+- [ ] `templates/portal/referral.templ` - Referral dashboard
+- [ ] `handler/portal.go` - GET /portal/referral
+- [ ] Generate unique referral_code on enrollment
+- [ ] Show: shareable link with code
+- [ ] List: referred candidates with status
+- [ ] Show: reward status (pending/earned based on enrollment)
+- [ ] Registration form: if `?ref=CODE` matches candidate, set referred_by_candidate_id
+- [ ] Test: Code generation, referral tracking
 
 ---
 
@@ -412,7 +592,7 @@ Day-to-day sales operations.
 
 ---
 
-## Feature 15: Candidate List & Filters
+## Feature 21: Candidate List & Filters
 
 Admin/consultant views candidates.
 
@@ -428,7 +608,7 @@ Admin/consultant views candidates.
 
 ---
 
-## Feature 16: Candidate Detail & Timeline
+## Feature 22: Candidate Detail & Timeline
 
 View candidate info and history.
 
@@ -441,11 +621,11 @@ View candidate info and history.
 
 ---
 
-## Feature 17: Interaction Logging
+## Feature 23: Interaction Logging
 
 Consultants log each contact.
 
-**Migrations:** 018
+**Migrations:** 021
 
 - [ ] `model/interaction.go` - Create, ListByCandidate, ListByConsultant
 - [ ] `templates/admin/interaction_form.templ` - Log interaction modal
@@ -457,7 +637,7 @@ Consultants log each contact.
 
 ---
 
-## Feature 18: Supervisor Suggestions
+## Feature 24: Supervisor Suggestions
 
 Supervisor reviews and provides guidance.
 
@@ -469,7 +649,7 @@ Supervisor reviews and provides guidance.
 
 ---
 
-## Feature 19: Consultant Assignment
+## Feature 25: Consultant Assignment
 
 Manual reassignment of candidates.
 
@@ -482,7 +662,7 @@ Manual reassignment of candidates.
 
 ---
 
-## Feature 20: Referral Claim Verification
+## Feature 26: Referral Claim Verification
 
 Link referral claims to referrers.
 
@@ -501,7 +681,7 @@ Convert candidates to students.
 
 ---
 
-## Feature 21: Commitment & Tuition Billing
+## Feature 27: Commitment & Tuition Billing
 
 Generate billing when candidate commits.
 
@@ -516,7 +696,7 @@ Generate billing when candidate commits.
 
 ---
 
-## Feature 22: Payment Tracking
+## Feature 28: Payment Tracking
 
 Track and verify installment payments.
 
@@ -532,7 +712,7 @@ Track and verify installment payments.
 
 ---
 
-## Feature 23: Document Review
+## Feature 29: Document Review
 
 Admin reviews uploaded documents.
 
@@ -545,7 +725,7 @@ Admin reviews uploaded documents.
 
 ---
 
-## Feature 24: Enrollment
+## Feature 30: Enrollment
 
 Mark candidate as enrolled.
 
@@ -556,17 +736,18 @@ Mark candidate as enrolled.
   - Tuition: at least 1st installment paid
   - Documents: KTP + photo approved (ijazah/transcript can be pending)
 - [ ] Generate NIM: YYYY + PRODI_CODE + SEQUENCE (e.g., 2026SI001)
+- [ ] Generate referral_code for member-get-member (e.g., MGM-2026SI001)
 - [ ] Change status: committed → enrolled
-- [ ] Trigger commission creation if referred
-- [ ] Test: Enrollment validation, NIM generation
+- [ ] Trigger commission creation if referred (by referrer or by enrolled candidate)
+- [ ] Test: Enrollment validation, NIM generation, referral code
 
 ---
 
-## Feature 25: Lost Candidate
+## Feature 31: Lost Candidate
 
 Mark candidate as lost.
 
-**Migrations:** 011, 022 (seed)
+**Migrations:** 011, 027 (seed)
 
 - [ ] `model/lost_reason.go` - ListActive
 - [ ] `model/candidate.go` - MarkLost
@@ -585,11 +766,11 @@ Track referrer commissions.
 
 ---
 
-## Feature 26: Commission Tracking
+## Feature 32: Commission Tracking
 
 Auto-create and track commissions.
 
-**Migrations:** 020
+**Migrations:** 023
 
 - [ ] `model/commission.go` - Create, ListByReferrer, ListPending
 - [ ] Auto-create commission when referred candidate enrolls
@@ -599,7 +780,7 @@ Auto-create and track commissions.
 
 ---
 
-## Feature 27: Commission Payout
+## Feature 33: Commission Payout
 
 Approve and pay commissions.
 
@@ -618,7 +799,7 @@ Insights for decision making.
 
 ---
 
-## Feature 28: Dashboard - Consultant
+## Feature 34: Dashboard - Consultant
 
 Consultant's daily view.
 
@@ -631,7 +812,7 @@ Consultant's daily view.
 
 ---
 
-## Feature 29: Dashboard - Supervisor
+## Feature 35: Dashboard - Supervisor
 
 Supervisor's team view.
 
@@ -643,7 +824,7 @@ Supervisor's team view.
 
 ---
 
-## Feature 30: Reports - Funnel
+## Feature 36: Reports - Funnel
 
 Conversion funnel analysis.
 
@@ -656,7 +837,7 @@ Conversion funnel analysis.
 
 ---
 
-## Feature 31: Reports - Consultant Performance
+## Feature 37: Reports - Consultant Performance
 
 Individual performance metrics.
 
@@ -669,7 +850,7 @@ Individual performance metrics.
 
 ---
 
-## Feature 32: Reports - Campaign ROI
+## Feature 38: Reports - Campaign ROI
 
 Campaign effectiveness.
 
@@ -682,7 +863,7 @@ Campaign effectiveness.
 
 ---
 
-## Feature 33: Reports - Referrer Leaderboard
+## Feature 39: Reports - Referrer Leaderboard
 
 Referrer performance.
 
@@ -694,7 +875,7 @@ Referrer performance.
 
 ---
 
-## Feature 34: CSV Export
+## Feature 40: CSV Export
 
 Export data for external analysis.
 
@@ -711,11 +892,11 @@ Communication automation.
 
 ---
 
-## Feature 35: WhatsApp Notifications
+## Feature 41: WhatsApp Notifications
 
 Send notifications at key events.
 
-**Migrations:** 021
+**Migrations:** 024
 
 - [ ] `integration/whatsapp.go` - Send via API (Fonnte/similar)
 - [ ] `model/notification.go` - Create, ListByCandidate
@@ -728,17 +909,30 @@ Send notifications at key events.
 
 ## Success Criteria
 
-- [ ] Admin can login, configure prodis/fees/campaigns before opening registration
-- [ ] Candidate can register with source tracking, pay fee, upload documents
-- [ ] Registration fee waived during promo campaigns
-- [ ] Candidates auto-assigned to consultants
+### Admin/Staff
+- [ ] Staff (admin, supervisor, consultant) can login with Google OAuth
+- [ ] Admin can configure prodis/fees/campaigns before opening registration
 - [ ] Consultants log interactions with category/obstacle/remarks
 - [ ] Supervisors provide suggestions on interactions
 - [ ] Commitment generates tuition billing with installments
-- [ ] Payment tracking with proof upload and verification
-- [ ] Documents can be deferred (ijazah/transcript)
+- [ ] Payment tracking with proof verification
+- [ ] Document review with approve/reject
 - [ ] Enrollment validates requirements, generates NIM
+- [ ] All admin interactions use HTMX (no full page reloads)
+
+### Candidate Portal
+- [ ] Candidate registers with email/phone verification
+- [ ] Candidate logs in with password
+- [ ] Candidate views dashboard with status summary
+- [ ] Candidate uploads/re-uploads documents
+- [ ] Candidate views billing and uploads payment proof
+- [ ] Candidate receives targeted announcements
+- [ ] Enrolled candidate can refer new candidates (member-get-member)
+
+### Business
+- [ ] Registration fee waived during promo campaigns
+- [ ] Candidates auto-assigned to consultants
+- [ ] Documents can be deferred (ijazah/transcript)
 - [ ] Referrer commissions auto-created and tracked
 - [ ] Campaign ROI trackable via reports
-- [ ] All admin interactions use HTMX (no full page reloads)
 - [ ] Mobile responsive
