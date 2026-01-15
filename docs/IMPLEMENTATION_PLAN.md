@@ -11,7 +11,7 @@
 | Phase | Description | Status | Progress |
 |-------|-------------|--------|----------|
 | 1 | Infrastructure Setup | Partial | 60% |
-| 2 | Frontend Marketing Site | In Progress | 60% |
+| 2 | Frontend Marketing Site | In Progress | 75% |
 | 3 | Backend API (Go) | Not Started | 0% |
 | 4 | Deployment & DevOps | Partial | 20% |
 | 5 | Testing & Polish | Not Started | 0% |
@@ -58,7 +58,7 @@
 
 ---
 
-## Phase 2: Frontend Marketing Site (60%)
+## Phase 2: Frontend Marketing Site (75%)
 
 ### 2.1 Layouts & Components (Done)
 - [x] BaseLayout.astro
@@ -101,15 +101,15 @@
 - [x] Office hours
 - [x] Contact form (static, backend submission deferred to Phase 3)
 
-### 2.6 Admissions Page (Not Started)
-- [ ] `src/pages/admissions.astro`
-- [ ] `src/pages/en/admissions.astro`
-- [ ] Admission requirements
-- [ ] Application process steps
-- [ ] Important dates/calendar
-- [ ] Required documents list
-- [ ] FAQ section
-- [ ] "Apply Now" CTA
+### 2.6 Admissions Page (Done)
+- [x] `src/pages/admissions.astro`
+- [x] `src/pages/en/admissions.astro`
+- [x] Intake periods (3 periods with discount benefits)
+- [x] Registration process (4 steps)
+- [x] Required documents list (6 items)
+- [x] Scholarship programs (4 types)
+- [x] FAQ section (5 questions with accordion)
+- [x] CTA sections
 
 ### 2.7 News/Blog System (Not Started)
 - [ ] Content collection for news
@@ -355,7 +355,7 @@ Phase 1 (Infrastructure) ─┬─► Phase 2 (Frontend) ─► Phase 5 (Testing
 - [x] Lecturers pages live (ID + EN)
 - [x] Programs pages live (ID + EN)
 - [x] Contact page live (ID + EN)
-- [ ] Admissions page (ID + EN)
+- [x] Admissions page live (ID + EN)
 - [ ] News/Blog system (ID + EN)
 - [x] Mobile responsive
 - [ ] Page load <2s verified
