@@ -231,13 +231,77 @@ Seed data:
 
 ---
 
+# Phase 0: UI Mockup
+
+Clickable prototype untuk validasi dengan stakeholder sebelum implementasi.
+
+---
+
+## Feature 3: UI Mockup (No Database)
+
+Semua halaman dengan data hardcoded untuk demo dan validasi UI/UX.
+
+**Tujuan:**
+- Validasi alur dan tampilan dengan tim sales/marketing
+- Dapat diklik dan dinavigasi seperti aplikasi asli
+- Tidak perlu database atau backend logic
+- Mendapat commitment stakeholder sebelum implementasi
+
+**Admin Pages:**
+- [ ] Login page (mock, langsung redirect)
+- [ ] Dashboard konsultan (statistik hardcoded)
+- [ ] Dashboard supervisor (statistik tim hardcoded)
+- [ ] Daftar kandidat (tabel dengan filter, data dummy)
+- [ ] Detail kandidat (info + timeline interaksi dummy)
+- [ ] Form log interaksi (modal)
+- [ ] Settings: User management (list dummy users)
+- [ ] Settings: Prodi (list dummy)
+- [ ] Settings: Fee structure (matrix dummy)
+- [ ] Settings: Reward config (list dummy)
+- [ ] Settings: Kategori & hambatan (list dummy)
+- [ ] Kampanye management (list + form)
+- [ ] Referrer management (list + form)
+- [ ] Referral claims (list unverified)
+- [ ] Komisi/commission (list + approve)
+- [ ] Laporan funnel (chart dummy)
+- [ ] Laporan performa konsultan (table dummy)
+
+**Portal Kandidat Pages:**
+- [ ] Landing/register page
+- [ ] Login page
+- [ ] Dashboard kandidat (status, checklist)
+- [ ] Upload dokumen (list + upload form)
+- [ ] Pembayaran (list tagihan + upload bukti)
+- [ ] Pengumuman (list + detail)
+- [ ] Referral MGM (kode + list referred)
+
+**Public Pages:**
+- [ ] Form pendaftaran multi-step (6 langkah)
+- [ ] Halaman verifikasi OTP (mock)
+- [ ] Halaman sukses registrasi
+
+**Navigation:**
+- [ ] Admin sidebar dengan semua menu
+- [ ] Portal sidebar dengan semua menu
+- [ ] Responsive mobile view
+
+**Demo Data:**
+- [ ] 10 dummy candidates dengan berbagai status
+- [ ] 3 dummy consultants
+- [ ] 5 dummy interactions per candidate
+- [ ] 2 dummy prodis
+- [ ] Sample fee structure
+- [ ] Sample campaigns & referrers
+
+---
+
 # Phase 1: Admin Foundation
 
 Must complete before opening registration.
 
 ---
 
-## Feature 3: Staff Login (Google OAuth)
+## Feature 4: Staff Login (Google OAuth)
 
 All staff (admin, supervisor, consultant) login with domain-restricted Google.
 
@@ -264,7 +328,7 @@ All staff (admin, supervisor, consultant) login with domain-restricted Google.
 
 ---
 
-## Feature 4: Staff Management
+## Feature 5: Staff Management
 
 Admin manages staff accounts (admin, supervisor, consultant).
 
@@ -280,7 +344,7 @@ Admin manages staff accounts (admin, supervisor, consultant).
 
 ---
 
-## Feature 5: Settings - Prodi Management
+## Feature 6: Settings - Prodi Management
 
 Admin configures available programs.
 
@@ -295,7 +359,7 @@ Admin configures available programs.
 
 ---
 
-## Feature 6: Settings - Fee Structure
+## Feature 7: Settings - Fee Structure
 
 Admin configures fees per prodi and academic year.
 
@@ -311,7 +375,7 @@ Admin configures fees per prodi and academic year.
 
 ---
 
-## Feature 7: Settings - Categories & Obstacles
+## Feature 8: Settings - Categories & Obstacles
 
 Supervisor manages interaction categories and obstacles.
 
@@ -334,7 +398,7 @@ Setup before opening registration.
 
 ---
 
-## Feature 8: Campaign Management
+## Feature 9: Campaign Management
 
 Admin manages campaigns with promo pricing.
 
@@ -351,7 +415,7 @@ Admin manages campaigns with promo pricing.
 
 ---
 
-## Feature 9: Reward Configuration
+## Feature 10: Reward Configuration
 
 Configure default rewards by referrer type and MGM.
 
@@ -369,7 +433,7 @@ Configure default rewards by referrer type and MGM.
 
 ---
 
-## Feature 10: Referrer Management
+## Feature 11: Referrer Management
 
 Admin manages referrers for commission tracking.
 
@@ -386,7 +450,7 @@ Admin manages referrers for commission tracking.
 
 ---
 
-## Feature 11: Settings - Assignment Algorithm
+## Feature 12: Settings - Assignment Algorithm
 
 Configure consultant assignment algorithm.
 
@@ -401,7 +465,7 @@ Configure consultant assignment algorithm.
 
 ---
 
-## Feature 12: Settings - Document Types
+## Feature 13: Settings - Document Types
 
 Configure required documents.
 
@@ -422,7 +486,7 @@ Candidate-facing features.
 
 ---
 
-## Feature 13: Candidate Registration
+## Feature 14: Candidate Registration
 
 Registration with password and email/phone verification.
 
@@ -462,7 +526,7 @@ Registration with password and email/phone verification.
 
 ---
 
-## Feature 14: Candidate Login
+## Feature 15: Candidate Login
 
 Candidate authenticates with email + password.
 
@@ -476,7 +540,7 @@ Candidate authenticates with email + password.
 
 ---
 
-## Feature 15: Candidate Portal - Dashboard
+## Feature 16: Candidate Portal - Dashboard
 
 Overview of candidate status and actions.
 
@@ -491,7 +555,7 @@ Overview of candidate status and actions.
 
 ---
 
-## Feature 16: Candidate Portal - Documents
+## Feature 17: Candidate Portal - Documents
 
 Candidate uploads and tracks documents.
 
@@ -518,7 +582,7 @@ Candidate uploads and tracks documents.
 
 ---
 
-## Feature 17: Candidate Portal - Payments
+## Feature 18: Candidate Portal - Payments
 
 Candidate views billing and uploads payment proof.
 
@@ -538,7 +602,7 @@ Candidate views billing and uploads payment proof.
 
 ---
 
-## Feature 18: Candidate Portal - Announcements
+## Feature 19: Candidate Portal - Announcements
 
 Candidate receives targeted announcements.
 
@@ -555,7 +619,7 @@ Candidate receives targeted announcements.
 
 ---
 
-## Feature 19: Announcement Management (Admin)
+## Feature 20: Announcement Management (Admin)
 
 Admin creates and targets announcements.
 
@@ -570,7 +634,7 @@ Admin creates and targets announcements.
 
 ---
 
-## Feature 20: Member Get Member Referral
+## Feature 21: Member Get Member Referral
 
 Enrolled students refer new candidates.
 
@@ -592,7 +656,7 @@ Day-to-day sales operations.
 
 ---
 
-## Feature 21: Candidate List & Filters
+## Feature 22: Candidate List & Filters
 
 Admin/consultant views candidates.
 
@@ -608,7 +672,7 @@ Admin/consultant views candidates.
 
 ---
 
-## Feature 22: Candidate Detail & Timeline
+## Feature 23: Candidate Detail & Timeline
 
 View candidate info and history.
 
@@ -621,7 +685,7 @@ View candidate info and history.
 
 ---
 
-## Feature 23: Interaction Logging
+## Feature 24: Interaction Logging
 
 Consultants log each contact.
 
@@ -637,7 +701,7 @@ Consultants log each contact.
 
 ---
 
-## Feature 24: Supervisor Suggestions
+## Feature 25: Supervisor Suggestions
 
 Supervisor reviews and provides guidance.
 
@@ -649,7 +713,7 @@ Supervisor reviews and provides guidance.
 
 ---
 
-## Feature 25: Consultant Assignment
+## Feature 26: Consultant Assignment
 
 Manual reassignment of candidates.
 
@@ -662,7 +726,7 @@ Manual reassignment of candidates.
 
 ---
 
-## Feature 26: Referral Claim Verification
+## Feature 27: Referral Claim Verification
 
 Link referral claims to referrers.
 
@@ -681,7 +745,7 @@ Convert candidates to students.
 
 ---
 
-## Feature 27: Commitment & Tuition Billing
+## Feature 28: Commitment & Tuition Billing
 
 Generate billing when candidate commits.
 
@@ -696,7 +760,7 @@ Generate billing when candidate commits.
 
 ---
 
-## Feature 28: Payment Tracking
+## Feature 29: Payment Tracking
 
 Track and verify installment payments.
 
@@ -712,7 +776,7 @@ Track and verify installment payments.
 
 ---
 
-## Feature 29: Document Review
+## Feature 30: Document Review
 
 Admin reviews uploaded documents.
 
@@ -725,7 +789,7 @@ Admin reviews uploaded documents.
 
 ---
 
-## Feature 30: Enrollment
+## Feature 31: Enrollment
 
 Mark candidate as enrolled.
 
@@ -743,7 +807,7 @@ Mark candidate as enrolled.
 
 ---
 
-## Feature 31: Lost Candidate
+## Feature 32: Lost Candidate
 
 Mark candidate as lost.
 
@@ -766,7 +830,7 @@ Track referrer commissions.
 
 ---
 
-## Feature 32: Commission Tracking
+## Feature 33: Commission Tracking
 
 Auto-create and track commissions.
 
@@ -780,7 +844,7 @@ Auto-create and track commissions.
 
 ---
 
-## Feature 33: Commission Payout
+## Feature 34: Commission Payout
 
 Approve and pay commissions.
 
@@ -799,7 +863,7 @@ Insights for decision making.
 
 ---
 
-## Feature 34: Dashboard - Consultant
+## Feature 35: Dashboard - Consultant
 
 Consultant's daily view.
 
@@ -812,7 +876,7 @@ Consultant's daily view.
 
 ---
 
-## Feature 35: Dashboard - Supervisor
+## Feature 36: Dashboard - Supervisor
 
 Supervisor's team view.
 
@@ -824,7 +888,7 @@ Supervisor's team view.
 
 ---
 
-## Feature 36: Reports - Funnel
+## Feature 37: Reports - Funnel
 
 Conversion funnel analysis.
 
@@ -837,7 +901,7 @@ Conversion funnel analysis.
 
 ---
 
-## Feature 37: Reports - Consultant Performance
+## Feature 38: Reports - Consultant Performance
 
 Individual performance metrics.
 
@@ -850,7 +914,7 @@ Individual performance metrics.
 
 ---
 
-## Feature 38: Reports - Campaign ROI
+## Feature 39: Reports - Campaign ROI
 
 Campaign effectiveness.
 
@@ -863,7 +927,7 @@ Campaign effectiveness.
 
 ---
 
-## Feature 39: Reports - Referrer Leaderboard
+## Feature 40: Reports - Referrer Leaderboard
 
 Referrer performance.
 
@@ -875,7 +939,7 @@ Referrer performance.
 
 ---
 
-## Feature 40: CSV Export
+## Feature 41: CSV Export
 
 Export data for external analysis.
 
@@ -892,7 +956,7 @@ Communication automation.
 
 ---
 
-## Feature 41: WhatsApp Notifications
+## Feature 42: WhatsApp Notifications
 
 Send notifications at key events.
 
