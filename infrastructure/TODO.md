@@ -10,7 +10,7 @@ This directory will contain Ansible playbooks and scripts for VPS provisioning a
 
 ### Prerequisites
 - [ ] Choose VPS provider (Hetzner, Vultr, or local Indonesian provider)
-- [ ] Provision Ubuntu 24.04 LTS VPS (2GB RAM minimum)
+- [ ] Provision Ubuntu 24.04 LTS VPS (1GB RAM minimum)
 - [ ] Obtain VPS root access credentials
 - [ ] Configure DNS records for backend subdomain (api.stmik.tazkia.ac.id)
 
@@ -41,22 +41,19 @@ This directory will contain Ansible playbooks and scripts for VPS provisioning a
   - [ ] Configure SSH key authentication
   - [ ] Disable root SSH login
   - [ ] Disable password authentication
-- [ ] Install Node.js 20.x LTS
-  - [ ] Add NodeSource repository
-  - [ ] Install Node.js and npm
-  - [ ] Verify installation
+- [ ] Install Go 1.25+
+  - [ ] Download Go binary
+  - [ ] Extract to /usr/local
+  - [ ] Configure PATH
+  - [ ] Verify installation: `go version`
 - [ ] Install PostgreSQL 18
   - [ ] Add PostgreSQL APT repository
   - [ ] Install PostgreSQL
-  - [ ] Configure PostgreSQL for remote connections (optional)
   - [ ] Create database and user
 - [ ] Install Nginx
   - [ ] Install nginx package
   - [ ] Configure as reverse proxy
   - [ ] Enable and start nginx
-- [ ] Install PM2
-  - [ ] Install PM2 globally: `npm install -g pm2`
-  - [ ] Configure PM2 startup script
 - [ ] Install Certbot for SSL
   - [ ] Install certbot and nginx plugin
   - [ ] Configure certbot auto-renewal
@@ -73,280 +70,155 @@ This directory will contain Ansible playbooks and scripts for VPS provisioning a
 ### 2.2 Database Setup Playbook (`playbooks/setup-database.yml`)
 - [ ] Create PostgreSQL database
   - [ ] Database name: `campus`
-  - [ ] Database user: `campus_user`
+  - [ ] Database user: `campus_app`
   - [ ] Generate strong password
 - [ ] Configure PostgreSQL
   - [ ] Set max_connections
   - [ ] Configure shared_buffers
   - [ ] Enable logging
 - [ ] Run database migrations
-  - [ ] Clone repository to VPS
-  - [ ] Run migration script
-  - [ ] Seed initial data (if needed)
+  - [ ] Transfer migration files to VPS
+  - [ ] Run: `go run ./cmd/migrate up`
+  - [ ] Seed initial data
 - [ ] Verify database
   - [ ] Test connection
   - [ ] Check tables created
 
 ### 2.3 Backend Deployment Playbook (`playbooks/deploy-backend.yml`)
-- [ ] Clone/pull repository
-  - [ ] Git clone if first deployment
-  - [ ] Git pull if updating
-  - [ ] Checkout specific branch/tag
-- [ ] Install dependencies
-  - [ ] Run `npm ci --production`
-  - [ ] Verify package-lock.json
+- [ ] Build Go binary locally
+  - [ ] `CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o campus-api ./cmd/server`
+- [ ] Transfer binary to VPS
+  - [ ] SCP or rsync binary
+  - [ ] Set executable permissions
 - [ ] Configure environment
   - [ ] Create `.env` file from template
   - [ ] Set DATABASE_URL
   - [ ] Set JWT_SECRET
-  - [ ] Set NODE_ENV=production
-- [ ] Run database migrations
-  - [ ] Execute migration command
-  - [ ] Verify migration success
-- [ ] Start/restart application with PM2
-  - [ ] PM2 start or restart
-  - [ ] Save PM2 configuration
-  - [ ] Verify application running
+  - [ ] Set Google OAuth credentials
+- [ ] Configure systemd service
+  - [ ] Create /etc/systemd/system/campus-api.service
+  - [ ] Enable service: `systemctl enable campus-api`
+  - [ ] Start service: `systemctl start campus-api`
 - [ ] Configure Nginx
-  - [ ] Create Nginx site configuration
-  - [ ] Enable site
-  - [ ] Test Nginx config
-  - [ ] Reload Nginx
-- [ ] SSL certificate
-  - [ ] Run certbot for domain
-  - [ ] Verify SSL certificate
-  - [ ] Test HTTPS access
+  - [ ] Create virtual host config
+  - [ ] Set up SSL with Certbot
+  - [ ] Configure rate limiting
+- [ ] Health check
+  - [ ] Test API endpoint: `curl localhost:3000/api/health`
+  - [ ] Test via domain
 
 ### 2.4 Maintenance Playbook (`playbooks/maintenance.yml`)
-- [ ] Database backup
-  - [ ] Run pg_dump
-  - [ ] Compress backup
-  - [ ] Store in /var/backups/
-  - [ ] Clean old backups (keep 7 days)
-- [ ] System updates
-  - [ ] Update apt packages
-  - [ ] Update npm packages (backend)
-  - [ ] Restart services if needed
-- [ ] Health checks
-  - [ ] Check PM2 status
-  - [ ] Check Nginx status
+- [ ] Backup tasks
+  - [ ] PostgreSQL dump: `pg_dump`
+  - [ ] Compress and timestamp backup
+  - [ ] Cleanup old backups
+- [ ] Update tasks
+  - [ ] Check for Go binary updates
+  - [ ] Run database migrations
+- [ ] Health check tasks
+  - [ ] Check systemd service status
   - [ ] Check PostgreSQL status
+  - [ ] Check Nginx status
   - [ ] Check disk space
-  - [ ] Check memory usage
-- [ ] Log rotation
-  - [ ] Configure logrotate for PM2 logs
-  - [ ] Configure logrotate for Nginx logs
-- [ ] SSL certificate renewal
-  - [ ] Run certbot renew
-  - [ ] Reload Nginx if renewed
+- [ ] Log management
+  - [ ] Configure logrotate for application logs
 
 ---
 
-## Phase 3: Ansible Roles (Optional - for reusability)
+## Phase 3: Ansible Roles
 
-Create reusable Ansible roles:
+### roles/common/
+- [ ] tasks/main.yml - System updates, timezone, basic packages
+- [ ] vars/main.yml - Common variables
 
-### roles/nodejs/
-- [ ] tasks/main.yml - Install Node.js
-- [ ] vars/main.yml - Node.js version
-- [ ] handlers/main.yml - Restart services
+### roles/go/
+- [ ] tasks/main.yml - Install Go
+- [ ] vars/main.yml - Go version
 
 ### roles/postgresql/
 - [ ] tasks/main.yml - Install PostgreSQL
-- [ ] tasks/database.yml - Create database
+- [ ] vars/main.yml - PostgreSQL version
 - [ ] templates/pg_hba.conf.j2 - PostgreSQL config
-- [ ] vars/main.yml - Database settings
 
 ### roles/nginx/
-- [ ] tasks/main.yml - Install Nginx
-- [ ] templates/backend.conf.j2 - Site config
-- [ ] handlers/main.yml - Reload Nginx
+- [ ] tasks/main.yml - Install and configure Nginx
+- [ ] templates/backend.conf.j2 - Nginx virtual host
 
-### roles/pm2/
-- [ ] tasks/main.yml - Install PM2
-- [ ] tasks/deploy.yml - Deploy application
-- [ ] templates/ecosystem.config.js.j2 - PM2 config
+### roles/certbot/
+- [ ] tasks/main.yml - Install Certbot and obtain certificates
 
-### roles/ssl-certbot/
-- [ ] tasks/main.yml - Install Certbot
-- [ ] tasks/certificate.yml - Get SSL cert
-- [ ] handlers/main.yml - Reload Nginx
+### roles/campus-api/
+- [ ] tasks/main.yml - Deploy Go binary
+- [ ] templates/campus-api.service.j2 - systemd service
+- [ ] templates/.env.j2 - Environment config
 
 ---
 
 ## Phase 4: Deployment Scripts
 
 ### scripts/deploy.sh
-```bash
-#!/bin/bash
-# Wrapper script for deployment
-# Usage: ./scripts/deploy.sh production
-```
-
-- [ ] Parse environment argument (production/staging)
-- [ ] Run Ansible playbook
-- [ ] Show deployment status
-- [ ] Run post-deployment checks
+- [ ] Pull latest code
+- [ ] Build Go binary
+- [ ] Transfer to VPS
+- [ ] Restart service
+- [ ] Health check
 
 ### scripts/backup.sh
-```bash
-#!/bin/bash
-# Manual backup trigger
-# Usage: ./scripts/backup.sh
-```
-
-- [ ] Run backup playbook
-- [ ] Download backup to local machine
-- [ ] Verify backup integrity
+- [ ] PostgreSQL backup
+- [ ] Compress with timestamp
+- [ ] Optional: upload to remote storage
 
 ### scripts/rollback.sh
-```bash
-#!/bin/bash
-# Rollback to previous version
-# Usage: ./scripts/rollback.sh
-```
-
-- [ ] Stop PM2 application
-- [ ] Git checkout previous commit
-- [ ] Restore database backup
-- [ ] Restart application
+- [ ] Stop service
+- [ ] Restore previous binary
+- [ ] Start service
+- [ ] Health check
 
 ---
 
-## Phase 5: Inventory & Variables
+## Phase 5: Inventory and Variables
 
 ### inventory/production.ini
 ```ini
 [webservers]
-backend-vps ansible_host=YOUR_VPS_IP ansible_user=deploy
+api.stmik.tazkia.ac.id ansible_user=deploy
 
-[databases]
-backend-vps ansible_host=YOUR_VPS_IP ansible_user=deploy
+[database]
+api.stmik.tazkia.ac.id ansible_user=deploy
 ```
-
-- [ ] Add production VPS IP
-- [ ] Configure SSH user
-- [ ] Set Python interpreter path
 
 ### group_vars/all.yml
 ```yaml
-nodejs_version: "20.x"
-postgresql_version: "18"
-app_name: "campus-backend"
+app_name: "campus-api"
+app_dir: "/var/www/campus-api"
 app_port: 3000
+app_user: "deploy"
+
+go_version: "1.25.0"
+postgresql_version: "18"
+
 domain: "api.stmik.tazkia.ac.id"
+ssl_email: "admin@stmik.tazkia.ac.id"
 ```
-
-- [ ] Define global variables
-- [ ] Set versions for all software
-- [ ] Configure domain names
-
-### group_vars/production.yml
-```yaml
-env: production
-database_name: campus
-database_user: campus_user
-backup_retention_days: 7
-```
-
-- [ ] Production-specific variables
-- [ ] Database credentials (encrypted with ansible-vault)
-- [ ] Backup settings
-
----
-
-## Phase 6: Ansible Configuration
-
-### ansible.cfg
-```ini
-[defaults]
-inventory = inventory/production.ini
-remote_user = deploy
-host_key_checking = False
-retry_files_enabled = False
-
-[privilege_escalation]
-become = True
-become_method = sudo
-become_user = root
-```
-
-- [ ] Configure default inventory
-- [ ] Set SSH options
-- [ ] Configure privilege escalation
-
----
-
-## Phase 7: Testing & Documentation
-
-### Testing
-- [ ] Test playbooks against staging VPS
-- [ ] Verify idempotence (run playbook twice)
-- [ ] Test rollback procedure
-- [ ] Document common errors and fixes
-
-### Documentation
-- [ ] Write Ansible usage guide (ansible/README.md)
-- [ ] Document deployment process
-- [ ] Create troubleshooting guide
-- [ ] Add runbook for common tasks
-
----
-
-## Timeline Estimate
-
-- **Phase 1:** Ansible setup - 0.5 day
-- **Phase 2:** Playbook development - 2-3 days
-- **Phase 3:** Ansible roles (optional) - 1-2 days
-- **Phase 4:** Deployment scripts - 0.5 day
-- **Phase 5:** Inventory & variables - 0.5 day
-- **Phase 6:** Configuration - 0.5 day
-- **Phase 7:** Testing & docs - 1 day
-
-**Total: 5-8 days** (can be done in parallel with backend development)
-
----
-
-## Success Criteria
-
-- [ ] Ansible can provision fresh VPS from scratch
-- [ ] Backend deploys successfully via Ansible
-- [ ] Database backups run automatically
-- [ ] SSL certificates auto-renew
-- [ ] Rollback procedure tested and working
-- [ ] Documentation complete and accurate
-
----
-
-## Dependencies
-
-- **Backend Phase 2:** Backend application must be developed first
-- **Domain Configuration:** DNS records must point to VPS
-- **VPS Provider:** VPS must be provisioned and accessible
 
 ---
 
 ## Security Checklist
 
-- [ ] SSH key-only authentication (no passwords)
-- [ ] UFW firewall configured
-- [ ] Fail2ban protecting SSH
+- [ ] SSH key-only authentication
+- [ ] UFW firewall enabled
+- [ ] Fail2ban configured
 - [ ] PostgreSQL strong password (ansible-vault encrypted)
-- [ ] JWT_SECRET strong and random (ansible-vault encrypted)
-- [ ] SSL/TLS certificates installed
-- [ ] Automatic security updates enabled
-- [ ] Root login disabled
-- [ ] Non-root deployment user created
+- [ ] SSL/TLS enabled
+- [ ] Automatic security updates
 
 ---
 
-## Future Enhancements (Post-MVP)
+## Success Criteria
 
-- [ ] Multi-server setup (load balancer + multiple backends)
-- [ ] Database replication (primary + replica)
-- [ ] Monitoring with Prometheus + Grafana
-- [ ] Log aggregation with ELK stack
-- [ ] Automated performance testing
-- [ ] Blue-green deployment strategy
-- [ ] Docker containerization (optional)
-- [ ] Kubernetes deployment (if scale requires)
+- [ ] VPS can be provisioned with single command
+- [ ] Backend can be deployed with single command
+- [ ] Database backups run automatically
+- [ ] SSL certificate auto-renews
+- [ ] Deployment takes <5 minutes
+- [ ] Rollback possible within 2 minutes

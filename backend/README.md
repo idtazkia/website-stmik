@@ -21,7 +21,7 @@ The backend handles the complete lead-to-registration journey:
 | Database | PostgreSQL 18 + pgx/v5 | Native driver, connection pooling |
 | Templates | Templ | Type-safe, compiled HTML templates |
 | Interactivity | HTMX | Server-driven UI updates |
-| Client State | Alpine.js | Dropdowns, modals, form interactions |
+| Client State | Alpine.js + alpine-csp | Dropdowns, modals, CSP-compliant |
 | Styling | Tailwind CSS | Utility-first, consistent with landing page |
 | Auth | golang-jwt/jwt/v5 | JWT tokens |
 | Password | x/crypto/bcrypt | Secure password hashing |

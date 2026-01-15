@@ -7,7 +7,7 @@
 - [Authentication Flows](#authentication-flows)
 - [Database Schema](#database-schema)
 - [Session Management](#session-management)
-- [BFF Traffic Analysis](#bff-traffic-analysis)
+- [Traffic Analysis](#traffic-analysis)
 - [DDoS Protection & Cost Safety](#ddos-protection--cost-safety)
 - [Security Considerations](#security-considerations)
 - [Scalability](#scalability)
@@ -162,15 +162,14 @@ graph LR
 - Leverages institutional Google Workspace
 
 ### Security Features
-- ✅ HttpOnly cookies (XSS protection)
-- ✅ JWT tokens managed by BFF layer
-- ✅ Tokens never exposed to client JavaScript
-- ✅ Same-origin requests (no CORS issues)
-- ✅ Rate limiting built-in (Cloudflare)
-- ✅ DDoS protection included
-- ✅ bcrypt password hashing (10 salt rounds)
-- ✅ JWT expiration (7 days)
-- ✅ SQL injection prevention (parameterized queries)
+- HttpOnly cookies (XSS protection)
+- JWT tokens managed by Go backend
+- Tokens never exposed to client JavaScript
+- Rate limiting via Nginx
+- DDoS protection via Cloudflare CDN
+- bcrypt password hashing (10 salt rounds)
+- JWT expiration (7 days)
+- SQL injection prevention (parameterized queries with pgx)
 
 ---
 
@@ -181,33 +180,31 @@ graph LR
 ```mermaid
 sequenceDiagram
     participant Browser
-    participant BFF as BFF Layer<br/>(Cloudflare Workers)
+    participant Nginx
+    participant Go as Go Backend
     participant Google as Google OAuth
-    participant Backend as Express.js<br/>Backend
     participant DB as PostgreSQL
 
     Note over Browser,DB: Login Initiation
-    Browser->>BFF: GET /api/auth/google/login
-    BFF->>Browser: HTTP 302 Redirect to Google
+    Browser->>Nginx: GET /auth/google/login
+    Nginx->>Go: Proxy request
+    Go->>Browser: HTTP 302 Redirect to Google
     Browser->>Google: User logs in with Google
     Google->>Browser: Redirect with authorization code
 
     Note over Browser,DB: Token Exchange
-    Browser->>BFF: GET /callback?code=AUTHCODE
-    BFF->>Google: POST /token<br/>{code, client_id, client_secret}
-    Google->>BFF: {id_token, access_token}
+    Browser->>Go: GET /auth/google/callback?code=AUTHCODE
+    Go->>Google: POST /token (code, client_id, client_secret)
+    Google->>Go: {id_token, access_token}
 
-    Note over BFF: Verify Google ID Token<br/>Extract: {email, name, sub}
+    Note over Go: Verify Google ID Token<br/>Extract: {email, name, sub}
 
-    BFF->>Backend: POST /auth/google<br/>{email, name, provider_id}
-    Backend->>DB: SELECT/INSERT/UPDATE user
-    DB->>Backend: User data {id: 123, email, role}
+    Go->>DB: SELECT/INSERT/UPDATE user
+    DB->>Go: User data {id: UUID, email, role}
 
-    Note over Backend: Generate YOUR JWT<br/>{userId: 123, role, email}
-    Backend->>BFF: {token: YOUR_JWT, user: {...}}
-
-    Note over BFF: Set HttpOnly Cookie<br/>token=YOUR_JWT
-    BFF->>Browser: HTTP 302 /dashboard<br/>Set-Cookie: token=YOUR_JWT
+    Note over Go: Generate JWT<br/>{userId: UUID, role, email}
+    Note over Go: Set HttpOnly Cookie
+    Go->>Browser: HTTP 302 /dashboard<br/>Set-Cookie: token=JWT
 
     Note over Browser: Cookie stored<br/>User logged in!
 ```
@@ -217,23 +214,19 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     participant Browser
-    participant BFF as BFF Layer<br/>(Cloudflare Workers)
-    participant Backend as Express.js<br/>Backend
+    participant Go as Go Backend
     participant DB as PostgreSQL
 
-    Browser->>BFF: POST /api/auth/login<br/>{email, password}
-    BFF->>Backend: POST /auth/login<br/>{email, password}
+    Browser->>Go: POST /auth/login<br/>{email, password}
 
-    Backend->>DB: SELECT * FROM users<br/>WHERE email = ? AND provider = 'local'
-    DB->>Backend: User data + password_hash
+    Go->>DB: SELECT * FROM users<br/>WHERE email = ? AND provider = 'local'
+    DB->>Go: User data + password_hash
 
-    Note over Backend: bcrypt.compare(password, hash)
+    Note over Go: bcrypt.CompareHashAndPassword()
 
-    Note over Backend: Generate JWT<br/>{userId: 123, email, role}
-    Backend->>BFF: {token: JWT, user: {...}}
-
-    Note over BFF: Set HttpOnly Cookie
-    BFF->>Browser: {user: {...}}<br/>Set-Cookie: token=JWT
+    Note over Go: Generate JWT<br/>{userId: UUID, email, role}
+    Note over Go: Set HttpOnly Cookie
+    Go->>Browser: HTTP 302 /dashboard<br/>Set-Cookie: token=JWT
 
     Note over Browser: Cookie stored<br/>User logged in!
 ```
@@ -243,23 +236,17 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     participant Browser
-    participant BFF as BFF Layer<br/>(Cloudflare Workers)
-    participant Backend as Express.js<br/>Backend
+    participant Go as Go Backend
     participant DB as PostgreSQL
 
     Note over Browser: Cookie automatically sent
-    Browser->>BFF: GET /api/applications<br/>Cookie: token=YOUR_JWT
+    Browser->>Go: GET /portal/applications<br/>Cookie: token=JWT
 
-    Note over BFF: Extract JWT from cookie<br/>const token = cookies.token
+    Note over Go: Extract JWT from cookie<br/>Verify with jwt.Parse()
 
-    BFF->>Backend: GET /applications<br/>Authorization: Bearer YOUR_JWT
-
-    Note over Backend: jwt.verify(token, SECRET)<br/>Decode: {userId: 123, role}
-
-    Backend->>DB: SELECT * FROM applications<br/>WHERE user_id = 123
-    DB->>Backend: Application records
-    Backend->>BFF: [{application data}]
-    BFF->>Browser: [{application data}]
+    Go->>DB: SELECT * FROM applications<br/>WHERE user_id = UUID
+    DB->>Go: Application records
+    Go->>Browser: Render Templ template
 ```
 
 ---
@@ -273,9 +260,9 @@ sequenceDiagram
 |----------|-------|
 | **Issued by** | Google |
 | **Signed with** | Google's private key |
-| **Verified by** | BFF (using Google's public cert) |
+| **Verified by** | Go backend (using Google's public cert) |
 | **Contains** | `sub` (Google user ID), `email`, `name`, `iss`, `aud` |
-| **Purpose** | Prove user identity to BFF |
+| **Purpose** | Prove user identity during OAuth login |
 | **Lifetime** | 1 hour (but only used once) |
 | **Stored** | NOWHERE (discarded after verification) |
 
@@ -284,13 +271,13 @@ sequenceDiagram
 
 | Property | Value |
 |----------|-------|
-| **Issued by** | YOUR Express.js backend |
-| **Signed with** | YOUR `JWT_SECRET` |
-| **Verified by** | YOUR backend |
-| **Contains** | `userId` (your DB ID), `email`, `role`, `provider` |
-| **Purpose** | Session management for all API requests |
+| **Issued by** | Go backend |
+| **Signed with** | `JWT_SECRET` |
+| **Verified by** | Go backend |
+| **Contains** | `userId` (UUID), `email`, `role`, `provider` |
+| **Purpose** | Session management for all requests |
 | **Lifetime** | 7 days |
-| **Stored** | HttpOnly cookie (managed by BFF) |
+| **Stored** | HttpOnly cookie (set by Go backend) |
 
 ### Flow Summary
 
@@ -298,18 +285,17 @@ sequenceDiagram
 graph TB
     subgraph "Login Phase"
         A[Google ID Token] -->|Verify & Extract| B[User Info]
-        B -->|Create/Update User| C[Backend Generates<br/>YOUR JWT]
+        B -->|Create/Update User| C[Go Backend Generates JWT]
     end
 
     subgraph "Session Phase"
-        C -->|Store in Cookie| D[Browser]
-        D -->|All Requests| E[BFF extracts JWT]
-        E -->|Authorization Header| F[Backend verifies<br/>YOUR JWT]
+        C -->|Set HttpOnly Cookie| D[Browser]
+        D -->|Cookie sent with requests| E[Go Backend verifies JWT]
     end
 
     style A fill:#fbbc04
     style C fill:#34a853
-    style F fill:#34a853
+    style E fill:#34a853
 ```
 
 **Key Insight:**
@@ -324,34 +310,33 @@ graph TB
 erDiagram
     USERS ||--o{ APPLICATIONS : submits
     USERS {
-        serial id PK
+        uuid id PK
         varchar email UK
         varchar name
         varchar password_hash "NULL for Google users"
         varchar provider "google or local"
         varchar provider_id "Google user ID"
         varchar role "registrant or staff"
-        boolean email_verified
+        boolean is_active
+        timestamp last_assigned_at "For round-robin"
         timestamp created_at
         timestamp updated_at
     }
 
     APPLICATIONS {
-        serial id PK
-        integer user_id FK
-        varchar program
-        varchar status "pending/approved/rejected"
-        timestamp submitted_at
+        uuid id PK
+        uuid user_id FK
+        uuid prospect_id FK
+        uuid intake_id FK
+        uuid program_id FK
+        uuid track_id FK
+        varchar status "pending_review/approved/enrolled/cancelled"
+        varchar va_number
+        timestamp paid_at
+        timestamp created_at
         timestamp updated_at
     }
 
-    SESSIONS {
-        serial id PK
-        integer user_id FK
-        varchar token_hash
-        timestamp expires_at
-        timestamp created_at
-    }
 ```
 
 ### Table Descriptions
@@ -362,16 +347,14 @@ erDiagram
 - `password_hash` is NULL for Google users
 - `provider_id` stores Google's unique user ID
 - `role` determines access level (registrant/staff)
+- `last_assigned_at` for round-robin staff assignment
 
 **APPLICATIONS Table**
-- One-to-many relationship with USERS
-- `status` enum: pending, approved, rejected
-- Additional fields can include: program, documents, etc.
+- Linked to prospects, programs, tracks, intakes
+- `status` enum: pending_review, approved, enrolled, cancelled
+- `va_number` stores virtual account for payment
 
-**SESSIONS Table** (Optional - for Option B session management)
-- Tracks active sessions
-- Enables "logout from all devices" feature
-- Can store additional metadata
+See `backend/README.md` for complete database schema with all tables.
 
 ### PostgreSQL Configuration
 
@@ -476,27 +459,27 @@ Total per non-converting lead: ~10 requests
 
 ```
 Day 1: Account Creation
-- Create account (BFF): 1 request
-- Login (BFF): 1 request
+- Create account: 1 request
+- Login: 1 request
 Total: 2 requests
 
 Days 2-5: Application Preparation
-- Daily login (BFF): 1 request
-- View form (BFF): 1 request
-- Auto-save drafts (BFF): 5 requests
+- Daily login: 1 request
+- View form: 1 request
+- Auto-save drafts: 5 requests
 Total: 7 requests/day × 4 days = 28 requests
 
 Day 6: Application Submission
-- Login (BFF): 1 request
-- Load form (BFF): 1 request
-- Upload documents (BFF): 3 requests
-- Submit (BFF): 1 request
+- Login: 1 request
+- Load form: 1 request
+- Upload documents: 3 requests
+- Submit: 1 request
 Total: 6 requests
 
 Days 7-30: Status Checking
-- Login (BFF): 1 request
-- Check status (BFF): 1 request
-- View updates (BFF): 1 request
+- Login: 1 request
+- Check status: 1 request
+- View updates: 1 request
 Total: 3 requests/day × 24 days = 72 requests
 
 Total per registrant: 2 + 28 + 6 + 72 = 108 requests/30 days
