@@ -27,6 +27,9 @@ jobs:
   gosec:
     name: Go SAST (gosec)
     runs-on: ubuntu-latest
+    # SSA analyzer panics on Go 1.25 + templ generated code
+    # TODO: Remove when golang.org/x/tools/go/ssa is fixed
+    continue-on-error: true
     steps:
       - name: Checkout
         uses: actions/checkout@v6
