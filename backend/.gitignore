@@ -1,0 +1,35 @@
+# Environment
+.env
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Dependencies
+node_modules/
+
+# Build output
+static/css/output.css
+
+# Playwright
+playwright-report/
+test-results/
+.playwright/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Uploads (local dev)
+uploads/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,105 @@
+package layouts
+
+// PageData contains common data for all pages
+// Note: CSRF protection uses Go 1.25's http.CrossOriginProtection (header-based)
+// No token fields needed - uses Sec-Fetch-Site and Origin headers
+type PageData struct {
+	Title   string
+	Version string
+}
+
+templ Base(data PageData) {
+	<!DOCTYPE html>
+	<html lang="id">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<title>{ data.Title } - STMIK Tazkia</title>
+			<link rel="stylesheet" href="/static/css/output.css"/>
+			<script src="/static/js/htmx.min.js" defer></script>
+			<script src="/static/js/alpine-csp.min.js" defer></script>
+		</head>
+		<body class="bg-gray-50 min-h-screen">
+			{ children... }
+		</body>
+	</html>
+}
+
+templ Portal(data PageData) {
+	@Base(data) {
+		<div class="min-h-screen flex flex-col">
+			<header class="bg-primary-900 text-white shadow-md" data-testid="portal-header">
+				<div class="container mx-auto px-4 py-4 flex items-center justify-between">
+					<a href="/portal" class="text-xl font-bold" data-testid="portal-logo">STMIK Tazkia</a>
+					<nav class="flex items-center gap-4" data-testid="portal-nav">
+						<a href="/portal" class="hover:text-secondary-400" data-testid="nav-dashboard">Dashboard</a>
+						<a href="/portal/application" class="hover:text-secondary-400" data-testid="nav-application">Pendaftaran</a>
+						<a href="/portal/documents" class="hover:text-secondary-400" data-testid="nav-documents">Dokumen</a>
+						<form action="/portal/logout" method="POST" class="inline">
+							<button type="submit" class="hover:text-secondary-400" data-testid="btn-logout">Logout</button>
+						</form>
+					</nav>
+				</div>
+			</header>
+			<main class="flex-1 container mx-auto px-4 py-8" data-testid="portal-main">
+				{ children... }
+			</main>
+			<footer class="bg-gray-100 border-t" data-testid="portal-footer">
+				<div class="container mx-auto px-4 py-4 flex items-center justify-between text-gray-600 text-sm">
+					<span>&copy; 2025 STMIK Tazkia. All rights reserved.</span>
+					<span class="text-gray-400 font-mono text-xs" title="Git commit hash for bug reports" data-testid="version-info">{ data.Version }</span>
+				</div>
+			</footer>
+		</div>
+	}
+}
+
+templ Admin(data PageData) {
+	@Base(data) {
+		<div class="min-h-screen flex">
+			<!-- Sidebar -->
+			<aside class="w-64 bg-primary-900 text-white relative" data-testid="admin-sidebar">
+				<div class="p-4">
+					<a href="/admin" class="text-xl font-bold" data-testid="admin-logo">Admin Panel</a>
+				</div>
+				<nav class="mt-4" data-testid="admin-nav">
+					<a href="/admin" class="block px-4 py-2 hover:bg-primary-800" data-testid="nav-dashboard">Dashboard</a>
+					<a href="/admin/prospects" class="block px-4 py-2 hover:bg-primary-800" data-testid="nav-prospects">Prospects</a>
+					<a href="/admin/applications" class="block px-4 py-2 hover:bg-primary-800" data-testid="nav-applications">Applications</a>
+					<a href="/admin/referrers" class="block px-4 py-2 hover:bg-primary-800" data-testid="nav-referrers">Referrers</a>
+					<a href="/admin/campaigns" class="block px-4 py-2 hover:bg-primary-800" data-testid="nav-campaigns">Campaigns</a>
+					<a href="/admin/reports" class="block px-4 py-2 hover:bg-primary-800" data-testid="nav-reports">Reports</a>
+					<a href="/admin/settings" class="block px-4 py-2 hover:bg-primary-800" data-testid="nav-settings">Settings</a>
+				</nav>
+				<div class="absolute bottom-0 w-64 p-4 border-t border-primary-800">
+					<form action="/admin/logout" method="POST">
+						<button type="submit" class="w-full text-left hover:text-secondary-400" data-testid="btn-logout">Logout</button>
+					</form>
+					<span class="block mt-2 text-primary-400 font-mono text-xs" title="Git commit hash for bug reports" data-testid="version-info">{ data.Version }</span>
+				</div>
+			</aside>
+			<!-- Main content -->
+			<div class="flex-1 flex flex-col">
+				<header class="bg-white shadow-sm border-b px-6 py-4" data-testid="admin-header">
+					<h1 class="text-xl font-semibold text-gray-800" data-testid="page-title">{ data.Title }</h1>
+				</header>
+				<main class="flex-1 p-6 bg-gray-50" data-testid="admin-main">
+					{ children... }
+				</main>
+			</div>
+		</div>
+	}
+}
+
+templ Auth(data PageData) {
+	@Base(data) {
+		<div class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-primary-50 to-secondary-50" data-testid="auth-container">
+			<div class="w-full max-w-md" data-testid="auth-form-container">
+				{ children... }
+			</div>
+			<div class="mt-8 text-gray-400 font-mono text-xs" title="Git commit hash for bug reports" data-testid="version-info">
+				{ data.Version }
+			</div>
+		</div>
+	}
+}

@@ -475,6 +475,47 @@ KAFKA_CONSUMER_GROUP=campus-backend
 KAFKA_PAYMENT_TOPIC=payment.completed
 ```
 
+## Alpine.js CSP Guidelines
+
+This project uses **Alpine.js CSP build** (`@alpinejs/csp`) for Content Security Policy compliance. This is required for PCI-DSS 4.0 compliance (effective April 2025).
+
+### Key Differences from Standard Alpine.js
+
+1. **No inline expressions** - You cannot write JavaScript directly in HTML attributes
+2. **Use `Alpine.data()`** - All component logic must be registered via `Alpine.data()`
+3. **Reference by name only** - HTML attributes reference methods/properties by name
+
+### ❌ DON'T (Standard Alpine.js)
+
+```html
+<div x-data="{ open: false }">
+    <button @click="open = !open">Toggle</button>
+    <div x-show="open">Content</div>
+</div>
+```
+
+### ✅ DO (Alpine.js CSP)
+
+```html
+<div x-data="dropdown">
+    <button @click="toggle">Toggle</button>
+    <div x-show="open">Content</div>
+</div>
+
+<script>
+document.addEventListener('alpine:init', () => {
+    Alpine.data('dropdown', () => ({
+        open: false,
+        toggle() { this.open = !this.open }
+    }))
+})
+</script>
+```
+
+### Reference
+
+- [Alpine.js CSP Documentation](https://alpinejs.dev/advanced/csp)
+
 ## Development
 
 ```bash

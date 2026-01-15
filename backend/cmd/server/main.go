@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -11,7 +12,10 @@ import (
 	"time"
 
 	"github.com/idtazkia/stmik-admission-api/config"
+	"github.com/idtazkia/stmik-admission-api/handler"
 	"github.com/idtazkia/stmik-admission-api/model"
+	"github.com/idtazkia/stmik-admission-api/templates/pages"
+	"github.com/idtazkia/stmik-admission-api/version"
 	"github.com/joho/godotenv"
 )
 
@@ -43,13 +47,43 @@ func main() {
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"status":"ok"}`))
+		resp := map[string]interface{}{
+			"status":  "ok",
+			"version": version.Info(),
+		}
+		json.NewEncoder(w).Encode(resp)
 	})
+
+	// Static files
+	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+
+	// Test routes for Playwright (only in development)
+	mux.HandleFunc("GET /test/portal", func(w http.ResponseWriter, r *http.Request) {
+		data := handler.NewPageData("Test Portal")
+		pages.TestPortal(data).Render(r.Context(), w)
+	})
+
+	mux.HandleFunc("GET /test/admin", func(w http.ResponseWriter, r *http.Request) {
+		data := handler.NewPageData("Test Admin")
+		pages.TestAdmin(data).Render(r.Context(), w)
+	})
+
+	mux.HandleFunc("POST /test/submit", func(w http.ResponseWriter, r *http.Request) {
+		// Test form submission (CSRF protected)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{
+			"status":  "ok",
+			"message": "Form submitted successfully",
+		})
+	})
+
+	// Apply CSRF protection middleware
+	protectedMux := handler.CrossOriginProtection(mux)
 
 	addr := fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.Port)
 	server := &http.Server{
 		Addr:         addr,
-		Handler:      mux,
+		Handler:      protectedMux,
 		ReadTimeout:  15 * time.Second,
 		WriteTimeout: 15 * time.Second,
 		IdleTimeout:  60 * time.Second,
