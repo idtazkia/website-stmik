@@ -13,6 +13,7 @@ const { title, description, noIndex = false } = Astro.props;
 ---
 
 <BaseLayout title={title} description={description} noIndex={noIndex}>
+  <slot name="head" slot="head" />
   <Header />
   <main class="flex-1">
     <slot />

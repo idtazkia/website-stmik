@@ -3,6 +3,7 @@ import MarketingLayout from '../../../layouts/MarketingLayout.astro';
 import Container from '../../../components/Container.astro';
 import Section from '../../../components/Section.astro';
 import Card from '../../../components/Card.astro';
+import Breadcrumb from '../../../components/Breadcrumb.astro';
 import { getLocaleFromUrl, t, localizePath } from '../../../utils/i18n';
 
 const locale = getLocaleFromUrl(Astro.url);
@@ -163,14 +164,54 @@ const careerPaths = [
 
 const totalSKS = 144;
 const duration = '3.5 - 4';
+
+// Breadcrumb items
+const breadcrumbItems = [
+  { label: translate('nav.home'), href: localPath('/') },
+  { label: translate('nav.programs'), href: localPath('/programs') },
+  { label: translate('programs.si.title') }
+];
+
+// Course JSON-LD Schema
+const courseSchema = {
+  "@context": "https://schema.org",
+  "@type": "Course",
+  "name": translate('programs.si.title'),
+  "description": translate('programs.si.description'),
+  "provider": {
+    "@type": "EducationalOrganization",
+    "@id": "https://stmik.tazkia.ac.id/#organization",
+    "name": "STMIK Tazkia"
+  },
+  "educationalCredentialAwarded": translate('programs.si.degree'),
+  "timeToComplete": "P4Y",
+  "numberOfCredits": totalSKS,
+  "occupationalCredentialAwarded": translate('programs.si.degree'),
+  "hasCourseInstance": {
+    "@type": "CourseInstance",
+    "courseMode": "onsite",
+    "courseWorkload": "PT30H",
+    "inLanguage": locale === 'id' ? 'id-ID' : 'en-US'
+  }
+};
 ---
 
 <MarketingLayout
   title={translate('programs.si.title')}
   description={translate('programs.si.description')}
 >
+  <!-- Course JSON-LD -->
+  <script type="application/ld+json" set:html={JSON.stringify(courseSchema)} slot="head" />
+
+  <!-- Breadcrumb Navigation -->
+  <div class="bg-gray-50 pt-24">
+    <Container>
+      <Breadcrumb items={breadcrumbItems} />
+    </Container>
+  </div>
+
   <!-- Hero Section -->
-  <Section background="gradient" class="pt-32 pb-20">
+  <Section background="gradient" class="pt-8 pb-20">
     <Container>
       <div class="max-w-4xl mx-auto text-center">
         <span class="inline-block px-4 py-2 bg-primary-100 text-primary-700 rounded-full text-sm font-medium mb-4">
