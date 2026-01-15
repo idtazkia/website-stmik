@@ -398,9 +398,11 @@ GET  /admin/reports/export       # CSV export
 ## Database Schema
 
 ```sql
+-- UUID primary keys (PostgreSQL 13+ has gen_random_uuid() built-in)
+
 -- Users (registrants and staff)
 CREATE TABLE users (
-    id              SERIAL PRIMARY KEY,
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email           VARCHAR(255) UNIQUE NOT NULL,
     name            VARCHAR(255) NOT NULL,
     password_hash   VARCHAR(255),
@@ -415,7 +417,7 @@ CREATE TABLE users (
 
 -- Intakes (registration periods)
 CREATE TABLE intakes (
-    id              SERIAL PRIMARY KEY,
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name            VARCHAR(100) NOT NULL,
     year            INTEGER NOT NULL,
     period          VARCHAR(20) NOT NULL,  -- 'ganjil', 'genap'
@@ -427,7 +429,7 @@ CREATE TABLE intakes (
 
 -- Programs
 CREATE TABLE programs (
-    id              SERIAL PRIMARY KEY,
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     code            VARCHAR(10) NOT NULL,  -- 'SI', 'TI'
     name            VARCHAR(255) NOT NULL,
     is_active       BOOLEAN DEFAULT TRUE
@@ -435,7 +437,7 @@ CREATE TABLE programs (
 
 -- Tracks (funding types)
 CREATE TABLE tracks (
-    id              SERIAL PRIMARY KEY,
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     code            VARCHAR(50) NOT NULL,
     name            VARCHAR(255) NOT NULL,
     type            VARCHAR(50) NOT NULL,  -- 'private', 'government', 'internal'
@@ -444,7 +446,7 @@ CREATE TABLE tracks (
 
 -- Cancel reasons
 CREATE TABLE cancel_reasons (
-    id              SERIAL PRIMARY KEY,
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     code            VARCHAR(50) NOT NULL,
     label           VARCHAR(255) NOT NULL,
     applies_to      VARCHAR(50) NOT NULL,  -- 'prospect', 'application', 'both'
@@ -453,57 +455,57 @@ CREATE TABLE cancel_reasons (
 
 -- Referrers (people who refer prospects)
 CREATE TABLE referrers (
-    id              SERIAL PRIMARY KEY,
-    code            VARCHAR(50) UNIQUE NOT NULL,  -- Unique referral code
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code            VARCHAR(50) UNIQUE NOT NULL,
     name            VARCHAR(255) NOT NULL,
     email           VARCHAR(255),
     whatsapp        VARCHAR(20),
     type            VARCHAR(50) NOT NULL,  -- 'student', 'alumni', 'partner', 'staff'
-    user_id         INTEGER REFERENCES users(id),  -- If referrer is a registered user
+    user_id         UUID REFERENCES users(id),
     is_active       BOOLEAN DEFAULT TRUE,
     created_at      TIMESTAMP DEFAULT NOW()
 );
 
 -- Campaigns (for tracking ad spend and ROI)
 CREATE TABLE campaigns (
-    id              SERIAL PRIMARY KEY,
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name            VARCHAR(255) NOT NULL,
     utm_campaign    VARCHAR(100) UNIQUE NOT NULL,
     start_date      DATE,
     end_date        DATE,
-    budget          DECIMAL(15,2),  -- Optional: for ROI calculation
+    budget          DECIMAL(15,2),
     is_active       BOOLEAN DEFAULT TRUE,
     created_at      TIMESTAMP DEFAULT NOW()
 );
 
 -- Prospects (leads)
 CREATE TABLE prospects (
-    id              SERIAL PRIMARY KEY,
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name            VARCHAR(255) NOT NULL,
     email           VARCHAR(255) UNIQUE NOT NULL,
     whatsapp        VARCHAR(20) NOT NULL,
 
     -- Assignment
-    intake_id       INTEGER REFERENCES intakes(id),
-    assigned_to     INTEGER REFERENCES users(id),
+    intake_id       UUID REFERENCES intakes(id),
+    assigned_to     UUID REFERENCES users(id),
     status          VARCHAR(50) DEFAULT 'new',
 
     -- Referral tracking
-    referrer_id     INTEGER REFERENCES referrers(id),
+    referrer_id     UUID REFERENCES referrers(id),
 
-    -- UTM tracking (ad campaigns)
-    utm_source      VARCHAR(100),  -- google, facebook, instagram, tiktok
-    utm_medium      VARCHAR(100),  -- cpc, social, email, banner, organic
-    utm_campaign    VARCHAR(100),  -- intake_2025_ganjil
-    utm_term        VARCHAR(255),  -- paid keywords
-    utm_content     VARCHAR(255),  -- ad variation identifier
+    -- UTM tracking
+    utm_source      VARCHAR(100),
+    utm_medium      VARCHAR(100),
+    utm_campaign    VARCHAR(100),
+    utm_term        VARCHAR(255),
+    utm_content     VARCHAR(255),
 
     -- Additional tracking
-    landing_page    VARCHAR(500),  -- URL where they landed
-    device_type     VARCHAR(50),   -- mobile, desktop, tablet
+    landing_page    VARCHAR(500),
+    device_type     VARCHAR(50),
 
     -- Cancellation
-    cancel_reason_id INTEGER REFERENCES cancel_reasons(id),
+    cancel_reason_id UUID REFERENCES cancel_reasons(id),
     cancel_remarks  TEXT,
     cancelled_at    TIMESTAMP,
 
@@ -513,16 +515,16 @@ CREATE TABLE prospects (
 
 -- Applications
 CREATE TABLE applications (
-    id              SERIAL PRIMARY KEY,
-    prospect_id     INTEGER REFERENCES prospects(id),
-    user_id         INTEGER REFERENCES users(id),
-    intake_id       INTEGER REFERENCES intakes(id),
-    program_id      INTEGER REFERENCES programs(id),
-    track_id        INTEGER REFERENCES tracks(id),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    prospect_id     UUID REFERENCES prospects(id),
+    user_id         UUID REFERENCES users(id),
+    intake_id       UUID REFERENCES intakes(id),
+    program_id      UUID REFERENCES programs(id),
+    track_id        UUID REFERENCES tracks(id),
     status          VARCHAR(50) DEFAULT 'pending_review',
     va_number       VARCHAR(50),
     paid_at         TIMESTAMP,
-    cancel_reason_id INTEGER REFERENCES cancel_reasons(id),
+    cancel_reason_id UUID REFERENCES cancel_reasons(id),
     cancel_remarks  TEXT,
     cancelled_at    TIMESTAMP,
     created_at      TIMESTAMP DEFAULT NOW(),
@@ -531,21 +533,21 @@ CREATE TABLE applications (
 
 -- Documents
 CREATE TABLE documents (
-    id              SERIAL PRIMARY KEY,
-    application_id  INTEGER REFERENCES applications(id),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    application_id  UUID REFERENCES applications(id),
     doc_type        VARCHAR(50) NOT NULL,  -- 'ktp', 'ijazah'
     filename        VARCHAR(255) NOT NULL,
     filepath        VARCHAR(500) NOT NULL,
     status          VARCHAR(50) DEFAULT 'pending',
     remarks         TEXT,
-    reviewed_by     INTEGER REFERENCES users(id),
+    reviewed_by     UUID REFERENCES users(id),
     reviewed_at     TIMESTAMP,
     uploaded_at     TIMESTAMP DEFAULT NOW()
 );
 
 -- Document checklist templates
 CREATE TABLE document_checklists (
-    id              SERIAL PRIMARY KEY,
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     doc_type        VARCHAR(50) NOT NULL,
     check_item      VARCHAR(255) NOT NULL,
     sort_order      INTEGER DEFAULT 0,
@@ -554,20 +556,20 @@ CREATE TABLE document_checklists (
 
 -- Document review results
 CREATE TABLE document_reviews (
-    id              SERIAL PRIMARY KEY,
-    document_id     INTEGER REFERENCES documents(id),
-    checklist_id    INTEGER REFERENCES document_checklists(id),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    document_id     UUID REFERENCES documents(id),
+    checklist_id    UUID REFERENCES document_checklists(id),
     passed          BOOLEAN NOT NULL,
-    reviewed_by     INTEGER REFERENCES users(id),
+    reviewed_by     UUID REFERENCES users(id),
     reviewed_at     TIMESTAMP DEFAULT NOW()
 );
 
 -- Activity log
 CREATE TABLE activity_log (
-    id              SERIAL PRIMARY KEY,
-    user_id         INTEGER REFERENCES users(id),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id         UUID REFERENCES users(id),
     entity_type     VARCHAR(50) NOT NULL,
-    entity_id       INTEGER NOT NULL,
+    entity_id       UUID NOT NULL,
     action          VARCHAR(100) NOT NULL,
     metadata        JSONB,
     created_at      TIMESTAMP DEFAULT NOW()
@@ -575,13 +577,13 @@ CREATE TABLE activity_log (
 
 -- Communication log
 CREATE TABLE communication_log (
-    id              SERIAL PRIMARY KEY,
-    prospect_id     INTEGER REFERENCES prospects(id),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    prospect_id     UUID REFERENCES prospects(id),
     channel         VARCHAR(20) NOT NULL,  -- 'whatsapp', 'email'
     template        VARCHAR(100),
     message         TEXT,
     status          VARCHAR(50),  -- 'sent', 'delivered', 'failed'
-    sent_by         INTEGER REFERENCES users(id),
+    sent_by         UUID REFERENCES users(id),
     sent_at         TIMESTAMP DEFAULT NOW()
 );
 
