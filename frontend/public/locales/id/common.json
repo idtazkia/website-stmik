@@ -44,6 +44,12 @@
     "en": "English"
   },
   "programs": {
+    "title": "Program Studi",
+    "subtitle": "Pilih program studi yang sesuai dengan minat dan tujuan karir Anda",
+    "description": "Program studi S1 di STMIK Tazkia dengan kurikulum berbasis industri",
+    "explore": "Lihat Detail",
+    "sks": "SKS",
+    "years": "tahun",
     "information_systems": "Sistem Informasi",
     "computer_engineering": "Teknik Informatika",
     "duration": "3.5 tahun",

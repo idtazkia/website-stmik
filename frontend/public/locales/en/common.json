@@ -44,6 +44,12 @@
     "en": "English"
   },
   "programs": {
+    "title": "Study Programs",
+    "subtitle": "Choose a study program that matches your interests and career goals",
+    "description": "Undergraduate programs at STMIK Tazkia with industry-based curriculum",
+    "explore": "View Details",
+    "sks": "Credits",
+    "years": "years",
     "information_systems": "Information Systems",
     "computer_engineering": "Computer Engineering",
     "duration": "3.5 years",
