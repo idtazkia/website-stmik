@@ -16,6 +16,9 @@ type Config struct {
 	Upload   UploadConfig
 }
 
+// Note: CSRF protection uses Go 1.25's http.CrossOriginProtection
+// which is header-based (Sec-Fetch-Site, Origin) and doesn't require keys
+
 type ServerConfig struct {
 	Port string
 	Host string

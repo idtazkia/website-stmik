@@ -240,6 +240,35 @@ See `docs/ARCHITECTURE.md#database-schema` for detailed schema.
 - Prefer functional components in Astro
 - Use semantic HTML elements
 
+### Alpine.js CSP Guidelines (Backend)
+
+The backend uses **Alpine.js CSP build** for Content Security Policy compliance. This is **mandatory** - do not use standard Alpine.js patterns.
+
+**NEVER write inline expressions in HTML:**
+```html
+<!-- ❌ WRONG - Will not work with CSP build -->
+<div x-data="{ open: false }">
+    <button @click="open = !open">Toggle</button>
+</div>
+```
+
+**ALWAYS use Alpine.data() and reference by name:**
+```html
+<!-- ✅ CORRECT - CSP compliant -->
+<div x-data="dropdown">
+    <button @click="toggle">Toggle</button>
+</div>
+```
+
+```javascript
+Alpine.data('dropdown', () => ({
+    open: false,
+    toggle() { this.open = !this.open }
+}))
+```
+
+See `backend/README.md` for full Alpine CSP guidelines.
+
 ## Implementation Roadmap
 
 **Current Phase: Phase 3 - Marketing Site (30% Complete)**
