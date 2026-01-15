@@ -1,367 +1,298 @@
-# Backend TODO - STMIK Tazkia API
+# Backend TODO - STMIK Tazkia Admission System
 
-## Status: NOT STARTED (Deferred to Phase 2)
+## Status: NOT STARTED
 
-The backend will be implemented after the marketing site (frontend Phase 3) is complete.
-
-**Target Platform:** VPS with Node.js + PostgreSQL
-**Framework:** Express.js
-**Cost:** $5-10/month
+Go-based sales funnel management system. See `README.md` for architecture details.
 
 ---
 
-## Phase 2: Backend Development
+## Phase 1: Project Setup
 
-### 1. Project Setup
-- [ ] Initialize Express.js project
-  - [ ] `npm init`
-  - [ ] Install dependencies (express, pg, bcrypt, jsonwebtoken, etc.)
-  - [ ] Configure TypeScript (optional but recommended)
-  - [ ] Create `src/` directory structure
-- [ ] Set up environment configuration
-  - [ ] Create `.env.example`
-  - [ ] Document required variables (DATABASE_URL, JWT_SECRET, etc.)
-  - [ ] Install dotenv
-- [ ] Create entry point (`src/index.js` or `src/server.js`)
-  - [ ] Express server setup
-  - [ ] Middleware configuration (helmet, cors, body-parser)
-  - [ ] Error handling middleware
-  - [ ] Health check endpoint
+### 1.1 Initialize Project
+- [ ] Create `go.mod`
+- [ ] Create directory structure (`cmd/`, `internal/`, `templates/`, `static/`, `migrations/`)
+- [ ] Create `.env.example`
+- [ ] Create `cmd/server/main.go` entry point
 
-### 2. Database Setup
-- [ ] Design database schema
-  - [ ] `users` table (id, email, name, password_hash, provider, role, etc.)
-  - [ ] `applications` table (id, user_id, program, status, submitted_at, etc.)
-  - [ ] `sessions` table (optional - if using Option B session management)
-  - [ ] Add indexes for performance
-- [ ] Set up migration system
-  - [ ] Install migration tool (node-pg-migrate or knex)
-  - [ ] Create initial migration files
-  - [ ] Create seed data for testing
-- [ ] Create database connection module
-  - [ ] Connection pooling configuration
-  - [ ] Query helper functions
-  - [ ] Transaction support
+### 1.2 Install Dependencies
+```bash
+go get github.com/jackc/pgx/v5
+go get github.com/golang-jwt/jwt/v5
+go get golang.org/x/crypto/bcrypt
+go get github.com/a-h/templ
+go get github.com/golang-migrate/migrate/v4
+```
 
-### 3. Authentication System
-- [ ] JWT utilities (`src/utils/jwt.js`)
-  - [ ] `generateToken(payload)` - create JWT
-  - [ ] `verifyToken(token)` - verify and decode JWT
-  - [ ] Configure JWT_SECRET and expiration (7 days)
-- [ ] Password utilities (`src/utils/password.js`)
-  - [ ] `hashPassword(password)` - bcrypt hashing
-  - [ ] `comparePassword(password, hash)` - verify password
-  - [ ] Use 10 salt rounds
-- [ ] Authentication middleware (`src/middleware/auth.js`)
-  - [ ] `authenticateToken` - verify JWT from Authorization header
-  - [ ] `requireRole(['staff'])` - role-based access control
-  - [ ] Attach user to `req.user`
+### 1.3 Configuration
+- [ ] Create `internal/config/config.go`
+- [ ] Load environment variables
+- [ ] Validate required config on startup
 
-### 4. Authentication Routes (`src/routes/auth.js`)
-- [ ] `POST /auth/register`
-  - [ ] Validate input (email, password, name)
-  - [ ] Check if email exists
-  - [ ] Hash password
-  - [ ] Create user in database
-  - [ ] Generate JWT
-  - [ ] Return token + user data (no password)
-- [ ] `POST /auth/login`
-  - [ ] Validate input (email, password)
-  - [ ] Find user by email
-  - [ ] Verify password
-  - [ ] Generate JWT
-  - [ ] Return token + user data
-- [ ] `POST /auth/google`
-  - [ ] Verify Google ID token from BFF
-  - [ ] Extract user info (email, name, provider_id)
-  - [ ] Find or create user
-  - [ ] Check domain for staff role (`@youruni.edu`)
-  - [ ] Generate JWT
-  - [ ] Return token + user data
-- [ ] `POST /auth/logout` (optional if using sessions)
-  - [ ] Invalidate session in database
-  - [ ] Return success
-
-### 5. User Routes (`src/routes/users.js`)
-- [ ] `GET /users/me`
-  - [ ] Require authentication
-  - [ ] Return current user info (from JWT)
-  - [ ] Exclude password_hash
-- [ ] `PATCH /users/me`
-  - [ ] Require authentication
-  - [ ] Update user profile (name, etc.)
-  - [ ] Validate input
-  - [ ] Return updated user
-- [ ] `GET /users` (admin only)
-  - [ ] Require staff role
-  - [ ] List all users
-  - [ ] Pagination support
-  - [ ] Filter by role
-- [ ] `PATCH /users/:id/role` (admin only)
-  - [ ] Require staff role
-  - [ ] Update user role
-  - [ ] Validate role value
-
-### 6. Application Routes (`src/routes/applications.js`)
-- [ ] `POST /applications`
-  - [ ] Require authentication
-  - [ ] Validate application data
-  - [ ] Store in database
-  - [ ] Set status = 'pending'
-  - [ ] Return created application
-- [ ] `GET /applications`
-  - [ ] Require authentication
-  - [ ] If registrant: return only user's applications
-  - [ ] If staff: return all applications (with filters)
-  - [ ] Support pagination
-  - [ ] Support filtering by status/program
-- [ ] `GET /applications/:id`
-  - [ ] Require authentication
-  - [ ] Check ownership (registrant can only view their own)
-  - [ ] Staff can view all
-  - [ ] Return application details
-- [ ] `PATCH /applications/:id`
-  - [ ] Require authentication
-  - [ ] Only allow updates to 'pending' applications
-  - [ ] User can only update their own
-  - [ ] Validate input
-  - [ ] Return updated application
-- [ ] `PATCH /applications/:id/status` (admin only)
-  - [ ] Require staff role
-  - [ ] Update status (approve/reject)
-  - [ ] Add admin notes
-  - [ ] Return updated application
-- [ ] `DELETE /applications/:id`
-  - [ ] Require authentication
-  - [ ] Only allow deletion of 'pending' drafts
-  - [ ] User can only delete their own
-  - [ ] Soft delete or hard delete
-
-### 7. File Upload System
-- [ ] Choose storage solution
-  - [ ] Option A: VPS local storage
-  - [ ] Option B: Cloudflare R2
-  - [ ] Document pros/cons
-- [ ] Set up file upload handler
-  - [ ] Install multer or similar
-  - [ ] Configure upload directory
-  - [ ] File size limits (e.g., 5MB per file)
-  - [ ] Allowed file types (PDF, JPG, PNG)
-- [ ] Create file routes (`src/routes/files.js`)
-  - [ ] `POST /files/upload`
-    - [ ] Require authentication
-    - [ ] Validate file type/size
-    - [ ] Generate unique filename
-    - [ ] Store file
-    - [ ] Return file URL/ID
-  - [ ] `GET /files/:id`
-    - [ ] Require authentication
-    - [ ] Check ownership/permissions
-    - [ ] Stream file to client
-  - [ ] `DELETE /files/:id`
-    - [ ] Require authentication
-    - [ ] Check ownership
-    - [ ] Delete file from storage
-
-### 8. Validation & Security
-- [ ] Install express-validator
-- [ ] Create validation schemas
-  - [ ] User registration validation
-  - [ ] Login validation
-  - [ ] Application submission validation
-  - [ ] File upload validation
-- [ ] Security middleware
-  - [ ] Install helmet (security headers)
-  - [ ] Configure CORS (allow frontend domain only)
-  - [ ] Install express-rate-limit
-  - [ ] Rate limit auth endpoints (5 attempts per 15 min)
-  - [ ] Rate limit API endpoints (100 requests per 15 min)
-- [ ] Input sanitization
-  - [ ] Sanitize all user inputs
-  - [ ] Prevent SQL injection (use parameterized queries)
-  - [ ] Prevent XSS attacks
-
-### 9. Error Handling
-- [ ] Create error classes (`src/utils/errors.js`)
-  - [ ] `ValidationError`
-  - [ ] `AuthenticationError`
-  - [ ] `AuthorizationError`
-  - [ ] `NotFoundError`
-- [ ] Global error handler middleware
-  - [ ] Log errors
-  - [ ] Return appropriate HTTP status codes
-  - [ ] Hide sensitive error details in production
-  - [ ] Return consistent error format
-
-### 10. Testing
-- [ ] Set up testing framework (Jest or Mocha)
-- [ ] Write unit tests
-  - [ ] JWT utilities
-  - [ ] Password utilities
-  - [ ] Validation functions
-- [ ] Write integration tests
-  - [ ] Auth endpoints
-  - [ ] User endpoints
-  - [ ] Application endpoints
-  - [ ] File upload endpoints
-- [ ] Test coverage goals
-  - [ ] Critical paths: 100%
-  - [ ] Overall: 80%+
-
-### 11. Documentation
-- [ ] API documentation
-  - [ ] Document all endpoints
-  - [ ] Request/response examples
-  - [ ] Authentication requirements
-  - [ ] Error responses
-  - [ ] Use Swagger/OpenAPI (optional)
-- [ ] Database documentation
-  - [ ] ER diagram
-  - [ ] Table descriptions
-  - [ ] Index strategy
-- [ ] Environment setup guide
-  - [ ] Required environment variables
-  - [ ] Database setup instructions
-  - [ ] Migration instructions
+### 1.4 Static Assets Setup
+- [ ] Initialize Tailwind CSS in `static/`
+- [ ] Download HTMX (`static/js/htmx.min.js`)
+- [ ] Download Alpine.js (`static/js/alpine.min.js`)
+- [ ] Configure Tailwind with brand colors
 
 ---
 
-## Phase 4: BFF Layer (Cloudflare Workers)
+## Phase 2: Database
 
-**Note:** BFF layer will be implemented in `frontend/functions/` directory
+### 2.1 Connection
+- [ ] Create `internal/database/database.go`
+- [ ] Configure pgx connection pool
+- [ ] Add health check query
 
-### Required BFF Functions
-- [ ] `functions/auth/login.ts` - proxy to backend, set HttpOnly cookie
-- [ ] `functions/auth/register.ts` - proxy to backend, set HttpOnly cookie
-- [ ] `functions/auth/google/login.ts` - initiate Google OAuth
-- [ ] `functions/auth/google/callback.ts` - handle OAuth callback, verify token, proxy to backend
-- [ ] `functions/auth/logout.ts` - clear cookie
-- [ ] `functions/applications/submit.ts` - extract JWT from cookie, proxy to backend
-- [ ] `functions/applications/list.ts` - extract JWT, proxy to backend
-- [ ] `functions/users/me.ts` - extract JWT, proxy to backend
-- [ ] `functions/files/upload.ts` - handle file upload, proxy to backend
+### 2.2 Migrations
+- [ ] Create `migrations/001_create_users.up.sql`
+- [ ] Create `migrations/001_create_users.down.sql`
+- [ ] Create `migrations/002_create_lead_profiles.up.sql`
+- [ ] Create `migrations/003_create_applications.up.sql`
+- [ ] Create `migrations/004_create_documents.up.sql`
+- [ ] Create `migrations/005_create_activity_log.up.sql`
+- [ ] Create `cmd/migrate/main.go` CLI tool
 
-See `frontend/TODO.md` for BFF layer details.
+### 2.3 Models
+- [ ] Create `internal/models/user.go`
+- [ ] Create `internal/models/lead_profile.go`
+- [ ] Create `internal/models/application.go`
+- [ ] Create `internal/models/document.go`
+
+### 2.4 Repository Layer
+- [ ] Create `internal/repository/user.go`
+  - [ ] `Create(user)`
+  - [ ] `FindByEmail(email)`
+  - [ ] `FindByID(id)`
+  - [ ] `UpdateProfile(id, data)`
+- [ ] Create `internal/repository/lead.go`
+  - [ ] `CreateLead(email, name, source)`
+  - [ ] `GetProfile(userID)`
+  - [ ] `UpdateProfile(userID, data)`
+  - [ ] `ListLeads(filters, pagination)`
+- [ ] Create `internal/repository/application.go`
+  - [ ] `Create(userID, program)`
+  - [ ] `GetByID(id)`
+  - [ ] `GetByUserID(userID)`
+  - [ ] `UpdateStatus(id, status, reviewerID)`
+  - [ ] `ListApplications(filters, pagination)`
 
 ---
 
-## Phase 6: Deployment
+## Phase 3: Authentication
 
-### VPS Setup
-- [ ] Provision VPS (2GB RAM minimum)
-- [ ] Install Node.js 20+
-- [ ] Install PostgreSQL 14+
-- [ ] Install pm2 for process management
-- [ ] Install nginx as reverse proxy
-- [ ] Configure firewall (UFW)
-  - [ ] Allow SSH (port 22)
-  - [ ] Allow HTTP (port 80)
-  - [ ] Allow HTTPS (port 443)
-- [ ] Set up SSL with Let's Encrypt
-  - [ ] Install certbot
-  - [ ] Generate SSL certificate
-  - [ ] Auto-renewal configuration
+### 3.1 JWT Utilities
+- [ ] Create `internal/services/auth.go`
+  - [ ] `GenerateToken(userID, role)`
+  - [ ] `ValidateToken(token)`
+  - [ ] `GetUserFromToken(token)`
 
-### Backend Deployment
-- [ ] Clone repository to VPS
-- [ ] Install production dependencies
-- [ ] Create `.env` file with production values
-- [ ] Run database migrations
-- [ ] Start application with pm2
-  - [ ] `pm2 start src/index.js --name campus-backend`
-  - [ ] `pm2 save`
-  - [ ] `pm2 startup` (auto-restart on reboot)
-- [ ] Configure nginx reverse proxy
-  - [ ] Proxy `/api/*` to backend
-  - [ ] SSL termination
-  - [ ] Request logging
+### 3.2 Password Utilities
+- [ ] `HashPassword(password)`
+- [ ] `VerifyPassword(password, hash)`
 
-### Monitoring
-- [ ] Set up logging
-  - [ ] Application logs (pm2 logs)
-  - [ ] Nginx access/error logs
-  - [ ] Database logs
-- [ ] Set up monitoring
-  - [ ] pm2 monit for resource usage
-  - [ ] Database connection monitoring
-  - [ ] Error tracking (optional: Sentry)
-- [ ] Set up backups
-  - [ ] Daily database backups
-  - [ ] File storage backups
-  - [ ] Backup retention policy (7 days)
+### 3.3 Middleware
+- [ ] Create `internal/middleware/auth.go`
+  - [ ] `RequireAuth` - verify JWT, attach user to context
+  - [ ] `RequireRole(role)` - check user role
+- [ ] Create `internal/middleware/logging.go`
+- [ ] Create `internal/middleware/recovery.go`
+
+### 3.4 Google OAuth
+- [ ] Create `internal/services/oauth.go`
+  - [ ] `GetGoogleAuthURL(redirectURL)`
+  - [ ] `ExchangeGoogleCode(code)`
+  - [ ] `GetGoogleUserInfo(accessToken)`
+- [ ] Handle staff domain restriction
+
+---
+
+## Phase 4: Templates
+
+### 4.1 Layouts
+- [ ] Create `templates/layouts/base.templ`
+  - [ ] HTML5 structure
+  - [ ] Tailwind CSS include
+  - [ ] HTMX include
+  - [ ] Alpine.js include
+- [ ] Create `templates/layouts/portal.templ`
+- [ ] Create `templates/layouts/admin.templ`
+
+### 4.2 Components
+- [ ] Create `templates/components/button.templ`
+- [ ] Create `templates/components/input.templ`
+- [ ] Create `templates/components/card.templ`
+- [ ] Create `templates/components/modal.templ`
+- [ ] Create `templates/components/table.templ`
+- [ ] Create `templates/components/pagination.templ`
+- [ ] Create `templates/components/alert.templ`
+- [ ] Create `templates/components/dropdown.templ` (Alpine.js)
+
+### 4.3 Portal Pages
+- [ ] Create `templates/pages/portal/login.templ`
+- [ ] Create `templates/pages/portal/register.templ`
+- [ ] Create `templates/pages/portal/profile.templ`
+- [ ] Create `templates/pages/portal/application.templ`
+- [ ] Create `templates/pages/portal/documents.templ`
+- [ ] Create `templates/pages/portal/status.templ`
+
+### 4.4 Admin Pages
+- [ ] Create `templates/pages/admin/login.templ`
+- [ ] Create `templates/pages/admin/dashboard.templ`
+- [ ] Create `templates/pages/admin/leads.templ`
+- [ ] Create `templates/pages/admin/lead_detail.templ`
+- [ ] Create `templates/pages/admin/applications.templ`
+- [ ] Create `templates/pages/admin/application_detail.templ`
+
+---
+
+## Phase 5: Handlers
+
+### 5.1 Router Setup
+- [ ] Create `internal/handlers/router.go`
+  - [ ] Configure stdlib mux
+  - [ ] Apply middleware chain
+  - [ ] Register all routes
+  - [ ] Serve static files
+
+### 5.2 API Handlers
+- [ ] Create `internal/handlers/api.go`
+  - [ ] `POST /api/leads` - create lead from landing page
+  - [ ] `GET /api/health` - health check
+
+### 5.3 Auth Handlers
+- [ ] Create `internal/handlers/auth.go`
+  - [ ] `GET /portal/login` - render login page
+  - [ ] `POST /portal/login` - process login
+  - [ ] `GET /portal/register` - render register page
+  - [ ] `POST /portal/register` - process registration
+  - [ ] `GET /portal/auth/google` - initiate OAuth
+  - [ ] `GET /portal/auth/google/callback` - OAuth callback
+  - [ ] `POST /portal/logout` - clear session
+  - [ ] Same for `/admin/` routes (Google only)
+
+### 5.4 Portal Handlers
+- [ ] Create `internal/handlers/portal.go`
+  - [ ] `GET /portal/profile` - profile form
+  - [ ] `POST /portal/profile` - update profile (HTMX)
+  - [ ] `GET /portal/application` - application form
+  - [ ] `POST /portal/application` - submit (HTMX)
+  - [ ] `GET /portal/documents` - upload page
+  - [ ] `POST /portal/documents` - file upload (HTMX)
+  - [ ] `GET /portal/status` - status page
+
+### 5.5 Admin Handlers
+- [ ] Create `internal/handlers/admin.go`
+  - [ ] `GET /admin/dashboard` - stats dashboard
+  - [ ] `GET /admin/leads` - lead list with HTMX filters
+  - [ ] `GET /admin/leads/:id` - lead detail
+  - [ ] `POST /admin/leads/:id/status` - update status (HTMX)
+  - [ ] `GET /admin/applications` - application list
+  - [ ] `GET /admin/applications/:id` - application detail
+  - [ ] `POST /admin/applications/:id/approve` (HTMX)
+  - [ ] `POST /admin/applications/:id/reject` (HTMX)
+
+---
+
+## Phase 6: File Upload
+
+### 6.1 Storage
+- [ ] Create `internal/services/storage.go`
+  - [ ] `SaveFile(file, docType)` - save to disk
+  - [ ] `GetFilePath(filename)`
+  - [ ] `DeleteFile(filename)`
+  - [ ] Validate file type (PDF, JPG, PNG)
+  - [ ] Validate file size (max 5MB)
+
+### 6.2 Document Handlers
+- [ ] Handle multipart form uploads
+- [ ] Generate unique filenames
+- [ ] Store metadata in database
+- [ ] Serve files with auth check
+
+---
+
+## Phase 7: Services
+
+### 7.1 Lead Service
+- [ ] Create `internal/services/lead.go`
+  - [ ] `CreateLead(email, name, source)`
+  - [ ] `GetLeadPipeline(filters)`
+  - [ ] `UpdateLeadStatus(id, status)`
+
+### 7.2 Application Service
+- [ ] Create `internal/services/application.go`
+  - [ ] `CreateDraft(userID, program)`
+  - [ ] `SubmitApplication(id)`
+  - [ ] `ReviewApplication(id, status, reviewerID)`
+  - [ ] `GetApplicationWithDocuments(id)`
+
+### 7.3 Notification Service (optional)
+- [ ] Create `internal/services/notification.go`
+  - [ ] `SendWelcomeEmail(user)`
+  - [ ] `SendStatusUpdate(user, status)`
+
+---
+
+## Phase 8: Testing
+
+### 8.1 Unit Tests
+- [ ] Test JWT utilities
+- [ ] Test password hashing
+- [ ] Test repository queries
+- [ ] Test services
+
+### 8.2 Integration Tests
+- [ ] Test API endpoints
+- [ ] Test auth flow
+- [ ] Test file uploads
+
+### 8.3 E2E Tests
+- [ ] Test lead journey (landing → application)
+- [ ] Test admin workflow
+
+---
+
+## Phase 9: Deployment
+
+### 9.1 Build
+- [ ] Create build script
+- [ ] Build production binary
+- [ ] Build production CSS
+
+### 9.2 Systemd Service
+- [ ] Create service file
+- [ ] Configure auto-restart
+- [ ] Set up log rotation
+
+### 9.3 Nginx Config
+- [ ] Reverse proxy to Go app
+- [ ] Static file serving
+- [ ] SSL with Certbot
+- [ ] Rate limiting
 
 ---
 
 ## Dependencies
 
-### Core
-```json
-{
-  "express": "^4.18.0",
-  "pg": "^8.11.0",
-  "bcrypt": "^5.1.0",
-  "jsonwebtoken": "^9.0.0",
-  "dotenv": "^16.0.0"
-}
+```go
+// go.mod
+require (
+    github.com/jackc/pgx/v5 v5.x
+    github.com/golang-jwt/jwt/v5 v5.x
+    golang.org/x/crypto v0.x
+    github.com/a-h/templ v0.x
+    github.com/golang-migrate/migrate/v4 v4.x
+)
 ```
-
-### Security
-```json
-{
-  "helmet": "^7.0.0",
-  "cors": "^2.8.5",
-  "express-rate-limit": "^7.0.0",
-  "express-validator": "^7.0.0"
-}
-```
-
-### File Upload
-```json
-{
-  "multer": "^1.4.5"
-}
-```
-
-### Database Migrations
-```json
-{
-  "node-pg-migrate": "^6.2.0"
-}
-```
-
-### Testing
-```json
-{
-  "jest": "^29.0.0",
-  "supertest": "^6.3.0"
-}
-```
-
----
-
-## Timeline Estimate
-
-- **Setup & Database:** 2-3 days
-- **Authentication System:** 2-3 days
-- **API Routes:** 3-4 days
-- **File Upload:** 1-2 days
-- **Security & Validation:** 1-2 days
-- **Testing:** 2-3 days
-- **Documentation:** 1 day
-
-**Total: 12-18 days (~2.5-4 weeks)**
 
 ---
 
 ## Success Criteria
 
-- [ ] All endpoints functional and tested
-- [ ] Authentication working (both email/password and Google OIDC)
-- [ ] File uploads working
-- [ ] Database properly indexed and optimized
-- [ ] Security measures in place (rate limiting, CORS, input validation)
-- [ ] Error handling comprehensive
-- [ ] API documentation complete
-- [ ] Deployed to VPS and accessible
-- [ ] SSL certificate active
-- [ ] Backups configured
+- [ ] Lead can register, complete profile, submit application
+- [ ] Staff can login via Google, view/filter leads, approve/reject
+- [ ] File uploads working (documents)
+- [ ] HTMX interactions smooth (no full page reloads)
+- [ ] Mobile responsive
+- [ ] All forms have validation
+- [ ] Deployed and running on VPS
