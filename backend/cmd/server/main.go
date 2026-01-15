@@ -11,15 +11,29 @@ import (
 	"time"
 
 	"github.com/idtazkia/stmik-admission-api/config"
+	"github.com/idtazkia/stmik-admission-api/model"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	// Load .env file if it exists (development only)
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found, using environment variables")
+	}
+
 	cfg, err := config.Load()
 	if err != nil {
 		log.Fatalf("failed to load config: %v", err)
 	}
 
-	// TODO: Initialize database connection
+	// Initialize database connection
+	ctx := context.Background()
+	if err := model.Connect(ctx, cfg.Database.DSN()); err != nil {
+		log.Fatalf("failed to connect to database: %v", err)
+	}
+	defer model.Close()
+	log.Println("Connected to database")
+
 	// TODO: Initialize router with handlers
 	// TODO: Initialize templates
 
