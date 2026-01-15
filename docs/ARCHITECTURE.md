@@ -27,19 +27,17 @@ graph TB
     subgraph "Edge Layer - Cloudflare (Free)"
         StaticSite[Static Marketing Site<br/>Astro + Markdown<br/>Cloudflare Pages]
         BFF[BFF Layer<br/>Cloudflare Workers<br/>API Routes]
+        FileStorage[Cloudflare R2<br/>File Storage]
     end
 
-    subgraph "VPS Layer - Local Cloud Provider"
-        Backend[Express.js Backend<br/>REST API]
-        Database[(PostgreSQL<br/>Database)]
-        FileStorage[File Storage<br/>Documents/Uploads]
+    subgraph "Database Layer - Cockroach Labs (Free)"
+        Database[(CockroachDB Serverless<br/>50M RUs/month)]
     end
 
     Browser -->|HTTPS| StaticSite
     Browser -->|API Calls<br/>Cookie: token| BFF
-    BFF -->|Authorization: Bearer JWT| Backend
-    Backend --> Database
-    Backend --> FileStorage
+    BFF -->|SQL queries| Database
+    BFF -->|Upload/Download| FileStorage
 
     StaticSite -.->|Links to| BFF
 ```
@@ -74,12 +72,12 @@ graph TB
 |-----------|-----------|---------|------|
 | **Static Site** | Astro + Markdown | Cloudflare Pages | Free |
 | **BFF Layer** | Cloudflare Workers | Cloudflare | Free (100k req/day) |
-| **Backend API** | Express.js (Node.js) | Local VPS Provider | $5-10/mo |
-| **Database** | PostgreSQL | Local VPS Provider | Included in VPS |
-| **File Storage** | Cloudflare R2 / VPS | Cloudflare / VPS | Free tier / Included |
+| **Backend API** | Express.js (Node.js) | Cloudflare Workers / VPS | Free / $5-10/mo |
+| **Database** | CockroachDB Serverless | Cockroach Labs | Free (50M RUs/mo) |
+| **File Storage** | Cloudflare R2 | Cloudflare | Free tier (10GB) |
 | **Build/Deploy** | GitHub Actions | GitHub | Free |
 
-**Total Monthly Cost: $5-10** (VPS only)
+**Total Monthly Cost: $0-5** (potentially fully free with serverless backend)
 
 ### Technology Rationale
 
@@ -104,12 +102,15 @@ graph TB
 - Your 20+ years of experience applicable
 - Good PostgreSQL integration
 
-**Database: PostgreSQL**
+**Database: CockroachDB Serverless**
+- PostgreSQL wire-compatible (standard CRUD, JOINs, indexes work identically)
 - ACID compliance for critical data
-- JSON support for flexible schemas
-- Excellent performance
-- Strong community support
-- Free and open source
+- JSON/JSONB support for flexible schemas
+- Generous free tier: 10GB storage, 50M Request Units/month
+- No cold start or auto-pause (unlike Neon/Supabase free tiers)
+- Supports 3,000 leads at ~1% of free tier capacity
+- Automatic scaling and replication
+- No database maintenance required
 
 ---
 
@@ -367,6 +368,32 @@ erDiagram
 - Enables "logout from all devices" feature
 - Can store additional metadata
 
+### CockroachDB Compatibility Notes
+
+CockroachDB is PostgreSQL wire-compatible. For this application, all standard operations work identically:
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| CRUD operations | ✅ Works | SELECT, INSERT, UPDATE, DELETE |
+| JOINs | ✅ Works | All join types supported |
+| Indexes | ✅ Works | B-tree, GIN, inverted indexes |
+| Transactions | ✅ Works | ACID compliant, SERIALIZABLE by default |
+| SERIAL/BIGSERIAL | ✅ Works | Auto-incrementing IDs |
+| JSON/JSONB | ✅ Works | Full JSON support |
+| Timestamps | ✅ Works | TIMESTAMP, TIMESTAMPTZ |
+| VARCHAR, TEXT | ✅ Works | String types |
+| BOOLEAN | ✅ Works | True/false values |
+
+**Minor differences (not relevant for this app):**
+- Some PostgreSQL-specific functions may need alternatives
+- `pg_*` system tables are limited
+- Sequences behave slightly differently (use SERIAL instead)
+
+**Connection string format:**
+```
+postgresql://username:password@host:26257/database?sslmode=verify-full
+```
+
 ---
 
 ## Session Management
@@ -422,9 +449,24 @@ sequenceDiagram
 
 All authenticated API requests go through the BFF (Cloudflare Workers) layer.
 
-### Traffic Breakdown: 300 Registrants + 5 Admins
+### Traffic Breakdown: 3,000 Leads + 5 Admins
 
-#### Registrant Journey (30-day admission period)
+**Funnel Assumptions:**
+- Target registrations: 300
+- Conversion rate: 10%
+- Total leads: 3,000
+
+#### Lead Journey (30-day admission period)
+
+**Non-Converting Leads (2,700 users - 90%):**
+```
+- Account creation: 2 requests
+- Browse/form views: 5-8 requests
+- Abandon without completing
+Total per non-converting lead: ~10 requests
+```
+
+#### Registrant Journey (300 users - 10% who convert)
 
 ```
 Day 1: Account Creation
@@ -455,9 +497,11 @@ Total per registrant: 2 + 28 + 6 + 72 = 108 requests/30 days
 Daily average: 108 ÷ 30 = 3.6 requests/day
 ```
 
-**300 Registrants:**
-- Total over 30 days: 300 × 108 = **32,400 requests**
-- Daily average: **1,080 requests/day**
+**3,000 Leads (300 converting + 2,700 non-converting):**
+- Non-converting leads: 2,700 × 10 = **27,000 requests**
+- Converting registrants: 300 × 108 = **32,400 requests**
+- Total over 30 days: **59,400 requests**
+- Daily average: **1,980 requests/day**
 
 #### Admin Activity (Daily)
 
@@ -479,23 +523,36 @@ Total per admin: 35 requests/day
 
 | Scenario | Daily BFF Requests | % of Free Tier | Status |
 |----------|-------------------|----------------|--------|
-| **Average Day** | 1,255 | **1.3%** | ✅ Very Safe |
-| **Peak Day** (50 simultaneous submissions) | 1,425 | **1.4%** | ✅ Very Safe |
-| **10x Traffic Spike** | 14,250 | **14.3%** | ✅ Safe |
-| **Quiet Period** (post-admission) | 150 | **0.2%** | ✅ Very Safe |
+| **Average Day** | 2,155 | **2.2%** | ✅ Very Safe |
+| **Peak Day** (100 simultaneous submissions) | 2,655 | **2.7%** | ✅ Very Safe |
+| **10x Traffic Spike** | 21,550 | **21.6%** | ✅ Safe |
+| **Quiet Period** (post-admission) | 200 | **0.2%** | ✅ Very Safe |
 
-### Scalability Analysis
+### Scalability Analysis (BFF Layer - Cloudflare Workers)
 
-| User Count | Daily BFF Requests | % of Free Tier | Monthly Cost | Status |
+| Lead Count | Daily BFF Requests | % of Free Tier | Monthly Cost | Status |
 |------------|-------------------|----------------|--------------|--------|
-| **300 registrants** | 1,255 | 1.3% | $0 | ✅ Very Safe |
-| **1,000 registrants** | 3,775 | 3.8% | $0 | ✅ Very Safe |
-| **3,000 registrants** | 11,500 | 11.5% | $0 | ✅ Safe |
-| **10,000 registrants** | 38,000 | 38% | $0 | ✅ Safe |
-| **27,000 registrants** | 99,000 | 99% | $0 | ⚠️ Near Limit |
-| **30,000+ registrants** | 110,000+ | 110%+ | $5/mo* | ✅ Upgrade Available |
+| **3,000 leads** | 2,155 | 2.2% | $0 | ✅ Very Safe |
+| **10,000 leads** | 7,200 | 7.2% | $0 | ✅ Very Safe |
+| **30,000 leads** | 21,500 | 21.5% | $0 | ✅ Safe |
+| **100,000 leads** | 72,000 | 72% | $0 | ✅ Safe |
+| **140,000 leads** | 99,000 | 99% | $0 | ⚠️ Near Limit |
+| **150,000+ leads** | 110,000+ | 110%+ | $5/mo* | ✅ Upgrade Available |
 
 *Cloudflare Workers Paid: $5/month for 10 million requests
+
+### Database Capacity (CockroachDB Serverless)
+
+| Lead Count | Monthly RUs | % of Free Tier | Monthly Cost | Status |
+|------------|-------------|----------------|--------------|--------|
+| **3,000 leads** | ~500K | 1% | $0 | ✅ Very Safe |
+| **10,000 leads** | ~1.7M | 3.4% | $0 | ✅ Very Safe |
+| **30,000 leads** | ~5M | 10% | $0 | ✅ Safe |
+| **100,000 leads** | ~17M | 34% | $0 | ✅ Safe |
+| **150,000 leads** | ~25M | 50% | $0 | ✅ Safe |
+| **300,000 leads** | ~50M | 100% | $0 | ⚠️ Near Limit |
+
+*CockroachDB Serverless: Free tier includes 50M RUs/month, 10GB storage
 
 ### Important: Static vs Dynamic Traffic
 
@@ -516,15 +573,22 @@ graph LR
 - **Application portal** (login, submit, status): Only active applicants, goes through BFF
 - **Estimated 95%+ of traffic** doesn't touch BFF at all
 
-### Verdict for 300 Registrants + 5 Admins
+### Verdict for 3,000 Leads + 5 Admins
 
-✅ **You're using only 1.3% of the free tier**
-✅ **98.7% buffer for traffic spikes**
-✅ **Even 10x growth keeps you under 15% usage**
-✅ **Zero cost risk - hard limits prevent overages**
-✅ **Could scale to 3,000 users and still be at 11.5%**
+**BFF Layer (Cloudflare Workers):**
+✅ Using only 2.2% of the free tier
+✅ 97.8% buffer for traffic spikes
+✅ Even 10x growth keeps you under 22% usage
+✅ Zero cost risk - hard limits prevent overages
+✅ Could scale to 100,000 leads and still be at 72%
 
-**Conclusion: No need to worry about BFF traffic limits for your use case.**
+**Database (CockroachDB Serverless):**
+✅ Using only 1% of the free tier (50M RUs)
+✅ No cold start latency (unlike Neon/Supabase free tiers)
+✅ No auto-pause policy
+✅ Could scale to 150,000 leads and still be at 50%
+
+**Conclusion: Both BFF and database have massive headroom. The system can scale to 100,000+ leads on fully free infrastructure.**
 
 ---
 
@@ -623,35 +687,32 @@ app.use('/auth/login', authLimiter);
 
 ## Scalability
 
-### Current Capacity (300 registrants, <5,000 users)
+### Current Capacity (3,000 leads, 300 registrations)
 
-| Component | Capacity | Bottleneck |
-|-----------|----------|------------|
-| **Cloudflare Pages** | Unlimited | None |
-| **Cloudflare Workers** | 100k req/day | ✅ Sufficient |
-| **VPS (2GB RAM)** | ~5k users | CPU/Memory |
-| **PostgreSQL** | 50k+ rows | None |
+| Component | Capacity | Current Usage | Bottleneck |
+|-----------|----------|---------------|------------|
+| **Cloudflare Pages** | Unlimited | N/A | None |
+| **Cloudflare Workers** | 100k req/day | 2.2% | None |
+| **CockroachDB Serverless** | 50M RUs/month | 1% | None |
+| **CockroachDB Storage** | 10 GB | <0.1% | None |
 
 ### Scaling Strategy
 
 ```mermaid
 graph TB
-    subgraph "Phase 1: <5K users"
-        CF1[Cloudflare Free]
-        VPS1[VPS 2GB RAM<br/>$5-10/mo]
+    subgraph "Phase 1: <100K leads - FREE"
+        CF1[Cloudflare Free<br/>Pages + Workers]
+        DB1[CockroachDB Serverless Free<br/>50M RUs/month]
     end
 
-    subgraph "Phase 2: 5K-20K users"
-        CF2[Cloudflare Free]
-        VPS2[VPS 4GB RAM<br/>$15-20/mo]
+    subgraph "Phase 2: 100K-300K leads"
+        CF2[Cloudflare Workers Paid<br/>$5/10M requests]
+        DB2[CockroachDB Serverless<br/>Pay-as-you-go]
     end
 
-    subgraph "Phase 3: 20K+ users"
-        CF3[Cloudflare Workers Paid<br/>$5/10M requests]
-        LB[Load Balancer]
-        VPS3A[VPS 4GB]
-        VPS3B[VPS 4GB]
-        DBManaged[Managed PostgreSQL]
+    subgraph "Phase 3: 300K+ leads"
+        CF3[Cloudflare Workers Paid]
+        DB3[CockroachDB Dedicated<br/>or Self-hosted PostgreSQL]
     end
 
     Phase1 --> Phase2
@@ -659,10 +720,10 @@ graph TB
 ```
 
 **Scaling Options:**
-1. **Vertical Scaling:** Upgrade VPS (2GB → 4GB → 8GB)
-2. **Horizontal Scaling:** Add load balancer + multiple VPS instances
-3. **Database Scaling:** Move to managed PostgreSQL with replication
-4. **Workers Scaling:** Upgrade to Cloudflare Workers Paid ($5/10M requests)
+1. **Phase 1 (current):** Fully free - CockroachDB Serverless + Cloudflare free tiers
+2. **Phase 2:** Pay-as-you-go on both platforms (~$10-20/month for 100K-300K leads)
+3. **Phase 3:** Dedicated clusters or migrate to self-hosted PostgreSQL on VPS
+4. **Alternative:** Can always fall back to VPS + PostgreSQL ($5-10/month) if CockroachDB pricing changes
 
 ### Performance Optimization Strategies
 
@@ -673,9 +734,9 @@ graph TB
 
 **Database Optimization:**
 - Indexes on frequently queried fields (user_id, email, status)
-- Connection pooling
+- Connection pooling (handled by CockroachDB Serverless)
 - Query optimization
-- Periodic VACUUM operations
+- No manual maintenance required (CockroachDB handles vacuuming, compaction)
 
 **Frontend Optimization:**
 - Static site generation
@@ -688,9 +749,10 @@ graph TB
 ## Key Benefits
 
 ### Cost-Effective
-- **$5-10/month total** for <5,000 users
+- **$0/month** for up to 100,000 leads (fully free tier)
 - No hidden fees
 - Predictable costs
+- Fallback to VPS ($5-10/month) always available
 
 ### DDoS-Proof
 - Hard limits prevent cost overruns

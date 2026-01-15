@@ -3,9 +3,10 @@
 ## Table of Contents
 - [Prerequisites](#prerequisites)
 - [Initial Setup](#initial-setup)
+- [CockroachDB Setup](#cockroachdb-setup)
+- [Cloudflare R2 Setup](#cloudflare-r2-setup)
 - [Local Development](#local-development)
 - [Frontend Deployment (Cloudflare)](#frontend-deployment-cloudflare)
-- [Backend Deployment (VPS)](#backend-deployment-vps)
 - [Automated Deployment (GitHub Actions)](#automated-deployment-github-actions)
 - [Environment Variables](#environment-variables)
 - [Monitoring & Maintenance](#monitoring--maintenance)
@@ -17,23 +18,25 @@
 
 ### Required Accounts
 - [ ] GitHub account (for repository and CI/CD)
-- [ ] Cloudflare account (for Pages and Workers)
+- [ ] Cloudflare account (for Pages, Workers, and R2)
+- [ ] CockroachDB account (for Serverless database)
 - [ ] Google Cloud account (for OAuth OIDC)
-- [ ] VPS account with local cloud provider
 
 ### Required Software
 - Node.js 20+ (`node --version`)
 - npm 9+ (`npm --version`)
 - Git (`git --version`)
-- PostgreSQL 14+ (on VPS)
-- SSH client (for VPS access)
+- Wrangler CLI (`npm install -g wrangler`)
 
-### VPS Requirements
-- Ubuntu 22.04 LTS or similar
-- 2GB RAM minimum
-- 20GB storage minimum
-- Public IP address
-- Root or sudo access
+### Cost Summary
+| Service | Free Tier | Cost |
+|---------|-----------|------|
+| Cloudflare Pages | Unlimited bandwidth | $0 |
+| Cloudflare Workers | 100k req/day | $0 |
+| Cloudflare R2 | 10GB storage | $0 |
+| CockroachDB Serverless | 50M RUs/month, 10GB | $0 |
+| Google OAuth | Unlimited | $0 |
+| **Total** | | **$0/month**
 
 ---
 
@@ -79,22 +82,215 @@ npm install
 
 ---
 
-## Local Development
+## CockroachDB Setup
 
-### Option 1: Run Everything Together
+CockroachDB Serverless provides a PostgreSQL-compatible database with a generous free tier (50M Request Units/month, 10GB storage).
+
+### 1. Create CockroachDB Account
+
+1. Go to [CockroachDB Cloud](https://cockroachlabs.cloud/)
+2. Sign up with GitHub, Google, or email
+3. Verify your email address
+
+### 2. Create a Serverless Cluster
+
+1. Click **Create Cluster**
+2. Select **Serverless** (free tier)
+3. Choose configuration:
+   - **Cloud provider:** AWS or GCP (either works)
+   - **Region:** Choose closest to your users (e.g., `asia-southeast1` for Indonesia)
+   - **Spend limit:** Set to $0 (free tier only)
+4. Name your cluster (e.g., `campus-website`)
+5. Click **Create cluster**
+
+### 3. Create Database and User
+
+1. Once cluster is created, click **SQL Users** in left sidebar
+2. Click **Add User**
+3. Create a user:
+   - **Username:** `campus_app`
+   - **Password:** Generate a strong password (save it securely)
+4. Click **Databases** in left sidebar
+5. Click **Create Database**
+6. Name it `campus`
+
+### 4. Get Connection String
+
+1. Click **Connect** button (top right)
+2. Select **Connection string**
+3. Choose your language: **Node.js**
+4. Copy the connection string, it looks like:
+   ```
+   postgresql://campus_app:PASSWORD@cluster-name-1234.abc.cockroachlabs.cloud:26257/campus?sslmode=verify-full
+   ```
+5. Save this for environment variables
+
+### 5. Download CA Certificate (Optional)
+
+For local development, you may need the CA certificate:
+
+1. In the Connect dialog, click **Download CA Cert**
+2. Save to `~/.postgresql/root.crt`
+3. Or use `sslmode=require` instead of `verify-full` for simplicity
+
+### 6. Test Connection
 
 ```bash
-# From project root
-npm run dev
+# Using psql (PostgreSQL client)
+psql "postgresql://campus_app:PASSWORD@cluster-name.cockroachlabs.cloud:26257/campus?sslmode=verify-full"
 
-# This starts:
-# - Frontend dev server (http://localhost:4321)
-# - Backend dev server (http://localhost:3000)
+# Or using CockroachDB CLI
+cockroach sql --url "postgresql://campus_app:PASSWORD@cluster-name.cockroachlabs.cloud:26257/campus?sslmode=verify-full"
 ```
 
-### Option 2: Run Separately
+### 7. Create Tables
 
-**Terminal 1 - Frontend (Astro + Cloudflare Workers):**
+Run the schema creation SQL:
+
+```sql
+-- Users table
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    password_hash VARCHAR(255),
+    provider VARCHAR(50) NOT NULL DEFAULT 'local',
+    provider_id VARCHAR(255),
+    role VARCHAR(50) NOT NULL DEFAULT 'registrant',
+    email_verified BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Applications table
+CREATE TABLE applications (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    program VARCHAR(255) NOT NULL,
+    status VARCHAR(50) DEFAULT 'pending',
+    submitted_at TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Sessions table (optional)
+CREATE TABLE sessions (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    token_hash VARCHAR(255) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create indexes for performance
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_provider ON users(provider, provider_id);
+CREATE INDEX idx_applications_user_id ON applications(user_id);
+CREATE INDEX idx_applications_status ON applications(status);
+CREATE INDEX idx_sessions_user_id ON sessions(user_id);
+CREATE INDEX idx_sessions_token_hash ON sessions(token_hash);
+```
+
+### CockroachDB Free Tier Limits
+
+| Resource | Limit | Notes |
+|----------|-------|-------|
+| Storage | 10 GB | Sufficient for 300K+ leads |
+| Request Units | 50M/month | ~1% usage for 3,000 leads |
+| Clusters | 5 | One per project |
+| Burst capacity | Available | Handles traffic spikes |
+
+### CockroachDB vs PostgreSQL Compatibility
+
+For this application, CockroachDB works identically to PostgreSQL:
+
+| Feature | Status |
+|---------|--------|
+| SERIAL/BIGSERIAL | ✅ Works |
+| JOINs, subqueries | ✅ Works |
+| Indexes (B-tree, GIN) | ✅ Works |
+| JSON/JSONB | ✅ Works |
+| Transactions | ✅ Works (SERIALIZABLE default) |
+| Foreign keys | ✅ Works |
+
+**Minor differences:**
+- Default port is 26257 (not 5432)
+- Uses `sslmode=verify-full` by default
+- Some PostgreSQL-specific functions may need alternatives
+
+---
+
+## Cloudflare R2 Setup
+
+Cloudflare R2 provides S3-compatible object storage for file uploads (documents, images).
+
+### 1. Enable R2 in Cloudflare
+
+1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com)
+2. Select your account
+3. Click **R2** in the left sidebar
+4. Click **Create bucket**
+
+### 2. Create a Bucket
+
+1. **Bucket name:** `campus-uploads`
+2. **Location:** Automatic (or choose specific region)
+3. Click **Create bucket**
+
+### 3. Create API Token for R2
+
+1. Go to **R2** → **Manage R2 API Tokens**
+2. Click **Create API Token**
+3. Configure:
+   - **Token name:** `campus-website-r2`
+   - **Permissions:** Object Read & Write
+   - **Bucket:** Select `campus-uploads`
+4. Click **Create API Token**
+5. Copy and save:
+   - **Access Key ID**
+   - **Secret Access Key**
+   - **Endpoint URL** (looks like `https://ACCOUNT_ID.r2.cloudflarestorage.com`)
+
+### 4. Configure CORS (for browser uploads)
+
+1. Go to **R2** → **campus-uploads** bucket
+2. Click **Settings**
+3. Under **CORS Policy**, add:
+
+```json
+[
+  {
+    "AllowedOrigins": ["https://yourdomain.com", "http://localhost:4321"],
+    "AllowedMethods": ["GET", "PUT", "POST", "DELETE"],
+    "AllowedHeaders": ["*"],
+    "MaxAgeSeconds": 3600
+  }
+]
+```
+
+### R2 Free Tier Limits
+
+| Resource | Limit |
+|----------|-------|
+| Storage | 10 GB |
+| Class A operations (writes) | 1M/month |
+| Class B operations (reads) | 10M/month |
+| Egress | Free (no bandwidth charges) |
+
+---
+
+## Local Development
+
+### Frontend Development (Static Site)
+
+```bash
+cd frontend
+npm install
+npm run dev                      # http://localhost:4321
+```
+
+### Full Stack Development (with Workers)
+
+**Terminal 1 - Frontend with Workers emulation:**
 ```bash
 cd frontend
 npm install
@@ -102,32 +298,41 @@ cp .dev.vars.example .dev.vars  # Configure environment variables
 npm run dev                      # http://localhost:4321
 ```
 
-**Terminal 2 - Backend (Express.js):**
+**.dev.vars configuration:**
 ```bash
-cd backend
-npm install
-cp .env.example .env             # Configure database, JWT secret
-npm run dev                      # http://localhost:3000
+# CockroachDB connection (use your actual connection string)
+DATABASE_URL=postgresql://campus_app:PASSWORD@cluster.cockroachlabs.cloud:26257/campus?sslmode=verify-full
+
+# Authentication
+JWT_SECRET=generate-a-long-random-secret-min-32-chars
+GOOGLE_CLIENT_ID=your-client-id-here
+GOOGLE_CLIENT_SECRET=your-client-secret-here
+
+# Cloudflare R2
+R2_ACCESS_KEY_ID=your-r2-access-key
+R2_SECRET_ACCESS_KEY=your-r2-secret-key
+R2_ENDPOINT=https://ACCOUNT_ID.r2.cloudflarestorage.com
+R2_BUCKET=campus-uploads
 ```
 
-**Terminal 3 - Database:**
-```bash
-# If running PostgreSQL locally
-psql -U postgres
-CREATE DATABASE campus;
-\q
+### Database Access During Development
 
-# Run migrations
-cd backend
-npm run migrate
+Since CockroachDB is cloud-hosted, no local database setup is needed:
+
+```bash
+# Connect to CockroachDB for debugging
+psql "postgresql://campus_app:PASSWORD@cluster.cockroachlabs.cloud:26257/campus?sslmode=verify-full"
+
+# Or use CockroachDB CLI
+cockroach sql --url "YOUR_CONNECTION_STRING"
 ```
 
 ### Local Testing Workflow
 
 1. **Test static pages:** Visit `http://localhost:4321`
 2. **Test authentication:** Try login/register flows
-3. **Test API:** Use Postman or `curl` to test `http://localhost:3000/api/*`
-4. **Test BFF:** Cloudflare Workers run locally via Wrangler
+3. **Test API:** Cloudflare Workers run locally via Wrangler
+4. **Test database:** Queries go directly to CockroachDB Serverless
 
 ---
 
@@ -212,183 +417,6 @@ npx wrangler deploy
 
 ---
 
-## Backend Deployment (VPS)
-
-### 1. Prepare VPS
-
-**Connect to VPS:**
-```bash
-ssh user@your-vps-ip
-```
-
-**Update system:**
-```bash
-sudo apt update && sudo apt upgrade -y
-```
-
-**Install Node.js 20:**
-```bash
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt install -y nodejs
-node --version  # Verify v20.x
-```
-
-**Install PostgreSQL:**
-```bash
-sudo apt install postgresql postgresql-contrib -y
-sudo systemctl start postgresql
-sudo systemctl enable postgresql
-```
-
-**Install pm2 (Process Manager):**
-```bash
-sudo npm install -g pm2
-```
-
-**Install nginx (Reverse Proxy):**
-```bash
-sudo apt install nginx -y
-sudo systemctl start nginx
-sudo systemctl enable nginx
-```
-
-### 2. Set Up Database
-
-```bash
-# Switch to postgres user
-sudo -u postgres psql
-
--- Create database and user
-CREATE DATABASE campus;
-CREATE USER campus_user WITH ENCRYPTED PASSWORD 'your-strong-password';
-GRANT ALL PRIVILEGES ON DATABASE campus TO campus_user;
-\q
-```
-
-### 3. Clone Repository to VPS
-
-```bash
-# Create directory
-sudo mkdir -p /var/www/campus-website
-sudo chown $USER:$USER /var/www/campus-website
-
-# Clone repository
-cd /var/www
-git clone https://github.com/yourorg/campus-website.git
-cd campus-website
-```
-
-### 4. Configure Backend
-
-```bash
-cd backend
-
-# Install dependencies
-npm install --production
-
-# Create .env file
-cp .env.example .env
-nano .env
-```
-
-**Edit .env:**
-```bash
-DATABASE_URL=postgresql://campus_user:your-strong-password@localhost:5432/campus
-JWT_SECRET=generate-a-very-long-random-secret-here
-PORT=3000
-NODE_ENV=production
-GOOGLE_CLIENT_ID=your-google-client-id
-GOOGLE_CLIENT_SECRET=your-google-client-secret
-```
-
-**Run migrations:**
-```bash
-npm run migrate
-```
-
-### 5. Start Backend with pm2
-
-```bash
-cd /var/www/campus-website/backend
-
-# Start application
-pm2 start src/index.js --name campus-backend
-
-# Save pm2 configuration
-pm2 save
-
-# Set up pm2 to start on boot
-pm2 startup
-# Follow the command it outputs
-```
-
-**Verify backend is running:**
-```bash
-pm2 status
-curl http://localhost:3000/health  # Should return 200 OK
-```
-
-### 6. Configure nginx Reverse Proxy
-
-**Create nginx configuration:**
-```bash
-sudo nano /etc/nginx/sites-available/campus-backend
-```
-
-**Add configuration:**
-```nginx
-server {
-    listen 80;
-    server_name api.youruni.edu;
-
-    location / {
-        proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-```
-
-**Enable site:**
-```bash
-sudo ln -s /etc/nginx/sites-available/campus-backend /etc/nginx/sites-enabled/
-sudo nginx -t  # Test configuration
-sudo systemctl reload nginx
-```
-
-### 7. Set Up SSL with Let's Encrypt
-
-```bash
-# Install certbot
-sudo apt install certbot python3-certbot-nginx -y
-
-# Get SSL certificate
-sudo certbot --nginx -d api.youruni.edu
-
-# Test auto-renewal
-sudo certbot renew --dry-run
-```
-
-**nginx will be automatically configured for HTTPS**
-
-### 8. Configure Firewall
-
-```bash
-# Allow SSH, HTTP, HTTPS
-sudo ufw allow OpenSSH
-sudo ufw allow 'Nginx Full'
-sudo ufw enable
-sudo ufw status
-```
-
----
-
 ## Automated Deployment (GitHub Actions)
 
 ### 1. Set Up GitHub Secrets
@@ -397,20 +425,21 @@ Go to GitHub Repository → Settings → Secrets and variables → Actions
 
 Add the following secrets:
 
-**For Frontend Deployment:**
+**For Cloudflare Deployment:**
 - `CLOUDFLARE_API_TOKEN` - Your Cloudflare API token
 - `CLOUDFLARE_ACCOUNT_ID` - Your Cloudflare account ID
 
-**For Backend Deployment:**
-- `VPS_HOST` - Your VPS IP address or hostname
-- `VPS_USERNAME` - SSH username (e.g., `ubuntu`)
-- `VPS_SSH_KEY` - Private SSH key for VPS access
+**For Database (CockroachDB):**
+- `DATABASE_URL` - CockroachDB connection string
 
-**For Application:**
+**For Authentication:**
 - `GOOGLE_CLIENT_ID` - Google OAuth client ID
 - `GOOGLE_CLIENT_SECRET` - Google OAuth client secret
 - `JWT_SECRET` - JWT signing secret
-- `DATABASE_URL` - PostgreSQL connection string
+
+**For File Storage (R2):**
+- `R2_ACCESS_KEY_ID` - Cloudflare R2 access key
+- `R2_SECRET_ACCESS_KEY` - Cloudflare R2 secret key
 
 ### 2. Create Workflow Files
 
@@ -459,97 +488,71 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 ```
 
-**Backend Deployment (`.github/workflows/deploy-backend.yml`):**
+### 3. Test Deployment
 
-```yaml
-name: Deploy Backend
-
-on:
-  push:
-    branches: [main]
-    paths:
-      - 'backend/**'
-      - 'shared/**'
-      - '.github/workflows/deploy-backend.yml'
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Deploy to VPS
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USERNAME }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            cd /var/www/campus-website
-            git pull origin main
-            cd backend
-            npm install --production
-            npm run migrate
-            pm2 restart campus-backend
-```
-
-### 3. Test Deployments
-
-**Trigger frontend deployment:**
+**Trigger deployment:**
 ```bash
 # Make a change to frontend
 echo "# Test" >> frontend/README.md
 git add frontend/README.md
-git commit -m "Test frontend deployment"
+git commit -m "Test deployment"
 git push origin main
 
 # Check GitHub Actions tab for deployment status
 ```
 
-**Trigger backend deployment:**
-```bash
-# Make a change to backend
-echo "# Test" >> backend/README.md
-git add backend/README.md
-git commit -m "Test backend deployment"
-git push origin main
-
-# Check GitHub Actions tab for deployment status
-```
+**Verify deployment:**
+1. Check GitHub Actions tab for green checkmark
+2. Visit your Cloudflare Pages URL
+3. Test authentication and database connectivity
 
 ---
 
 ## Environment Variables
 
-### Frontend (.dev.vars for local, Cloudflare dashboard for production)
+### Cloudflare Workers Environment Variables
+
+Configure in Cloudflare Dashboard → Workers → Settings → Variables, or in `wrangler.toml`:
 
 ```bash
-GOOGLE_CLIENT_ID=your-client-id-here
-GOOGLE_CLIENT_SECRET=your-client-secret-here
-BACKEND_URL=https://api.youruni.edu
-APP_URL=https://youruni.edu
-```
-
-### Backend (.env on VPS)
-
-```bash
-# Database
-DATABASE_URL=postgresql://campus_user:password@localhost:5432/campus
+# Database (CockroachDB Serverless)
+DATABASE_URL=postgresql://campus_app:PASSWORD@cluster.cockroachlabs.cloud:26257/campus?sslmode=verify-full
 
 # Authentication
 JWT_SECRET=generate-a-long-random-secret-min-32-chars
 GOOGLE_CLIENT_ID=your-client-id-here
 GOOGLE_CLIENT_SECRET=your-client-secret-here
 
-# Server
-PORT=3000
+# Application
+APP_URL=https://youruni.edu
 NODE_ENV=production
+
+# Cloudflare R2 (File Storage)
+R2_ACCESS_KEY_ID=your-r2-access-key
+R2_SECRET_ACCESS_KEY=your-r2-secret-key
+R2_ENDPOINT=https://ACCOUNT_ID.r2.cloudflarestorage.com
+R2_BUCKET=campus-uploads
 
 # Optional: Email (for notifications)
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USER=noreply@youruni.edu
 SMTP_PASS=your-app-password
+```
+
+### Local Development (.dev.vars)
+
+Create `.dev.vars` file in frontend directory:
+
+```bash
+DATABASE_URL=postgresql://campus_app:PASSWORD@cluster.cockroachlabs.cloud:26257/campus?sslmode=verify-full
+JWT_SECRET=local-dev-secret-at-least-32-characters
+GOOGLE_CLIENT_ID=your-client-id-here
+GOOGLE_CLIENT_SECRET=your-client-secret-here
+R2_ACCESS_KEY_ID=your-r2-access-key
+R2_SECRET_ACCESS_KEY=your-r2-secret-key
+R2_ENDPOINT=https://ACCOUNT_ID.r2.cloudflarestorage.com
+R2_BUCKET=campus-uploads
 ```
 
 ### How to Generate JWT Secret
@@ -562,100 +565,99 @@ openssl rand -base64 48
 node -e "console.log(require('crypto').randomBytes(48).toString('base64'))"
 ```
 
+### Setting Variables in Cloudflare Dashboard
+
+1. Go to Cloudflare Dashboard → Workers & Pages
+2. Select your Worker
+3. Go to **Settings** → **Variables**
+4. Add each variable as **Encrypted** (for secrets) or **Plain text**
+5. Click **Save and Deploy**
+
 ---
 
 ## Monitoring & Maintenance
 
-### Frontend Monitoring (Cloudflare)
+### Cloudflare Monitoring
 
 **Cloudflare Dashboard:**
-- Pages → Analytics
-- Workers → Metrics
-- Monitor: Request count, errors, response time
+- **Pages → Analytics**: Page views, unique visitors, bandwidth
+- **Workers → Metrics**: Request count, errors, CPU time, response time
+- **R2 → Metrics**: Storage usage, operations count
 
 **Set up alerts:**
-- Cloudflare Dashboard → Notifications
-- Create alerts for error rate spikes
+1. Cloudflare Dashboard → Notifications
+2. Create alerts for:
+   - Error rate spikes (Workers)
+   - High CPU usage (Workers)
+   - Storage threshold (R2)
 
-### Backend Monitoring (VPS)
+### CockroachDB Monitoring
 
-**pm2 monitoring:**
-```bash
-# View logs
-pm2 logs campus-backend
+**CockroachDB Cloud Console:**
+1. Go to [CockroachDB Cloud](https://cockroachlabs.cloud)
+2. Select your cluster
+3. View metrics:
+   - **SQL Activity**: Queries/second, latency
+   - **Request Units**: RU consumption vs. limit
+   - **Storage**: Data size, index size
+   - **Sessions**: Active connections
 
-# Monitor resources
-pm2 monit
+**Check usage via SQL:**
+```sql
+-- Connect to your cluster
+cockroach sql --url "YOUR_CONNECTION_STRING"
 
-# Restart if needed
-pm2 restart campus-backend
+-- Check table sizes
+SELECT table_name,
+       pg_size_pretty(pg_total_relation_size(table_name::regclass)) as size
+FROM information_schema.tables
+WHERE table_schema = 'public';
+
+-- Check row counts
+SELECT 'users' as table_name, count(*) as rows FROM users
+UNION ALL
+SELECT 'applications', count(*) FROM applications
+UNION ALL
+SELECT 'sessions', count(*) FROM sessions;
 ```
 
-**nginx logs:**
-```bash
-# Access logs
-sudo tail -f /var/log/nginx/access.log
-
-# Error logs
-sudo tail -f /var/log/nginx/error.log
-```
-
-**PostgreSQL monitoring:**
-```bash
-# Connect to database
-psql -U campus_user -d campus
-
--- Check active connections
-SELECT count(*) FROM pg_stat_activity;
-
--- Check database size
-SELECT pg_size_pretty(pg_database_size('campus'));
-
--- Check slow queries
-SELECT query, mean_exec_time
-FROM pg_stat_statements
-ORDER BY mean_exec_time DESC
-LIMIT 10;
-```
+**Set up alerts in CockroachDB:**
+1. CockroachDB Console → Alerts
+2. Configure alerts for:
+   - RU consumption > 80% of limit
+   - Storage > 8GB (80% of free tier)
+   - Connection failures
 
 ### Backup Strategy
 
-**Database backups:**
+**CockroachDB Serverless backups:**
+- CockroachDB automatically handles backups
+- Point-in-time recovery available
+- No manual backup configuration needed
+
+**Manual export (if needed):**
 ```bash
-# Create backup script
-sudo nano /usr/local/bin/backup-db.sh
+# Export data using cockroach dump
+cockroach dump campus --url "YOUR_CONNECTION_STRING" > backup.sql
+
+# Or export specific tables
+cockroach dump campus users applications --url "YOUR_CONNECTION_STRING" > backup.sql
 ```
 
-```bash
-#!/bin/bash
-BACKUP_DIR=/var/backups/postgres
-DATE=$(date +%Y%m%d_%H%M%S)
-mkdir -p $BACKUP_DIR
-
-pg_dump -U campus_user campus | gzip > $BACKUP_DIR/campus_$DATE.sql.gz
-
-# Keep only last 7 days
-find $BACKUP_DIR -name "campus_*.sql.gz" -mtime +7 -delete
-```
-
-```bash
-# Make executable
-sudo chmod +x /usr/local/bin/backup-db.sh
-
-# Schedule daily backups via cron
-crontab -e
-# Add: 0 2 * * * /usr/local/bin/backup-db.sh
-```
+**R2 file backups:**
+- Cloudflare R2 provides 99.999999999% durability
+- No additional backup configuration needed
+- Consider cross-region replication for critical files
 
 ---
 
 ## Troubleshooting
 
-### Frontend Issues
+### Frontend/Pages Issues
 
 **Build fails on Cloudflare:**
 ```bash
-# Check build logs in Cloudflare Dashboard
+# Check build logs in Cloudflare Dashboard → Pages → Deployments
 # Common issues:
 # - Missing environment variables
 # - Node version mismatch
@@ -673,44 +675,90 @@ npm run build
 # Try manual deployment:
 cd frontend
 npx wrangler deploy --verbose
+
+# Check Workers logs in Cloudflare Dashboard
 ```
 
-### Backend Issues
+### CockroachDB Issues
 
-**Backend not starting:**
+**Connection errors:**
 ```bash
-# Check pm2 logs
-pm2 logs campus-backend --lines 100
+# Test connection
+psql "YOUR_CONNECTION_STRING"
 
-# Check if port is in use
-sudo lsof -i :3000
+# Common issues:
+# - Wrong password
+# - SSL mode not specified
+# - IP not allowlisted (check CockroachDB Console → Networking)
 
-# Check environment variables
-pm2 env campus-backend
+# Check if cluster is running
+# CockroachDB Console → Overview → Status should be "Running"
 ```
 
-**Database connection issues:**
-```bash
-# Test database connection
-psql -U campus_user -d campus -h localhost
+**Query timeout or slow queries:**
+```sql
+-- Check for missing indexes
+SHOW INDEXES FROM users;
+SHOW INDEXES FROM applications;
 
-# Check PostgreSQL is running
-sudo systemctl status postgresql
+-- Add indexes if needed
+CREATE INDEX idx_applications_user_id ON applications(user_id);
+CREATE INDEX idx_applications_status ON applications(status);
 
-# Check database credentials in .env
-cat backend/.env | grep DATABASE_URL
+-- Check query execution plan
+EXPLAIN ANALYZE SELECT * FROM applications WHERE user_id = 1;
 ```
 
-**502 Bad Gateway from nginx:**
+**RU consumption too high:**
+```sql
+-- Check which queries consume most RUs
+-- Go to CockroachDB Console → SQL Activity → Statements
+
+-- Optimize queries:
+-- 1. Add indexes for frequently filtered columns
+-- 2. Use LIMIT for large result sets
+-- 3. Avoid SELECT * - select only needed columns
+```
+
+### Cloudflare Workers Issues
+
+**Workers returning errors:**
 ```bash
-# Check if backend is running
-pm2 status
+# Check Workers logs:
+# Cloudflare Dashboard → Workers → Your Worker → Logs
 
-# Check nginx error logs
-sudo tail -f /var/log/nginx/error.log
+# Common issues:
+# - Missing environment variables
+# - Database connection timeout
+# - Invalid JWT secret
 
-# Test backend directly
-curl http://localhost:3000/health
+# Test locally with wrangler
+cd frontend
+npx wrangler dev
+```
+
+**Authentication not working:**
+```bash
+# Check:
+# 1. GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are set
+# 2. Redirect URIs match exactly in Google Console
+# 3. JWT_SECRET is configured
+
+# Test Google OAuth flow manually
+# Visit: https://yoursite.com/api/auth/google/login
+```
+
+### R2 Storage Issues
+
+**Upload failures:**
+```bash
+# Check:
+# 1. R2_ACCESS_KEY_ID and R2_SECRET_ACCESS_KEY are set
+# 2. CORS policy allows your domain
+# 3. Bucket name is correct
+
+# Test R2 connection using AWS CLI (S3-compatible)
+aws s3 ls s3://campus-uploads --endpoint-url https://ACCOUNT_ID.r2.cloudflarestorage.com
 ```
 
 ### GitHub Actions Issues
@@ -719,17 +767,16 @@ curl http://localhost:3000/health
 ```bash
 # Check GitHub Actions logs
 # Common issues:
-# - Missing secrets
-# - SSH key format incorrect
-# - VPS unreachable
+# - Missing secrets (CLOUDFLARE_API_TOKEN, etc.)
+# - API token permissions incorrect
 
-# Test SSH connection manually
-ssh -i path/to/key user@vps-ip
+# Verify secrets are set:
+# Repository → Settings → Secrets → Actions
 ```
 
 **Path triggers not working:**
 ```yaml
-# Ensure paths are correct
+# Ensure paths are correct in workflow file
 paths:
   - 'frontend/**'  # Note: no leading slash
   - 'shared/**'
@@ -737,76 +784,88 @@ paths:
 
 ### Performance Issues
 
-**Slow API responses:**
-```sql
--- Check for missing indexes
-SELECT schemaname, tablename, attname, n_distinct, correlation
-FROM pg_stats
-WHERE tablename = 'applications'
-ORDER BY n_distinct DESC;
+**Slow page loads:**
+```bash
+# Check Cloudflare Analytics for:
+# - Cache hit ratio (should be high for static assets)
+# - Response times by region
 
--- Add indexes if needed
-CREATE INDEX idx_applications_user_id ON applications(user_id);
-CREATE INDEX idx_applications_status ON applications(status);
+# Optimize:
+# 1. Enable caching headers in Astro
+# 2. Use Cloudflare CDN (automatic with Pages)
+# 3. Optimize images
 ```
 
-**High memory usage:**
+**Database latency:**
 ```bash
-# Check pm2 memory usage
-pm2 monit
+# Check CockroachDB Console → SQL Activity → Latency
 
-# Restart if needed
-pm2 restart campus-backend
+# If latency is high:
+# 1. Check if region is close to users
+# 2. Add indexes for slow queries
+# 3. Consider connection pooling
 ```
 
 ---
 
 ## Rollback Procedures
 
-### Rollback Frontend
+### Rollback Frontend (Cloudflare Pages)
 
+**Via Cloudflare Dashboard (Recommended):**
+1. Go to Cloudflare Dashboard → Pages
+2. Select your project
+3. Click **Deployments**
+4. Find the previous working deployment
+5. Click **...** → **Rollback to this deployment**
+
+**Via Wrangler CLI:**
 ```bash
-# Via Cloudflare Dashboard
-# Pages → Deployments → Select previous deployment → Rollback
-
-# Via Wrangler
 cd frontend
 git checkout <previous-commit>
 npm run build
-npx wrangler pages deploy dist
+npx wrangler pages deploy dist --project-name=campus-website
 ```
 
-### Rollback Backend
+### Rollback Workers
 
+**Via Cloudflare Dashboard:**
+1. Go to Cloudflare Dashboard → Workers
+2. Select your Worker
+3. Click **Deployments**
+4. Select previous version → **Rollback**
+
+**Via Wrangler CLI:**
 ```bash
-# SSH to VPS
-ssh user@vps
-
-# Navigate to project
-cd /var/www/campus-website
-
-# Checkout previous version
-git log --oneline  # Find previous commit
-git checkout <commit-hash>
-
-# Reinstall dependencies
-cd backend
-npm install --production
-
-# Restart
-pm2 restart campus-backend
+cd frontend
+git checkout <previous-commit>
+npx wrangler deploy
 ```
 
-### Rollback Database Migration
+### Rollback Database Changes
 
+**CockroachDB does not support automatic rollback migrations.**
+
+**Option 1: Manual SQL rollback**
+```sql
+-- If you have rollback SQL prepared
+-- Connect to your cluster
+cockroach sql --url "YOUR_CONNECTION_STRING"
+
+-- Run rollback commands manually
+DROP INDEX IF EXISTS idx_new_index;
+ALTER TABLE users DROP COLUMN IF EXISTS new_column;
+```
+
+**Option 2: Restore from export**
 ```bash
-# If migrations support down migration
-cd backend
-npm run migrate:rollback
-
-# Otherwise, restore from backup
-gunzip < /var/backups/postgres/campus_YYYYMMDD.sql.gz | psql -U campus_user campus
+# If you exported data before migration
+cockroach sql --url "YOUR_CONNECTION_STRING" < backup.sql
 ```
+
+**Option 3: Point-in-time recovery (Enterprise feature)**
+- Contact CockroachDB support for point-in-time recovery
+- Available for Serverless clusters with support plan
 
 ---
 
@@ -814,16 +873,16 @@ gunzip < /var/backups/postgres/campus_YYYYMMDD.sql.gz | psql -U campus_user camp
 
 - [ ] All environment variables use strong, unique secrets
 - [ ] JWT_SECRET is at least 32 characters, randomly generated
-- [ ] Database passwords are strong (20+ chars, mixed case, numbers, symbols)
-- [ ] SSH key authentication enabled, password auth disabled
-- [ ] Firewall configured (ufw enable, only necessary ports open)
-- [ ] SSL certificates installed and auto-renewing
+- [ ] CockroachDB password is strong (20+ chars, mixed case, numbers, symbols)
+- [ ] All Cloudflare secrets are set as "Encrypted" type
 - [ ] GitHub secrets configured (never commit secrets to repo)
 - [ ] Google OAuth redirect URIs match exactly (production URLs only)
 - [ ] CORS configured to allow only your frontend domain
-- [ ] Rate limiting enabled on authentication endpoints
-- [ ] Database backups running daily
-- [ ] pm2 startup configured (backend restarts after reboot)
+- [ ] R2 bucket CORS policy restricts allowed origins
+- [ ] Rate limiting enabled via Cloudflare (automatic)
+- [ ] SSL/HTTPS enforced (automatic with Cloudflare)
+- [ ] CockroachDB network allowlist configured (if using IP restrictions)
+- [ ] No secrets in wrangler.toml (use environment variables instead)
 
 ---
 
@@ -833,34 +892,46 @@ gunzip < /var/backups/postgres/campus_YYYYMMDD.sql.gz | psql -U campus_user camp
 - [Astro Documentation](https://docs.astro.build)
 - [Cloudflare Pages](https://developers.cloudflare.com/pages)
 - [Cloudflare Workers](https://developers.cloudflare.com/workers)
-- [Express.js Guide](https://expressjs.com)
-- [PostgreSQL Docs](https://www.postgresql.org/docs)
-- [pm2 Documentation](https://pm2.keymetrics.io)
-- [nginx Documentation](https://nginx.org/en/docs)
+- [Cloudflare R2](https://developers.cloudflare.com/r2)
+- [CockroachDB Serverless](https://www.cockroachlabs.com/docs/cockroachcloud/serverless)
+- [CockroachDB SQL Reference](https://www.cockroachlabs.com/docs/stable/sql-statements)
+- [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler)
 
 ### Useful Commands
 
 ```bash
-# Frontend
-cd frontend && npm run build        # Build Astro site
-cd frontend && npm run dev          # Dev server
-npx wrangler pages deploy dist      # Deploy to Cloudflare
+# Frontend Development
+cd frontend && npm run dev          # Dev server with hot reload
+cd frontend && npm run build        # Build for production
+cd frontend && npm run preview      # Preview production build
 
-# Backend
-cd backend && npm run dev           # Dev server
-cd backend && npm run migrate       # Run migrations
-pm2 logs campus-backend             # View logs
-pm2 restart campus-backend          # Restart
+# Cloudflare Deployment
+npx wrangler login                  # Login to Cloudflare
+npx wrangler pages deploy dist      # Deploy Pages
+npx wrangler deploy                 # Deploy Workers
+npx wrangler tail                   # Stream Workers logs
 
-# System
-sudo systemctl status nginx         # Check nginx
-sudo systemctl status postgresql    # Check database
-sudo ufw status                     # Check firewall
-df -h                              # Check disk space
-free -h                            # Check memory
+# CockroachDB
+cockroach sql --url "CONNECTION_STRING"    # Connect to database
+psql "CONNECTION_STRING"                    # Alternative: use psql
+
+# Local Development
+cp .dev.vars.example .dev.vars      # Create local env file
+npx wrangler dev                    # Run Workers locally
 ```
+
+### Quick Reference
+
+| Task | Command |
+|------|---------|
+| Start dev server | `cd frontend && npm run dev` |
+| Build for production | `cd frontend && npm run build` |
+| Deploy to Cloudflare | `npx wrangler pages deploy dist` |
+| Deploy Workers | `npx wrangler deploy` |
+| View Workers logs | `npx wrangler tail` |
+| Connect to database | `cockroach sql --url "URL"` |
 
 ---
 
-**Last Updated:** 2025-11-19
-**Version:** 1.0
+**Last Updated:** 2026-01-15
+**Version:** 2.0 (Serverless Architecture)

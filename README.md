@@ -35,8 +35,8 @@ Campus website for marketing and admission processing, serving:
 - **Registrants** (prospective students): Submit applications via Google SSO or email/password
 - **Marketing Staff**: Manage applications and content via Google SSO only
 
-**Target Scale:** 300 registrants per admission cycle, 5 staff members
-**Monthly Cost:** $5-10 (VPS only - everything else is free!)
+**Target Scale:** 3,000 leads per admission cycle (300 registrations at 10% conversion), 5 staff members
+**Monthly Cost:** $0 (fully free tier - CockroachDB Serverless + Cloudflare)
 
 ---
 
@@ -51,30 +51,30 @@ graph TB
     subgraph "Edge Layer - Cloudflare (FREE)"
         Pages[📄 Cloudflare Pages<br/>Static Marketing Site]
         Workers[⚡ Cloudflare Workers<br/>BFF Layer]
+        R2[📁 Cloudflare R2<br/>File Storage]
     end
 
-    subgraph "VPS Layer - Local Provider ($5-10/mo)"
-        Backend[🚀 Express.js Backend<br/>REST API]
-        Database[(🗄️ PostgreSQL<br/>Database)]
+    subgraph "Database Layer - Cockroach Labs (FREE)"
+        Database[(🗄️ CockroachDB Serverless<br/>50M RUs/month)]
     end
 
     Browser -->|HTTPS| Pages
     Browser -->|API Calls<br/>Cookie: token| Workers
-    Workers -->|Authorization: Bearer JWT| Backend
-    Backend --> Database
+    Workers -->|SQL queries| Database
+    Workers -->|Upload/Download| R2
 
     style Browser fill:#e1f5ff
     style Pages fill:#c8e6c9
     style Workers fill:#c8e6c9
-    style Backend fill:#fff9c4
-    style Database fill:#fff9c4
+    style R2 fill:#c8e6c9
+    style Database fill:#c8e6c9
 ```
 
 **Why This Stack?**
-- ✅ **Cost-effective**: $5-10/month total
+- ✅ **Cost-effective**: $0/month on free tiers
 - ✅ **DDoS-proof**: Hard limits, $0 attack cost
 - ✅ **Secure**: HttpOnly cookies, OIDC, industry standards
-- ✅ **Scalable**: Can handle 27,000+ users on free tier
+- ✅ **Scalable**: Can handle 100,000+ leads on free tier
 - ✅ **Developer-friendly**: Modern stack, Git-based workflow
 
 📖 **[Read Full Architecture Documentation →](docs/ARCHITECTURE.md)**
@@ -87,8 +87,8 @@ graph TB
 |-----------|-----------|---------|------|
 | **Static Site** | Astro + Markdown | Cloudflare Pages | Free |
 | **BFF Layer** | Cloudflare Workers | Cloudflare | Free (100k req/day) |
-| **Backend API** | Express.js (Node.js) | Local VPS Provider | $5-10/mo |
-| **Database** | PostgreSQL | Local VPS Provider | Included |
+| **Database** | CockroachDB Serverless | Cockroach Labs | Free (50M RUs/mo) |
+| **File Storage** | Cloudflare R2 | Cloudflare | Free (10GB) |
 | **Build/Deploy** | GitHub Actions | GitHub | Free |
 
 ---
@@ -170,18 +170,20 @@ website-stmik/
 | Service | Usage | Cost |
 |---------|-------|------|
 | **Cloudflare Pages** | Unlimited bandwidth | **$0** |
-| **Cloudflare Workers** | 1,255 req/day (1.3% of limit) | **$0** |
-| **VPS** | 2GB RAM, Express.js + PostgreSQL | **$5-10** |
+| **Cloudflare Workers** | 2,155 req/day (2.2% of limit) | **$0** |
+| **CockroachDB Serverless** | ~500K RUs/mo (1% of limit) | **$0** |
+| **Cloudflare R2** | File storage (10GB free) | **$0** |
 | **GitHub Actions** | Build/deploy automation | **$0** |
 | **Google OAuth** | OIDC authentication | **$0** |
 
-**Total: $5-10/month** 🎉
+**Total: $0/month** 🎉
 
-### Traffic Analysis (300 Registrants)
+### Traffic Analysis (3,000 Leads)
 
-- **Daily BFF requests:** 1,255 (only 1.3% of 100k free tier)
-- **Buffer for spikes:** 98.7% remaining
-- **Can scale to:** 3,000 users still at 11.5% usage
+- **Daily BFF requests:** 2,155 (only 2.2% of 100k free tier)
+- **Monthly database RUs:** ~500K (only 1% of 50M free tier)
+- **Buffer for spikes:** 97%+ remaining on both services
+- **Can scale to:** 100,000+ leads on free tier
 - **DDoS attack cost:** $0 (hard limits block excess)
 
 📖 **[Read Traffic Analysis →](docs/ARCHITECTURE.md#bff-traffic-analysis)**
@@ -322,15 +324,15 @@ See **[TODO.md](TODO.md)** for the complete implementation roadmap.
 
 ## 📈 Scalability
 
-### Current Capacity (300 registrants)
-- Using only 1.3% of Cloudflare Workers free tier
-- VPS (2GB RAM) handles comfortably
-- Can scale to 3,000 users without upgrades
+### Current Capacity (3,000 leads)
+- Using only 2.2% of Cloudflare Workers free tier
+- Using only 1% of CockroachDB Serverless free tier
+- Can scale to 100,000+ leads without upgrades
 
 ### Scaling Path
-1. **0-5K users:** Current setup ($5-10/mo)
-2. **5K-20K users:** Upgrade VPS to 4GB ($15-20/mo)
-3. **20K+ users:** Add load balancer, managed PostgreSQL ($50-100/mo)
+1. **0-100K leads:** Current setup ($0/mo - fully free)
+2. **100K-300K leads:** Pay-as-you-go (~$10-20/mo)
+3. **300K+ leads:** Dedicated clusters or self-hosted PostgreSQL
 
 📖 **[Read Scalability Strategy →](docs/ARCHITECTURE.md#scalability)**
 
@@ -375,11 +377,11 @@ npm install
 
 **Database connection error:**
 ```bash
-# Check PostgreSQL is running
-sudo systemctl status postgresql
+# Verify CockroachDB connection string in .env
+# Format: postgresql://user:password@host:26257/database?sslmode=verify-full
 
-# Verify connection string in backend/.env
-cat backend/.env | grep DATABASE_URL
+# Test connection using cockroach CLI or psql
+cockroach sql --url "YOUR_CONNECTION_STRING"
 ```
 
 **Cloudflare Workers not deploying:**
@@ -434,8 +436,8 @@ This is a private project for STMIK Campus. Only authorized developers should co
 
 ### For Production Issues
 - Check Cloudflare Analytics for traffic/errors
-- Check pm2 logs: `pm2 logs campus-backend`
-- Check nginx logs: `sudo tail -f /var/log/nginx/error.log`
+- Check CockroachDB Console for database metrics
+- Check Cloudflare Workers logs in dashboard
 
 ---
 
@@ -458,23 +460,23 @@ This project is proprietary and confidential. All rights reserved to STMIK.
 
 ### Why This Solution?
 
-1. **Cost-Effective:** $5-10/month (95% cheaper than typical cloud solutions)
+1. **Cost-Effective:** $0/month on free tiers (100% free for up to 100K leads)
 2. **Zero Risk:** Hard limits prevent unexpected bills during DDoS
-3. **Production-Ready:** Industry-standard tech stack with 20+ years of community support
-4. **Scalable:** Can grow from 300 to 30,000 users with minimal changes
+3. **Production-Ready:** Industry-standard tech stack with strong community support
+4. **Scalable:** Can grow from 3,000 to 100,000+ leads without paying
 5. **Secure:** OIDC, HttpOnly cookies, rate limiting, DDoS protection
-6. **Developer-Friendly:** Modern stack, monorepo, automated deployments
+6. **Developer-Friendly:** Modern stack, serverless, automated deployments
 7. **SEO-Optimized:** Static site generation for excellent search rankings
-8. **Low Maintenance:** Cloudflare handles edge layer, minimal ops overhead
+8. **Zero Maintenance:** Fully managed services, no servers to maintain
 
 ### Success Metrics
 
-- [ ] 300 registrants successfully submit applications
+- [ ] 3,000 leads with 300 registrations (10% conversion)
 - [ ] Zero security incidents
 - [ ] 99% uptime
 - [ ] <2s page load time
-- [ ] <1.5% BFF traffic usage (well under limit)
-- [ ] $5-10/month hosting cost maintained
+- [ ] <5% free tier usage (BFF + database)
+- [ ] $0/month hosting cost maintained
 
 ---
 

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Campus website for STMIK Tazkia - a bilingual (Indonesian/English) marketing and admission system built with Astro. The project follows a hybrid static site + BFF (Backend-For-Frontend) architecture pattern designed for cost-effectiveness ($5-10/month) while supporting 300 registrants per admission cycle.
+Campus website for STMIK Tazkia - a bilingual (Indonesian/English) marketing and admission system built with Astro. The project follows a hybrid static site + BFF (Backend-For-Frontend) architecture pattern designed for cost-effectiveness ($0/month on free tiers) while supporting 3,000 leads per admission cycle (300 registrations at 10% conversion).
 
 **Current Status:** Marketing Site Phase (Phase 3 - 30% Complete) - Deployed to Cloudflare Pages at https://dev.stmik.tazkia.ac.id/
 
@@ -24,13 +24,13 @@ Campus website for STMIK Tazkia - a bilingual (Indonesian/English) marketing and
 ### High-Level Structure
 
 ```
-Hybrid Static Site + BFF Pattern
+Hybrid Static Site + BFF Pattern (Fully Serverless)
 
 Browser
   ├── Cloudflare Pages (Astro Static Site) - FREE
   ├── Cloudflare Workers (BFF Layer) - FREE [Planned]
-  └── Express.js Backend (VPS) - $5-10/mo [Planned]
-            └── PostgreSQL Database [Planned]
+  ├── Cloudflare R2 (File Storage) - FREE [Planned]
+  └── CockroachDB Serverless (Database) - FREE [Planned]
 ```
 
 **Key Architectural Decisions:**
@@ -116,8 +116,9 @@ npm run migrate:rollback      # Rollback last migration
 | **Frontend** | Astro 5.x + Tailwind CSS 4.x | Static site generation, component islands |
 | **Styling** | Tailwind CSS + custom design system | Brand colors: primary (blue #194189), secondary (orange #EE7B1D) |
 | **i18n** | Custom implementation | See frontend/src/utils/i18n.ts |
-| **BFF** | Cloudflare Workers | [Planned] Auth handlers, API proxy |
-| **Backend** | Express.js + PostgreSQL | [Planned] REST API, file storage |
+| **BFF** | Cloudflare Workers | [Planned] Auth handlers, API proxy (100k req/day free) |
+| **Database** | CockroachDB Serverless | [Planned] PostgreSQL-compatible, 50M RUs/month free |
+| **File Storage** | Cloudflare R2 | [Planned] 10GB free tier |
 | **Deployment** | Cloudflare Pages | Auto-deploy on git push (Cloudflare integration) |
 
 ## Internationalization (i18n)
@@ -192,10 +193,17 @@ See `docs/ARCHITECTURE.md` for authentication flows.
 
 ## Database Schema (Planned)
 
+**Database:** CockroachDB Serverless (PostgreSQL wire-compatible)
+
 **Tables:**
 - `users` - User accounts (registrants + staff)
 - `applications` - Application submissions
 - `sessions` - Optional session storage
+
+**CockroachDB Notes:**
+- Standard CRUD, JOINs, indexes work identically to PostgreSQL
+- Use SERIAL for auto-incrementing IDs
+- Connection string: `postgresql://user:pass@host:26257/db?sslmode=verify-full`
 
 See `docs/ARCHITECTURE.md#database-schema` for detailed schema.
 
@@ -259,11 +267,12 @@ Estimated time to MVP: 7-10 weeks
 
 ## Target Metrics
 
-- 300 registrants per admission cycle
+- 3,000 leads per admission cycle (300 registrations at 10% conversion)
 - <2s page load time
 - 99% uptime
-- $5-10/month hosting cost
-- <1.5% Cloudflare Workers usage (well under 100k req/day limit)
+- $0/month hosting cost (fully on free tiers)
+- <5% Cloudflare Workers usage (2.2% of 100k req/day limit)
+- <5% CockroachDB usage (1% of 50M RUs/month limit)
 - Zero security incidents
 
 ## Common Tasks
@@ -295,5 +304,7 @@ Content collections are configured in `frontend/src/content/config.ts`. Use them
 - The project currently uses only frontend dependencies. Backend dependencies will be added in Phase 2.
 - The project uses a custom i18n implementation (no external dependencies).
 - Deployment uses Cloudflare Pages auto-deploy (triggered on git push to GitHub).
-- Backend (Express.js + PostgreSQL) and shared types are deferred until Phase 2.
-- File uploads and Cloudflare R2 integration planned for Phase 2-4.
+- Database uses CockroachDB Serverless (PostgreSQL-compatible, 50M RUs/month free tier).
+- File uploads use Cloudflare R2 (10GB free tier).
+- Fully serverless architecture - no VPS required, $0/month hosting cost.
+- Can scale to 100,000+ leads on free tier before needing paid plans.
