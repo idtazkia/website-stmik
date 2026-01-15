@@ -136,7 +136,7 @@ app_port: 3000
 
 # Versions
 nodejs_version: "20.x"
-postgresql_version: "16"
+postgresql_version: "18"
 
 # Domain
 domain: "api.stmik.tazkia.ac.id"
@@ -210,7 +210,7 @@ This will:
 - Update system packages
 - Create deployment user
 - Install Node.js 20.x
-- Install PostgreSQL 16
+- Install PostgreSQL 18
 - Install Nginx
 - Install PM2
 - Install Certbot (SSL)

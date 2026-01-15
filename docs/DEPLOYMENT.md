@@ -142,8 +142,8 @@ ufw enable
 # Install Nginx
 apt install -y nginx
 
-# Install PostgreSQL 16
-apt install -y postgresql-16 postgresql-contrib-16
+# Install PostgreSQL 18
+apt install -y postgresql-18 postgresql-contrib-16
 
 # Install Go (latest stable)
 wget https://go.dev/dl/go1.23.4.linux-amd64.tar.gz
@@ -175,7 +175,7 @@ GRANT ALL PRIVILEGES ON DATABASE campus TO campus_app;
 
 ### 2. Configure Authentication
 
-Edit `/etc/postgresql/16/main/pg_hba.conf`:
+Edit `/etc/postgresql/18/main/pg_hba.conf`:
 
 ```bash
 # Allow local connections with password
@@ -183,7 +183,7 @@ Edit `/etc/postgresql/16/main/pg_hba.conf`:
 local   campus   campus_app   scram-sha-256
 ```
 
-Edit `/etc/postgresql/16/main/postgresql.conf`:
+Edit `/etc/postgresql/18/main/postgresql.conf`:
 
 ```bash
 # Listen only on localhost (Go app is on same server)
@@ -441,7 +441,7 @@ npm run dev                      # http://localhost:4321
 cd backend
 
 # Start local PostgreSQL (if not running)
-# macOS: brew services start postgresql@16
+# macOS: brew services start postgresql@18
 # Linux: sudo systemctl start postgresql
 
 # Create local database (first time only)
@@ -478,8 +478,8 @@ PORT=3000
 
 ```bash
 # Install PostgreSQL
-brew install postgresql@16
-brew services start postgresql@16
+brew install postgresql@18
+brew services start postgresql@18
 
 # Create user and database
 createuser -P campus_app        # Enter password when prompted
@@ -493,7 +493,7 @@ psql -U campus_app -d campus -h localhost
 
 ```bash
 # Install PostgreSQL
-sudo apt install postgresql-16
+sudo apt install postgresql-18
 
 # Create user and database
 sudo -u postgres createuser -P campus_app
@@ -866,7 +866,7 @@ sudo tail -f /var/log/nginx/access.log
 sudo tail -f /var/log/nginx/error.log
 
 # PostgreSQL logs
-sudo tail -f /var/log/postgresql/postgresql-16-main.log
+sudo tail -f /var/log/postgresql/postgresql-18-main.log
 ```
 
 ### PostgreSQL Monitoring
@@ -1004,10 +1004,10 @@ psql -U campus_app -d campus -h localhost
 sudo systemctl status postgresql
 
 # Check pg_hba.conf for authentication rules
-sudo cat /etc/postgresql/16/main/pg_hba.conf
+sudo cat /etc/postgresql/18/main/pg_hba.conf
 
 # View PostgreSQL logs
-sudo tail -f /var/log/postgresql/postgresql-16-main.log
+sudo tail -f /var/log/postgresql/postgresql-18-main.log
 ```
 
 **Query timeout or slow queries:**
@@ -1201,7 +1201,7 @@ psql -U campus_app -d campus -h localhost < /home/campus/backups/campus_YYYYMMDD
 - [Go Documentation](https://go.dev/doc/)
 - [Chi Router](https://go-chi.io/)
 - [pgx PostgreSQL Driver](https://github.com/jackc/pgx)
-- [PostgreSQL Documentation](https://www.postgresql.org/docs/16/)
+- [PostgreSQL Documentation](https://www.postgresql.org/docs/18/)
 - [Nginx Documentation](https://nginx.org/en/docs/)
 - [Certbot Documentation](https://certbot.eff.org/docs/)
 - [Let's Encrypt](https://letsencrypt.org/docs/)

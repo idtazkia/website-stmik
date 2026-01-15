@@ -81,7 +81,7 @@ ansible-playbook -i inventory/production.ini playbooks/setup-vps.yml
 
 This installs:
 - Node.js 20.x
-- PostgreSQL 16
+- PostgreSQL 18
 - Nginx
 - PM2
 - Certbot (SSL)

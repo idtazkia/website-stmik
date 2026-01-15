@@ -45,7 +45,7 @@ This directory will contain Ansible playbooks and scripts for VPS provisioning a
   - [ ] Add NodeSource repository
   - [ ] Install Node.js and npm
   - [ ] Verify installation
-- [ ] Install PostgreSQL 16
+- [ ] Install PostgreSQL 18
   - [ ] Add PostgreSQL APT repository
   - [ ] Install PostgreSQL
   - [ ] Configure PostgreSQL for remote connections (optional)
@@ -231,7 +231,7 @@ backend-vps ansible_host=YOUR_VPS_IP ansible_user=deploy
 ### group_vars/all.yml
 ```yaml
 nodejs_version: "20.x"
-postgresql_version: "16"
+postgresql_version: "18"
 app_name: "campus-backend"
 app_port: 3000
 domain: "api.stmik.tazkia.ac.id"
