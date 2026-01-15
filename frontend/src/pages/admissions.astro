@@ -1,0 +1,338 @@
+---
+import MarketingLayout from '../layouts/MarketingLayout.astro';
+import Container from '../components/Container.astro';
+import Section from '../components/Section.astro';
+import Card from '../components/Card.astro';
+import { getLocaleFromUrl, t, localizePath } from '../utils/i18n';
+
+const locale = getLocaleFromUrl(Astro.url);
+const translate = (key: string) => t(locale, key);
+const localPath = (path: string) => localizePath(locale, path);
+
+const intakes = [
+  {
+    name: translate('admissions.intake_1_name'),
+    period: translate('admissions.intake_1_period'),
+    benefit: translate('admissions.intake_1_benefit'),
+    status: 'open',
+    highlight: true
+  },
+  {
+    name: translate('admissions.intake_2_name'),
+    period: translate('admissions.intake_2_period'),
+    benefit: translate('admissions.intake_2_benefit'),
+    status: 'upcoming',
+    highlight: false
+  },
+  {
+    name: translate('admissions.intake_3_name'),
+    period: translate('admissions.intake_3_period'),
+    benefit: translate('admissions.intake_3_benefit'),
+    status: 'upcoming',
+    highlight: false
+  }
+];
+
+const requirements = [
+  translate('admissions.req_1'),
+  translate('admissions.req_2'),
+  translate('admissions.req_3'),
+  translate('admissions.req_4'),
+  translate('admissions.req_5'),
+  translate('admissions.req_6'),
+];
+
+const steps = [
+  {
+    number: 1,
+    title: translate('admissions.step_1_title'),
+    description: translate('admissions.step_1_desc'),
+    icon: 'form'
+  },
+  {
+    number: 2,
+    title: translate('admissions.step_2_title'),
+    description: translate('admissions.step_2_desc'),
+    icon: 'check'
+  },
+  {
+    number: 3,
+    title: translate('admissions.step_3_title'),
+    description: translate('admissions.step_3_desc'),
+    icon: 'payment'
+  },
+  {
+    number: 4,
+    title: translate('admissions.step_4_title'),
+    description: translate('admissions.step_4_desc'),
+    icon: 'confirm'
+  }
+];
+
+const scholarships = [
+  {
+    name: translate('admissions.scholarship_1_name'),
+    description: translate('admissions.scholarship_1_desc'),
+    icon: 'academic'
+  },
+  {
+    name: translate('admissions.scholarship_2_name'),
+    description: translate('admissions.scholarship_2_desc'),
+    icon: 'quran'
+  },
+  {
+    name: translate('admissions.scholarship_3_name'),
+    description: translate('admissions.scholarship_3_desc'),
+    icon: 'financial'
+  },
+  {
+    name: translate('admissions.scholarship_4_name'),
+    description: translate('admissions.scholarship_4_desc'),
+    icon: 'alumni'
+  }
+];
+
+const faqs = [
+  { question: translate('admissions.faq_1_q'), answer: translate('admissions.faq_1_a') },
+  { question: translate('admissions.faq_2_q'), answer: translate('admissions.faq_2_a') },
+  { question: translate('admissions.faq_3_q'), answer: translate('admissions.faq_3_a') },
+  { question: translate('admissions.faq_4_q'), answer: translate('admissions.faq_4_a') },
+  { question: translate('admissions.faq_5_q'), answer: translate('admissions.faq_5_a') },
+];
+---
+
+<MarketingLayout title={translate('admissions.title')} description={translate('admissions.description')}>
+  <!-- Hero Section -->
+  <Section background="gradient" class="pt-32 pb-20">
+    <Container>
+      <div class="max-w-3xl mx-auto text-center">
+        <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+          {translate('admissions.title')}
+        </h1>
+        <p class="text-xl text-gray-600 mb-8">
+          {translate('admissions.subtitle')}
+        </p>
+        <a
+          href="#registration"
+          class="inline-flex items-center px-6 py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-colors"
+        >
+          {translate('admissions.cta_button')}
+          <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+          </svg>
+        </a>
+      </div>
+    </Container>
+  </Section>
+
+  <!-- Intake Periods -->
+  <Section background="white" id="registration">
+    <Container>
+      <div class="max-w-5xl mx-auto">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 mb-4">
+            {translate('admissions.intake_title')}
+          </h2>
+          <p class="text-lg text-gray-600">
+            {translate('admissions.intake_subtitle')}
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-6">
+          {intakes.map((intake) => (
+            <Card hover={true} class={intake.highlight ? 'ring-2 ring-primary-500' : ''}>
+              <div class="p-6 text-center">
+                {intake.highlight && (
+                  <span class="inline-block px-3 py-1 bg-primary-100 text-primary-700 text-xs font-medium rounded-full mb-4">
+                    {translate('admissions.registration_open')}
+                  </span>
+                )}
+                <h3 class="text-xl font-bold text-gray-900 mb-2">{intake.name}</h3>
+                <p class="text-gray-600 mb-4">{intake.period}</p>
+                <div class:list={[
+                  'inline-block px-4 py-2 rounded-lg text-sm font-medium',
+                  intake.highlight ? 'bg-secondary-100 text-secondary-700' : 'bg-gray-100 text-gray-600'
+                ]}>
+                  {intake.benefit}
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </Container>
+  </Section>
+
+  <!-- Registration Process -->
+  <Section background="gray">
+    <Container>
+      <div class="max-w-5xl mx-auto">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 mb-4">
+            {translate('admissions.process_title')}
+          </h2>
+          <p class="text-lg text-gray-600">
+            {translate('admissions.process_subtitle')}
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-4 gap-6">
+          {steps.map((step) => (
+            <div class="text-center">
+              <div class="w-16 h-16 bg-primary-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
+                {step.number}
+              </div>
+              <h3 class="text-lg font-bold text-gray-900 mb-2">{step.title}</h3>
+              <p class="text-sm text-gray-600">{step.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </Container>
+  </Section>
+
+  <!-- Requirements -->
+  <Section background="white">
+    <Container>
+      <div class="max-w-4xl mx-auto">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 mb-4">
+            {translate('admissions.requirements_title')}
+          </h2>
+          <p class="text-lg text-gray-600">
+            {translate('admissions.requirements_subtitle')}
+          </p>
+        </div>
+
+        <Card>
+          <div class="p-8">
+            <ul class="grid md:grid-cols-2 gap-4">
+              {requirements.map((req) => (
+                <li class="flex items-start gap-3">
+                  <svg class="w-6 h-6 text-primary-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  <span class="text-gray-700">{req}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </Card>
+      </div>
+    </Container>
+  </Section>
+
+  <!-- Scholarships -->
+  <Section background="gradient">
+    <Container>
+      <div class="max-w-5xl mx-auto">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 mb-4">
+            {translate('admissions.scholarship_title')}
+          </h2>
+          <p class="text-lg text-gray-600">
+            {translate('admissions.scholarship_subtitle')}
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6">
+          {scholarships.map((scholarship) => (
+            <Card hover={true}>
+              <div class="p-6 flex gap-4">
+                <div class="w-12 h-12 bg-secondary-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  {scholarship.icon === 'academic' && (
+                    <svg class="w-6 h-6 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path>
+                    </svg>
+                  )}
+                  {scholarship.icon === 'quran' && (
+                    <svg class="w-6 h-6 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                    </svg>
+                  )}
+                  {scholarship.icon === 'financial' && (
+                    <svg class="w-6 h-6 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                  )}
+                  {scholarship.icon === 'alumni' && (
+                    <svg class="w-6 h-6 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                  )}
+                </div>
+                <div>
+                  <h3 class="font-bold text-gray-900 mb-1">{scholarship.name}</h3>
+                  <p class="text-sm text-gray-600">{scholarship.description}</p>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </Container>
+  </Section>
+
+  <!-- FAQ -->
+  <Section background="white">
+    <Container>
+      <div class="max-w-3xl mx-auto">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 mb-4">
+            {translate('admissions.faq_title')}
+          </h2>
+          <p class="text-lg text-gray-600">
+            {translate('admissions.faq_subtitle')}
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          {faqs.map((faq, index) => (
+            <Card>
+              <details class="group">
+                <summary class="flex items-center justify-between p-6 cursor-pointer list-none">
+                  <h3 class="font-semibold text-gray-900 pr-4">{faq.question}</h3>
+                  <svg class="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </summary>
+                <div class="px-6 pb-6 text-gray-600">
+                  {faq.answer}
+                </div>
+              </details>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </Container>
+  </Section>
+
+  <!-- CTA Section -->
+  <Section background="gray">
+    <Container>
+      <div class="max-w-3xl mx-auto text-center">
+        <h2 class="text-3xl font-bold text-gray-900 mb-4">
+          {translate('admissions.cta_title')}
+        </h2>
+        <p class="text-lg text-gray-600 mb-8">
+          {translate('admissions.cta_subtitle')}
+        </p>
+        <div class="flex flex-wrap justify-center gap-4">
+          <a
+            href="#registration"
+            class="inline-flex items-center px-6 py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-colors"
+          >
+            {translate('admissions.cta_button')}
+          </a>
+          <a
+            href={localPath('/contact')}
+            class="inline-flex items-center px-6 py-3 border-2 border-primary-600 text-primary-600 font-semibold rounded-lg hover:bg-primary-50 transition-colors"
+          >
+            {translate('admissions.cta_contact')}
+          </a>
+        </div>
+      </div>
+    </Container>
+  </Section>
+</MarketingLayout>
