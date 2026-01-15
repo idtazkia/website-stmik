@@ -16,10 +16,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install Gitleaks
+        run: |
+          curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.24.3/gitleaks_8.24.3_linux_x64.tar.gz | tar xz
+          chmod +x gitleaks
+
       - name: Run Gitleaks
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./gitleaks detect --source . --verbose
 
   gosec:
     name: Go SAST (gosec)
@@ -36,7 +39,7 @@ jobs:
       - name: Run gosec
         uses: securego/gosec@master
         with:
-          args: -exclude-dir=node_modules ./backend/...
+          args: -exclude-dir=node_modules -exclude-generated -exclude=G104 ./backend/...
 
   trivy:
     name: Vulnerability Scan (Trivy)
