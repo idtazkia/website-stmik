@@ -12,4 +12,4 @@ Disallow: /
 # Disallow: /apply
 # Disallow: /applications
 # Disallow: /admin
-# Sitemap: https://dev.stmik.tazkia.ac.id/sitemap-index.xml
+# Sitemap: https://stmik.tazkia.ac.id/sitemap-index.xml

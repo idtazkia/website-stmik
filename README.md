@@ -2,7 +2,7 @@
 
 > Modern, secure, and cost-effective campus admission system built with Astro, Go, and Cloudflare.
 
-**🌐 Live Site:** https://dev.stmik.tazkia.ac.id/
+**🌐 Live Site:** https://stmik.tazkia.ac.id/
 
 ## 🎯 Current Status (Updated: 2025-11-19)
 

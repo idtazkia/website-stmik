@@ -1,6 +1,6 @@
 # Campus Website - Project TODO
 
-**Live Site:** https://dev.stmik.tazkia.ac.id/
+**Live Site:** https://stmik.tazkia.ac.id/
 
 ---
 
@@ -46,7 +46,7 @@ See `frontend/TODO.md` for detailed frontend tasks.
 #### Completed
 - Repository structure created
 - Cloudflare Pages configured and deployed
-- Custom domain configured (dev.stmik.tazkia.ac.id)
+- Custom domain configured (stmik.tazkia.ac.id)
 - Documentation created (README, CLAUDE, ARCHITECTURE, DEPLOYMENT)
 
 #### Deferred

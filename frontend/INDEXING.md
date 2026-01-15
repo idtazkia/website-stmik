@@ -64,7 +64,7 @@ Disallow: /applications
 Disallow: /admin
 
 # Sitemap location
-Sitemap: https://dev.stmik.tazkia.ac.id/sitemap-index.xml
+Sitemap: https://stmik.tazkia.ac.id/sitemap-index.xml
 ```
 
 ### Step 2: Update BaseLayout Default
@@ -96,7 +96,7 @@ npm run build
 After deployment, check:
 
 1. **robots.txt is accessible:**
-   - Visit: https://dev.stmik.tazkia.ac.id/robots.txt
+   - Visit: https://stmik.tazkia.ac.id/robots.txt
    - Verify it shows "Allow: /" instead of "Disallow: /"
 
 2. **Meta robots tag is removed:**
@@ -106,20 +106,20 @@ After deployment, check:
    - Should NOT see `content="noindex, nofollow"`
 
 3. **Sitemap is accessible:**
-   - Visit: https://dev.stmik.tazkia.ac.id/sitemap-index.xml
+   - Visit: https://stmik.tazkia.ac.id/sitemap-index.xml
    - Should show XML sitemap
 
 ### Step 5: Submit Sitemap to Search Engines
 
 **Google Search Console:**
 1. Go to https://search.google.com/search-console
-2. Add property: dev.stmik.tazkia.ac.id
+2. Add property: stmik.tazkia.ac.id
 3. Verify ownership (DNS or HTML file method)
-4. Submit sitemap: https://dev.stmik.tazkia.ac.id/sitemap-index.xml
+4. Submit sitemap: https://stmik.tazkia.ac.id/sitemap-index.xml
 
 **Bing Webmaster Tools:**
 1. Go to https://www.bing.com/webmasters
-2. Add site: dev.stmik.tazkia.ac.id
+2. Add site: stmik.tazkia.ac.id
 3. Verify ownership
 4. Submit sitemap
 
@@ -131,7 +131,7 @@ After deployment, check:
 
 **Method 1: Google Search**
 ```
-site:dev.stmik.tazkia.ac.id
+site:stmik.tazkia.ac.id
 ```
 Should return: "No results found" or very few results
 
@@ -141,14 +141,14 @@ Should return: "No results found" or very few results
 
 **Method 3: robots.txt Tester**
 - Google Search Console → Crawl → robots.txt Tester
-- Test URL: https://dev.stmik.tazkia.ac.id/
+- Test URL: https://stmik.tazkia.ac.id/
 - Should show: "Blocked"
 
 ### Check if Site is Indexed (After Launch)
 
 **Method 1: Google Search**
 ```
-site:dev.stmik.tazkia.ac.id
+site:stmik.tazkia.ac.id
 ```
 Should return: Multiple pages listed
 
@@ -229,7 +229,7 @@ Allow: /lecturers
 
 ### Weekly Checks (While Blocked)
 - [ ] Verify robots.txt still shows "Disallow: /"
-- [ ] Check Google Search: `site:dev.stmik.tazkia.ac.id` returns no results
+- [ ] Check Google Search: `site:stmik.tazkia.ac.id` returns no results
 - [ ] Review any accidental backlinks or references
 
 ### Weekly Checks (After Launch)

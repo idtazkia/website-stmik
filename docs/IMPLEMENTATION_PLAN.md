@@ -1,6 +1,6 @@
 # Implementation Plan - STMIK Tazkia Campus Website
 
-**Live Site:** https://dev.stmik.tazkia.ac.id/
+**Live Site:** https://stmik.tazkia.ac.id/
 
 ---
 
@@ -39,7 +39,7 @@
 ### 1.3 Deployment Infrastructure
 - [x] Cloudflare Pages configured
 - [x] Auto-deploy on git push
-- [x] Custom domain (dev.stmik.tazkia.ac.id)
+- [x] Custom domain (stmik.tazkia.ac.id)
 - [x] SSL/TLS enabled
 
 ### 1.4 Backend Infrastructure (Deferred)
