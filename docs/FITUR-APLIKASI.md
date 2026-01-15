@@ -129,6 +129,8 @@ Admin mengelola akun staff yang bisa login ke sistem.
 
 **Catatan:** Staff login menggunakan Google OAuth dengan email institusi. Jika email valid, akun otomatis dibuat dengan role=konsultan.
 
+![Admin Login](screenshots/admin-login.png)
+
 ### 1.2 Setting Program Studi (Prodi)
 
 | Field | Keterangan |
@@ -316,6 +318,8 @@ Setelah registrasi, kandidat bisa login ke portal untuk:
 4. **Pengumuman** - Melihat info dan pengumuman terbaru
 5. **Referral** - (setelah enrolled) Dapatkan kode referral untuk ajak teman
 
+![Portal Dokumen](screenshots/portal-documents.png)
+
 ---
 
 ## Fase 3: Follow-up oleh Konsultan
@@ -330,6 +334,8 @@ Konsultan melihat daftar kandidat yang di-assign kepadanya dengan filter:
 - Tanggal pendaftaran
 - Overdue follow-up (> 3 hari tidak dihubungi)
 
+![Daftar Kandidat](screenshots/admin-candidates.png)
+
 ### 3.2 Detail Kandidat
 
 Informasi yang ditampilkan:
@@ -340,6 +346,8 @@ Informasi yang ditampilkan:
 - Status pembayaran
 - Status dokumen
 - Timeline interaksi
+
+![Detail Kandidat](screenshots/admin-candidate-detail.png)
 
 ### 3.3 Pencatatan Interaksi
 
@@ -352,6 +360,8 @@ Setiap kontak dengan kandidat harus dicatat:
 | Hambatan | (opsional) Pilih dari daftar hambatan |
 | Catatan | Isi percakapan/hasil interaksi |
 | Follow-up Berikutnya | Tanggal rencana follow-up selanjutnya |
+
+![Form Interaksi](screenshots/interaction-form.png)
 
 ### 3.4 Saran dari Supervisor
 
@@ -406,6 +416,8 @@ Admin mereview dokumen yang diupload kandidat:
 - Kandidat bisa re-upload jika ditolak
 
 **Dokumen yang bisa ditunda:** Ijazah dan transkrip bisa menyusul jika belum wisuda.
+
+![Review Dokumen](screenshots/document-review.png)
 
 ### 5.2 Syarat Enrollment
 
@@ -465,12 +477,16 @@ Komisi otomatis dibuat saat kandidat yang direferensikan enrolled:
 - Kandidat overdue follow-up
 - Tugas hari ini
 
+![Dashboard Konsultan](screenshots/consultant-dashboard.png)
+
 ### 7.2 Dashboard Supervisor
 
 - Funnel tim: registered → prospecting → committed → enrolled
 - Leaderboard konsultan
 - Kandidat stuck (> 7 hari tanpa interaksi)
 - Hambatan yang sering muncul
+
+![Dashboard Admin](screenshots/admin-dashboard.png)
 
 ### 7.3 Laporan Funnel
 
@@ -487,6 +503,8 @@ Filter: periode, prodi, kampanye
 - Tingkat konversi
 - Rata-rata waktu sampai commit
 - Frekuensi interaksi
+
+![Laporan Performa Konsultan](screenshots/consultant-report.png)
 
 ### 7.5 Laporan ROI Kampanye
 
