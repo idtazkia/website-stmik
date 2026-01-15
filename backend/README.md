@@ -254,94 +254,44 @@ Track marketing campaign effectiveness via UTM parameters:
 ```
 backend/
 ├── cmd/
-│   ├── server/
-│   │   └── main.go              # Entry point
-│   └── migrate/
-│       └── main.go              # Migration CLI
-├── internal/
-│   ├── config/
-│   │   └── config.go            # Environment configuration
-│   ├── database/
-│   │   └── database.go          # PostgreSQL connection
-│   ├── handlers/
-│   │   ├── api.go               # JSON API (lead capture)
-│   │   ├── portal.go            # Registrant portal
-│   │   ├── admin.go             # Staff dashboard
-│   │   └── auth.go              # Authentication
-│   ├── middleware/
-│   │   ├── auth.go              # JWT verification
-│   │   ├── logging.go           # Request logging
-│   │   └── recovery.go          # Panic recovery
-│   ├── models/
-│   │   ├── user.go
-│   │   ├── prospect.go
-│   │   ├── application.go
-│   │   ├── document.go
-│   │   └── intake.go
-│   ├── repository/
-│   │   ├── user.go
-│   │   ├── prospect.go
-│   │   ├── application.go
-│   │   └── document.go
-│   ├── services/
-│   │   ├── auth.go
-│   │   ├── prospect.go
-│   │   ├── application.go
-│   │   ├── document.go
-│   │   ├── whatsapp.go          # WhatsApp API client
-│   │   └── kafka.go             # Kafka consumer/producer
-│   └── assignment/
-│       └── roundrobin.go        # Staff assignment logic
-├── migrations/
-│   ├── 001_create_users.up.sql
-│   ├── 001_create_users.down.sql
-│   └── ...
-├── templates/
-│   ├── components/
-│   │   ├── button.templ
-│   │   ├── input.templ
-│   │   ├── card.templ
-│   │   ├── modal.templ
-│   │   ├── table.templ
-│   │   ├── pagination.templ
-│   │   ├── alert.templ
-│   │   └── dropdown.templ
-│   ├── layouts/
-│   │   ├── base.templ
-│   │   ├── portal.templ
-│   │   └── admin.templ
-│   └── pages/
-│       ├── portal/
-│       │   ├── login.templ
-│       │   ├── register.templ
-│       │   ├── dashboard.templ
-│       │   ├── application.templ
-│       │   ├── documents.templ
-│       │   └── cancel.templ
-│       └── admin/
-│           ├── login.templ
-│           ├── dashboard.templ
-│           ├── prospects.templ
-│           ├── prospect_detail.templ
-│           ├── applications.templ
-│           ├── application_detail.templ
-│           ├── document_review.templ
-│           └── settings/
-│               ├── intakes.templ
-│               ├── tracks.templ
-│               ├── cancel_reasons.templ
-│               └── staff.templ
-├── static/
-│   ├── css/app.css
-│   └── js/
-│       ├── htmx.min.js
-│       └── alpine.min.js
+│   ├── server/main.go           # Entry point
+│   └── migrate/main.go          # Migration CLI
+├── handler/                      # HTTP handlers
+│   ├── router.go                # Routes + middleware
+│   ├── auth.go                  # Login, OAuth, logout
+│   ├── api.go                   # JSON API (lead capture)
+│   ├── portal.go                # Registrant portal pages
+│   └── admin.go                 # Staff dashboard + settings
+├── model/                        # Data structs + DB queries
+│   ├── db.go                    # Connection pool
+│   ├── user.go
+│   ├── prospect.go
+│   ├── application.go
+│   ├── document.go
+│   └── lookup.go                # Programs, tracks, intakes, etc.
+├── migrations/                   # SQL files
+├── templates/                    # Templ files (split as needed)
+├── static/                       # CSS, JS
+├── config.go
+├── auth.go                       # JWT + bcrypt
+├── kafka.go                      # Payment consumer
+├── whatsapp.go                   # WA client
 ├── go.mod
-├── go.sum
-├── .env.example
-├── README.md
-└── TODO.md
+└── .env.example
 ```
+
+**Design decisions:**
+
+- No `internal/` - not a library, single executable, no external importers
+- No `repository/` layer - model handles its own queries
+- No `services/` layer - handlers call models, extract only when reused
+- Top-level files for small concerns (config, auth, integrations)
+- Split into packages only when files grow large
+
+**References:**
+- [Official Go module layout](https://go.dev/doc/modules/layout)
+- [Alex Edwards: 11 tips for structuring Go projects](https://www.alexedwards.net/blog/11-tips-for-structuring-your-go-projects)
+- [Rost Glukhov: Go Project Structure](https://www.glukhov.org/post/2025/12/go-project-structure/)
 
 ## Routes
 
