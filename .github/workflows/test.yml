@@ -88,6 +88,7 @@ jobs:
           DATABASE_PASSWORD: testpass
           DATABASE_NAME: stmik_admission
           DATABASE_SSL_MODE: disable
+          JWT_SECRET: test-secret-key-for-ci-only
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
