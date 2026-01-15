@@ -27,6 +27,8 @@ jobs:
   gosec:
     name: Go SAST (gosec)
     runs-on: ubuntu-latest
+    # TODO: Remove continue-on-error when gosec supports Go 1.25
+    continue-on-error: true
     steps:
       - name: Checkout
         uses: actions/checkout@v6
