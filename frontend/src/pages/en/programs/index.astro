@@ -1,0 +1,232 @@
+---
+// English version - same as Indonesian but with English locale
+import MarketingLayout from '../../../layouts/MarketingLayout.astro';
+import Container from '../../../components/Container.astro';
+import Section from '../../../components/Section.astro';
+import Card from '../../../components/Card.astro';
+import { getLocaleFromUrl, t, localizePath } from '../../../utils/i18n';
+
+const locale = getLocaleFromUrl(Astro.url);
+const translate = (key: string) => t(locale, key);
+const localPath = (path: string) => localizePath(locale, path);
+
+const programs = [
+  {
+    slug: 'information-systems',
+    title: translate('programs.si.title'),
+    description: translate('programs.si.description'),
+    degree: translate('programs.si.degree'),
+    duration: '3.5 - 4',
+    sks: 144,
+    specializations: [
+      translate('programs.si.specializations.pm.name'),
+      translate('programs.si.specializations.ml.name'),
+      translate('programs.si.specializations.da.name'),
+      translate('programs.si.specializations.bis.name'),
+    ],
+    icon: 'chart',
+    color: 'primary'
+  },
+  {
+    slug: 'computer-engineering',
+    title: translate('programs.ti.title'),
+    description: translate('programs.ti.description'),
+    degree: translate('programs.ti.degree'),
+    duration: '4',
+    sks: 144,
+    specializations: [
+      translate('programs.ti.specializations.cyber_security.name'),
+      translate('programs.ti.specializations.ai.name'),
+      translate('programs.ti.specializations.se.name'),
+      translate('programs.ti.specializations.web.name'),
+    ],
+    icon: 'code',
+    color: 'secondary'
+  }
+];
+---
+
+<MarketingLayout title={translate('programs.title')} description={translate('programs.description')}>
+  <!-- Hero Section -->
+  <Section background="gradient" class="pt-32 pb-20">
+    <Container>
+      <div class="max-w-3xl mx-auto text-center">
+        <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+          {translate('programs.title')}
+        </h1>
+        <p class="text-xl text-gray-600">
+          {translate('programs.subtitle')}
+        </p>
+      </div>
+    </Container>
+  </Section>
+
+  <!-- Programs Grid -->
+  <Section background="white">
+    <Container>
+      <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+        {programs.map((program) => (
+          <a href={localPath(`/programs/${program.slug}`)} class="group block">
+            <Card hover={true} class="h-full">
+              <div class="p-8">
+                <!-- Icon -->
+                <div class:list={[
+                  'w-16 h-16 rounded-xl flex items-center justify-center mb-6',
+                  program.color === 'primary' ? 'bg-primary-100' : 'bg-secondary-100'
+                ]}>
+                  {program.icon === 'chart' && (
+                    <svg class:list={['w-8 h-8', program.color === 'primary' ? 'text-primary-600' : 'text-secondary-600']} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                  )}
+                  {program.icon === 'code' && (
+                    <svg class:list={['w-8 h-8', program.color === 'primary' ? 'text-primary-600' : 'text-secondary-600']} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                    </svg>
+                  )}
+                </div>
+
+                <!-- Title & Degree -->
+                <div class="mb-4">
+                  <span class:list={[
+                    'inline-block px-3 py-1 text-xs font-medium rounded-full mb-3',
+                    program.color === 'primary' ? 'bg-primary-100 text-primary-700' : 'bg-secondary-100 text-secondary-700'
+                  ]}>
+                    S1 - {program.degree}
+                  </span>
+                  <h2 class="text-2xl font-bold text-gray-900 group-hover:text-primary-600 transition-colors">
+                    {program.title}
+                  </h2>
+                </div>
+
+                <!-- Description -->
+                <p class="text-gray-600 mb-6">
+                  {program.description}
+                </p>
+
+                <!-- Stats -->
+                <div class="flex gap-6 mb-6 text-sm">
+                  <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span class="text-gray-600">{program.duration} {translate('programs.years')}</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                    <span class="text-gray-600">{program.sks} {translate('programs.sks')}</span>
+                  </div>
+                </div>
+
+                <!-- Specializations -->
+                <div class="border-t pt-6">
+                  <p class="text-xs text-gray-500 uppercase tracking-wider mb-3">Specializations</p>
+                  <div class="flex flex-wrap gap-2">
+                    {program.specializations.map((spec) => (
+                      <span class="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded">
+                        {spec}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <!-- CTA -->
+                <div class="mt-6 flex items-center text-primary-600 font-medium group-hover:text-primary-700">
+                  {translate('programs.explore')}
+                  <svg class="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                  </svg>
+                </div>
+              </div>
+            </Card>
+          </a>
+        ))}
+      </div>
+    </Container>
+  </Section>
+
+  <!-- Why Choose Us Section -->
+  <Section background="gray">
+    <Container>
+      <div class="max-w-4xl mx-auto text-center mb-12">
+        <h2 class="text-3xl font-bold text-gray-900 mb-4">
+          {translate('about.unique_approach_title')}
+        </h2>
+        <p class="text-lg text-gray-600">
+          {translate('about.unique_approach_subtitle')}
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+        <Card>
+          <div class="p-6 text-center">
+            <div class="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span class="text-2xl font-bold text-primary-600">16</span>
+            </div>
+            <h3 class="font-bold text-gray-900 mb-2">{translate('stats.weeks')}</h3>
+            <p class="text-sm text-gray-600">{translate('stats.weeks_label')}</p>
+          </div>
+        </Card>
+        <Card>
+          <div class="p-6 text-center">
+            <div class="w-12 h-12 bg-secondary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span class="text-2xl font-bold text-secondary-600">4</span>
+            </div>
+            <h3 class="font-bold text-gray-900 mb-2">{translate('stats.courses')}</h3>
+            <p class="text-sm text-gray-600">{translate('stats.courses_label')}</p>
+          </div>
+        </Card>
+        <Card>
+          <div class="p-6 text-center">
+            <div class="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span class="text-2xl font-bold text-primary-600">1</span>
+            </div>
+            <h3 class="font-bold text-gray-900 mb-2">{translate('stats.products')}</h3>
+            <p class="text-sm text-gray-600">{translate('stats.products_label')}</p>
+          </div>
+        </Card>
+        <Card>
+          <div class="p-6 text-center">
+            <div class="w-12 h-12 bg-secondary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg class="w-6 h-6 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+            <h3 class="font-bold text-gray-900 mb-2">{translate('stats.practical')}</h3>
+            <p class="text-sm text-gray-600">{translate('stats.practical_label')}</p>
+          </div>
+        </Card>
+      </div>
+    </Container>
+  </Section>
+
+  <!-- CTA Section -->
+  <Section background="white">
+    <Container>
+      <div class="max-w-3xl mx-auto text-center">
+        <h2 class="text-3xl font-bold text-gray-900 mb-4">
+          {translate('programs.si.cta_title')}
+        </h2>
+        <p class="text-lg text-gray-600 mb-8">
+          {translate('programs.si.cta_subtitle')}
+        </p>
+        <div class="flex flex-wrap justify-center gap-4">
+          <a
+            href={localPath('/admissions')}
+            class="inline-flex items-center px-6 py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-colors"
+          >
+            {translate('button.apply_now')}
+          </a>
+          <a
+            href={localPath('/contact')}
+            class="inline-flex items-center px-6 py-3 border-2 border-primary-600 text-primary-600 font-semibold rounded-lg hover:bg-primary-50 transition-colors"
+          >
+            {translate('button.free_consultation')}
+          </a>
+        </div>
+      </div>
+    </Container>
+  </Section>
+</MarketingLayout>
