@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Campus website for STMIK Tazkia - a bilingual (Indonesian/English) marketing and admission system built with Astro. The project follows a hybrid static site + BFF (Backend-For-Frontend) architecture pattern designed for cost-effectiveness ($0/month on free tiers) while supporting 3,000 leads per admission cycle (300 registrations at 10% conversion).
+Campus website for STMIK Tazkia - a bilingual (Indonesian/English) marketing and admission system built with Astro. The project follows a static site + Go backend architecture pattern designed for simplicity and cost-effectiveness ($5/month VPS) while supporting 3,000 leads per admission cycle (300 registrations at 10% conversion).
 
 **Current Status:** Marketing Site Phase (Phase 3 - 30% Complete) - Deployed to Cloudflare Pages at https://dev.stmik.tazkia.ac.id/
 
@@ -24,20 +24,22 @@ Campus website for STMIK Tazkia - a bilingual (Indonesian/English) marketing and
 ### High-Level Structure
 
 ```
-Hybrid Static Site + BFF Pattern (Fully Serverless)
+Static Site + Go Backend Pattern
 
 Browser
   ├── Cloudflare Pages (Astro Static Site) - FREE
-  ├── Cloudflare Workers (BFF Layer) - FREE [Planned]
-  ├── Cloudflare R2 (File Storage) - FREE [Planned]
-  └── CockroachDB Serverless (Database) - FREE [Planned]
+  ├── Cloudflare CDN (DDoS Protection) - FREE
+  └── VPS ($5/month)
+        ├── Nginx (Reverse Proxy + SSL)
+        ├── Go Backend (REST API)
+        └── PostgreSQL (Database)
 ```
 
 **Key Architectural Decisions:**
 - **Astro Static Site**: SEO-optimized marketing pages with minimal JavaScript
-- **BFF Pattern**: HttpOnly cookies for security, edge-level rate limiting
-- **Serverless Edge**: Cloudflare Workers handle auth/API proxying (100k req/day free)
-- **Monorepo Structure**: Shared TypeScript types between frontend/backend
+- **Go Backend**: High-performance REST API with minimal resource usage
+- **Local PostgreSQL**: <1ms latency, no external database dependencies
+- **Cloudflare CDN**: DDoS protection, VPS IP hidden behind proxy
 - **Bilingual**: Indonesian (default) and English with custom i18n implementation
 
 ### Project Structure
@@ -116,10 +118,10 @@ npm run migrate:rollback      # Rollback last migration
 | **Frontend** | Astro 5.x + Tailwind CSS 4.x | Static site generation, component islands |
 | **Styling** | Tailwind CSS + custom design system | Brand colors: primary (blue #194189), secondary (orange #EE7B1D) |
 | **i18n** | Custom implementation | See frontend/src/utils/i18n.ts |
-| **BFF** | Cloudflare Workers | [Planned] Auth handlers, API proxy (100k req/day free) |
-| **Database** | CockroachDB Serverless | [Planned] PostgreSQL-compatible, 50M RUs/month free |
-| **File Storage** | Cloudflare R2 | [Planned] 10GB free tier |
-| **Deployment** | Cloudflare Pages | Auto-deploy on git push (Cloudflare integration) |
+| **Backend** | Go (Golang) | [Planned] REST API, runs on VPS |
+| **Database** | PostgreSQL 16 | [Planned] Local on VPS, <1ms latency |
+| **Reverse Proxy** | Nginx + Let's Encrypt | [Planned] SSL termination, rate limiting |
+| **Deployment** | Cloudflare Pages + VPS | Frontend auto-deploy, backend via GitHub Actions |
 
 ## Internationalization (i18n)
 
@@ -193,17 +195,17 @@ See `docs/ARCHITECTURE.md` for authentication flows.
 
 ## Database Schema (Planned)
 
-**Database:** CockroachDB Serverless (PostgreSQL wire-compatible)
+**Database:** PostgreSQL 16 (local on VPS)
 
 **Tables:**
 - `users` - User accounts (registrants + staff)
 - `applications` - Application submissions
 - `sessions` - Optional session storage
 
-**CockroachDB Notes:**
-- Standard CRUD, JOINs, indexes work identically to PostgreSQL
-- Use SERIAL for auto-incrementing IDs
-- Connection string: `postgresql://user:pass@host:26257/db?sslmode=verify-full`
+**Go Database Driver:**
+- Using `github.com/jackc/pgx/v5` (recommended PostgreSQL driver for Go)
+- Connection pooling via `pgxpool`
+- Connection string: `postgresql://campus_app:password@localhost:5432/campus`
 
 See `docs/ARCHITECTURE.md#database-schema` for detailed schema.
 
@@ -270,9 +272,9 @@ Estimated time to MVP: 7-10 weeks
 - 3,000 leads per admission cycle (300 registrations at 10% conversion)
 - <2s page load time
 - 99% uptime
-- $0/month hosting cost (fully on free tiers)
-- <5% Cloudflare Workers usage (2.2% of 100k req/day limit)
-- <5% CockroachDB usage (1% of 50M RUs/month limit)
+- $5/month hosting cost (VPS)
+- <30% VPS resource usage (RAM, CPU)
+- <1% disk usage
 - Zero security incidents
 
 ## Common Tasks
@@ -301,10 +303,11 @@ Content collections are configured in `frontend/src/content/config.ts`. Use them
 
 ## Notes
 
-- The project currently uses only frontend dependencies. Backend dependencies will be added in Phase 2.
+- The project currently uses only frontend dependencies. Backend (Go) will be added in Phase 2.
 - The project uses a custom i18n implementation (no external dependencies).
-- Deployment uses Cloudflare Pages auto-deploy (triggered on git push to GitHub).
-- Database uses CockroachDB Serverless (PostgreSQL-compatible, 50M RUs/month free tier).
-- File uploads use Cloudflare R2 (10GB free tier).
-- Fully serverless architecture - no VPS required, $0/month hosting cost.
-- Can scale to 100,000+ leads on free tier before needing paid plans.
+- Frontend deployment uses Cloudflare Pages auto-deploy (triggered on git push to GitHub).
+- Backend deployment uses GitHub Actions to deploy Go binary to VPS.
+- Database uses PostgreSQL 16 running locally on VPS (<1ms latency).
+- File uploads stored on VPS local disk.
+- Simple architecture: single VPS ($5/month) for backend + database.
+- Can scale to 100,000+ leads on same VPS before needing upgrade.

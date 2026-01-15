@@ -16,7 +16,7 @@
 
 ## Architecture Pattern
 
-**Hybrid Static Site + BFF (Backend-For-Frontend) Pattern**
+**Static Site + Go Backend Pattern**
 
 ```mermaid
 graph TB
@@ -25,31 +25,35 @@ graph TB
     end
 
     subgraph "Edge Layer - Cloudflare (Free)"
+        CDN[Cloudflare CDN<br/>DDoS Protection]
         StaticSite[Static Marketing Site<br/>Astro + Markdown<br/>Cloudflare Pages]
-        BFF[BFF Layer<br/>Cloudflare Workers<br/>API Routes]
-        FileStorage[Cloudflare R2<br/>File Storage]
     end
 
-    subgraph "Database Layer - Cockroach Labs (Free)"
-        Database[(CockroachDB Serverless<br/>50M RUs/month)]
+    subgraph "VPS Layer ($5/month)"
+        Nginx[Nginx<br/>Reverse Proxy + SSL]
+        GoAPI[Go Backend<br/>REST API + Auth]
+        Database[(PostgreSQL<br/>Database)]
+        FileStorage[Local Disk<br/>File Storage]
     end
 
-    Browser -->|HTTPS| StaticSite
-    Browser -->|API Calls<br/>Cookie: token| BFF
-    BFF -->|SQL queries| Database
-    BFF -->|Upload/Download| FileStorage
+    Browser -->|HTTPS| CDN
+    CDN -->|Static| StaticSite
+    CDN -->|API Calls| Nginx
+    Nginx -->|Proxy| GoAPI
+    GoAPI -->|SQL| Database
+    GoAPI -->|Files| FileStorage
 
-    StaticSite -.->|Links to| BFF
+    StaticSite -.->|Links to| CDN
 ```
 
 ###  Key Architectural Decisions
 
-**Why BFF Pattern?**
-1. **Security**: HttpOnly cookies prevent XSS attacks
-2. **Token Management**: BFF handles token extraction and forwarding
-3. **API Aggregation**: Can combine multiple backend calls in future
-4. **Rate Limiting**: Edge-level protection via Cloudflare
-5. **CORS Simplification**: Same-origin requests from browser
+**Why Go for Backend?**
+1. **Performance**: Compiled binary, minimal resource usage (~30MB RAM)
+2. **Simplicity**: Single binary deployment, no runtime dependencies
+3. **Concurrency**: Goroutines handle thousands of concurrent requests
+4. **Type Safety**: Compile-time error checking
+5. **Low Latency**: No cold starts, always running
 
 **Why Static Site Generation?**
 1. **Performance**: Pre-rendered HTML served from global CDN
@@ -58,11 +62,12 @@ graph TB
 4. **Developer Experience**: Markdown-based content management
 5. **Git-based Workflow**: Version control for content
 
-**Why Serverless for BFF?**
-1. **Zero Cost**: Cloudflare Workers free tier (100k req/day)
-2. **Global Distribution**: Runs at edge, low latency
-3. **Auto-scaling**: No infrastructure management
-4. **DDoS Protection**: Built-in hard limits
+**Why VPS over Serverless?**
+1. **Simplicity**: Single server vs multiple cloud services
+2. **Local Database**: <1ms latency vs ~30ms remote
+3. **No Cold Starts**: Always running, instant response
+4. **Full Control**: Direct access, easy debugging
+5. **Predictable Cost**: Fixed $5/month, no usage surprises
 
 ---
 
@@ -71,13 +76,14 @@ graph TB
 | Component | Technology | Hosting | Cost |
 |-----------|-----------|---------|------|
 | **Static Site** | Astro + Markdown | Cloudflare Pages | Free |
-| **BFF Layer** | Cloudflare Workers | Cloudflare | Free (100k req/day) |
-| **Backend API** | Express.js (Node.js) | Cloudflare Workers / VPS | Free / $5-10/mo |
-| **Database** | CockroachDB Serverless | Cockroach Labs | Free (50M RUs/mo) |
-| **File Storage** | Cloudflare R2 | Cloudflare | Free tier (10GB) |
+| **CDN/DDoS** | Cloudflare | Cloudflare | Free |
+| **Backend API** | Go (Golang) | VPS | $5/mo |
+| **Database** | PostgreSQL 16 | VPS | Included |
+| **File Storage** | Local Disk | VPS | Included |
+| **Reverse Proxy** | Nginx + Let's Encrypt | VPS | Included |
 | **Build/Deploy** | GitHub Actions | GitHub | Free |
 
-**Total Monthly Cost: $0-5** (potentially fully free with serverless backend)
+**Total Monthly Cost: $5** (fixed, predictable)
 
 ### Technology Rationale
 
@@ -88,29 +94,28 @@ graph TB
 - MDX support for rich content
 - Component islands architecture
 
-**BFF: Cloudflare Workers**
-- Edge computing for low latency
-- JavaScript/TypeScript runtime
-- Built-in KV storage for caching
-- Generous free tier
-- Global distribution
+**Backend: Go**
+- Compiled binary (~15MB), no runtime dependencies
+- Minimal memory usage (~30-50MB for this workload)
+- Excellent concurrency with goroutines
+- Strong standard library (net/http, database/sql)
+- Fast compilation and deployment
+- Single binary deployment via scp or rsync
 
-**Backend: Express.js**
-- Mature, battle-tested framework
-- Large ecosystem of middleware
-- Easy to understand and maintain
-- Your 20+ years of experience applicable
-- Good PostgreSQL integration
-
-**Database: CockroachDB Serverless**
-- PostgreSQL wire-compatible (standard CRUD, JOINs, indexes work identically)
+**Database: PostgreSQL**
+- Industry standard, 30+ years of reliability
 - ACID compliance for critical data
 - JSON/JSONB support for flexible schemas
-- Generous free tier: 10GB storage, 50M Request Units/month
-- No cold start or auto-pause (unlike Neon/Supabase free tiers)
-- Supports 3,000 leads at ~1% of free tier capacity
-- Automatic scaling and replication
-- No database maintenance required
+- Excellent performance with proper indexing
+- Local to application (<1ms latency)
+- Easy backup with pg_dump
+
+**VPS Benefits**
+- Single server to manage (simpler than 3+ cloud services)
+- Full control over configuration
+- Easy debugging and log access
+- No vendor lock-in
+- Predictable monthly cost
 
 ---
 
@@ -368,86 +373,87 @@ erDiagram
 - Enables "logout from all devices" feature
 - Can store additional metadata
 
-### CockroachDB Compatibility Notes
+### PostgreSQL Configuration
 
-CockroachDB is PostgreSQL wire-compatible. For this application, all standard operations work identically:
-
-| Feature | Status | Notes |
-|---------|--------|-------|
-| CRUD operations | ✅ Works | SELECT, INSERT, UPDATE, DELETE |
-| JOINs | ✅ Works | All join types supported |
-| Indexes | ✅ Works | B-tree, GIN, inverted indexes |
-| Transactions | ✅ Works | ACID compliant, SERIALIZABLE by default |
-| SERIAL/BIGSERIAL | ✅ Works | Auto-incrementing IDs |
-| JSON/JSONB | ✅ Works | Full JSON support |
-| Timestamps | ✅ Works | TIMESTAMP, TIMESTAMPTZ |
-| VARCHAR, TEXT | ✅ Works | String types |
-| BOOLEAN | ✅ Works | True/false values |
-
-**Minor differences (not relevant for this app):**
-- Some PostgreSQL-specific functions may need alternatives
-- `pg_*` system tables are limited
-- Sequences behave slightly differently (use SERIAL instead)
-
-**Connection string format:**
+**Connection string format (local on VPS):**
 ```
-postgresql://username:password@host:26257/database?sslmode=verify-full
+postgresql://campus_app:password@localhost:5432/campus?sslmode=disable
+```
+
+**Recommended PostgreSQL settings (postgresql.conf):**
+```ini
+# Memory (for 1GB VPS)
+shared_buffers = 256MB
+effective_cache_size = 512MB
+work_mem = 4MB
+
+# Connections
+max_connections = 100
+
+# Logging
+log_statement = 'none'  # Set to 'all' for debugging
+log_min_duration_statement = 1000  # Log queries > 1 second
+```
+
+**Go database driver:**
+```go
+import "github.com/jackc/pgx/v5"
+
+// Connection with pool
+pool, err := pgxpool.New(ctx, os.Getenv("DATABASE_URL"))
 ```
 
 ---
 
 ## Session Management
 
-### Option A: Backend JWT (Current Design - Recommended)
+### JWT in HttpOnly Cookie (Recommended)
 
 ```mermaid
 sequenceDiagram
-    Browser->>BFF: Cookie: token
-    BFF->>Backend: Authorization: Bearer JWT
-    Note over Backend: jwt.verify(token)<br/>Decode: {userId: 123}<br/>No DB lookup needed
-    Backend->>DB: Query with userId
+    Browser->>GoAPI: Cookie: token (HttpOnly)
+    Note over GoAPI: jwt.Verify(token)<br/>Decode: {userId: 123, role}
+    GoAPI->>DB: Query with userId
+    DB->>GoAPI: User data
+    GoAPI->>Browser: Response + Set-Cookie (if refresh needed)
+```
+
+**Implementation in Go:**
+```go
+// Set cookie after login
+http.SetCookie(w, &http.Cookie{
+    Name:     "token",
+    Value:    jwtToken,
+    HttpOnly: true,
+    Secure:   true,
+    SameSite: http.SameSiteStrictMode,
+    MaxAge:   7 * 24 * 60 * 60, // 7 days
+    Path:     "/",
+})
+
+// Read cookie in middleware
+cookie, err := r.Cookie("token")
+claims, err := jwt.Verify(cookie.Value, jwtSecret)
 ```
 
 **Pros:**
 - ✅ Simple implementation
-- ✅ Stateless backend (easy scaling)
-- ✅ Fast (no session lookup)
-- ✅ Good for <5,000 users
+- ✅ Stateless (no session storage needed)
+- ✅ Fast (no database lookup for auth)
+- ✅ XSS-resistant (HttpOnly cookie)
+- ✅ Good for <50,000 users
 
 **Cons:**
-- ⚠️ Can't revoke sessions immediately
-- ⚠️ Token refresh requires new flow
-
-### Option B: BFF Session + Backend JWT (Advanced)
-
-```mermaid
-sequenceDiagram
-    Browser->>BFF: Cookie: sessionId
-    BFF->>Redis: GET session:sessionId
-    Redis->>BFF: {userId, role}
-    BFF->>Backend: Generate fresh JWT
-    BFF->>Backend: Authorization: Bearer JWT
-```
-
-**Pros:**
-- ✅ Can revoke sessions immediately
-- ✅ Track active sessions
-- ✅ Better security
-
-**Cons:**
-- ⚠️ More complex
-- ⚠️ Requires Redis/session storage
-- ⚠️ Adds latency
-
-**Recommendation:** Start with Option A, migrate to Option B if needed.
+- ⚠️ Can't revoke individual sessions (use short expiry + refresh)
+- ⚠️ Token in cookie adds to request size (~500 bytes)
 
 ---
 
-## BFF Traffic Analysis
+## VPS Capacity Analysis
 
 ### Real-World Usage Estimation
 
-All authenticated API requests go through the BFF (Cloudflare Workers) layer.
+All API requests go through the Go backend on VPS.
 
 ### Traffic Breakdown: 3,000 Leads + 5 Admins
 
@@ -521,38 +527,30 @@ Total per admin: 35 requests/day
 
 ### Total Traffic Summary
 
-| Scenario | Daily BFF Requests | % of Free Tier | Status |
-|----------|-------------------|----------------|--------|
-| **Average Day** | 2,155 | **2.2%** | ✅ Very Safe |
-| **Peak Day** (100 simultaneous submissions) | 2,655 | **2.7%** | ✅ Very Safe |
-| **10x Traffic Spike** | 21,550 | **21.6%** | ✅ Safe |
-| **Quiet Period** (post-admission) | 200 | **0.2%** | ✅ Very Safe |
+| Scenario | Daily Requests | VPS Capacity | Status |
+|----------|---------------|--------------|--------|
+| **Average Day** | 2,155 | 1M+ req/day | ✅ 0.2% used |
+| **Peak Day** (100 simultaneous) | 2,655 | 1M+ req/day | ✅ 0.3% used |
+| **10x Traffic Spike** | 21,550 | 1M+ req/day | ✅ 2% used |
+| **Quiet Period** | 200 | 1M+ req/day | ✅ Negligible |
 
-### Scalability Analysis (BFF Layer - Cloudflare Workers)
+### VPS Resource Usage (1GB RAM, 1 vCPU)
 
-| Lead Count | Daily BFF Requests | % of Free Tier | Monthly Cost | Status |
-|------------|-------------------|----------------|--------------|--------|
-| **3,000 leads** | 2,155 | 2.2% | $0 | ✅ Very Safe |
-| **10,000 leads** | 7,200 | 7.2% | $0 | ✅ Very Safe |
-| **30,000 leads** | 21,500 | 21.5% | $0 | ✅ Safe |
-| **100,000 leads** | 72,000 | 72% | $0 | ✅ Safe |
-| **140,000 leads** | 99,000 | 99% | $0 | ⚠️ Near Limit |
-| **150,000+ leads** | 110,000+ | 110%+ | $5/mo* | ✅ Upgrade Available |
+| Lead Count | RAM Usage | CPU Usage | Storage | Status |
+|------------|-----------|-----------|---------|--------|
+| **3,000 leads** | ~300MB | <5% | ~50MB | ✅ Comfortable |
+| **10,000 leads** | ~350MB | <10% | ~150MB | ✅ Comfortable |
+| **30,000 leads** | ~400MB | <20% | ~500MB | ✅ Good |
+| **100,000 leads** | ~500MB | <30% | ~1.5GB | ⚠️ Consider 2GB VPS |
 
-*Cloudflare Workers Paid: $5/month for 10 million requests
+### Database Capacity (PostgreSQL on VPS)
 
-### Database Capacity (CockroachDB Serverless)
-
-| Lead Count | Monthly RUs | % of Free Tier | Monthly Cost | Status |
-|------------|-------------|----------------|--------------|--------|
-| **3,000 leads** | ~500K | 1% | $0 | ✅ Very Safe |
-| **10,000 leads** | ~1.7M | 3.4% | $0 | ✅ Very Safe |
-| **30,000 leads** | ~5M | 10% | $0 | ✅ Safe |
-| **100,000 leads** | ~17M | 34% | $0 | ✅ Safe |
-| **150,000 leads** | ~25M | 50% | $0 | ✅ Safe |
-| **300,000 leads** | ~50M | 100% | $0 | ⚠️ Near Limit |
-
-*CockroachDB Serverless: Free tier includes 50M RUs/month, 10GB storage
+| Lead Count | Data Size | Index Size | Total | 25GB Disk |
+|------------|-----------|------------|-------|-----------|
+| **3,000 leads** | ~5MB | ~2MB | ~10MB | ✅ 0.04% |
+| **10,000 leads** | ~15MB | ~5MB | ~25MB | ✅ 0.1% |
+| **100,000 leads** | ~150MB | ~50MB | ~250MB | ✅ 1% |
+| **1,000,000 leads** | ~1.5GB | ~500MB | ~2.5GB | ✅ 10% |
 
 ### Important: Static vs Dynamic Traffic
 
@@ -561,63 +559,70 @@ graph LR
     subgraph "Website Traffic Distribution"
         A[1000 Daily Visitors]
         A -->|95%| B[950 visitors<br/>Browse Marketing Pages<br/>Static Content]
-        A -->|5%| C[50 visitors<br/>Login & Apply<br/>BFF Layer]
+        A -->|5%| C[50 visitors<br/>Login & Apply<br/>VPS API]
     end
 
-    B -->|NO BFF| D[Cloudflare Pages CDN<br/>UNLIMITED bandwidth<br/>$0 cost]
-    C -->|Through BFF| E[Cloudflare Workers<br/>100k req/day limit<br/>Currently 1.3% used]
+    B -->|Static| D[Cloudflare Pages CDN<br/>UNLIMITED bandwidth<br/>$0 cost]
+    C -->|API| E[VPS Go Backend<br/>1M+ req/day capacity<br/>$5/month]
 ```
 
 **Key Insight:**
-- **Marketing pages** (programs, about, contact): Unlimited traffic, $0 cost, NO BFF
-- **Application portal** (login, submit, status): Only active applicants, goes through BFF
-- **Estimated 95%+ of traffic** doesn't touch BFF at all
+- **Marketing pages** (programs, about, contact): Unlimited traffic via Cloudflare CDN
+- **Application portal** (login, submit, status): Goes through VPS (~5% of traffic)
+- **VPS handles 10,000x more traffic than needed** for 3,000 leads
 
 ### Verdict for 3,000 Leads + 5 Admins
 
-**BFF Layer (Cloudflare Workers):**
-✅ Using only 2.2% of the free tier
-✅ 97.8% buffer for traffic spikes
-✅ Even 10x growth keeps you under 22% usage
-✅ Zero cost risk - hard limits prevent overages
-✅ Could scale to 100,000 leads and still be at 72%
+**VPS (1GB RAM, 1 vCPU, $5/month):**
+✅ Using <5% of CPU capacity
+✅ Using ~30% of RAM (comfortable headroom)
+✅ Using <1% of storage
+✅ Can handle 100,000+ leads without upgrade
+✅ Fixed $5/month cost regardless of traffic
 
-**Database (CockroachDB Serverless):**
-✅ Using only 1% of the free tier (50M RUs)
-✅ No cold start latency (unlike Neon/Supabase free tiers)
-✅ No auto-pause policy
-✅ Could scale to 150,000 leads and still be at 50%
+**Database (PostgreSQL on VPS):**
+✅ Local database = <1ms latency
+✅ No external dependencies
+✅ 25GB disk can store 1M+ leads
+✅ Full PostgreSQL features available
 
-**Conclusion: Both BFF and database have massive headroom. The system can scale to 100,000+ leads on fully free infrastructure.**
+**Conclusion: A $5/month VPS provides massive headroom for 3,000 leads and can scale to 100,000+ without upgrade.**
 
 ---
 
 ## DDoS Protection & Cost Safety
 
-### Cloudflare Protection Features
+### Cloudflare Protection (VPS behind Cloudflare Proxy)
 
-| Feature | Free Tier Limit | Behavior on Excess | Cost Risk |
-|---------|----------------|-------------------|-----------|
-| **Bandwidth** | Unlimited | N/A | **$0** |
-| **Requests** | 100,000/day | Blocked (HTTP 429) | **$0** |
-| **Workers Execution** | 100k req/day | Blocked | **$0** |
-| **DDoS Protection** | Included | Automatic filtering | **$0** |
-| **Bot Detection** | Included | Automatic blocking | **$0** |
+| Feature | Protection | Cost |
+|---------|------------|------|
+| **Static Site** | Cloudflare CDN | $0 |
+| **API Endpoint** | Cloudflare Proxy (orange cloud) | $0 |
+| **DDoS Mitigation** | Automatic L3/L4/L7 filtering | $0 |
+| **Bot Detection** | Automatic blocking | $0 |
+| **Rate Limiting** | 10,000 free rules/month | $0 |
+
+### VPS Protection Strategy
+
+```mermaid
+graph LR
+    A[Attacker] -->|DDoS| B[Cloudflare Edge]
+    B -->|Filtered Traffic| C[VPS]
+    B -->|Blocked| D[Dropped]
+```
+
+**Configuration:**
+1. Point domain DNS to Cloudflare (proxy enabled - orange cloud)
+2. VPS firewall allows only Cloudflare IPs
+3. Nginx rate limiting as secondary defense
+4. fail2ban for SSH protection
 
 ### Cost Safety Summary
-- ✅ **Maximum DDoS cost: $0** (hard limits prevent overages)
-- ✅ VPS protected behind Cloudflare proxy
-- ✅ No surprise bills
-- ✅ Automatic rate limiting
-- ✅ World-class DDoS protection (Cloudflare's core business)
-
-### Comparison with Other Platforms
-
-| Platform | DDoS Risk | Hard Limits | Max Cost on Attack |
-|----------|-----------|-------------|-------------------|
-| **Cloudflare Pages + Workers** | ✅ VERY LOW | ✅ Yes | **$0** |
-| **Vercel (Free)** | ⚠️ HIGH | ❌ No | **$500+** |
-| **Netlify (Free)** | ✅ LOW | ✅ Yes | $0 (stops) |
+- ✅ **Maximum DDoS cost: $5/month** (fixed VPS cost)
+- ✅ VPS IP hidden behind Cloudflare proxy
+- ✅ No surprise bills (unlike serverless with usage-based pricing)
+- ✅ Cloudflare absorbs attack traffic
+- ✅ VPS only sees legitimate requests
 
 ---
 
@@ -626,61 +631,73 @@ graph LR
 ### Implemented Security Measures
 
 - ✅ **HttpOnly Cookies** - XSS-resistant token storage
-- ✅ **HTTPS Enforced** - All connections encrypted
-- ✅ **Rate Limiting** - Prevent brute force attacks
+- ✅ **HTTPS Enforced** - Let's Encrypt via Nginx
+- ✅ **Rate Limiting** - Nginx + Cloudflare
 - ✅ **Password Hashing** - bcrypt with salt rounds
 - ✅ **JWT Expiration** - 7-day token lifetime
 - ✅ **Email Domain Validation** - Staff role enforcement
 - ✅ **CORS Configuration** - Restricted origins
-- ✅ **Input Validation** - express-validator on all inputs
-- ✅ **DDoS Protection** - Cloudflare edge filtering
-- ✅ **Bot Detection** - Automatic bot blocking
-- ✅ **SQL Injection Prevention** - Parameterized queries
+- ✅ **Input Validation** - Go struct validation
+- ✅ **DDoS Protection** - Cloudflare proxy
+- ✅ **Bot Detection** - Cloudflare automatic blocking
+- ✅ **SQL Injection Prevention** - Parameterized queries (pgx)
+- ✅ **Firewall** - UFW allowing only SSH, HTTP, HTTPS
 
-### Security Headers (Express.js)
+### Security Middleware (Go)
 
-```javascript
-const helmet = require('helmet');
+```go
+func securityHeaders(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        // HSTS
+        w.Header().Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+        // Content Security Policy
+        w.Header().Set("Content-Security-Policy", "default-src 'self'")
+        // Prevent clickjacking
+        w.Header().Set("X-Frame-Options", "DENY")
+        // Prevent MIME sniffing
+        w.Header().Set("X-Content-Type-Options", "nosniff")
+        // XSS Protection
+        w.Header().Set("X-XSS-Protection", "1; mode=block")
 
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"],
-    }
-  },
-  hsts: {
-    maxAge: 31536000,
-    includeSubDomains: true,
-    preload: true
-  }
-}));
+        next.ServeHTTP(w, r)
+    })
+}
 ```
 
 ### Rate Limiting Strategy
 
-**Cloudflare Workers (BFF):**
-```javascript
-// Per-IP rate limiting
-const rateLimiter = {
-  limit: 10,           // 10 requests
-  window: 60,          // per 60 seconds
-};
+**Nginx (primary):**
+```nginx
+# /etc/nginx/conf.d/rate-limit.conf
+limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
+limit_req_zone $binary_remote_addr zone=auth:10m rate=1r/s;
+
+server {
+    location /api/ {
+        limit_req zone=api burst=20 nodelay;
+        proxy_pass http://localhost:8080;
+    }
+
+    location /api/auth/ {
+        limit_req zone=auth burst=5 nodelay;
+        proxy_pass http://localhost:8080;
+    }
+}
 ```
 
-**Express.js Backend:**
-```javascript
-const rateLimit = require('express-rate-limit');
+**Go (secondary, for specific endpoints):**
+```go
+import "golang.org/x/time/rate"
 
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5,                    // 5 attempts
-  message: 'Too many login attempts'
-});
+var loginLimiter = rate.NewLimiter(rate.Every(time.Second), 5)
 
-app.use('/auth/login', authLimiter);
+func loginHandler(w http.ResponseWriter, r *http.Request) {
+    if !loginLimiter.Allow() {
+        http.Error(w, "Too many login attempts", http.StatusTooManyRequests)
+        return
+    }
+    // handle login
+}
 ```
 
 ---
@@ -692,27 +709,28 @@ app.use('/auth/login', authLimiter);
 | Component | Capacity | Current Usage | Bottleneck |
 |-----------|----------|---------------|------------|
 | **Cloudflare Pages** | Unlimited | N/A | None |
-| **Cloudflare Workers** | 100k req/day | 2.2% | None |
-| **CockroachDB Serverless** | 50M RUs/month | 1% | None |
-| **CockroachDB Storage** | 10 GB | <0.1% | None |
+| **VPS CPU** | 1 vCPU | <5% | None |
+| **VPS RAM** | 1 GB | ~30% | None |
+| **PostgreSQL** | 100 connections | ~5 | None |
+| **Disk** | 25 GB | <1% | None |
 
 ### Scaling Strategy
 
 ```mermaid
 graph TB
-    subgraph "Phase 1: <100K leads - FREE"
-        CF1[Cloudflare Free<br/>Pages + Workers]
-        DB1[CockroachDB Serverless Free<br/>50M RUs/month]
+    subgraph "Phase 1: <100K leads - $5/mo"
+        VPS1[1GB VPS<br/>Go + PostgreSQL]
     end
 
-    subgraph "Phase 2: 100K-300K leads"
-        CF2[Cloudflare Workers Paid<br/>$5/10M requests]
-        DB2[CockroachDB Serverless<br/>Pay-as-you-go]
+    subgraph "Phase 2: 100K-500K leads - $10-20/mo"
+        VPS2[2-4GB VPS<br/>Go + PostgreSQL]
     end
 
-    subgraph "Phase 3: 300K+ leads"
-        CF3[Cloudflare Workers Paid]
-        DB3[CockroachDB Dedicated<br/>or Self-hosted PostgreSQL]
+    subgraph "Phase 3: 500K+ leads - $50+/mo"
+        LB[Load Balancer]
+        VPS3A[VPS: Go API]
+        VPS3B[VPS: Go API]
+        DB3[Managed PostgreSQL<br/>or Dedicated VPS]
     end
 
     Phase1 --> Phase2
@@ -720,23 +738,23 @@ graph TB
 ```
 
 **Scaling Options:**
-1. **Phase 1 (current):** Fully free - CockroachDB Serverless + Cloudflare free tiers
-2. **Phase 2:** Pay-as-you-go on both platforms (~$10-20/month for 100K-300K leads)
-3. **Phase 3:** Dedicated clusters or migrate to self-hosted PostgreSQL on VPS
-4. **Alternative:** Can always fall back to VPS + PostgreSQL ($5-10/month) if CockroachDB pricing changes
+1. **Phase 1 (current):** 1GB VPS - handles up to 100K leads ($5/mo)
+2. **Phase 2:** Upgrade to 2-4GB VPS ($10-20/mo)
+3. **Phase 3:** Multiple VPS behind load balancer + managed PostgreSQL
+4. **Alternative:** Migrate to Kubernetes if needed
 
 ### Performance Optimization Strategies
 
 **Caching:**
-- Static assets: Aggressive caching via CDN
-- API responses: Cache in Cloudflare Workers KV
-- Database queries: Redis for frequently accessed data
+- Static assets: Aggressive caching via Cloudflare CDN
+- API responses: In-memory cache in Go (sync.Map or groupcache)
+- Database queries: Connection pooling via pgx
 
 **Database Optimization:**
 - Indexes on frequently queried fields (user_id, email, status)
-- Connection pooling (handled by CockroachDB Serverless)
-- Query optimization
-- No manual maintenance required (CockroachDB handles vacuuming, compaction)
+- Connection pooling (pgxpool)
+- Query optimization with EXPLAIN ANALYZE
+- Regular VACUUM (automatic in PostgreSQL 13+)
 
 **Frontend Optimization:**
 - Static site generation
@@ -749,29 +767,44 @@ graph TB
 ## Key Benefits
 
 ### Cost-Effective
-- **$0/month** for up to 100,000 leads (fully free tier)
-- No hidden fees
-- Predictable costs
-- Fallback to VPS ($5-10/month) always available
+- **$5/month** fixed cost (VPS)
+- No usage-based surprises
+- Predictable, simple billing
+- Can scale to 100K+ leads without cost increase
 
 ### DDoS-Proof
-- Hard limits prevent cost overruns
-- **Maximum attack cost: $0**
-- Automatic traffic filtering
+- Cloudflare proxy absorbs attacks
+- VPS IP hidden from public
+- **Maximum attack cost: $5/month** (fixed)
+
+### Simple Architecture
+- Single server to manage
+- No vendor lock-in
+- Easy debugging and maintenance
+- Full control over stack
+
+### Performant
+- Go backend: minimal latency, high throughput
+- Local PostgreSQL: <1ms database queries
+- No cold starts: always running
+- Handles 1M+ requests/day
 
 ### Secure
 - Industry-standard authentication (OIDC)
 - HttpOnly cookies prevent XSS
-- Rate limiting prevents abuse
+- Rate limiting at Nginx + app level
+- Firewall + fail2ban
 
 ### Scalable
 - Static site scales infinitely via CDN
-- Backend can scale vertically or horizontally
-- Database can migrate to managed service
+- VPS can upgrade vertically ($5 → $10 → $20)
+- Can add load balancer when needed
+- PostgreSQL handles millions of rows
 
 ### Developer-Friendly
-- Modern tech stack (Astro, Express.js)
+- Modern tech stack (Astro, Go)
 - Git-based workflow
+- Simple deployment (scp binary + systemctl restart)
 - Easy local development
 
 ### SEO-Optimized
@@ -779,15 +812,10 @@ graph TB
 - Fast page loads
 - Excellent Core Web Vitals
 
-### Low Maintenance
-- Cloudflare handles edge layer
-- Minimal operational overhead
-- Automated deployments
-
 ---
 
 ## Contributors
 
 **Architecture Design:** 2025
-**Version:** 1.0
-**Last Updated:** 2025-11-19
+**Version:** 2.0 (VPS + Go + PostgreSQL)
+**Last Updated:** 2026-01-15
