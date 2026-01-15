@@ -2,6 +2,8 @@
 
 **Live Site:** https://stmik.tazkia.ac.id/
 
+**Last Updated:** 2026-01-15
+
 ---
 
 ## Progress Overview
@@ -9,7 +11,7 @@
 | Phase | Description | Status | Progress |
 |-------|-------------|--------|----------|
 | 1 | Infrastructure Setup | Partial | 60% |
-| 2 | Frontend Marketing Site | In Progress | 30% |
+| 2 | Frontend Marketing Site | In Progress | 60% |
 | 3 | Backend API (Go) | Not Started | 0% |
 | 4 | Deployment & DevOps | Partial | 20% |
 | 5 | Testing & Polish | Not Started | 0% |
@@ -56,7 +58,7 @@
 
 ---
 
-## Phase 2: Frontend Marketing Site (30%)
+## Phase 2: Frontend Marketing Site (60%)
 
 ### 2.1 Layouts & Components (Done)
 - [x] BaseLayout.astro
@@ -78,26 +80,26 @@
 - [x] Lecturer list page (ID/EN)
 - [x] Lecturer detail pages (ID/EN)
 
-### 2.4 Programs Pages (Not Started)
-- [ ] Content collection for programs
-- [ ] `src/pages/programs/index.astro` - Program listing
-- [ ] `src/pages/programs/[slug].astro` - Program detail
-- [ ] `src/pages/en/programs/index.astro`
-- [ ] `src/pages/en/programs/[slug].astro`
-- [ ] Program cards with images
-- [ ] Curriculum overview
-- [ ] Career prospects section
-- [ ] Admission requirements
-- [ ] "Apply Now" CTA
+### 2.4 Programs Pages (Done)
+- [x] `src/pages/programs/index.astro` - Program listing
+- [x] `src/pages/en/programs/index.astro`
+- [x] `src/pages/programs/information-systems.astro` - SI detail
+- [x] `src/pages/programs/computer-engineering.astro` - TI detail
+- [x] `src/pages/en/programs/information-systems.astro`
+- [x] `src/pages/en/programs/computer-engineering.astro`
+- [x] Program cards with specializations
+- [x] Curriculum overview (8 semesters)
+- [x] Career prospects section
+- [x] "Apply Now" CTA
 
-### 2.5 Contact Page (Not Started)
-- [ ] `src/pages/contact.astro`
-- [ ] `src/pages/en/contact.astro`
-- [ ] Contact information (phone, email, address)
-- [ ] Embedded Google Maps
-- [ ] Social media links
-- [ ] Office hours
-- [ ] Contact form (static, submission deferred)
+### 2.5 Contact Page (Done)
+- [x] `src/pages/contact.astro`
+- [x] `src/pages/en/contact.astro`
+- [x] Contact information (phone, email, address)
+- [x] Embedded Google Maps
+- [x] Social media links (Instagram, YouTube, LinkedIn)
+- [x] Office hours
+- [x] Contact form (static, backend submission deferred to Phase 3)
 
 ### 2.6 Admissions Page (Not Started)
 - [ ] `src/pages/admissions.astro`
@@ -348,11 +350,16 @@ Phase 1 (Infrastructure) ─┬─► Phase 2 (Frontend) ─► Phase 5 (Testing
 ## Success Criteria
 
 ### Marketing Site (Phase 2)
-- [ ] All static pages live (Home, About, Programs, Contact, Admissions, News)
-- [ ] Bilingual content complete (ID + EN)
-- [ ] Mobile responsive
-- [ ] Page load <2s
-- [ ] Lighthouse score 90+
+- [x] Home page live (ID + EN)
+- [x] About page live (ID + EN)
+- [x] Lecturers pages live (ID + EN)
+- [x] Programs pages live (ID + EN)
+- [x] Contact page live (ID + EN)
+- [ ] Admissions page (ID + EN)
+- [ ] News/Blog system (ID + EN)
+- [x] Mobile responsive
+- [ ] Page load <2s verified
+- [ ] Lighthouse score 90+ verified
 
 ### Full System (Phase 3-6)
 - [ ] 3,000 leads, 300 registrations per cycle (10% conversion)
