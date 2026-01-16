@@ -3,20 +3,43 @@ package portal
 import "github.com/idtazkia/stmik-admission-api/templates/layouts"
 
 type RegistrationStep struct {
-	Number   string
-	Title    string
-	Status   string // completed, current, pending
+	Number string
+	Title  string
+	Status string // completed, current, pending
 }
 
 type ProgramOption struct {
+	ID   string
 	Code string
 	Name string
 	Fee  string
 }
 
-templ Registration(data layouts.PageData, steps []RegistrationStep, programs []ProgramOption, currentStep string) {
+type SourceTypeOption struct {
+	Value string
+	Label string
+}
+
+type RegistrationData struct {
+	CandidateID    string
+	Email          string
+	Phone          string
+	Name           string
+	Address        string
+	City           string
+	Province       string
+	HighSchool     string
+	GraduationYear int
+	ProdiID        string
+	SourceType     string
+	SourceDetail   string
+	RefCode        string
+	CampaignCode   string
+}
+
+templ Registration(data layouts.PageData, steps []RegistrationStep, currentStep string, regData RegistrationData, programs []ProgramOption, sourceTypes []SourceTypeOption, errorMsg string) {
 	@layouts.Auth(data) {
-		<div class="bg-white rounded-xl shadow-lg p-8 w-full max-w-2xl mx-auto">
+		<div class="bg-white rounded-xl shadow-lg p-8 w-full max-w-2xl mx-auto" data-testid="registration-form">
 			<!-- Logo -->
 			<div class="text-center mb-6">
 				<h1 class="text-2xl font-bold text-primary-900">STMIK Tazkia</h1>
@@ -50,102 +73,305 @@ templ Registration(data layouts.PageData, steps []RegistrationStep, programs []P
 				}
 			</div>
 
-			<!-- Form Content based on step -->
-			if currentStep == "biodata" {
-				<form class="space-y-4">
-					<h2 class="text-lg font-semibold text-gray-900 mb-4">Data Diri</h2>
-
-					<div class="grid grid-cols-2 gap-4">
-						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap *</label>
-							<input type="text" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Sesuai KTP/Ijazah" />
-						</div>
-						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-1">NIK *</label>
-							<input type="text" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="16 digit NIK" />
-						</div>
-					</div>
-
-					<div class="grid grid-cols-2 gap-4">
-						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-1">Tempat Lahir *</label>
-							<input type="text" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
-						</div>
-						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Lahir *</label>
-							<input type="date" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
-						</div>
-					</div>
-
-					<div class="grid grid-cols-2 gap-4">
-						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-1">Jenis Kelamin *</label>
-							<select class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
-								<option value="">Pilih...</option>
-								<option value="L">Laki-laki</option>
-								<option value="P">Perempuan</option>
-							</select>
-						</div>
-						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-1">Agama *</label>
-							<select class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
-								<option value="">Pilih...</option>
-								<option value="islam">Islam</option>
-								<option value="kristen">Kristen</option>
-								<option value="katolik">Katolik</option>
-								<option value="hindu">Hindu</option>
-								<option value="buddha">Buddha</option>
-								<option value="konghucu">Konghucu</option>
-							</select>
-						</div>
-					</div>
-
-					<div>
-						<label class="block text-sm font-medium text-gray-700 mb-1">Alamat Lengkap *</label>
-						<textarea class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" rows="2" placeholder="Jalan, RT/RW, Kelurahan, Kecamatan"></textarea>
-					</div>
-
-					<div class="grid grid-cols-3 gap-4">
-						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-1">Kota/Kabupaten *</label>
-							<input type="text" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
-						</div>
-						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-1">Provinsi *</label>
-							<input type="text" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
-						</div>
-						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-1">Kode Pos</label>
-							<input type="text" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
-						</div>
-					</div>
-
-					<div class="border-t pt-4 mt-4">
-						<h3 class="font-medium text-gray-900 mb-3">Data Pendidikan</h3>
-						<div class="grid grid-cols-2 gap-4">
-							<div>
-								<label class="block text-sm font-medium text-gray-700 mb-1">Asal Sekolah *</label>
-								<input type="text" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Nama SMA/SMK/MA" />
-							</div>
-							<div>
-								<label class="block text-sm font-medium text-gray-700 mb-1">Tahun Lulus *</label>
-								<select class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
-									<option value="">Pilih...</option>
-									<option value="2026">2026</option>
-									<option value="2025">2025</option>
-									<option value="2024">2024</option>
-									<option value="2023">2023</option>
-								</select>
-							</div>
-						</div>
-					</div>
-
-					<div class="flex justify-between pt-4">
-						<button type="button" class="px-6 py-2 border rounded-lg text-gray-600 hover:bg-gray-50">Kembali</button>
-						<button type="submit" class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">Lanjutkan</button>
-					</div>
-				</form>
+			if errorMsg != "" {
+				<div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6" data-testid="error-message">
+					{ errorMsg }
+				</div>
 			}
+
+			<!-- Step 1: Account Creation -->
+			if currentStep == "account" {
+				@RegistrationStep1(regData)
+			}
+
+			<!-- Step 2: Personal Info -->
+			if currentStep == "personal" {
+				@RegistrationStep2(regData)
+			}
+
+			<!-- Step 3: Education -->
+			if currentStep == "education" {
+				@RegistrationStep3(regData, programs)
+			}
+
+			<!-- Step 4: Source Tracking -->
+			if currentStep == "source" {
+				@RegistrationStep4(regData, sourceTypes)
+			}
+
+			<div class="mt-6 text-center">
+				<p class="text-gray-600">
+					Sudah punya akun?
+					<a href="/login" class="text-primary-600 hover:text-primary-700 font-medium">Masuk di sini</a>
+				</p>
+			</div>
 		</div>
 	}
+}
+
+templ RegistrationStep1(regData RegistrationData) {
+	<form method="POST" action="/register/step1" class="space-y-4" data-testid="step1-form">
+		<h2 class="text-lg font-semibold text-gray-900 mb-4">Buat Akun</h2>
+		<p class="text-sm text-gray-600 mb-4">Isi salah satu atau keduanya (email/nomor HP).</p>
+
+		if regData.RefCode != "" {
+			<input type="hidden" name="ref" value={ regData.RefCode } />
+		}
+		if regData.CampaignCode != "" {
+			<input type="hidden" name="utm_campaign" value={ regData.CampaignCode } />
+		}
+
+		<div>
+			<label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+			<input
+				type="email"
+				name="email"
+				class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+				placeholder="email@example.com"
+				value={ regData.Email }
+				data-testid="input-email"
+			/>
+		</div>
+
+		<div>
+			<label class="block text-sm font-medium text-gray-700 mb-1">Nomor HP (WhatsApp)</label>
+			<input
+				type="tel"
+				name="phone"
+				class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+				placeholder="08xxxxxxxxxx"
+				value={ regData.Phone }
+				data-testid="input-phone"
+			/>
+		</div>
+
+		<div>
+			<label class="block text-sm font-medium text-gray-700 mb-1">Password *</label>
+			<input
+				type="password"
+				name="password"
+				class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+				placeholder="Minimal 8 karakter"
+				required
+				minlength="8"
+				data-testid="input-password"
+			/>
+		</div>
+
+		<div>
+			<label class="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Password *</label>
+			<input
+				type="password"
+				name="password_confirm"
+				class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+				placeholder="Ulangi password"
+				required
+				minlength="8"
+				data-testid="input-password-confirm"
+			/>
+		</div>
+
+		<div class="pt-4">
+			<button
+				type="submit"
+				class="w-full bg-primary-600 text-white py-3 px-4 rounded-lg hover:bg-primary-700 transition-colors font-medium"
+				data-testid="btn-submit-step1"
+			>
+				Lanjutkan
+			</button>
+		</div>
+	</form>
+}
+
+templ RegistrationStep2(regData RegistrationData) {
+	<form method="POST" action="/register/step2" class="space-y-4" data-testid="step2-form">
+		<h2 class="text-lg font-semibold text-gray-900 mb-4">Data Diri</h2>
+
+		<div>
+			<label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap *</label>
+			<input
+				type="text"
+				name="name"
+				class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+				placeholder="Sesuai KTP/Ijazah"
+				required
+				value={ regData.Name }
+				data-testid="input-name"
+			/>
+		</div>
+
+		<div>
+			<label class="block text-sm font-medium text-gray-700 mb-1">Alamat Lengkap *</label>
+			<textarea
+				name="address"
+				class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+				rows="2"
+				placeholder="Jalan, RT/RW, Kelurahan, Kecamatan"
+				required
+				data-testid="input-address"
+			>{ regData.Address }</textarea>
+		</div>
+
+		<div class="grid grid-cols-2 gap-4">
+			<div>
+				<label class="block text-sm font-medium text-gray-700 mb-1">Kota/Kabupaten *</label>
+				<input
+					type="text"
+					name="city"
+					class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+					required
+					value={ regData.City }
+					data-testid="input-city"
+				/>
+			</div>
+			<div>
+				<label class="block text-sm font-medium text-gray-700 mb-1">Provinsi *</label>
+				<input
+					type="text"
+					name="province"
+					class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+					required
+					value={ regData.Province }
+					data-testid="input-province"
+				/>
+			</div>
+		</div>
+
+		<div class="flex justify-between pt-4">
+			<a href="/register" class="px-6 py-2 border rounded-lg text-gray-600 hover:bg-gray-50">Kembali</a>
+			<button
+				type="submit"
+				class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+				data-testid="btn-submit-step2"
+			>
+				Lanjutkan
+			</button>
+		</div>
+	</form>
+}
+
+templ RegistrationStep3(regData RegistrationData, programs []ProgramOption) {
+	<form method="POST" action="/register/step3" class="space-y-4" data-testid="step3-form">
+		<h2 class="text-lg font-semibold text-gray-900 mb-4">Data Pendidikan</h2>
+
+		<div>
+			<label class="block text-sm font-medium text-gray-700 mb-1">Asal Sekolah *</label>
+			<input
+				type="text"
+				name="high_school"
+				class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+				placeholder="Nama SMA/SMK/MA"
+				required
+				value={ regData.HighSchool }
+				data-testid="input-high-school"
+			/>
+		</div>
+
+		<div>
+			<label class="block text-sm font-medium text-gray-700 mb-1">Tahun Lulus *</label>
+			<select
+				name="graduation_year"
+				class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+				required
+				data-testid="select-graduation-year"
+			>
+				<option value="">Pilih tahun...</option>
+				<option value="2026">2026</option>
+				<option value="2025">2025</option>
+				<option value="2024">2024</option>
+				<option value="2023">2023</option>
+				<option value="2022">2022</option>
+			</select>
+		</div>
+
+		<div>
+			<label class="block text-sm font-medium text-gray-700 mb-1">Program Studi *</label>
+			<div class="space-y-2">
+				for _, prog := range programs {
+					<label class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
+						<input
+							type="radio"
+							name="prodi_id"
+							value={ prog.ID }
+							class="h-4 w-4 text-primary-600 focus:ring-primary-500"
+							required
+							data-testid={ "radio-prodi-" + prog.Code }
+						/>
+						<div class="ml-3">
+							<span class="font-medium text-gray-900">{ prog.Name }</span>
+							<span class="text-sm text-gray-500 ml-2">({ prog.Code })</span>
+							<p class="text-sm text-gray-500">{ prog.Fee }</p>
+						</div>
+					</label>
+				}
+			</div>
+		</div>
+
+		<div class="flex justify-between pt-4">
+			<a href="/register?step=personal" class="px-6 py-2 border rounded-lg text-gray-600 hover:bg-gray-50">Kembali</a>
+			<button
+				type="submit"
+				class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+				data-testid="btn-submit-step3"
+			>
+				Lanjutkan
+			</button>
+		</div>
+	</form>
+}
+
+templ RegistrationStep4(regData RegistrationData, sourceTypes []SourceTypeOption) {
+	<form method="POST" action="/register/step4" class="space-y-4" data-testid="step4-form">
+		<h2 class="text-lg font-semibold text-gray-900 mb-4">Informasi Tambahan</h2>
+		<p class="text-sm text-gray-600 mb-4">Beritahu kami dari mana Anda mengenal STMIK Tazkia.</p>
+
+		<div>
+			<label class="block text-sm font-medium text-gray-700 mb-1">Sumber Informasi *</label>
+			<select
+				name="source_type"
+				id="source_type"
+				class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+				required
+				onchange="toggleSourceDetail()"
+				data-testid="select-source-type"
+			>
+				<option value="">Pilih sumber...</option>
+				for _, src := range sourceTypes {
+					<option value={ src.Value }>{ src.Label }</option>
+				}
+			</select>
+		</div>
+
+		<div id="source_detail_container" class="hidden">
+			<label class="block text-sm font-medium text-gray-700 mb-1">Detail (opsional)</label>
+			<input
+				type="text"
+				name="source_detail"
+				id="source_detail"
+				class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+				placeholder="Nama teman, sekolah, atau detail lainnya"
+				data-testid="input-source-detail"
+			/>
+		</div>
+
+		<div class="flex justify-between pt-4">
+			<a href="/register?step=education" class="px-6 py-2 border rounded-lg text-gray-600 hover:bg-gray-50">Kembali</a>
+			<button
+				type="submit"
+				class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+				data-testid="btn-submit-step4"
+			>
+				Selesaikan Pendaftaran
+			</button>
+		</div>
+	</form>
+
+	<script>
+		function toggleSourceDetail() {
+			const sourceType = document.getElementById('source_type').value;
+			const container = document.getElementById('source_detail_container');
+			const showDetail = ['friend_family', 'teacher_alumni', 'other'].includes(sourceType);
+			container.classList.toggle('hidden', !showDetail);
+		}
+	</script>
 }

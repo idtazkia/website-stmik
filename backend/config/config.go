@@ -12,6 +12,7 @@ type Config struct {
 	JWT      JWTConfig
 	Google   GoogleConfig
 	WhatsApp WhatsAppConfig
+	Resend   ResendConfig
 	Kafka    KafkaConfig
 	Upload   UploadConfig
 }
@@ -55,6 +56,11 @@ type GoogleConfig struct {
 type WhatsAppConfig struct {
 	APIURL   string
 	APIToken string
+}
+
+type ResendConfig struct {
+	APIKey string
+	From   string
 }
 
 type KafkaConfig struct {
@@ -104,6 +110,10 @@ func Load() (*Config, error) {
 		WhatsApp: WhatsAppConfig{
 			APIURL:   getEnv("WHATSAPP_API_URL", ""),
 			APIToken: getEnv("WHATSAPP_API_TOKEN", ""),
+		},
+		Resend: ResendConfig{
+			APIKey: getEnv("RESEND_API_KEY", ""),
+			From:   getEnv("RESEND_FROM", ""),
 		},
 		Kafka: KafkaConfig{
 			Brokers:      getEnv("KAFKA_BROKERS", ""),

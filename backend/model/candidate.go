@@ -1,0 +1,362 @@
+package model
+
+import (
+	"context"
+	"fmt"
+	"time"
+
+	"github.com/jackc/pgx/v5"
+	"golang.org/x/crypto/bcrypt"
+)
+
+// Candidate represents a prospective student
+type Candidate struct {
+	ID                    string     `json:"id"`
+	Email                 *string    `json:"email,omitempty"`
+	EmailVerified         bool       `json:"email_verified"`
+	Phone                 *string    `json:"phone,omitempty"`
+	PhoneVerified         bool       `json:"phone_verified"`
+	PasswordHash          string     `json:"-"`
+	Name                  *string    `json:"name,omitempty"`
+	Address               *string    `json:"address,omitempty"`
+	City                  *string    `json:"city,omitempty"`
+	Province              *string    `json:"province,omitempty"`
+	HighSchool            *string    `json:"high_school,omitempty"`
+	GraduationYear        *int       `json:"graduation_year,omitempty"`
+	ProdiID               *string    `json:"prodi_id,omitempty"`
+	CampaignID            *string    `json:"campaign_id,omitempty"`
+	ReferrerID            *string    `json:"referrer_id,omitempty"`
+	ReferredByCandidateID *string    `json:"referred_by_candidate_id,omitempty"`
+	SourceType            *string    `json:"source_type,omitempty"`
+	SourceDetail          *string    `json:"source_detail,omitempty"`
+	AssignedConsultantID  *string    `json:"assigned_consultant_id,omitempty"`
+	Status                string     `json:"status"`
+	LostReasonID          *string    `json:"lost_reason_id,omitempty"`
+	LostAt                *time.Time `json:"lost_at,omitempty"`
+	CreatedAt             time.Time  `json:"created_at"`
+	UpdatedAt             time.Time  `json:"updated_at"`
+}
+
+// CandidateWithDetails includes related names for display
+type CandidateWithDetails struct {
+	Candidate
+	ProdiName      *string `json:"prodi_name,omitempty"`
+	ConsultantName *string `json:"consultant_name,omitempty"`
+	CampaignName   *string `json:"campaign_name,omitempty"`
+}
+
+// HashPassword hashes a password using bcrypt
+func HashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return "", fmt.Errorf("failed to hash password: %w", err)
+	}
+	return string(bytes), nil
+}
+
+// CheckPassword compares a password with a hash
+func CheckPassword(password, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
+}
+
+// CreateCandidate creates a new candidate with email/phone and hashed password
+func CreateCandidate(ctx context.Context, email, phone, passwordHash string) (*Candidate, error) {
+	var candidate Candidate
+	var emailPtr, phonePtr *string
+	if email != "" {
+		emailPtr = &email
+	}
+	if phone != "" {
+		phonePtr = &phone
+	}
+
+	err := pool.QueryRow(ctx, `
+		INSERT INTO candidates (email, phone, password_hash)
+		VALUES ($1, $2, $3)
+		RETURNING id, email, email_verified, phone, phone_verified, password_hash, name, address, city, province,
+		          high_school, graduation_year, prodi_id, campaign_id, referrer_id, referred_by_candidate_id,
+		          source_type, source_detail, assigned_consultant_id, status, lost_reason_id, lost_at, created_at, updated_at
+	`, emailPtr, phonePtr, passwordHash).Scan(
+		&candidate.ID, &candidate.Email, &candidate.EmailVerified, &candidate.Phone, &candidate.PhoneVerified,
+		&candidate.PasswordHash, &candidate.Name, &candidate.Address, &candidate.City, &candidate.Province,
+		&candidate.HighSchool, &candidate.GraduationYear, &candidate.ProdiID, &candidate.CampaignID,
+		&candidate.ReferrerID, &candidate.ReferredByCandidateID, &candidate.SourceType, &candidate.SourceDetail,
+		&candidate.AssignedConsultantID, &candidate.Status, &candidate.LostReasonID, &candidate.LostAt,
+		&candidate.CreatedAt, &candidate.UpdatedAt,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create candidate: %w", err)
+	}
+	return &candidate, nil
+}
+
+// FindCandidateByID finds a candidate by ID
+func FindCandidateByID(ctx context.Context, id string) (*Candidate, error) {
+	var candidate Candidate
+	err := pool.QueryRow(ctx, `
+		SELECT id, email, email_verified, phone, phone_verified, password_hash, name, address, city, province,
+		       high_school, graduation_year, prodi_id, campaign_id, referrer_id, referred_by_candidate_id,
+		       source_type, source_detail, assigned_consultant_id, status, lost_reason_id, lost_at, created_at, updated_at
+		FROM candidates WHERE id = $1
+	`, id).Scan(
+		&candidate.ID, &candidate.Email, &candidate.EmailVerified, &candidate.Phone, &candidate.PhoneVerified,
+		&candidate.PasswordHash, &candidate.Name, &candidate.Address, &candidate.City, &candidate.Province,
+		&candidate.HighSchool, &candidate.GraduationYear, &candidate.ProdiID, &candidate.CampaignID,
+		&candidate.ReferrerID, &candidate.ReferredByCandidateID, &candidate.SourceType, &candidate.SourceDetail,
+		&candidate.AssignedConsultantID, &candidate.Status, &candidate.LostReasonID, &candidate.LostAt,
+		&candidate.CreatedAt, &candidate.UpdatedAt,
+	)
+	if err == pgx.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to find candidate by id: %w", err)
+	}
+	return &candidate, nil
+}
+
+// FindCandidateByEmail finds a candidate by email
+func FindCandidateByEmail(ctx context.Context, email string) (*Candidate, error) {
+	var candidate Candidate
+	err := pool.QueryRow(ctx, `
+		SELECT id, email, email_verified, phone, phone_verified, password_hash, name, address, city, province,
+		       high_school, graduation_year, prodi_id, campaign_id, referrer_id, referred_by_candidate_id,
+		       source_type, source_detail, assigned_consultant_id, status, lost_reason_id, lost_at, created_at, updated_at
+		FROM candidates WHERE email = $1
+	`, email).Scan(
+		&candidate.ID, &candidate.Email, &candidate.EmailVerified, &candidate.Phone, &candidate.PhoneVerified,
+		&candidate.PasswordHash, &candidate.Name, &candidate.Address, &candidate.City, &candidate.Province,
+		&candidate.HighSchool, &candidate.GraduationYear, &candidate.ProdiID, &candidate.CampaignID,
+		&candidate.ReferrerID, &candidate.ReferredByCandidateID, &candidate.SourceType, &candidate.SourceDetail,
+		&candidate.AssignedConsultantID, &candidate.Status, &candidate.LostReasonID, &candidate.LostAt,
+		&candidate.CreatedAt, &candidate.UpdatedAt,
+	)
+	if err == pgx.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to find candidate by email: %w", err)
+	}
+	return &candidate, nil
+}
+
+// FindCandidateByPhone finds a candidate by phone
+func FindCandidateByPhone(ctx context.Context, phone string) (*Candidate, error) {
+	var candidate Candidate
+	err := pool.QueryRow(ctx, `
+		SELECT id, email, email_verified, phone, phone_verified, password_hash, name, address, city, province,
+		       high_school, graduation_year, prodi_id, campaign_id, referrer_id, referred_by_candidate_id,
+		       source_type, source_detail, assigned_consultant_id, status, lost_reason_id, lost_at, created_at, updated_at
+		FROM candidates WHERE phone = $1
+	`, phone).Scan(
+		&candidate.ID, &candidate.Email, &candidate.EmailVerified, &candidate.Phone, &candidate.PhoneVerified,
+		&candidate.PasswordHash, &candidate.Name, &candidate.Address, &candidate.City, &candidate.Province,
+		&candidate.HighSchool, &candidate.GraduationYear, &candidate.ProdiID, &candidate.CampaignID,
+		&candidate.ReferrerID, &candidate.ReferredByCandidateID, &candidate.SourceType, &candidate.SourceDetail,
+		&candidate.AssignedConsultantID, &candidate.Status, &candidate.LostReasonID, &candidate.LostAt,
+		&candidate.CreatedAt, &candidate.UpdatedAt,
+	)
+	if err == pgx.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to find candidate by phone: %w", err)
+	}
+	return &candidate, nil
+}
+
+// AuthenticateCandidate authenticates a candidate by email or phone with password
+func AuthenticateCandidate(ctx context.Context, identifier, password string) (*Candidate, error) {
+	// Try to find by email first, then by phone
+	candidate, err := FindCandidateByEmail(ctx, identifier)
+	if err != nil {
+		return nil, err
+	}
+	if candidate == nil {
+		candidate, err = FindCandidateByPhone(ctx, identifier)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if candidate == nil {
+		return nil, nil // Not found
+	}
+
+	// Check password
+	if !CheckPassword(password, candidate.PasswordHash) {
+		return nil, nil // Wrong password
+	}
+
+	return candidate, nil
+}
+
+// UpdateCandidatePersonalInfo updates personal information
+func UpdateCandidatePersonalInfo(ctx context.Context, id, name, address, city, province string) error {
+	_, err := pool.Exec(ctx, `
+		UPDATE candidates
+		SET name = $2, address = $3, city = $4, province = $5, updated_at = NOW()
+		WHERE id = $1
+	`, id, name, address, city, province)
+	if err != nil {
+		return fmt.Errorf("failed to update personal info: %w", err)
+	}
+	return nil
+}
+
+// UpdateCandidateEducation updates education information
+func UpdateCandidateEducation(ctx context.Context, id, highSchool string, graduationYear int, prodiID string) error {
+	var prodiPtr *string
+	if prodiID != "" {
+		prodiPtr = &prodiID
+	}
+	_, err := pool.Exec(ctx, `
+		UPDATE candidates
+		SET high_school = $2, graduation_year = $3, prodi_id = $4, updated_at = NOW()
+		WHERE id = $1
+	`, id, highSchool, graduationYear, prodiPtr)
+	if err != nil {
+		return fmt.Errorf("failed to update education: %w", err)
+	}
+	return nil
+}
+
+// UpdateCandidateSourceTracking updates source tracking information
+func UpdateCandidateSourceTracking(ctx context.Context, id, sourceType, sourceDetail, campaignID, referrerID, referredByCandidateID string) error {
+	var campaignPtr, referrerPtr, referredByPtr *string
+	if campaignID != "" {
+		campaignPtr = &campaignID
+	}
+	if referrerID != "" {
+		referrerPtr = &referrerID
+	}
+	if referredByCandidateID != "" {
+		referredByPtr = &referredByCandidateID
+	}
+	var sourceDetailPtr *string
+	if sourceDetail != "" {
+		sourceDetailPtr = &sourceDetail
+	}
+
+	_, err := pool.Exec(ctx, `
+		UPDATE candidates
+		SET source_type = $2, source_detail = $3, campaign_id = $4, referrer_id = $5, referred_by_candidate_id = $6, updated_at = NOW()
+		WHERE id = $1
+	`, id, sourceType, sourceDetailPtr, campaignPtr, referrerPtr, referredByPtr)
+	if err != nil {
+		return fmt.Errorf("failed to update source tracking: %w", err)
+	}
+	return nil
+}
+
+// SetCandidateEmailVerified marks email as verified
+func SetCandidateEmailVerified(ctx context.Context, id string) error {
+	_, err := pool.Exec(ctx, `
+		UPDATE candidates SET email_verified = true, updated_at = NOW() WHERE id = $1
+	`, id)
+	if err != nil {
+		return fmt.Errorf("failed to set email verified: %w", err)
+	}
+	return nil
+}
+
+// SetCandidatePhoneVerified marks phone as verified
+func SetCandidatePhoneVerified(ctx context.Context, id string) error {
+	_, err := pool.Exec(ctx, `
+		UPDATE candidates SET phone_verified = true, updated_at = NOW() WHERE id = $1
+	`, id)
+	if err != nil {
+		return fmt.Errorf("failed to set phone verified: %w", err)
+	}
+	return nil
+}
+
+// AssignCandidateConsultant assigns a consultant to a candidate
+func AssignCandidateConsultant(ctx context.Context, id, consultantID string) error {
+	_, err := pool.Exec(ctx, `
+		UPDATE candidates SET assigned_consultant_id = $2, updated_at = NOW() WHERE id = $1
+	`, id, consultantID)
+	if err != nil {
+		return fmt.Errorf("failed to assign consultant: %w", err)
+	}
+	return nil
+}
+
+// UpdateCandidateStatus updates the candidate status
+func UpdateCandidateStatus(ctx context.Context, id, status string) error {
+	_, err := pool.Exec(ctx, `
+		UPDATE candidates SET status = $2, updated_at = NOW() WHERE id = $1
+	`, id, status)
+	if err != nil {
+		return fmt.Errorf("failed to update status: %w", err)
+	}
+	return nil
+}
+
+// MarkCandidateLost marks a candidate as lost with reason
+func MarkCandidateLost(ctx context.Context, id, lostReasonID string) error {
+	_, err := pool.Exec(ctx, `
+		UPDATE candidates SET status = 'lost', lost_reason_id = $2, lost_at = NOW(), updated_at = NOW() WHERE id = $1
+	`, id, lostReasonID)
+	if err != nil {
+		return fmt.Errorf("failed to mark candidate as lost: %w", err)
+	}
+	return nil
+}
+
+// GetNextConsultantForAssignment gets the next consultant using the active algorithm
+func GetNextConsultantForAssignment(ctx context.Context) (*string, error) {
+	// Get active algorithm
+	algo, err := FindActiveAssignmentAlgorithm(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if algo == nil {
+		return nil, nil // No active algorithm
+	}
+
+	var consultantID string
+
+	switch algo.Code {
+	case "round_robin":
+		// Get the consultant with the oldest last assignment
+		err = pool.QueryRow(ctx, `
+			SELECT u.id FROM users u
+			WHERE u.role = 'consultant' AND u.is_active = true
+			ORDER BY (
+				SELECT MAX(c.created_at) FROM candidates c WHERE c.assigned_consultant_id = u.id
+			) NULLS FIRST, u.created_at
+			LIMIT 1
+		`).Scan(&consultantID)
+
+	case "load_balanced":
+		// Get the consultant with the fewest active candidates
+		err = pool.QueryRow(ctx, `
+			SELECT u.id FROM users u
+			LEFT JOIN candidates c ON c.assigned_consultant_id = u.id AND c.status NOT IN ('enrolled', 'lost')
+			WHERE u.role = 'consultant' AND u.is_active = true
+			GROUP BY u.id
+			ORDER BY COUNT(c.id), u.created_at
+			LIMIT 1
+		`).Scan(&consultantID)
+
+	default:
+		// Default to round robin
+		err = pool.QueryRow(ctx, `
+			SELECT u.id FROM users u
+			WHERE u.role = 'consultant' AND u.is_active = true
+			ORDER BY (
+				SELECT MAX(c.created_at) FROM candidates c WHERE c.assigned_consultant_id = u.id
+			) NULLS FIRST, u.created_at
+			LIMIT 1
+		`).Scan(&consultantID)
+	}
+
+	if err == pgx.ErrNoRows {
+		return nil, nil // No consultant available
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to get next consultant: %w", err)
+	}
+	return &consultantID, nil
+}

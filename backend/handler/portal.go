@@ -17,7 +17,6 @@ func NewPortalHandler() *PortalHandler {
 // RegisterRoutes registers all portal routes to the mux
 func (h *PortalHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /portal", h.handleDashboard)
-	mux.HandleFunc("GET /portal/register", h.handleRegistration)
 	mux.HandleFunc("GET /portal/documents", h.handleDocuments)
 	mux.HandleFunc("GET /portal/payments", h.handlePayments)
 	mux.HandleFunc("GET /portal/announcements", h.handleAnnouncements)
@@ -49,21 +48,6 @@ func (h *PortalHandler) handleDashboard(w http.ResponseWriter, r *http.Request) 
 		{Title: "Jadwal Tes Masuk Gelombang 1", Content: "Tes masuk gelombang 1 akan dilaksanakan pada 1 Maret 2026.", Date: "12 Jan 2026", IsNew: false},
 	}
 	portal.Dashboard(data, candidate, checklist, announcements).Render(r.Context(), w)
-}
-
-func (h *PortalHandler) handleRegistration(w http.ResponseWriter, r *http.Request) {
-	data := NewPageData("Pendaftaran")
-	steps := []portal.RegistrationStep{
-		{Number: "1", Title: "Akun", Status: "completed"},
-		{Number: "2", Title: "Verifikasi", Status: "completed"},
-		{Number: "3", Title: "Data Diri", Status: "current"},
-		{Number: "4", Title: "Prodi", Status: "pending"},
-	}
-	programs := []portal.ProgramOption{
-		{Code: "SI", Name: "Sistem Informasi", Fee: "Rp 7.500.000/semester"},
-		{Code: "TI", Name: "Teknik Informatika", Fee: "Rp 8.000.000/semester"},
-	}
-	portal.Registration(data, steps, programs, "biodata").Render(r.Context(), w)
 }
 
 func (h *PortalHandler) handleDocuments(w http.ResponseWriter, r *http.Request) {
