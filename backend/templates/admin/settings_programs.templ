@@ -21,50 +21,23 @@ templ SettingsPrograms(data layouts.PageData, programs []ProgramItem) {
 					<h2 class="text-lg font-semibold text-gray-900">Program Studi</h2>
 					<p class="text-sm text-gray-500">Kelola program studi dan biaya SPP</p>
 				</div>
-				<button data-testid="add-program-button" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 flex items-center gap-2">
+				<button
+					data-testid="add-program-button"
+					class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 flex items-center gap-2"
+					onclick="document.getElementById('add-program-modal').showModal()"
+				>
 					<span>+</span> Tambah Prodi
 				</button>
 			</div>
 
 			<!-- Programs Grid -->
-			<div class="grid grid-cols-2 gap-6" data-testid="programs-grid">
+			<div class="grid grid-cols-2 gap-6" data-testid="programs-grid" id="programs-grid">
 				for _, prog := range programs {
-					<div class="bg-white rounded-lg border overflow-hidden" data-testid={ "program-card-" + prog.ID } id={ "program-card-" + prog.ID }>
-						<div class="p-4 border-b bg-gray-50 flex items-center justify-between">
-							<div class="flex items-center gap-3">
-								<div class="w-10 h-10 bg-primary-100 text-primary-700 rounded-lg flex items-center justify-center font-bold" data-testid={ "program-code-" + prog.ID }>
-									{ prog.Code }
-								</div>
-								<div>
-									<h3 class="font-semibold text-gray-900" data-testid={ "program-name-" + prog.ID }>{ prog.Name }</h3>
-									<p class="text-sm text-gray-500" data-testid={ "program-level-" + prog.ID }>{ prog.Level }</p>
-								</div>
-							</div>
-							if prog.Status == "active" {
-								<span data-testid={ "program-status-" + prog.ID } class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">Aktif</span>
-							} else {
-								<span data-testid={ "program-status-" + prog.ID } class="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">Nonaktif</span>
-							}
-						</div>
-						<div class="p-4 space-y-3">
-							<div class="flex justify-between">
-								<span class="text-gray-500">SPP per Semester</span>
-								<span class="font-semibold text-gray-900" data-testid={ "program-spp-" + prog.ID }>{ prog.SPPFee }</span>
-							</div>
-							<div class="flex justify-between">
-								<span class="text-gray-500">Mahasiswa Aktif</span>
-								<span class="font-semibold text-gray-900" data-testid={ "program-students-" + prog.ID }>{ prog.Students }</span>
-							</div>
-							<div class="pt-3 border-t flex gap-2">
-								<button data-testid={ "program-edit-" + prog.ID } class="flex-1 px-3 py-2 text-primary-600 border border-primary-600 rounded hover:bg-primary-50 text-sm">Edit</button>
-								<button data-testid={ "program-curriculum-" + prog.ID } class="flex-1 px-3 py-2 text-gray-600 border rounded hover:bg-gray-50 text-sm">Lihat Kurikulum</button>
-							</div>
-						</div>
-					</div>
+					@ProgramCard(prog)
 				}
 			</div>
 
-			<!-- Fee Settings -->
+			<!-- Fee Settings (placeholder) -->
 			<div class="bg-white rounded-lg border">
 				<div class="p-4 border-b">
 					<h3 class="font-semibold text-gray-900">Biaya Lainnya (Tahun Akademik 2025/2026)</h3>
@@ -106,6 +79,182 @@ templ SettingsPrograms(data layouts.PageData, programs []ProgramItem) {
 					</table>
 				</div>
 			</div>
+
+			<!-- Add Program Modal -->
+			<dialog id="add-program-modal" class="rounded-lg p-0 backdrop:bg-black/50" data-testid="add-program-modal">
+				<div class="p-6 w-96">
+					<h3 class="text-lg font-semibold mb-4">Tambah Program Studi</h3>
+					<form
+						hx-post="/admin/settings/programs"
+						hx-target="#programs-grid"
+						hx-swap="beforeend"
+						hx-on::after-request="if(event.detail.successful) this.closest('dialog').close()"
+					>
+						<div class="space-y-4">
+							<div>
+								<label class="block text-sm font-medium text-gray-700 mb-1">Nama</label>
+								<input
+									type="text"
+									name="name"
+									data-testid="input-program-name"
+									class="w-full border rounded-lg px-3 py-2"
+									placeholder="Sistem Informasi"
+									required
+								/>
+							</div>
+							<div>
+								<label class="block text-sm font-medium text-gray-700 mb-1">Kode</label>
+								<input
+									type="text"
+									name="code"
+									data-testid="input-program-code"
+									class="w-full border rounded-lg px-3 py-2"
+									placeholder="SI"
+									required
+								/>
+							</div>
+							<div>
+								<label class="block text-sm font-medium text-gray-700 mb-1">Jenjang</label>
+								<select name="degree" data-testid="input-program-degree" class="w-full border rounded-lg px-3 py-2" required>
+									<option value="S1">S1</option>
+									<option value="D3">D3</option>
+								</select>
+							</div>
+						</div>
+						<div class="flex justify-end gap-3 mt-6">
+							<button type="button" onclick="this.closest('dialog').close()" class="px-4 py-2 text-gray-600 hover:text-gray-800">
+								Batal
+							</button>
+							<button type="submit" data-testid="submit-add-program" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+								Simpan
+							</button>
+						</div>
+					</form>
+				</div>
+			</dialog>
 		</div>
 	}
+}
+
+templ ProgramCard(prog ProgramItem) {
+	<div class="bg-white rounded-lg border overflow-hidden" data-testid={ "program-card-" + prog.ID } id={ "program-card-" + prog.ID }>
+		<div class="p-4 border-b bg-gray-50 flex items-center justify-between">
+			<div class="flex items-center gap-3">
+				<div class="w-10 h-10 bg-primary-100 text-primary-700 rounded-lg flex items-center justify-center font-bold" data-testid={ "program-code-" + prog.ID }>
+					{ prog.Code }
+				</div>
+				<div>
+					<h3 class="font-semibold text-gray-900" data-testid={ "program-name-" + prog.ID }>{ prog.Name }</h3>
+					<p class="text-sm text-gray-500" data-testid={ "program-level-" + prog.ID }>{ prog.Level }</p>
+				</div>
+			</div>
+			<form
+				hx-post={ "/admin/settings/programs/" + prog.ID + "/toggle-active" }
+				hx-target={ "#program-card-" + prog.ID }
+				hx-swap="outerHTML"
+			>
+				<button
+					type="submit"
+					data-testid={ "program-status-toggle-" + prog.ID }
+					if prog.Status == "active" {
+						class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs cursor-pointer hover:bg-green-200"
+					} else {
+						class="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs cursor-pointer hover:bg-gray-200"
+					}
+				>
+					if prog.Status == "active" {
+						Aktif
+					} else {
+						Nonaktif
+					}
+				</button>
+			</form>
+		</div>
+		<div class="p-4 space-y-3">
+			<div class="flex justify-between">
+				<span class="text-gray-500">SPP per Semester</span>
+				<span class="font-semibold text-gray-900" data-testid={ "program-spp-" + prog.ID }>{ prog.SPPFee }</span>
+			</div>
+			<div class="flex justify-between">
+				<span class="text-gray-500">Mahasiswa Aktif</span>
+				<span class="font-semibold text-gray-900" data-testid={ "program-students-" + prog.ID }>{ prog.Students }</span>
+			</div>
+			<div class="pt-3 border-t flex gap-2">
+				<button
+					type="button"
+					data-testid={ "program-edit-" + prog.ID }
+					data-modal-id={ "edit-modal-" + prog.ID }
+					class="flex-1 px-3 py-2 text-primary-600 border border-primary-600 rounded hover:bg-primary-50 text-sm edit-program-btn"
+				>
+					Edit
+				</button>
+				<button data-testid={ "program-curriculum-" + prog.ID } class="flex-1 px-3 py-2 text-gray-600 border rounded hover:bg-gray-50 text-sm">
+					Lihat Kurikulum
+				</button>
+			</div>
+		</div>
+		<!-- Edit Modal for this program -->
+		<dialog id={ "edit-modal-" + prog.ID } class="rounded-lg p-0 backdrop:bg-black/50" data-testid={ "edit-program-modal-" + prog.ID }>
+			<div class="p-6 w-96">
+				<h3 class="text-lg font-semibold mb-4">Edit Program Studi</h3>
+				<form
+					hx-post={ "/admin/settings/programs/" + prog.ID }
+					hx-target={ "#program-card-" + prog.ID }
+					hx-swap="outerHTML"
+					hx-on::after-request="if(event.detail.successful) this.closest('dialog').close()"
+				>
+					<div class="space-y-4">
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-1">Nama</label>
+							<input
+								type="text"
+								name="name"
+								data-testid={ "edit-program-name-" + prog.ID }
+								class="w-full border rounded-lg px-3 py-2"
+								value={ prog.Name }
+								required
+							/>
+						</div>
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-1">Kode</label>
+							<input
+								type="text"
+								name="code"
+								data-testid={ "edit-program-code-" + prog.ID }
+								class="w-full border rounded-lg px-3 py-2"
+								value={ prog.Code }
+								required
+							/>
+						</div>
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-1">Jenjang</label>
+							<select name="degree" data-testid={ "edit-program-degree-" + prog.ID } class="w-full border rounded-lg px-3 py-2" required>
+								<option value="S1" selected?={ prog.Level == "S1" }>S1</option>
+								<option value="D3" selected?={ prog.Level == "D3" }>D3</option>
+							</select>
+						</div>
+					</div>
+					<div class="flex justify-end gap-3 mt-6">
+						<button type="button" onclick="this.closest('dialog').close()" class="px-4 py-2 text-gray-600 hover:text-gray-800">
+							Batal
+						</button>
+						<button type="submit" data-testid={ "submit-edit-program-" + prog.ID } class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+							Simpan
+						</button>
+					</div>
+				</form>
+			</div>
+		</dialog>
+	</div>
+	<script>
+		// Set up event listener for edit buttons using event delegation
+		document.addEventListener('click', function(e) {
+			if (e.target.classList.contains('edit-program-btn')) {
+				var modalId = e.target.getAttribute('data-modal-id');
+				if (modalId) {
+					document.getElementById(modalId).showModal();
+				}
+			}
+		});
+	</script>
 }
