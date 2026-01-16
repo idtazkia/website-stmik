@@ -1,0 +1,287 @@
+package admin
+
+import (
+	"fmt"
+	"strings"
+	"github.com/idtazkia/stmik-admission-api/templates/layouts"
+)
+
+type FeeStructureItem struct {
+	ID           string
+	FeeTypeID    string
+	FeeTypeName  string
+	FeeTypeCode  string
+	ProdiID      string
+	ProdiName    string
+	ProdiCode    string
+	AcademicYear string
+	Amount       int64
+	AmountStr    string
+	IsActive     bool
+}
+
+type FeeTypeOption struct {
+	ID   string
+	Name string
+	Code string
+}
+
+type ProdiOption struct {
+	ID   string
+	Name string
+	Code string
+}
+
+// formatAmount formats amount as Indonesian Rupiah
+func formatAmount(amount int64) string {
+	s := fmt.Sprintf("%d", amount)
+	n := len(s)
+	if n <= 3 {
+		return "Rp " + s
+	}
+	// Add thousand separators
+	var result strings.Builder
+	for i, c := range s {
+		if i > 0 && (n-i)%3 == 0 {
+			result.WriteRune('.')
+		}
+		result.WriteRune(c)
+	}
+	return "Rp " + result.String()
+}
+
+templ SettingsFees(data layouts.PageData, feeStructures []FeeStructureItem, feeTypes []FeeTypeOption, prodis []ProdiOption, academicYear string) {
+	@layouts.Admin(data) {
+		<div class="space-y-6" data-testid="settings-fees-page">
+			<!-- Header -->
+			<div class="flex items-center justify-between">
+				<div>
+					<h2 class="text-lg font-semibold text-gray-900">Biaya Pendidikan</h2>
+					<p class="text-sm text-gray-500">Kelola struktur biaya per tahun akademik</p>
+				</div>
+				<div class="flex items-center gap-4">
+					<div class="flex items-center gap-2">
+						<label class="text-sm text-gray-600">Tahun Akademik:</label>
+						<select
+							data-testid="academic-year-select"
+							class="border rounded-lg px-3 py-2"
+							onchange="window.location.href='/admin/settings/fees?academic_year='+this.value"
+						>
+							<option value="2025/2026" selected?={ academicYear == "2025/2026" }>2025/2026</option>
+							<option value="2026/2027" selected?={ academicYear == "2026/2027" }>2026/2027</option>
+						</select>
+					</div>
+					<button
+						data-testid="add-fee-button"
+						class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 flex items-center gap-2"
+						onclick="document.getElementById('add-fee-modal').showModal()"
+					>
+						<span>+</span> Tambah Biaya
+					</button>
+				</div>
+			</div>
+
+			<!-- Fee Structures Table -->
+			<div class="bg-white rounded-lg border" data-testid="fees-section">
+				<div class="p-4 border-b">
+					<h3 class="font-semibold text-gray-900">Struktur Biaya { academicYear }</h3>
+				</div>
+				<div class="overflow-x-auto">
+					<table class="w-full" data-testid="fees-table">
+						<thead>
+							<tr class="border-b bg-gray-50">
+								<th class="px-4 py-3 text-left text-sm font-medium text-gray-500">Jenis Biaya</th>
+								<th class="px-4 py-3 text-left text-sm font-medium text-gray-500">Program Studi</th>
+								<th class="px-4 py-3 text-right text-sm font-medium text-gray-500">Nominal</th>
+								<th class="px-4 py-3 text-center text-sm font-medium text-gray-500">Status</th>
+								<th class="px-4 py-3 text-center text-sm font-medium text-gray-500">Aksi</th>
+							</tr>
+						</thead>
+						<tbody class="divide-y" id="fees-list" data-testid="fees-list">
+							for _, fee := range feeStructures {
+								@FeeRow(fee, feeTypes, prodis)
+							}
+							if len(feeStructures) == 0 {
+								<tr>
+									<td colspan="5" class="px-4 py-8 text-center text-gray-500">
+										Belum ada data biaya untuk tahun akademik { academicYear }
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<!-- Add Fee Modal -->
+			<dialog id="add-fee-modal" class="rounded-lg p-0 backdrop:bg-black/50" data-testid="add-fee-modal">
+				<div class="p-6 w-96">
+					<h3 class="text-lg font-semibold mb-4">Tambah Biaya</h3>
+					<form
+						hx-post={ "/admin/settings/fees?academic_year=" + academicYear }
+						hx-target="#fees-list"
+						hx-swap="beforeend"
+						hx-on::after-request="if(event.detail.successful) this.closest('dialog').close()"
+					>
+						<input type="hidden" name="academic_year" value={ academicYear }/>
+						<div class="space-y-4">
+							<div>
+								<label class="block text-sm font-medium text-gray-700 mb-1">Jenis Biaya</label>
+								<select name="fee_type_id" data-testid="input-fee-type" class="w-full border rounded-lg px-3 py-2" required>
+									<option value="">-- Pilih Jenis Biaya --</option>
+									for _, ft := range feeTypes {
+										<option value={ ft.ID }>{ ft.Name }</option>
+									}
+								</select>
+							</div>
+							<div>
+								<label class="block text-sm font-medium text-gray-700 mb-1">Program Studi</label>
+								<select name="prodi_id" data-testid="input-fee-prodi" class="w-full border rounded-lg px-3 py-2">
+									<option value="">Semua Prodi</option>
+									for _, p := range prodis {
+										<option value={ p.ID }>{ p.Name } ({ p.Code })</option>
+									}
+								</select>
+							</div>
+							<div>
+								<label class="block text-sm font-medium text-gray-700 mb-1">Nominal (Rp)</label>
+								<input
+									type="number"
+									name="amount"
+									data-testid="input-fee-amount"
+									class="w-full border rounded-lg px-3 py-2"
+									placeholder="5000000"
+									min="0"
+									required
+								/>
+							</div>
+						</div>
+						<div class="flex justify-end gap-3 mt-6">
+							<button type="button" onclick="this.closest('dialog').close()" class="px-4 py-2 text-gray-600 hover:text-gray-800">
+								Batal
+							</button>
+							<button type="submit" data-testid="submit-add-fee" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+								Simpan
+							</button>
+						</div>
+					</form>
+				</div>
+			</dialog>
+		</div>
+	}
+}
+
+templ FeeRow(fee FeeStructureItem, feeTypes []FeeTypeOption, prodis []ProdiOption) {
+	<tr data-testid={ "fee-row-" + fee.ID } id={ "fee-row-" + fee.ID }>
+		<td class="px-4 py-3">
+			<span class="font-medium" data-testid={ "fee-type-name-" + fee.ID }>{ fee.FeeTypeName }</span>
+			<span class="text-gray-500 text-sm ml-1">({ fee.FeeTypeCode })</span>
+		</td>
+		<td class="px-4 py-3" data-testid={ "fee-prodi-" + fee.ID }>
+			if fee.ProdiName != "" {
+				{ fee.ProdiName } ({ fee.ProdiCode })
+			} else {
+				<span class="text-gray-400">Semua Prodi</span>
+			}
+		</td>
+		<td class="px-4 py-3 text-right font-semibold" data-testid={ "fee-amount-" + fee.ID }>
+			{ fee.AmountStr }
+		</td>
+		<td class="px-4 py-3 text-center">
+			<form
+				hx-post={ "/admin/settings/fees/" + fee.ID + "/toggle-active" }
+				hx-target={ "#fee-row-" + fee.ID }
+				hx-swap="outerHTML"
+			>
+				<button
+					type="submit"
+					data-testid={ "fee-status-toggle-" + fee.ID }
+					if fee.IsActive {
+						class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs cursor-pointer hover:bg-green-200"
+					} else {
+						class="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs cursor-pointer hover:bg-gray-200"
+					}
+				>
+					if fee.IsActive {
+						Aktif
+					} else {
+						Nonaktif
+					}
+				</button>
+			</form>
+		</td>
+		<td class="px-4 py-3 text-center">
+			<button
+				type="button"
+				data-testid={ "fee-edit-" + fee.ID }
+				class="text-primary-600 text-sm hover:text-primary-800 edit-fee-btn"
+				data-modal-id={ "edit-fee-modal-" + fee.ID }
+			>
+				Edit
+			</button>
+		</td>
+		<!-- Edit Modal for this fee -->
+		<dialog id={ "edit-fee-modal-" + fee.ID } class="rounded-lg p-0 backdrop:bg-black/50" data-testid={ "edit-fee-modal-" + fee.ID }>
+			<div class="p-6 w-96">
+				<h3 class="text-lg font-semibold mb-4">Edit Biaya</h3>
+				<form
+					hx-post={ "/admin/settings/fees/" + fee.ID }
+					hx-target={ "#fee-row-" + fee.ID }
+					hx-swap="outerHTML"
+					hx-on::after-request="if(event.detail.successful) this.closest('dialog').close()"
+				>
+					<div class="space-y-4">
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-1">Jenis Biaya</label>
+							<select name="fee_type_id" data-testid={ "edit-fee-type-" + fee.ID } class="w-full border rounded-lg px-3 py-2" required>
+								for _, ft := range feeTypes {
+									<option value={ ft.ID } selected?={ ft.ID == fee.FeeTypeID }>{ ft.Name }</option>
+								}
+							</select>
+						</div>
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-1">Program Studi</label>
+							<select name="prodi_id" data-testid={ "edit-fee-prodi-" + fee.ID } class="w-full border rounded-lg px-3 py-2">
+								<option value="" selected?={ fee.ProdiID == "" }>Semua Prodi</option>
+								for _, p := range prodis {
+									<option value={ p.ID } selected?={ p.ID == fee.ProdiID }>{ p.Name } ({ p.Code })</option>
+								}
+							</select>
+						</div>
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-1">Nominal (Rp)</label>
+							<input
+								type="number"
+								name="amount"
+								data-testid={ "edit-fee-amount-" + fee.ID }
+								class="w-full border rounded-lg px-3 py-2"
+								value={ fmt.Sprintf("%d", fee.Amount) }
+								min="0"
+								required
+							/>
+						</div>
+					</div>
+					<div class="flex justify-end gap-3 mt-6">
+						<button type="button" onclick="this.closest('dialog').close()" class="px-4 py-2 text-gray-600 hover:text-gray-800">
+							Batal
+						</button>
+						<button type="submit" data-testid={ "submit-edit-fee-" + fee.ID } class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+							Simpan
+						</button>
+					</div>
+				</form>
+			</div>
+		</dialog>
+	</tr>
+	<script>
+		// Set up event listener for edit buttons using event delegation
+		document.addEventListener('click', function(e) {
+			if (e.target.classList.contains('edit-fee-btn')) {
+				var modalId = e.target.getAttribute('data-modal-id');
+				if (modalId) {
+					document.getElementById(modalId).showModal();
+				}
+			}
+		});
+	</script>
+}
