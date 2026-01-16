@@ -128,3 +128,40 @@ func DeleteProdi(ctx context.Context, id string) error {
 	}
 	return nil
 }
+
+// ProdiWithFees represents a prodi with its total fees
+type ProdiWithFees struct {
+	ID       string `json:"id"`
+	Name     string `json:"name"`
+	Code     string `json:"code"`
+	Degree   string `json:"degree"`
+	TotalFee int64  `json:"total_fee"`
+}
+
+// GetActiveProdiWithFees returns all active prodis with their semester fees
+func GetActiveProdiWithFees(ctx context.Context) ([]ProdiWithFees, error) {
+	rows, err := pool.Query(ctx, `
+		SELECT p.id, p.name, p.code, p.degree,
+			COALESCE(SUM(fs.amount), 0) as total_fee
+		FROM prodis p
+		LEFT JOIN fee_structures fs ON fs.id_prodi = p.id AND fs.is_active = true
+		WHERE p.is_active = true
+		GROUP BY p.id, p.name, p.code, p.degree
+		ORDER BY p.code
+	`)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get active prodi with fees: %w", err)
+	}
+	defer rows.Close()
+
+	var prodis []ProdiWithFees
+	for rows.Next() {
+		var p ProdiWithFees
+		err := rows.Scan(&p.ID, &p.Name, &p.Code, &p.Degree, &p.TotalFee)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan prodi with fees: %w", err)
+		}
+		prodis = append(prodis, p)
+	}
+	return prodis, nil
+}

@@ -15,12 +15,18 @@ const (
 	DefaultExpiration = 7 * 24 * time.Hour // 7 days
 )
 
-// Claims represents JWT claims for user session
+// Claims represents JWT claims for user session (staff or candidate)
 type Claims struct {
-	UserID string `json:"user_id"`
-	Email  string `json:"email"`
-	Name   string `json:"name"`
-	Role   string `json:"role"`
+	// Staff fields
+	UserID string `json:"user_id,omitempty"`
+	Email  string `json:"email,omitempty"`
+	Name   string `json:"name,omitempty"`
+	Role   string `json:"role,omitempty"`
+
+	// Candidate fields
+	CandidateID string `json:"candidate_id,omitempty"`
+	IsCandidate bool   `json:"is_candidate,omitempty"`
+
 	jwt.RegisteredClaims
 }
 
@@ -51,6 +57,25 @@ func (s *SessionManager) CreateToken(userID, email, name, role string) (string, 
 		Email:  email,
 		Name:   name,
 		Role:   role,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(now.Add(s.expiration)),
+			IssuedAt:  jwt.NewNumericDate(now),
+			NotBefore: jwt.NewNumericDate(now),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString(s.secret)
+}
+
+// CreateCandidateToken generates a new JWT token for a candidate
+func (s *SessionManager) CreateCandidateToken(candidateID, email, name string) (string, error) {
+	now := time.Now()
+	claims := &Claims{
+		CandidateID: candidateID,
+		Email:       email,
+		Name:        name,
+		IsCandidate: true,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(now.Add(s.expiration)),
 			IssuedAt:  jwt.NewNumericDate(now),

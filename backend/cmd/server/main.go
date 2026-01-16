@@ -14,6 +14,7 @@ import (
 	"github.com/idtazkia/stmik-admission-api/auth"
 	"github.com/idtazkia/stmik-admission-api/config"
 	"github.com/idtazkia/stmik-admission-api/handler"
+	"github.com/idtazkia/stmik-admission-api/integration"
 	"github.com/idtazkia/stmik-admission-api/model"
 	"github.com/idtazkia/stmik-admission-api/templates/pages"
 	"github.com/idtazkia/stmik-admission-api/version"
@@ -52,6 +53,10 @@ func main() {
 		false, // secure=false for development
 	)
 
+	// Initialize integration clients (optional - nil if not configured)
+	resendClient := integration.NewResendClient(cfg.Resend.APIKey, cfg.Resend.From)
+	whatsappClient := integration.NewWhatsAppClient(cfg.WhatsApp.APIURL, cfg.WhatsApp.APIToken)
+
 	mux := http.NewServeMux()
 
 	// Health check endpoint
@@ -76,9 +81,13 @@ func main() {
 	adminHandler := handler.NewAdminHandler(sessionMgr)
 	adminHandler.RegisterRoutes(mux)
 
-	// Portal routes
+	// Portal routes (mockup pages)
 	portalHandler := handler.NewPortalHandler()
 	portalHandler.RegisterRoutes(mux)
+
+	// Public routes (registration and login)
+	publicHandler := handler.NewPublicHandler(sessionMgr, resendClient, whatsappClient)
+	publicHandler.RegisterRoutes(mux)
 
 	// Test routes for Playwright (only in development)
 	mux.HandleFunc("GET /test/portal", func(w http.ResponseWriter, r *http.Request) {
