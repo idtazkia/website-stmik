@@ -454,18 +454,18 @@ Admin manages referrers for commission tracking.
 
 ---
 
-## Feature 12: Settings - Assignment Algorithm
+## Feature 12: Settings - Assignment Algorithm ✅
 
 Configure consultant assignment algorithm.
 
-**Migrations:** 013_create_assignment_algorithms
+**Migrations:** 013_create_assignment_algorithms ✅
 
-- [ ] `model/assignment_algorithm.go` - List, SetActive
-- [ ] `templates/admin/settings/assignment.templ` - Algorithm selection
-- [ ] `handler/admin.go` - GET/POST /admin/settings/assignment
-- [ ] Algorithms: round_robin, load_balanced, performance_weighted, activity_based
-- [ ] Only one algorithm active at a time
-- [ ] Test: Switch algorithms
+- [x] `model/assignment_algorithm.go` - List, SetActive, FindActive
+- [x] `templates/admin/settings_assignment.templ` - Algorithm selection with HTMX
+- [x] `handler/admin.go` - GET /admin/settings/assignment, POST /admin/settings/assignment/{id}/activate
+- [x] Algorithms: round_robin, load_balanced, performance_weighted, activity_based (seeded)
+- [x] Only one algorithm active at a time (unique index constraint)
+- [x] Playwright E2E tests: Display, switch active algorithm
 
 ---
 
