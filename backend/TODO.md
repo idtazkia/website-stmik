@@ -212,10 +212,10 @@ Phase 2 - Configuration (DONE):
   011_seed_reward_configs.sql         ✅ → reward_configs, mgm_reward_configs
   012_create_referrers.sql            ✅
 
-Phase 2.5 - Remaining Configuration:
+Phase 2.5 - Remaining Configuration (DONE):
   013_create_assignment_algorithms.sql  ✅
   014_create_document_types.sql         ✅
-  015_create_lost_reasons.sql
+  015_create_lost_reasons.sql           ✅
 
 Phase 3 - Candidates:
   016_create_announcements.sql        → prodis
