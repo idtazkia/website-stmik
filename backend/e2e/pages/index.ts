@@ -8,3 +8,4 @@ export { SettingsFeesPage } from './SettingsFeesPage';
 export { SettingsCampaignsPage } from './SettingsCampaignsPage';
 export { SettingsRewardsPage } from './SettingsRewardsPage';
 export { SettingsReferrersPage } from './SettingsReferrersPage';
+export { SettingsAssignmentPage } from './SettingsAssignmentPage';
