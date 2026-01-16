@@ -26,6 +26,7 @@ func (h *PortalHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.Handle("GET /portal/documents", RequireCandidateAuth(h.sessionMgr, http.HandlerFunc(h.handleDocuments)))
 	mux.Handle("GET /portal/payments", RequireCandidateAuth(h.sessionMgr, http.HandlerFunc(h.handlePayments)))
 	mux.Handle("GET /portal/announcements", RequireCandidateAuth(h.sessionMgr, http.HandlerFunc(h.handleAnnouncements)))
+	mux.Handle("POST /portal/announcements/{id}/read", RequireCandidateAuth(h.sessionMgr, http.HandlerFunc(h.handleMarkAnnouncementRead)))
 	mux.Handle("GET /portal/referral", RequireCandidateAuth(h.sessionMgr, http.HandlerFunc(h.handleReferral)))
 }
 
@@ -72,9 +73,30 @@ func (h *PortalHandler) handleDashboard(w http.ResponseWriter, r *http.Request) 
 	// Build checklist based on candidate progress
 	checklist := buildChecklist(candidateData)
 
-	// TODO: Fetch real announcements from database when announcement feature is implemented
-	announcements := []portal.AnnouncementItem{
-		{Title: "Selamat Datang!", Content: "Terima kasih telah mendaftar di STMIK Tazkia.", Date: candidateData.CreatedAt.Format("02 Jan 2006"), IsNew: true},
+	// Fetch announcements for this candidate (limited to 3 for dashboard)
+	dbAnnouncements, err := model.ListAnnouncementsForCandidate(r.Context(), candidateData.ID, candidateData.Status, candidateData.ProdiID)
+	if err != nil {
+		slog.Error("failed to list announcements", "error", err)
+		// Continue with empty announcements, don't fail the dashboard
+		dbAnnouncements = nil
+	}
+
+	// Convert to template type (show max 3 on dashboard)
+	announcements := make([]portal.AnnouncementItem, 0)
+	for i, a := range dbAnnouncements {
+		if i >= 3 {
+			break
+		}
+		publishedAt := ""
+		if a.PublishedAt != nil {
+			publishedAt = a.PublishedAt.Format("02 Jan 2006")
+		}
+		announcements = append(announcements, portal.AnnouncementItem{
+			Title:   a.Title,
+			Content: truncateContent(a.Content, 150),
+			Date:    publishedAt,
+			IsNew:   !a.IsRead,
+		})
 	}
 
 	portal.Dashboard(data, candidate, checklist, announcements).Render(r.Context(), w)
@@ -161,10 +183,89 @@ func (h *PortalHandler) handleAnnouncements(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	candidateData, err := model.GetCandidateDashboardData(r.Context(), claims.CandidateID)
+	if err != nil {
+		slog.Error("failed to get candidate data", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+	if candidateData == nil {
+		http.Redirect(w, r, "/login", http.StatusFound)
+		return
+	}
+
+	// Fetch all announcements for this candidate
+	dbAnnouncements, err := model.ListAnnouncementsForCandidate(r.Context(), candidateData.ID, candidateData.Status, candidateData.ProdiID)
+	if err != nil {
+		slog.Error("failed to list announcements", "error", err)
+		http.Error(w, "Failed to load announcements", http.StatusInternalServerError)
+		return
+	}
+
+	// Count unread
+	unreadCount, err := model.CountUnreadAnnouncementsForCandidate(r.Context(), candidateData.ID, candidateData.Status, candidateData.ProdiID)
+	if err != nil {
+		slog.Error("failed to count unread announcements", "error", err)
+		unreadCount = 0
+	}
+
+	// Convert to template type
+	announcements := make([]portal.PortalAnnouncementItem, len(dbAnnouncements))
+	for i, a := range dbAnnouncements {
+		publishedAt := ""
+		if a.PublishedAt != nil {
+			publishedAt = a.PublishedAt.Format("02 January 2006")
+		}
+		announcements[i] = portal.PortalAnnouncementItem{
+			ID:          a.ID,
+			Title:       a.Title,
+			Content:     a.Content,
+			PublishedAt: publishedAt,
+			IsRead:      a.IsRead,
+		}
+	}
+
 	data := NewPageData("Pengumuman")
-	w.Header().Set("Content-Type", "text/html")
-	w.Write([]byte(`<html><body><h1>Pengumuman - Coming Soon</h1></body></html>`))
-	_ = data
+	portal.Announcements(data, announcements, unreadCount).Render(r.Context(), w)
+}
+
+func (h *PortalHandler) handleMarkAnnouncementRead(w http.ResponseWriter, r *http.Request) {
+	claims := GetCandidateClaims(r.Context())
+	if claims == nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	announcementID := r.PathValue("id")
+
+	err := model.MarkAnnouncementRead(r.Context(), announcementID, claims.CandidateID)
+	if err != nil {
+		slog.Error("failed to mark announcement as read", "error", err, "announcement_id", announcementID)
+		http.Error(w, "Failed to mark as read", http.StatusInternalServerError)
+		return
+	}
+
+	// Return the updated card (now marked as read)
+	ann, err := model.FindAnnouncementByID(r.Context(), announcementID)
+	if err != nil || ann == nil {
+		http.Error(w, "Announcement not found", http.StatusNotFound)
+		return
+	}
+
+	publishedAt := ""
+	if ann.PublishedAt != nil {
+		publishedAt = ann.PublishedAt.Format("02 January 2006")
+	}
+
+	item := portal.PortalAnnouncementItem{
+		ID:          ann.ID,
+		Title:       ann.Title,
+		Content:     ann.Content,
+		PublishedAt: publishedAt,
+		IsRead:      true, // Now marked as read
+	}
+
+	portal.AnnouncementCard(item).Render(r.Context(), w)
 }
 
 func (h *PortalHandler) handleReferral(w http.ResponseWriter, r *http.Request) {
@@ -287,4 +388,11 @@ func buildChecklist(c *model.CandidateDashboardData) []portal.ChecklistItem {
 	})
 
 	return checklist
+}
+
+func truncateContent(s string, maxLen int) string {
+	if len(s) <= maxLen {
+		return s
+	}
+	return s[:maxLen] + "..."
 }

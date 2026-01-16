@@ -10,3 +10,4 @@ export { SettingsRewardsPage } from './SettingsRewardsPage';
 export { SettingsReferrersPage } from './SettingsReferrersPage';
 export { SettingsAssignmentPage } from './SettingsAssignmentPage';
 export { RegistrationPage, LoginPage } from './RegistrationPage';
+export { AnnouncementsPage, PortalAnnouncementsPage } from './AnnouncementsPage';
