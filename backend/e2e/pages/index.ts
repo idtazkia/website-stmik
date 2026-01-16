@@ -5,3 +5,6 @@ export { SettingsUsersPage } from './SettingsUsersPage';
 export { SettingsProgramsPage } from './SettingsProgramsPage';
 export { SettingsCategoriesPage } from './SettingsCategoriesPage';
 export { SettingsFeesPage } from './SettingsFeesPage';
+export { SettingsCampaignsPage } from './SettingsCampaignsPage';
+export { SettingsRewardsPage } from './SettingsRewardsPage';
+export { SettingsReferrersPage } from './SettingsReferrersPage';

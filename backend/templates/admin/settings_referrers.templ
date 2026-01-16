@@ -1,100 +1,103 @@
 package admin
 
-import "github.com/idtazkia/stmik-admission-api/templates/layouts"
+import (
+	"fmt"
+	"github.com/idtazkia/stmik-admission-api/templates/layouts"
+)
 
 type ReferrerItem struct {
-	ID           string
-	Name         string
-	Type         string
-	Institution  string
-	Phone        string
-	Code         string
-	Commission   string
-	Referrals    string
-	Enrolled     string
-	TotalEarned  string
-	Status       string
+	ID                 string
+	Name               string
+	Type               string
+	Institution        string
+	Phone              string
+	Email              string
+	Code               string
+	BankName           string
+	BankAccount        string
+	AccountHolder      string
+	CommissionOverride *int64
+	CommissionStr      string
+	PayoutPreference   string
+	IsActive           bool
 }
 
-templ SettingsReferrers(data layouts.PageData, referrers []ReferrerItem) {
+type ReferrerStats struct {
+	Total   int
+	Alumni  int
+	Teacher int
+	Student int
+	Partner int
+	Staff   int
+}
+
+var referrerTypes = []struct {
+	Value string
+	Label string
+}{
+	{"alumni", "Alumni"},
+	{"teacher", "Guru"},
+	{"student", "Siswa"},
+	{"partner", "Mitra/Bimbel"},
+	{"staff", "Staf Internal"},
+}
+
+var payoutPreferences = []struct {
+	Value string
+	Label string
+}{
+	{"per_enrollment", "Per Pendaftaran"},
+	{"monthly", "Bulanan"},
+}
+
+templ SettingsReferrers(data layouts.PageData, referrers []ReferrerItem, stats ReferrerStats) {
 	@layouts.Admin(data) {
-		<div class="space-y-6">
+		<div class="space-y-6" data-testid="settings-referrers-page">
 			<!-- Header -->
 			<div class="flex items-center justify-between">
 				<div>
 					<h2 class="text-lg font-semibold text-gray-900">Daftar Referrer</h2>
 					<p class="text-sm text-gray-500">Guru, alumni, dan partner yang mereferensikan calon mahasiswa</p>
 				</div>
-				<button class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 flex items-center gap-2">
+				<button
+					data-testid="add-referrer-button"
+					class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 flex items-center gap-2"
+					onclick="document.getElementById('add-referrer-modal').showModal()"
+				>
 					<span>+</span> Tambah Referrer
 				</button>
 			</div>
 
 			<!-- Stats -->
-			<div class="grid grid-cols-5 gap-4">
+			<div class="grid grid-cols-6 gap-4" data-testid="referrer-stats">
 				<div class="bg-white rounded-lg border p-4">
 					<p class="text-sm text-gray-500">Total Referrer</p>
-					<p class="text-2xl font-bold text-gray-900">24</p>
+					<p class="text-2xl font-bold text-gray-900" data-testid="stat-total">{ fmt.Sprintf("%d", stats.Total) }</p>
 				</div>
 				<div class="bg-white rounded-lg border p-4">
 					<p class="text-sm text-gray-500">Alumni</p>
-					<p class="text-2xl font-bold text-primary-600">8</p>
+					<p class="text-2xl font-bold text-primary-600" data-testid="stat-alumni">{ fmt.Sprintf("%d", stats.Alumni) }</p>
 				</div>
 				<div class="bg-white rounded-lg border p-4">
 					<p class="text-sm text-gray-500">Guru</p>
-					<p class="text-2xl font-bold text-green-600">10</p>
+					<p class="text-2xl font-bold text-green-600" data-testid="stat-teacher">{ fmt.Sprintf("%d", stats.Teacher) }</p>
+				</div>
+				<div class="bg-white rounded-lg border p-4">
+					<p class="text-sm text-gray-500">Siswa</p>
+					<p class="text-2xl font-bold text-blue-600" data-testid="stat-student">{ fmt.Sprintf("%d", stats.Student) }</p>
 				</div>
 				<div class="bg-white rounded-lg border p-4">
 					<p class="text-sm text-gray-500">Partner</p>
-					<p class="text-2xl font-bold text-secondary-600">4</p>
+					<p class="text-2xl font-bold text-secondary-600" data-testid="stat-partner">{ fmt.Sprintf("%d", stats.Partner) }</p>
 				</div>
 				<div class="bg-white rounded-lg border p-4">
 					<p class="text-sm text-gray-500">Staff</p>
-					<p class="text-2xl font-bold text-purple-600">2</p>
+					<p class="text-2xl font-bold text-purple-600" data-testid="stat-staff">{ fmt.Sprintf("%d", stats.Staff) }</p>
 				</div>
-			</div>
-
-			<!-- Reward Settings Card -->
-			<div class="bg-white rounded-lg border">
-				<div class="p-4 border-b flex items-center justify-between">
-					<h3 class="font-semibold text-gray-900">Default Reward per Tipe</h3>
-					<button class="text-primary-600 text-sm hover:text-primary-800">Edit Reward</button>
-				</div>
-				<div class="p-4 grid grid-cols-5 gap-4">
-					<div class="text-center p-3 bg-gray-50 rounded-lg">
-						<p class="text-sm text-gray-500">Alumni</p>
-						<p class="font-bold text-gray-900">Rp 500.000</p>
-					</div>
-					<div class="text-center p-3 bg-gray-50 rounded-lg">
-						<p class="text-sm text-gray-500">Guru</p>
-						<p class="font-bold text-gray-900">Rp 750.000</p>
-					</div>
-					<div class="text-center p-3 bg-gray-50 rounded-lg">
-						<p class="text-sm text-gray-500">Siswa</p>
-						<p class="font-bold text-gray-900">Rp 300.000</p>
-					</div>
-					<div class="text-center p-3 bg-gray-50 rounded-lg">
-						<p class="text-sm text-gray-500">Partner</p>
-						<p class="font-bold text-gray-900">Rp 1.000.000</p>
-					</div>
-					<div class="text-center p-3 bg-gray-50 rounded-lg">
-						<p class="text-sm text-gray-500">Staff</p>
-						<p class="font-bold text-gray-900">Rp 250.000</p>
-					</div>
-				</div>
-			</div>
-
-			<!-- Filter -->
-			<div class="flex gap-2">
-				<button class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm">Semua</button>
-				<button class="px-4 py-2 bg-white border rounded-lg text-sm text-gray-600 hover:bg-gray-50">Alumni</button>
-				<button class="px-4 py-2 bg-white border rounded-lg text-sm text-gray-600 hover:bg-gray-50">Guru</button>
-				<button class="px-4 py-2 bg-white border rounded-lg text-sm text-gray-600 hover:bg-gray-50">Partner</button>
-				<button class="px-4 py-2 bg-white border rounded-lg text-sm text-gray-600 hover:bg-gray-50">Staff</button>
 			</div>
 
 			<!-- Referrers Table -->
-			<div class="bg-white rounded-lg border overflow-hidden">
+			<div class="bg-white rounded-lg border" data-testid="referrers-section">
 				<table class="w-full">
 					<thead class="bg-gray-50 border-b">
 						<tr>
@@ -102,49 +105,409 @@ templ SettingsReferrers(data layouts.PageData, referrers []ReferrerItem) {
 							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipe</th>
 							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Institusi</th>
 							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kode</th>
-							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Komisi</th>
-							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Referrals</th>
-							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Enrolled</th>
-							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Earned</th>
-							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
+							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Komisi Override</th>
+							<th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Status</th>
+							<th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Aksi</th>
 						</tr>
 					</thead>
-					<tbody class="divide-y">
+					<tbody class="divide-y" id="referrers-list" data-testid="referrers-list">
 						for _, r := range referrers {
-							<tr class="hover:bg-gray-50">
-								<td class="px-4 py-3">
-									<div>
-										<p class="font-medium text-gray-900">{ r.Name }</p>
-										<p class="text-sm text-gray-500">{ r.Phone }</p>
-									</div>
-								</td>
-								<td class="px-4 py-3">
-									if r.Type == "alumni" {
-										<span class="px-2 py-1 bg-primary-100 text-primary-700 rounded text-xs">Alumni</span>
-									} else if r.Type == "guru" {
-										<span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">Guru</span>
-									} else if r.Type == "partner" {
-										<span class="px-2 py-1 bg-secondary-100 text-secondary-700 rounded text-xs">Partner</span>
-									} else {
-										<span class="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs">Staff</span>
-									}
-								</td>
-								<td class="px-4 py-3 text-gray-600">{ r.Institution }</td>
-								<td class="px-4 py-3">
-									<code class="px-2 py-1 bg-gray-100 rounded text-sm">{ r.Code }</code>
-								</td>
-								<td class="px-4 py-3 text-gray-900">{ r.Commission }</td>
-								<td class="px-4 py-3 font-medium">{ r.Referrals }</td>
-								<td class="px-4 py-3 font-medium text-green-600">{ r.Enrolled }</td>
-								<td class="px-4 py-3 font-medium text-gray-900">{ r.TotalEarned }</td>
-								<td class="px-4 py-3">
-									<button class="text-primary-600 hover:text-primary-800 text-sm">Detail</button>
+							@ReferrerRow(r)
+						}
+						if len(referrers) == 0 {
+							<tr>
+								<td colspan="7" class="px-4 py-8 text-center text-gray-500">
+									Belum ada referrer. Klik "Tambah Referrer" untuk membuat referrer baru.
 								</td>
 							</tr>
 						}
 					</tbody>
 				</table>
 			</div>
+
+			<!-- Add Referrer Modal -->
+			@AddReferrerModal()
 		</div>
 	}
+}
+
+templ AddReferrerModal() {
+	<dialog id="add-referrer-modal" class="rounded-lg p-0 backdrop:bg-black/50 max-w-lg w-full" data-testid="add-referrer-modal">
+		<div class="p-6">
+			<h3 class="text-lg font-semibold mb-4">Tambah Referrer</h3>
+			<form
+				hx-post="/admin/settings/referrers"
+				hx-target="#referrers-list"
+				hx-swap="beforeend"
+				hx-on::after-request="if(event.detail.successful) { this.reset(); this.closest('dialog').close(); }"
+			>
+				<div class="space-y-4">
+					<div class="grid grid-cols-2 gap-4">
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-1">Nama *</label>
+							<input
+								type="text"
+								name="name"
+								data-testid="input-referrer-name"
+								class="w-full border rounded-lg px-3 py-2"
+								placeholder="Nama lengkap"
+								required
+							/>
+						</div>
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-1">Tipe *</label>
+							<select name="type" data-testid="input-referrer-type" class="w-full border rounded-lg px-3 py-2" required>
+								for _, rt := range referrerTypes {
+									<option value={ rt.Value }>{ rt.Label }</option>
+								}
+							</select>
+						</div>
+					</div>
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">Institusi</label>
+						<input
+							type="text"
+							name="institution"
+							data-testid="input-referrer-institution"
+							class="w-full border rounded-lg px-3 py-2"
+							placeholder="Nama sekolah/institusi"
+						/>
+					</div>
+					<div class="grid grid-cols-2 gap-4">
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-1">Telepon</label>
+							<input
+								type="text"
+								name="phone"
+								data-testid="input-referrer-phone"
+								class="w-full border rounded-lg px-3 py-2"
+								placeholder="08xxxxxxxxxx"
+							/>
+						</div>
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+							<input
+								type="email"
+								name="email"
+								data-testid="input-referrer-email"
+								class="w-full border rounded-lg px-3 py-2"
+								placeholder="email@example.com"
+							/>
+						</div>
+					</div>
+					<div class="grid grid-cols-2 gap-4">
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-1">Kode Referral</label>
+							<input
+								type="text"
+								name="code"
+								data-testid="input-referrer-code"
+								class="w-full border rounded-lg px-3 py-2"
+								placeholder="Auto-generate jika kosong"
+							/>
+							<p class="text-xs text-gray-500 mt-1">Kosongkan untuk generate otomatis</p>
+						</div>
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-1">Komisi Override (Rp)</label>
+							<input
+								type="number"
+								name="commission_override"
+								data-testid="input-referrer-commission"
+								class="w-full border rounded-lg px-3 py-2"
+								placeholder="Kosongkan untuk default"
+								min="0"
+							/>
+						</div>
+					</div>
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">Preferensi Pembayaran</label>
+						<select name="payout_preference" data-testid="input-referrer-payout" class="w-full border rounded-lg px-3 py-2">
+							for _, pp := range payoutPreferences {
+								<option value={ pp.Value }>{ pp.Label }</option>
+							}
+						</select>
+					</div>
+					<div class="border-t pt-4">
+						<p class="text-sm font-medium text-gray-700 mb-2">Informasi Bank (Opsional)</p>
+						<div class="grid grid-cols-3 gap-3">
+							<div>
+								<input
+									type="text"
+									name="bank_name"
+									data-testid="input-referrer-bank"
+									class="w-full border rounded-lg px-3 py-2 text-sm"
+									placeholder="Nama Bank"
+								/>
+							</div>
+							<div>
+								<input
+									type="text"
+									name="bank_account"
+									data-testid="input-referrer-account"
+									class="w-full border rounded-lg px-3 py-2 text-sm"
+									placeholder="No. Rekening"
+								/>
+							</div>
+							<div>
+								<input
+									type="text"
+									name="account_holder"
+									data-testid="input-referrer-holder"
+									class="w-full border rounded-lg px-3 py-2 text-sm"
+									placeholder="Atas Nama"
+								/>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="flex justify-end gap-3 mt-6">
+					<button type="button" onclick="this.closest('dialog').close()" class="px-4 py-2 text-gray-600 hover:text-gray-800">
+						Batal
+					</button>
+					<button type="submit" data-testid="submit-add-referrer" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+						Simpan
+					</button>
+				</div>
+			</form>
+		</div>
+	</dialog>
+}
+
+templ ReferrerRow(r ReferrerItem) {
+	<tr id={ "referrer-row-" + r.ID } data-testid={ "referrer-row-" + r.ID } class="hover:bg-gray-50">
+		<td class="px-4 py-3">
+			<div>
+				<p class="font-medium text-gray-900" data-testid={ "referrer-name-" + r.ID }>{ r.Name }</p>
+				if r.Phone != "" {
+					<p class="text-sm text-gray-500">{ r.Phone }</p>
+				}
+			</div>
+		</td>
+		<td class="px-4 py-3" data-testid={ "referrer-type-" + r.ID }>
+			<span class={
+				"px-2 py-1 rounded text-xs",
+				templ.KV("bg-primary-100 text-primary-700", r.Type == "alumni"),
+				templ.KV("bg-green-100 text-green-700", r.Type == "teacher"),
+				templ.KV("bg-blue-100 text-blue-700", r.Type == "student"),
+				templ.KV("bg-secondary-100 text-secondary-700", r.Type == "partner"),
+				templ.KV("bg-purple-100 text-purple-700", r.Type == "staff"),
+			}>
+				{ getReferrerTypeLabel(r.Type) }
+			</span>
+		</td>
+		<td class="px-4 py-3 text-gray-600" data-testid={ "referrer-institution-" + r.ID }>
+			if r.Institution != "" {
+				{ r.Institution }
+			} else {
+				<span class="text-gray-400">-</span>
+			}
+		</td>
+		<td class="px-4 py-3" data-testid={ "referrer-code-" + r.ID }>
+			if r.Code != "" {
+				<code class="px-2 py-1 bg-gray-100 rounded text-sm">{ r.Code }</code>
+			} else {
+				<span class="text-gray-400">-</span>
+			}
+		</td>
+		<td class="px-4 py-3" data-testid={ "referrer-commission-" + r.ID }>
+			if r.CommissionStr != "" {
+				<span class="text-green-600 font-medium">{ r.CommissionStr }</span>
+			} else {
+				<span class="text-gray-400">Default</span>
+			}
+		</td>
+		<td class="px-4 py-3 text-center">
+			<form
+				hx-post={ "/admin/settings/referrers/" + r.ID + "/toggle-active" }
+				hx-target={ "#referrer-row-" + r.ID }
+				hx-swap="outerHTML"
+			>
+				<button
+					type="submit"
+					data-testid={ "referrer-status-" + r.ID }
+					if r.IsActive {
+						class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs cursor-pointer hover:bg-green-200"
+					} else {
+						class="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs cursor-pointer hover:bg-gray-200"
+					}
+				>
+					if r.IsActive {
+						Aktif
+					} else {
+						Nonaktif
+					}
+				</button>
+			</form>
+		</td>
+		<td class="px-4 py-3 text-center">
+			<button
+				type="button"
+				class="text-primary-600 hover:text-primary-800 text-sm"
+				data-testid={ "referrer-edit-" + r.ID }
+				onclick={ showEditReferrerModal("edit-referrer-modal-" + r.ID) }
+			>
+				Edit
+			</button>
+			@EditReferrerModal(r)
+		</td>
+	</tr>
+}
+
+templ EditReferrerModal(r ReferrerItem) {
+	<dialog id={ "edit-referrer-modal-" + r.ID } class="rounded-lg p-0 backdrop:bg-black/50 max-w-lg w-full" data-testid={ "edit-referrer-modal-" + r.ID }>
+		<div class="p-6">
+			<h3 class="text-lg font-semibold mb-4">Edit Referrer</h3>
+			<form
+				hx-post={ "/admin/settings/referrers/" + r.ID }
+				hx-target={ "#referrer-row-" + r.ID }
+				hx-swap="outerHTML"
+				hx-on::after-request="if(event.detail.successful) this.closest('dialog').close()"
+			>
+				<div class="space-y-4">
+					<div class="grid grid-cols-2 gap-4">
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-1">Nama *</label>
+							<input
+								type="text"
+								name="name"
+								data-testid={ "edit-referrer-name-" + r.ID }
+								class="w-full border rounded-lg px-3 py-2"
+								value={ r.Name }
+								required
+							/>
+						</div>
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-1">Tipe *</label>
+							<select name="type" data-testid={ "edit-referrer-type-" + r.ID } class="w-full border rounded-lg px-3 py-2" required>
+								for _, rt := range referrerTypes {
+									<option value={ rt.Value } selected?={ rt.Value == r.Type }>{ rt.Label }</option>
+								}
+							</select>
+						</div>
+					</div>
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">Institusi</label>
+						<input
+							type="text"
+							name="institution"
+							data-testid={ "edit-referrer-institution-" + r.ID }
+							class="w-full border rounded-lg px-3 py-2"
+							value={ r.Institution }
+						/>
+					</div>
+					<div class="grid grid-cols-2 gap-4">
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-1">Telepon</label>
+							<input
+								type="text"
+								name="phone"
+								data-testid={ "edit-referrer-phone-" + r.ID }
+								class="w-full border rounded-lg px-3 py-2"
+								value={ r.Phone }
+							/>
+						</div>
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+							<input
+								type="email"
+								name="email"
+								data-testid={ "edit-referrer-email-" + r.ID }
+								class="w-full border rounded-lg px-3 py-2"
+								value={ r.Email }
+							/>
+						</div>
+					</div>
+					<div class="grid grid-cols-2 gap-4">
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-1">Kode Referral</label>
+							<input
+								type="text"
+								name="code"
+								data-testid={ "edit-referrer-code-" + r.ID }
+								class="w-full border rounded-lg px-3 py-2"
+								value={ r.Code }
+							/>
+						</div>
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-1">Komisi Override (Rp)</label>
+							<input
+								type="number"
+								name="commission_override"
+								data-testid={ "edit-referrer-commission-" + r.ID }
+								class="w-full border rounded-lg px-3 py-2"
+								if r.CommissionOverride != nil {
+									value={ fmt.Sprintf("%d", *r.CommissionOverride) }
+								}
+								min="0"
+							/>
+						</div>
+					</div>
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">Preferensi Pembayaran</label>
+						<select name="payout_preference" data-testid={ "edit-referrer-payout-" + r.ID } class="w-full border rounded-lg px-3 py-2">
+							for _, pp := range payoutPreferences {
+								<option value={ pp.Value } selected?={ pp.Value == r.PayoutPreference }>{ pp.Label }</option>
+							}
+						</select>
+					</div>
+					<div class="border-t pt-4">
+						<p class="text-sm font-medium text-gray-700 mb-2">Informasi Bank (Opsional)</p>
+						<div class="grid grid-cols-3 gap-3">
+							<div>
+								<input
+									type="text"
+									name="bank_name"
+									data-testid={ "edit-referrer-bank-" + r.ID }
+									class="w-full border rounded-lg px-3 py-2 text-sm"
+									placeholder="Nama Bank"
+									value={ r.BankName }
+								/>
+							</div>
+							<div>
+								<input
+									type="text"
+									name="bank_account"
+									data-testid={ "edit-referrer-account-" + r.ID }
+									class="w-full border rounded-lg px-3 py-2 text-sm"
+									placeholder="No. Rekening"
+									value={ r.BankAccount }
+								/>
+							</div>
+							<div>
+								<input
+									type="text"
+									name="account_holder"
+									data-testid={ "edit-referrer-holder-" + r.ID }
+									class="w-full border rounded-lg px-3 py-2 text-sm"
+									placeholder="Atas Nama"
+									value={ r.AccountHolder }
+								/>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="flex justify-end gap-3 mt-6">
+					<button type="button" onclick="this.closest('dialog').close()" class="px-4 py-2 text-gray-600 hover:text-gray-800">
+						Batal
+					</button>
+					<button type="submit" data-testid={ "submit-edit-referrer-" + r.ID } class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+						Simpan
+					</button>
+				</div>
+			</form>
+		</div>
+	</dialog>
+}
+
+func getReferrerTypeLabel(t string) string {
+	for _, rt := range referrerTypes {
+		if rt.Value == t {
+			return rt.Label
+		}
+	}
+	return t
+}
+
+script showEditReferrerModal(modalID string) {
+	document.getElementById(modalID).showModal();
 }

@@ -404,16 +404,15 @@ Setup before opening registration.
 
 Admin manages campaigns with promo pricing.
 
-**Migrations:** 012
+**Migrations:** 008
 
-- [ ] `model/campaign.go` - CRUD, FindActive, FindByCode
-- [ ] `templates/admin/campaigns.templ` - Campaign list
-- [ ] `templates/admin/campaign_form.templ` - Create/edit form
-- [ ] `handler/admin.go` - CRUD /admin/campaigns
-- [ ] Fields: name, type, source_channel, dates, registration_fee_override
-- [ ] Fee override: fixed amount or percentage discount
+- [x] `model/campaign.go` - CRUD, FindActive, FindByCode
+- [x] `templates/admin/settings_campaigns.templ` - Campaign settings page with HTMX CRUD
+- [x] `handler/admin.go` - CRUD /admin/settings/campaigns
+- [x] Fields: name, type, channel, dates, registration_fee_override
+- [x] Fee override: fixed amount (nullable, overrides default registration fee)
 - [ ] Generate UTM-compatible tracking code
-- [ ] Test: CRUD, fee override calculation
+- [x] Test: E2E CRUD tests in settings-campaigns.spec.ts
 
 ---
 
@@ -421,17 +420,17 @@ Admin manages campaigns with promo pricing.
 
 Configure default rewards by referrer type and MGM.
 
-**Migrations:** 013, 014, 027 (seed)
+**Migrations:** 009, 010, 011 (seed)
 
-- [ ] `model/reward_config.go` - CRUD, FindByType
-- [ ] `model/mgm_reward_config.go` - CRUD, FindActive
-- [ ] `templates/admin/settings/rewards.templ` - Reward config list
-- [ ] `handler/admin.go` - CRUD /admin/settings/rewards
-- [ ] External referrer rewards by type: alumni, teacher, student, partner, staff
-- [ ] Fields: reward_type (cash, tuition_discount, merchandise), amount, is_percentage, trigger_event
-- [ ] MGM rewards: referrer_amount (for enrolled student), referee_amount (for new candidate)
-- [ ] Seed defaults: alumni Rp500k, teacher Rp750k, student Rp300k, MGM Rp200k + 10% tuition discount
-- [ ] Test: CRUD, default lookup
+- [x] `model/reward_config.go` - CRUD, FindByType
+- [x] `model/mgm_reward_config.go` - CRUD, FindActive (FindByYear)
+- [x] `templates/admin/settings_rewards.templ` - Reward config list with HTMX CRUD
+- [x] `handler/admin.go` - CRUD /admin/settings/rewards, /admin/settings/mgm-rewards
+- [x] External referrer rewards by type: alumni, teacher, student, partner, staff
+- [x] Fields: reward_type (cash, tuition_discount, merchandise), amount, is_percentage, trigger_event
+- [x] MGM rewards: referrer_amount (for enrolled student), referee_amount (for new candidate)
+- [x] Seed defaults: alumni Rp500k, teacher Rp750k, student Rp300k, partner Rp1M, staff Rp250k, MGM Rp200k + 10% tuition
+- [x] Test: E2E CRUD tests in settings-rewards.spec.ts
 
 ---
 
