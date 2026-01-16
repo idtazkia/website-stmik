@@ -100,6 +100,30 @@ func main() {
 		})
 	})
 
+	// Test login endpoint - for E2E testing only
+	// Creates a session as the specified test user (admin, supervisor, or consultant)
+	mux.HandleFunc("GET /test/login/{role}", func(w http.ResponseWriter, r *http.Request) {
+		role := r.PathValue("role")
+		if role != "admin" && role != "supervisor" && role != "consultant" {
+			http.Error(w, "Invalid role", http.StatusBadRequest)
+			return
+		}
+
+		// Create test user session
+		token, err := sessionMgr.CreateToken(
+			"test-"+role,
+			"test-"+role+"@test.local",
+			"Test "+role,
+			role,
+		)
+		if err != nil {
+			http.Error(w, "Failed to create session", http.StatusInternalServerError)
+			return
+		}
+		sessionMgr.SetCookie(w, token)
+		http.Redirect(w, r, "/admin", http.StatusFound)
+	})
+
 	// Apply CSRF protection middleware
 	protectedMux := handler.CrossOriginProtection(mux)
 

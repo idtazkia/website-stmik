@@ -53,97 +53,240 @@ func SettingsPrograms(data layouts.PageData, programs []ProgramItem) templ.Compo
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"space-y-6\"><!-- Header --><div class=\"flex items-center justify-between\"><div><h2 class=\"text-lg font-semibold text-gray-900\">Program Studi</h2><p class=\"text-sm text-gray-500\">Kelola program studi dan biaya SPP</p></div><button class=\"px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 flex items-center gap-2\"><span>+</span> Tambah Prodi</button></div><!-- Programs Grid --><div class=\"grid grid-cols-2 gap-6\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"space-y-6\" data-testid=\"settings-programs-page\"><!-- Header --><div class=\"flex items-center justify-between\"><div><h2 class=\"text-lg font-semibold text-gray-900\">Program Studi</h2><p class=\"text-sm text-gray-500\">Kelola program studi dan biaya SPP</p></div><button data-testid=\"add-program-button\" class=\"px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 flex items-center gap-2\"><span>+</span> Tambah Prodi</button></div><!-- Programs Grid --><div class=\"grid grid-cols-2 gap-6\" data-testid=\"programs-grid\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, prog := range programs {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"bg-white rounded-lg border overflow-hidden\"><div class=\"p-4 border-b bg-gray-50 flex items-center justify-between\"><div class=\"flex items-center gap-3\"><div class=\"w-10 h-10 bg-primary-100 text-primary-700 rounded-lg flex items-center justify-center font-bold\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"bg-white rounded-lg border overflow-hidden\" data-testid=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var3 string
-				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(prog.Code)
+				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs("program-card-" + prog.ID)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/settings_programs.templ`, Line: 36, Col: 20}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/settings_programs.templ`, Line: 32, Col: 100}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</div><div><h3 class=\"font-semibold text-gray-900\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" id=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var4 string
-				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(prog.Name)
+				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs("program-card-" + prog.ID)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/settings_programs.templ`, Line: 39, Col: 60}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/settings_programs.templ`, Line: 32, Col: 133}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</h3><p class=\"text-sm text-gray-500\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\"><div class=\"p-4 border-b bg-gray-50 flex items-center justify-between\"><div class=\"flex items-center gap-3\"><div class=\"w-10 h-10 bg-primary-100 text-primary-700 rounded-lg flex items-center justify-center font-bold\" data-testid=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var5 string
-				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(prog.Level)
+				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs("program-code-" + prog.ID)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/settings_programs.templ`, Line: 40, Col: 54}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/settings_programs.templ`, Line: 35, Col: 156}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</p></div></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if prog.Status == "active" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span class=\"px-2 py-1 bg-green-100 text-green-700 rounded text-xs\">Aktif</span>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span class=\"px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs\">Nonaktif</span>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div><div class=\"p-4 space-y-3\"><div class=\"flex justify-between\"><span class=\"text-gray-500\">SPP per Semester</span> <span class=\"font-semibold text-gray-900\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var6 string
-				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(prog.SPPFee)
+				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(prog.Code)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/settings_programs.templ`, Line: 52, Col: 63}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/settings_programs.templ`, Line: 36, Col: 20}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</span></div><div class=\"flex justify-between\"><span class=\"text-gray-500\">Mahasiswa Aktif</span> <span class=\"font-semibold text-gray-900\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div><div><h3 class=\"font-semibold text-gray-900\" data-testid=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var7 string
-				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(prog.Students)
+				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs("program-name-" + prog.ID)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/settings_programs.templ`, Line: 56, Col: 65}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/settings_programs.templ`, Line: 39, Col: 88}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</span></div><div class=\"pt-3 border-t flex gap-2\"><button class=\"flex-1 px-3 py-2 text-primary-600 border border-primary-600 rounded hover:bg-primary-50 text-sm\">Edit</button> <button class=\"flex-1 px-3 py-2 text-gray-600 border rounded hover:bg-gray-50 text-sm\">Lihat Kurikulum</button></div></div></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var8 string
+				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(prog.Name)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/settings_programs.templ`, Line: 39, Col: 102}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</h3><p class=\"text-sm text-gray-500\" data-testid=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var9 string
+				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs("program-level-" + prog.ID)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/settings_programs.templ`, Line: 40, Col: 82}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var10 string
+				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(prog.Level)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/settings_programs.templ`, Line: 40, Col: 97}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</p></div></div>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				if prog.Status == "active" {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span data-testid=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var11 string
+					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs("program-status-" + prog.ID)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/settings_programs.templ`, Line: 44, Col: 55}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" class=\"px-2 py-1 bg-green-100 text-green-700 rounded text-xs\">Aktif</span>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				} else {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<span data-testid=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var12 string
+					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs("program-status-" + prog.ID)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/settings_programs.templ`, Line: 46, Col: 55}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" class=\"px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs\">Nonaktif</span>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div><div class=\"p-4 space-y-3\"><div class=\"flex justify-between\"><span class=\"text-gray-500\">SPP per Semester</span> <span class=\"font-semibold text-gray-900\" data-testid=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var13 string
+				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs("program-spp-" + prog.ID)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/settings_programs.templ`, Line: 52, Col: 88}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var14 string
+				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(prog.SPPFee)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/settings_programs.templ`, Line: 52, Col: 104}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</span></div><div class=\"flex justify-between\"><span class=\"text-gray-500\">Mahasiswa Aktif</span> <span class=\"font-semibold text-gray-900\" data-testid=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var15 string
+				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs("program-students-" + prog.ID)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/settings_programs.templ`, Line: 56, Col: 93}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var16 string
+				templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(prog.Students)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/settings_programs.templ`, Line: 56, Col: 111}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</span></div><div class=\"pt-3 border-t flex gap-2\"><button data-testid=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var17 string
+				templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs("program-edit-" + prog.ID)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/settings_programs.templ`, Line: 59, Col: 55}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\" class=\"flex-1 px-3 py-2 text-primary-600 border border-primary-600 rounded hover:bg-primary-50 text-sm\">Edit</button> <button data-testid=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var18 string
+				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs("program-curriculum-" + prog.ID)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/settings_programs.templ`, Line: 60, Col: 61}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\" class=\"flex-1 px-3 py-2 text-gray-600 border rounded hover:bg-gray-50 text-sm\">Lihat Kurikulum</button></div></div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div><!-- Fee Settings --><div class=\"bg-white rounded-lg border\"><div class=\"p-4 border-b\"><h3 class=\"font-semibold text-gray-900\">Biaya Lainnya (Tahun Akademik 2025/2026)</h3></div><div class=\"p-4\"><table class=\"w-full\"><thead><tr class=\"border-b\"><th class=\"pb-3 text-left text-sm font-medium text-gray-500\">Jenis Biaya</th><th class=\"pb-3 text-left text-sm font-medium text-gray-500\">Nominal</th><th class=\"pb-3 text-left text-sm font-medium text-gray-500\">Recurring</th><th class=\"pb-3 text-left text-sm font-medium text-gray-500\">Opsi Cicilan</th><th class=\"pb-3 text-left text-sm font-medium text-gray-500\">Aksi</th></tr></thead> <tbody class=\"divide-y\"><tr><td class=\"py-3 font-medium\">Biaya Pendaftaran</td><td class=\"py-3\">Rp 500.000</td><td class=\"py-3\"><span class=\"text-gray-500\">Tidak</span></td><td class=\"py-3\">1x bayar</td><td class=\"py-3\"><button class=\"text-primary-600 text-sm\">Edit</button></td></tr><tr><td class=\"py-3 font-medium\">Asrama</td><td class=\"py-3\">Rp 12.000.000</td><td class=\"py-3\"><span class=\"text-green-600\">Per Semester</span></td><td class=\"py-3\">1x, 2x, atau 10x</td><td class=\"py-3\"><button class=\"text-primary-600 text-sm\">Edit</button></td></tr><tr><td class=\"py-3 font-medium\">Seragam</td><td class=\"py-3\">Rp 1.500.000</td><td class=\"py-3\"><span class=\"text-gray-500\">Tidak</span></td><td class=\"py-3\">1x bayar</td><td class=\"py-3\"><button class=\"text-primary-600 text-sm\">Edit</button></td></tr></tbody></table></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div><!-- Fee Settings --><div class=\"bg-white rounded-lg border\"><div class=\"p-4 border-b\"><h3 class=\"font-semibold text-gray-900\">Biaya Lainnya (Tahun Akademik 2025/2026)</h3></div><div class=\"p-4\"><table class=\"w-full\"><thead><tr class=\"border-b\"><th class=\"pb-3 text-left text-sm font-medium text-gray-500\">Jenis Biaya</th><th class=\"pb-3 text-left text-sm font-medium text-gray-500\">Nominal</th><th class=\"pb-3 text-left text-sm font-medium text-gray-500\">Recurring</th><th class=\"pb-3 text-left text-sm font-medium text-gray-500\">Opsi Cicilan</th><th class=\"pb-3 text-left text-sm font-medium text-gray-500\">Aksi</th></tr></thead> <tbody class=\"divide-y\"><tr><td class=\"py-3 font-medium\">Biaya Pendaftaran</td><td class=\"py-3\">Rp 500.000</td><td class=\"py-3\"><span class=\"text-gray-500\">Tidak</span></td><td class=\"py-3\">1x bayar</td><td class=\"py-3\"><button class=\"text-primary-600 text-sm\">Edit</button></td></tr><tr><td class=\"py-3 font-medium\">Asrama</td><td class=\"py-3\">Rp 12.000.000</td><td class=\"py-3\"><span class=\"text-green-600\">Per Semester</span></td><td class=\"py-3\">1x, 2x, atau 10x</td><td class=\"py-3\"><button class=\"text-primary-600 text-sm\">Edit</button></td></tr><tr><td class=\"py-3 font-medium\">Seragam</td><td class=\"py-3\">Rp 1.500.000</td><td class=\"py-3\"><span class=\"text-gray-500\">Tidak</span></td><td class=\"py-3\">1x bayar</td><td class=\"py-3\"><button class=\"text-primary-600 text-sm\">Edit</button></td></tr></tbody></table></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

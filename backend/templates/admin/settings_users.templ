@@ -1,6 +1,9 @@
 package admin
 
-import "github.com/idtazkia/stmik-admission-api/templates/layouts"
+import (
+	"fmt"
+	"github.com/idtazkia/stmik-admission-api/templates/layouts"
+)
 
 type UserItem struct {
 	ID         string
@@ -8,46 +11,56 @@ type UserItem struct {
 	Email      string
 	Role       string
 	Supervisor string
+	SupervisorID string
 	Status     string
 	LastLogin  string
 }
 
-templ SettingsUsers(data layouts.PageData, users []UserItem) {
+type UserStats struct {
+	Total      int
+	Admin      int
+	Supervisor int
+	Consultant int
+}
+
+type SupervisorOption struct {
+	ID   string
+	Name string
+}
+
+templ SettingsUsers(data layouts.PageData, users []UserItem, stats UserStats, supervisors []SupervisorOption) {
 	@layouts.Admin(data) {
-		<div class="space-y-6">
+		<div class="space-y-6" data-testid="settings-users-page">
 			<!-- Header -->
 			<div class="flex items-center justify-between">
 				<div>
 					<h2 class="text-lg font-semibold text-gray-900">Kelola User</h2>
 					<p class="text-sm text-gray-500">Daftar staff yang dapat mengakses sistem</p>
 				</div>
-				<button class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 flex items-center gap-2">
-					<span>+</span> Tambah User
-				</button>
 			</div>
 
 			<!-- Stats -->
-			<div class="grid grid-cols-4 gap-4">
-				<div class="bg-white rounded-lg border p-4">
+			<div class="grid grid-cols-4 gap-4" data-testid="user-stats">
+				<div class="bg-white rounded-lg border p-4" data-testid="stat-total">
 					<p class="text-sm text-gray-500">Total User</p>
-					<p class="text-2xl font-bold text-gray-900">8</p>
+					<p class="text-2xl font-bold text-gray-900" data-testid="stat-total-value">{ fmt.Sprintf("%d", stats.Total) }</p>
 				</div>
-				<div class="bg-white rounded-lg border p-4">
+				<div class="bg-white rounded-lg border p-4" data-testid="stat-admin">
 					<p class="text-sm text-gray-500">Admin</p>
-					<p class="text-2xl font-bold text-primary-600">2</p>
+					<p class="text-2xl font-bold text-primary-600" data-testid="stat-admin-value">{ fmt.Sprintf("%d", stats.Admin) }</p>
 				</div>
-				<div class="bg-white rounded-lg border p-4">
+				<div class="bg-white rounded-lg border p-4" data-testid="stat-supervisor">
 					<p class="text-sm text-gray-500">Supervisor</p>
-					<p class="text-2xl font-bold text-secondary-600">2</p>
+					<p class="text-2xl font-bold text-secondary-600" data-testid="stat-supervisor-value">{ fmt.Sprintf("%d", stats.Supervisor) }</p>
 				</div>
-				<div class="bg-white rounded-lg border p-4">
+				<div class="bg-white rounded-lg border p-4" data-testid="stat-consultant">
 					<p class="text-sm text-gray-500">Konsultan</p>
-					<p class="text-2xl font-bold text-green-600">4</p>
+					<p class="text-2xl font-bold text-green-600" data-testid="stat-consultant-value">{ fmt.Sprintf("%d", stats.Consultant) }</p>
 				</div>
 			</div>
 
 			<!-- Table -->
-			<div class="bg-white rounded-lg border overflow-hidden">
+			<div class="bg-white rounded-lg border overflow-hidden" data-testid="users-table">
 				<table class="w-full">
 					<thead class="bg-gray-50 border-b">
 						<tr>
@@ -60,44 +73,91 @@ templ SettingsUsers(data layouts.PageData, users []UserItem) {
 							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
 						</tr>
 					</thead>
-					<tbody class="divide-y">
+					<tbody class="divide-y" data-testid="users-list">
 						for _, user := range users {
-							<tr class="hover:bg-gray-50">
-								<td class="px-4 py-3">
-									<div class="flex items-center gap-3">
-										<div class="w-8 h-8 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center text-sm font-medium">
-											{ string(user.Name[0]) }
-										</div>
-										<span class="font-medium text-gray-900">{ user.Name }</span>
-									</div>
-								</td>
-								<td class="px-4 py-3 text-gray-600">{ user.Email }</td>
-								<td class="px-4 py-3">
-									if user.Role == "admin" {
-										<span class="px-2 py-1 bg-primary-100 text-primary-700 rounded text-xs font-medium">Admin</span>
-									} else if user.Role == "supervisor" {
-										<span class="px-2 py-1 bg-secondary-100 text-secondary-700 rounded text-xs font-medium">Supervisor</span>
-									} else {
-										<span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">Konsultan</span>
-									}
-								</td>
-								<td class="px-4 py-3 text-gray-600">{ user.Supervisor }</td>
-								<td class="px-4 py-3">
-									if user.Status == "active" {
-										<span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">Aktif</span>
-									} else {
-										<span class="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">Nonaktif</span>
-									}
-								</td>
-								<td class="px-4 py-3 text-gray-500 text-sm">{ user.LastLogin }</td>
-								<td class="px-4 py-3">
-									<button class="text-primary-600 hover:text-primary-800 text-sm">Edit</button>
-								</td>
-							</tr>
+							@UserRow(user, supervisors)
 						}
 					</tbody>
 				</table>
 			</div>
 		</div>
 	}
+}
+
+templ UserRow(user UserItem, supervisors []SupervisorOption) {
+	<tr data-testid={ "user-row-" + user.ID } id={ "user-row-" + user.ID }>
+		<td class="px-4 py-3">
+			<div class="flex items-center gap-3">
+				<div class="w-8 h-8 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center text-sm font-medium">
+					{ string(user.Name[0]) }
+				</div>
+				<span class="font-medium text-gray-900" data-testid={ "user-name-" + user.ID }>{ user.Name }</span>
+			</div>
+		</td>
+		<td class="px-4 py-3 text-gray-600" data-testid={ "user-email-" + user.ID }>{ user.Email }</td>
+		<td class="px-4 py-3">
+			<form
+				hx-post={ "/admin/settings/users/" + user.ID + "/role" }
+				hx-target={ "#user-row-" + user.ID }
+				hx-swap="outerHTML"
+			>
+				<select
+					name="role"
+					data-testid={ "user-role-select-" + user.ID }
+					class="text-xs border rounded px-2 py-1"
+					onchange="this.form.requestSubmit()"
+				>
+					<option value="admin" selected?={ user.Role == "admin" }>Admin</option>
+					<option value="supervisor" selected?={ user.Role == "supervisor" }>Supervisor</option>
+					<option value="consultant" selected?={ user.Role == "consultant" }>Konsultan</option>
+				</select>
+			</form>
+		</td>
+		<td class="px-4 py-3">
+			<form
+				hx-post={ "/admin/settings/users/" + user.ID + "/supervisor" }
+				hx-target={ "#user-row-" + user.ID }
+				hx-swap="outerHTML"
+			>
+				<select
+					name="supervisor_id"
+					data-testid={ "user-supervisor-select-" + user.ID }
+					class="text-xs border rounded px-2 py-1"
+					onchange="this.form.requestSubmit()"
+				>
+					<option value="">- Tidak ada -</option>
+					for _, sup := range supervisors {
+						<option value={ sup.ID } selected?={ user.SupervisorID == sup.ID }>{ sup.Name }</option>
+					}
+				</select>
+			</form>
+		</td>
+		<td class="px-4 py-3">
+			<form
+				hx-post={ "/admin/settings/users/" + user.ID + "/toggle-active" }
+				hx-target={ "#user-row-" + user.ID }
+				hx-swap="outerHTML"
+			>
+				<button
+					type="submit"
+					data-testid={ "user-status-toggle-" + user.ID }
+					if user.Status == "active" {
+						class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs cursor-pointer hover:bg-green-200"
+					} else {
+						class="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs cursor-pointer hover:bg-gray-200"
+					}
+				>
+					if user.Status == "active" {
+						Aktif
+					} else {
+						Nonaktif
+					}
+				</button>
+			</form>
+		</td>
+		<td class="px-4 py-3 text-gray-500 text-sm" data-testid={ "user-last-login-" + user.ID }>{ user.LastLogin }</td>
+		<td class="px-4 py-3">
+			<span class="text-gray-400 text-sm">-</span>
+		</td>
+	</tr>
 }

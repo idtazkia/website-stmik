@@ -13,6 +13,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/idtazkia/stmik-admission-api/auth"
 	"github.com/idtazkia/stmik-admission-api/handler"
 	"github.com/idtazkia/stmik-admission-api/templates/pages"
 	"github.com/idtazkia/stmik-admission-api/version"
@@ -28,6 +29,14 @@ func main() {
 	if host == "" {
 		host = "0.0.0.0"
 	}
+
+	// Create a mock session manager for mockup mode
+	// Uses a fixed secret - this is fine since mockup doesn't need real security
+	mockSessionMgr := auth.NewSessionManager(
+		"mockup-secret-key-for-development",
+		24*time.Hour,
+		false, // secure=false for development
+	)
 
 	mux := http.NewServeMux()
 
@@ -48,11 +57,23 @@ func main() {
 		http.Redirect(w, r, "/admin", http.StatusFound)
 	})
 
+	// Mock login endpoint - sets a mock session cookie
+	mux.HandleFunc("GET /mock-login", func(w http.ResponseWriter, r *http.Request) {
+		// Create mock session for admin user
+		token, err := mockSessionMgr.CreateToken("mock-admin", "admin@mockup.test", "Admin Mockup", "admin")
+		if err != nil {
+			http.Error(w, "Failed to create mock session", http.StatusInternalServerError)
+			return
+		}
+		mockSessionMgr.SetCookie(w, token)
+		http.Redirect(w, r, "/admin", http.StatusFound)
+	})
+
 	// Static files
 	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
-	// Admin routes (mockup)
-	adminHandler := handler.NewAdminHandler()
+	// Admin routes (mockup) - uses session manager for auth middleware
+	adminHandler := handler.NewAdminHandler(mockSessionMgr)
 	adminHandler.RegisterRoutes(mux)
 
 	// Portal routes (mockup)
@@ -86,6 +107,7 @@ func main() {
 	go func() {
 		log.Printf("Starting mockup server on http://%s", addr)
 		log.Println("Available routes:")
+		log.Println("  GET  /mock-login           - Auto-login as admin (use this first)")
 		log.Println("  GET  /admin                - Dashboard")
 		log.Println("  GET  /admin/candidates     - Candidates list")
 		log.Println("  GET  /admin/candidates/:id - Candidate detail")
