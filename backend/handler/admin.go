@@ -112,4 +112,13 @@ func (h *AdminHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.Handle("POST /admin/settings/lost-reasons", protected(h.handleCreateLostReason))
 	mux.Handle("POST /admin/settings/lost-reasons/{id}", protected(h.handleUpdateLostReason))
 	mux.Handle("POST /admin/settings/lost-reasons/{id}/toggle-active", protected(h.handleToggleLostReasonActive))
+
+	// Announcements
+	mux.Handle("GET /admin/announcements", protected(h.handleAnnouncementsSettings))
+	mux.Handle("POST /admin/announcements", protected(h.handleCreateAnnouncement))
+	mux.Handle("GET /admin/announcements/{id}/edit", protected(h.handleEditAnnouncementForm))
+	mux.Handle("PUT /admin/announcements/{id}", protected(h.handleUpdateAnnouncement))
+	mux.Handle("POST /admin/announcements/{id}/publish", protected(h.handlePublishAnnouncement))
+	mux.Handle("POST /admin/announcements/{id}/unpublish", protected(h.handleUnpublishAnnouncement))
+	mux.Handle("DELETE /admin/announcements/{id}", protected(h.handleDeleteAnnouncement))
 }
