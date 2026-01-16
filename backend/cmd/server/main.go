@@ -81,8 +81,8 @@ func main() {
 	adminHandler := handler.NewAdminHandler(sessionMgr)
 	adminHandler.RegisterRoutes(mux)
 
-	// Portal routes (mockup pages)
-	portalHandler := handler.NewPortalHandler()
+	// Portal routes (candidate portal)
+	portalHandler := handler.NewPortalHandler(sessionMgr)
 	portalHandler.RegisterRoutes(mux)
 
 	// Public routes (registration and login)

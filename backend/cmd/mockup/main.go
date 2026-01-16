@@ -77,7 +77,7 @@ func main() {
 	adminHandler.RegisterRoutes(mux)
 
 	// Portal routes (mockup)
-	portalHandler := handler.NewPortalHandler()
+	portalHandler := handler.NewPortalHandler(mockSessionMgr)
 	portalHandler.RegisterRoutes(mux)
 
 	// Test routes for Playwright
