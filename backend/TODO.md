@@ -196,37 +196,37 @@ ANNOUNCEMENT_READ
 ### Migration Plan (by dependency)
 
 ```
-Level 0 - Lookup tables (no dependencies):
-  004_create_users.sql
-  005_create_prodis.sql
-  006_create_fee_types.sql
-  007_create_interaction_categories.sql
-  008_create_obstacles.sql
-  009_create_assignment_algorithms.sql
-  010_create_document_types.sql
-  011_create_lost_reasons.sql
-  012_create_campaigns.sql
-  013_create_reward_configs.sql
-  014_create_mgm_reward_configs.sql
-  015_create_referrers.sql
+Phase 1 - Admin Foundation (DONE):
+  001_create_users.sql                ✅
+  002_create_prodis.sql               ✅
+  003_create_fee_types.sql            ✅
+  004_create_fee_structures.sql       ✅ → fee_types, prodis
+  005_create_interaction_categories.sql ✅
+  006_create_obstacles.sql            ✅
+  007_seed_phase1_data.sql            ✅ → fee_types, categories, obstacles, prodis
 
-Level 1 - Depends on lookup tables:
-  016_create_fee_structures.sql       → fee_types, prodis
-  017_create_announcements.sql        → prodis
-  018_create_candidates.sql           → prodis, campaigns, referrers, users, lost_reasons
+Phase 2 - Configuration:
+  008_create_assignment_algorithms.sql
+  009_create_document_types.sql
+  010_create_lost_reasons.sql
+  011_create_campaigns.sql
+  012_create_reward_configs.sql
+  013_create_mgm_reward_configs.sql
+  014_create_referrers.sql
 
-Level 2 - Depends on candidates:
-  019_create_billings.sql             → candidates, fee_types
-  020_create_payments.sql             → billings, users
-  021_create_interactions.sql         → candidates, users, categories, obstacles
-  022_create_documents.sql            → candidates, document_types
-  023_create_commission_ledger.sql    → candidates, referrers
-  024_create_notification_logs.sql    → candidates
-  025_create_verification_tokens.sql  → candidates
-  026_create_announcement_reads.sql   → announcements, candidates
+Phase 3 - Candidates:
+  015_create_announcements.sql        → prodis
+  016_create_candidates.sql           → prodis, campaigns, referrers, users, lost_reasons
 
-Seed data:
-  027_seed_data.sql                   → all lookup tables
+Phase 4 - Transactions:
+  017_create_billings.sql             → candidates, fee_types
+  018_create_payments.sql             → billings, users
+  019_create_interactions.sql         → candidates, users, categories, obstacles
+  020_create_documents.sql            → candidates, document_types
+  021_create_commission_ledger.sql    → candidates, referrers
+  022_create_notification_logs.sql    → candidates
+  023_create_verification_tokens.sql  → candidates
+  024_create_announcement_reads.sql   → announcements, candidates
 ```
 
 ---
@@ -237,7 +237,7 @@ Clickable prototype untuk validasi dengan stakeholder sebelum implementasi.
 
 ---
 
-## Feature 3: UI Mockup (No Database)
+## Feature 3: UI Mockup (No Database) ✅
 
 Semua halaman dengan data hardcoded untuk demo dan validasi UI/UX.
 
@@ -248,50 +248,50 @@ Semua halaman dengan data hardcoded untuk demo dan validasi UI/UX.
 - Mendapat commitment stakeholder sebelum implementasi
 
 **Admin Pages:**
-- [ ] Login page (mock, langsung redirect)
-- [ ] Dashboard konsultan (statistik hardcoded)
-- [ ] Dashboard supervisor (statistik tim hardcoded)
-- [ ] Daftar kandidat (tabel dengan filter, data dummy)
-- [ ] Detail kandidat (info + timeline interaksi dummy)
-- [ ] Form log interaksi (modal)
-- [ ] Settings: User management (list dummy users)
-- [ ] Settings: Prodi (list dummy)
-- [ ] Settings: Fee structure (matrix dummy)
-- [ ] Settings: Reward config (list dummy)
-- [ ] Settings: Kategori & hambatan (list dummy)
-- [ ] Kampanye management (list + form)
-- [ ] Referrer management (list + form)
-- [ ] Referral claims (list unverified)
-- [ ] Komisi/commission (list + approve)
-- [ ] Laporan funnel (chart dummy)
-- [ ] Laporan performa konsultan (table dummy)
+- [x] Login page (mock, langsung redirect)
+- [x] Dashboard konsultan (statistik hardcoded)
+- [x] Dashboard supervisor (statistik tim hardcoded)
+- [x] Daftar kandidat (tabel dengan filter, data dummy)
+- [x] Detail kandidat (info + timeline interaksi dummy)
+- [x] Form log interaksi (modal)
+- [x] Settings: User management (list dummy users)
+- [x] Settings: Prodi (list dummy)
+- [x] Settings: Fee structure (matrix dummy)
+- [x] Settings: Reward config (list dummy)
+- [x] Settings: Kategori & hambatan (list dummy)
+- [x] Kampanye management (list + form)
+- [x] Referrer management (list + form)
+- [x] Referral claims (list unverified)
+- [x] Komisi/commission (list + approve)
+- [x] Laporan funnel (chart dummy)
+- [x] Laporan performa konsultan (table dummy)
 
 **Portal Kandidat Pages:**
-- [ ] Landing/register page
-- [ ] Login page
-- [ ] Dashboard kandidat (status, checklist)
-- [ ] Upload dokumen (list + upload form)
-- [ ] Pembayaran (list tagihan + upload bukti)
-- [ ] Pengumuman (list + detail)
-- [ ] Referral MGM (kode + list referred)
+- [x] Landing/register page
+- [x] Login page
+- [x] Dashboard kandidat (status, checklist)
+- [x] Upload dokumen (list + upload form)
+- [x] Pembayaran (list tagihan + upload bukti)
+- [x] Pengumuman (list + detail)
+- [x] Referral MGM (kode + list referred)
 
 **Public Pages:**
-- [ ] Form pendaftaran multi-step (6 langkah)
-- [ ] Halaman verifikasi OTP (mock)
-- [ ] Halaman sukses registrasi
+- [x] Form pendaftaran multi-step (6 langkah)
+- [x] Halaman verifikasi OTP (mock)
+- [x] Halaman sukses registrasi
 
 **Navigation:**
-- [ ] Admin sidebar dengan semua menu
-- [ ] Portal sidebar dengan semua menu
-- [ ] Responsive mobile view
+- [x] Admin sidebar dengan semua menu
+- [x] Portal sidebar dengan semua menu
+- [x] Responsive mobile view
 
 **Demo Data:**
-- [ ] 10 dummy candidates dengan berbagai status
-- [ ] 3 dummy consultants
-- [ ] 5 dummy interactions per candidate
-- [ ] 2 dummy prodis
-- [ ] Sample fee structure
-- [ ] Sample campaigns & referrers
+- [x] 10 dummy candidates dengan berbagai status
+- [x] 3 dummy consultants
+- [x] 5 dummy interactions per candidate
+- [x] 2 dummy prodis
+- [x] Sample fee structure
+- [x] Sample campaigns & referrers
 
 ---
 
@@ -301,29 +301,31 @@ Must complete before opening registration.
 
 ---
 
-## Feature 4: Staff Login (Google OAuth)
+## Feature 4: Staff Login (Google OAuth) ✅
 
 All staff (admin, supervisor, consultant) login with domain-restricted Google.
 
-**Migrations:** 004
+**Migrations:** 001_create_users
 
 **Setup:**
-- [ ] Create Google Cloud project (or use existing)
-- [ ] Enable Google+ API / People API
-- [ ] Configure OAuth consent screen (internal for workspace domain)
-- [ ] Create OAuth 2.0 credentials (Web application)
-- [ ] Add authorized redirect URIs: `{BASE_URL}/admin/auth/google/callback`
-- [ ] Store credentials: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET env vars
-- [ ] Set STAFF_EMAIL_DOMAIN env var (e.g., tazkia.ac.id)
+- [x] Create Google Cloud project (or use existing)
+- [x] Enable Google+ API / People API
+- [x] Configure OAuth consent screen (internal for workspace domain)
+- [x] Create OAuth 2.0 credentials (Web application)
+- [x] Add authorized redirect URIs: `{BASE_URL}/admin/auth/google/callback`
+- [x] Store credentials: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET env vars
+- [x] Set STAFF_EMAIL_DOMAIN env var (e.g., tazkia.ac.id)
 
 **Implementation:**
-- [ ] `model/user.go` - Create, FindByEmail, FindByGoogleID
-- [ ] `auth/google.go` - OAuth flow (GetAuthURL, ExchangeCode, GetUserInfo)
-- [ ] `handler/admin_auth.go` - GET /admin/login, /admin/auth/google, callback
-- [ ] Domain check (validate email ends with STAFF_EMAIL_DOMAIN)
-- [ ] Auto-create user with role=consultant if valid domain
-- [ ] `handler/middleware.go` - RequireAuth, RequireRole
-- [ ] Cookie-based session (HttpOnly JWT)
+- [x] `model/user.go` - Create, FindByEmail, FindByGoogleID
+- [x] `auth/google.go` - OAuth flow (GetAuthURL, ExchangeCode, GetUserInfo)
+- [x] `handler/admin_auth.go` - GET /admin/login, /admin/auth/google, callback
+- [x] Domain check (validate email ends with STAFF_EMAIL_DOMAIN)
+- [x] Auto-create user with role=consultant if valid domain
+- [x] `handler/middleware.go` - RequireAuth, RequireRole
+- [x] Cookie-based session (HttpOnly JWT, SameSite=Lax)
+- [x] User widget in sidebar showing logged-in user name and role
+- [x] Logout functionality
 - [ ] Test: Login with valid/invalid domain
 
 ---
@@ -332,11 +334,12 @@ All staff (admin, supervisor, consultant) login with domain-restricted Google.
 
 Admin manages staff accounts (admin, supervisor, consultant).
 
-**Migrations:** 004
+**Migrations:** 001_create_users ✅
 
+- [x] `model/user.go` - Create, FindByEmail, FindByGoogleID (basic)
 - [ ] `model/user.go` - List, UpdateRole, ToggleActive, SetSupervisor
-- [ ] `templates/admin/settings/users.templ` - User list with role dropdown
-- [ ] `handler/admin.go` - GET /admin/settings/users, POST update role/active
+- [x] `templates/admin/settings/users.templ` - User list (mockup)
+- [ ] Wire `handler/admin.go` to real data - GET /admin/settings/users, POST update role/active
 - [ ] Roles: admin (full access), supervisor (team + suggestions), consultant (own candidates)
 - [ ] Assign supervisor to consultants (hierarchy)
 - [ ] Toggle active status (for assignment pool)
@@ -348,11 +351,11 @@ Admin manages staff accounts (admin, supervisor, consultant).
 
 Admin configures available programs.
 
-**Migrations:** 005
+**Migrations:** 002_create_prodis ✅
 
-- [ ] `model/prodi.go` - CRUD, ListActive
-- [ ] `templates/admin/settings/prodis.templ` - Prodi list with inline edit
-- [ ] `handler/admin.go` - CRUD /admin/settings/prodis
+- [x] `model/prodi.go` - CRUD, ListActive (model layer done)
+- [x] `templates/admin/settings/prodis.templ` - Prodi list (mockup)
+- [ ] Wire `handler/admin.go` to real data - CRUD /admin/settings/prodis
 - [ ] Fields: name, code, degree (S1/D3), is_active
 - [ ] HTMX: Inline edit without reload
 - [ ] Test: CRUD operations
@@ -363,12 +366,12 @@ Admin configures available programs.
 
 Admin configures fees per prodi and academic year.
 
-**Migrations:** 006, 014
+**Migrations:** 003_create_fee_types ✅, 004_create_fee_structures ✅
 
-- [ ] `model/fee_type.go` - List (seeded: registration, tuition, dormitory)
-- [ ] `model/fee_structure.go` - CRUD, FindByTypeAndProdi
-- [ ] `templates/admin/settings/fees.templ` - Fee matrix (prodi x fee_type)
-- [ ] `handler/admin.go` - CRUD /admin/settings/fees
+- [x] `model/fee_type.go` - List (seeded: registration, tuition, dormitory)
+- [x] `model/fee_structure.go` - CRUD, FindByTypeAndProdi (model layer done)
+- [x] `templates/admin/settings/fees.templ` - Fee matrix (mockup)
+- [ ] Wire `handler/admin.go` to real data - CRUD /admin/settings/fees
 - [ ] Set: registration fee (global), tuition per prodi, dormitory (global)
 - [ ] Installment options per fee type
 - [ ] Test: CRUD, fee lookup
@@ -379,15 +382,14 @@ Admin configures fees per prodi and academic year.
 
 Supervisor manages interaction categories and obstacles.
 
-**Migrations:** 007, 008, 027 (seed)
+**Migrations:** 005_create_interaction_categories ✅, 006_create_obstacles ✅, 007_seed_phase1_data ✅
 
-- [ ] `model/interaction_category.go` - CRUD, ListActive
-- [ ] `model/obstacle.go` - CRUD, ListActive
-- [ ] `templates/admin/settings/categories.templ` - Category CRUD
-- [ ] `templates/admin/settings/obstacles.templ` - Obstacle CRUD with suggested response
-- [ ] `handler/admin.go` - CRUD for categories, obstacles
-- [ ] Seed default categories: interested, considering, hesitant, cold, unreachable
-- [ ] Seed default obstacles: price, location, parents, timing, competitor
+- [x] `model/interaction_category.go` - CRUD, ListActive (model layer done)
+- [x] `model/obstacle.go` - CRUD, ListActive (model layer done)
+- [x] `templates/admin/settings/categories.templ` - Category list (mockup)
+- [ ] Wire `handler/admin.go` to real data - CRUD for categories, obstacles
+- [x] Seed default categories: Tertarik, Mempertimbangkan, Ragu-ragu, Dingin, Tidak bisa dihubungi
+- [x] Seed default obstacles: Biaya terlalu mahal, Lokasi jauh, Orang tua belum setuju, Waktu belum tepat, Memilih kampus lain
 - [ ] Test: CRUD operations
 
 ---
