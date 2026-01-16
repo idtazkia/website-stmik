@@ -19,7 +19,7 @@ type UserItem struct {
 	Email        string
 	Role         string
 	Supervisor   string
-	SupervisorID string
+	IDSupervisor string
 	Status       string
 	LastLogin    string
 }
@@ -387,7 +387,7 @@ func UserRow(user UserItem, supervisors []SupervisorOption) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if user.SupervisorID == sup.ID {
+			if user.IDSupervisor == sup.ID {
 				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, " selected")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err

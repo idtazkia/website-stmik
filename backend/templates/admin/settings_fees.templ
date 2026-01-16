@@ -8,10 +8,10 @@ import (
 
 type FeeStructureItem struct {
 	ID           string
-	FeeTypeID    string
+	IDFeeType    string
 	FeeTypeName  string
 	FeeTypeCode  string
-	ProdiID      string
+	IDProdi      string
 	ProdiName    string
 	ProdiCode    string
 	AcademicYear string
@@ -235,16 +235,16 @@ templ FeeRow(fee FeeStructureItem, feeTypes []FeeTypeOption, prodis []ProdiOptio
 							<label class="block text-sm font-medium text-gray-700 mb-1">Jenis Biaya</label>
 							<select name="fee_type_id" data-testid={ "edit-fee-type-" + fee.ID } class="w-full border rounded-lg px-3 py-2" required>
 								for _, ft := range feeTypes {
-									<option value={ ft.ID } selected?={ ft.ID == fee.FeeTypeID }>{ ft.Name }</option>
+									<option value={ ft.ID } selected?={ ft.ID == fee.IDFeeType }>{ ft.Name }</option>
 								}
 							</select>
 						</div>
 						<div>
 							<label class="block text-sm font-medium text-gray-700 mb-1">Program Studi</label>
 							<select name="prodi_id" data-testid={ "edit-fee-prodi-" + fee.ID } class="w-full border rounded-lg px-3 py-2">
-								<option value="" selected?={ fee.ProdiID == "" }>Semua Prodi</option>
+								<option value="" selected?={ fee.IDProdi == "" }>Semua Prodi</option>
 								for _, p := range prodis {
-									<option value={ p.ID } selected?={ p.ID == fee.ProdiID }>{ p.Name } ({ p.Code })</option>
+									<option value={ p.ID } selected?={ p.ID == fee.IDProdi }>{ p.Name } ({ p.Code })</option>
 								}
 							</select>
 						</div>

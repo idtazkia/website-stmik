@@ -1,5 +1,16 @@
 -- Seed data for Phase 1
 
+-- Test Users (for development/testing)
+INSERT INTO users (email, name, role, is_active) VALUES
+    ('admin@tazkia.ac.id', 'Admin User', 'admin', true),
+    ('supervisor@tazkia.ac.id', 'Supervisor User', 'supervisor', true),
+    ('consultant1@tazkia.ac.id', 'Consultant One', 'consultant', true),
+    ('consultant2@tazkia.ac.id', 'Consultant Two', 'consultant', true);
+
+-- Assign supervisor to consultants
+UPDATE users SET id_supervisor = (SELECT id FROM users WHERE email = 'supervisor@tazkia.ac.id')
+WHERE role = 'consultant';
+
 -- Fee Types
 INSERT INTO fee_types (name, code, is_recurring, installment_options) VALUES
     ('Biaya Pendaftaran', 'registration', false, '[1]'),

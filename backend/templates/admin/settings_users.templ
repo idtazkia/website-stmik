@@ -11,7 +11,7 @@ type UserItem struct {
 	Email      string
 	Role       string
 	Supervisor string
-	SupervisorID string
+	IDSupervisor string
 	Status     string
 	LastLogin  string
 }
@@ -127,7 +127,7 @@ templ UserRow(user UserItem, supervisors []SupervisorOption) {
 				>
 					<option value="">- Tidak ada -</option>
 					for _, sup := range supervisors {
-						<option value={ sup.ID } selected?={ user.SupervisorID == sup.ID }>{ sup.Name }</option>
+						<option value={ sup.ID } selected?={ user.IDSupervisor == sup.ID }>{ sup.Name }</option>
 					}
 				</select>
 			</form>

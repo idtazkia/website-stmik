@@ -16,10 +16,10 @@ import (
 
 type FeeStructureItem struct {
 	ID           string
-	FeeTypeID    string
+	IDFeeType    string
 	FeeTypeName  string
 	FeeTypeCode  string
-	ProdiID      string
+	IDProdi      string
 	ProdiName    string
 	ProdiCode    string
 	AcademicYear string
@@ -622,7 +622,7 @@ func FeeRow(fee FeeStructureItem, feeTypes []FeeTypeOption, prodis []ProdiOption
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if ft.ID == fee.FeeTypeID {
+			if ft.ID == fee.IDFeeType {
 				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, " selected")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -663,7 +663,7 @@ func FeeRow(fee FeeStructureItem, feeTypes []FeeTypeOption, prodis []ProdiOption
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if fee.ProdiID == "" {
+		if fee.IDProdi == "" {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, " selected")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -691,7 +691,7 @@ func FeeRow(fee FeeStructureItem, feeTypes []FeeTypeOption, prodis []ProdiOption
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if p.ID == fee.ProdiID {
+			if p.ID == fee.IDProdi {
 				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, " selected")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err

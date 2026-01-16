@@ -5,7 +5,7 @@ CREATE TABLE users (
     name VARCHAR(255) NOT NULL,
     google_id VARCHAR(255) UNIQUE,
     role VARCHAR(20) NOT NULL CHECK (role IN ('admin', 'supervisor', 'consultant')),
-    supervisor_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    id_supervisor UUID REFERENCES users(id) ON DELETE SET NULL,
     is_active BOOLEAN DEFAULT true,
     last_login_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -16,7 +16,7 @@ CREATE TABLE users (
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_google_id ON users(google_id) WHERE google_id IS NOT NULL;
 CREATE INDEX idx_users_role ON users(role);
-CREATE INDEX idx_users_supervisor_id ON users(supervisor_id) WHERE supervisor_id IS NOT NULL;
+CREATE INDEX idx_users_id_supervisor ON users(id_supervisor) WHERE id_supervisor IS NOT NULL;
 CREATE INDEX idx_users_is_active ON users(is_active);
 
 -- Trigger for updated_at
