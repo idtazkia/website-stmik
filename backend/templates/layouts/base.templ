@@ -1,11 +1,44 @@
 package layouts
 
+import "strings"
+
+// userInitials returns the initials from a name (max 2 chars)
+func userInitials(name string) string {
+	if name == "" {
+		return "?"
+	}
+	parts := strings.Fields(name)
+	if len(parts) == 0 {
+		return string(name[0])
+	}
+	if len(parts) == 1 {
+		return strings.ToUpper(string(parts[0][0]))
+	}
+	return strings.ToUpper(string(parts[0][0]) + string(parts[len(parts)-1][0]))
+}
+
+// roleLabel returns Indonesian label for role
+func roleLabel(role string) string {
+	switch role {
+	case "admin":
+		return "Administrator"
+	case "supervisor":
+		return "Supervisor"
+	case "consultant":
+		return "Konsultan"
+	default:
+		return role
+	}
+}
+
 // PageData contains common data for all pages
 // Note: CSRF protection uses Go 1.25's http.CrossOriginProtection (header-based)
 // No token fields needed - uses Sec-Fetch-Site and Origin headers
 type PageData struct {
-	Title   string
-	Version string
+	Title    string
+	Version  string
+	UserName string
+	UserRole string
 }
 
 templ Base(data PageData) {
@@ -118,13 +151,15 @@ templ Admin(data PageData) {
 				</nav>
 				<div class="absolute bottom-0 w-64 p-4 border-t border-primary-800 bg-primary-900">
 					<div class="flex items-center gap-2 mb-2">
-						<span class="w-8 h-8 bg-primary-700 rounded-full flex items-center justify-center text-sm">SR</span>
+						<span class="w-8 h-8 bg-primary-700 rounded-full flex items-center justify-center text-sm" data-testid="user-avatar">{ userInitials(data.UserName) }</span>
 						<div class="text-sm">
-							<p class="font-medium">Siti Rahayu</p>
-							<p class="text-primary-400 text-xs">Konsultan</p>
+							<p class="font-medium" data-testid="user-name">{ data.UserName }</p>
+							<p class="text-primary-400 text-xs" data-testid="user-role">{ roleLabel(data.UserRole) }</p>
 						</div>
 					</div>
-					<a href="/admin/logout" class="block text-sm hover:text-secondary-400" data-testid="btn-logout">Logout</a>
+					<form action="/admin/logout" method="POST" class="inline">
+						<button type="submit" class="block text-sm hover:text-secondary-400" data-testid="btn-logout">Logout</button>
+					</form>
 					<span class="block mt-2 text-primary-400 font-mono text-xs" title="Git commit hash for bug reports" data-testid="version-info">{ data.Version }</span>
 				</div>
 			</aside>

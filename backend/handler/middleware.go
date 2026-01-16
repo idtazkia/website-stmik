@@ -1,12 +1,21 @@
 package handler
 
 import (
+	"context"
 	"log/slog"
 	"net/http"
 	"time"
 
+	"github.com/idtazkia/stmik-admission-api/auth"
 	"github.com/idtazkia/stmik-admission-api/templates/layouts"
 	"github.com/idtazkia/stmik-admission-api/version"
+)
+
+// Context keys for storing user information
+type contextKey string
+
+const (
+	userClaimsKey contextKey = "user_claims"
 )
 
 // CrossOriginProtection returns CSRF protection middleware using Go 1.25's stdlib
@@ -24,9 +33,20 @@ func NewPageData(title string) layouts.PageData {
 	return layouts.PageData{
 		Title:   title,
 		Version: version.Short(),
-		// CSRFToken and CSRFField not needed with Go 1.25's CrossOriginProtection
-		// It uses Sec-Fetch-Site and Origin headers instead
 	}
+}
+
+// NewPageDataWithUser creates a PageData with user info from context
+func NewPageDataWithUser(ctx context.Context, title string) layouts.PageData {
+	data := layouts.PageData{
+		Title:   title,
+		Version: version.Short(),
+	}
+	if claims := GetUserClaims(ctx); claims != nil {
+		data.UserName = claims.Name
+		data.UserRole = claims.Role
+	}
+	return data
 }
 
 // Logging middleware logs HTTP requests
@@ -53,4 +73,60 @@ func Recovery(next http.Handler) http.Handler {
 		}()
 		next.ServeHTTP(w, r)
 	})
+}
+
+// RequireAuth middleware checks if user is authenticated
+func RequireAuth(sessionMgr *auth.SessionManager, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		claims, err := sessionMgr.GetClaimsFromRequest(r)
+		if err != nil {
+			slog.Debug("authentication failed", "error", err)
+			http.Redirect(w, r, "/admin/login", http.StatusFound)
+			return
+		}
+
+		// Store claims in context for handlers to use
+		ctx := context.WithValue(r.Context(), userClaimsKey, claims)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+// RequireRole middleware checks if user has required role
+func RequireRole(roles []string, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		claims := GetUserClaims(r.Context())
+		if claims == nil {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		for _, role := range roles {
+			if claims.Role == role {
+				next.ServeHTTP(w, r)
+				return
+			}
+		}
+
+		slog.Warn("access denied", "user", claims.Email, "required_roles", roles, "user_role", claims.Role)
+		http.Error(w, "Forbidden", http.StatusForbidden)
+	})
+}
+
+// GetUserClaims retrieves user claims from context
+func GetUserClaims(ctx context.Context) *auth.Claims {
+	claims, ok := ctx.Value(userClaimsKey).(*auth.Claims)
+	if !ok {
+		return nil
+	}
+	return claims
+}
+
+// RequireAdmin is a shorthand for requiring admin role
+func RequireAdmin(next http.Handler) http.Handler {
+	return RequireRole([]string{"admin"}, next)
+}
+
+// RequireSupervisorOrAdmin is a shorthand for requiring supervisor or admin role
+func RequireSupervisorOrAdmin(next http.Handler) http.Handler {
+	return RequireRole([]string{"admin", "supervisor"}, next)
 }
