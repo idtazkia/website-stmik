@@ -205,28 +205,31 @@ Phase 1 - Admin Foundation (DONE):
   006_create_obstacles.sql            ✅
   007_seed_phase1_data.sql            ✅ → fee_types, categories, obstacles, prodis
 
-Phase 2 - Configuration:
-  008_create_assignment_algorithms.sql
-  009_create_document_types.sql
-  010_create_lost_reasons.sql
-  011_create_campaigns.sql
-  012_create_reward_configs.sql
-  013_create_mgm_reward_configs.sql
-  014_create_referrers.sql
+Phase 2 - Configuration (DONE):
+  008_create_campaigns.sql            ✅
+  009_create_reward_configs.sql       ✅
+  010_create_mgm_reward_configs.sql   ✅
+  011_seed_reward_configs.sql         ✅ → reward_configs, mgm_reward_configs
+  012_create_referrers.sql            ✅
+
+Phase 2.5 - Remaining Configuration:
+  013_create_assignment_algorithms.sql
+  014_create_document_types.sql
+  015_create_lost_reasons.sql
 
 Phase 3 - Candidates:
-  015_create_announcements.sql        → prodis
-  016_create_candidates.sql           → prodis, campaigns, referrers, users, lost_reasons
+  016_create_announcements.sql        → prodis
+  017_create_candidates.sql           → prodis, campaigns, referrers, users, lost_reasons
 
 Phase 4 - Transactions:
-  017_create_billings.sql             → candidates, fee_types
-  018_create_payments.sql             → billings, users
-  019_create_interactions.sql         → candidates, users, categories, obstacles
-  020_create_documents.sql            → candidates, document_types
-  021_create_commission_ledger.sql    → candidates, referrers
-  022_create_notification_logs.sql    → candidates
-  023_create_verification_tokens.sql  → candidates
-  024_create_announcement_reads.sql   → announcements, candidates
+  018_create_billings.sql             → candidates, fee_types
+  019_create_payments.sql             → billings, users
+  020_create_interactions.sql         → candidates, users, categories, obstacles
+  021_create_documents.sql            → candidates, document_types
+  022_create_commission_ledger.sql    → candidates, referrers
+  023_create_notification_logs.sql    → candidates
+  024_create_verification_tokens.sql  → candidates
+  025_create_announcement_reads.sql   → announcements, candidates
 ```
 
 ---
@@ -362,7 +365,7 @@ Admin configures available programs.
 
 ---
 
-## Feature 7: Settings - Fee Structure
+## Feature 7: Settings - Fee Structure ✅
 
 Admin configures fees per prodi and academic year.
 
@@ -370,11 +373,11 @@ Admin configures fees per prodi and academic year.
 
 - [x] `model/fee_type.go` - List (seeded: registration, tuition, dormitory)
 - [x] `model/fee_structure.go` - CRUD, FindByTypeAndProdi (model layer done)
-- [x] `templates/admin/settings/fees.templ` - Fee matrix (mockup)
-- [ ] Wire `handler/admin.go` to real data - CRUD /admin/settings/fees
-- [ ] Set: registration fee (global), tuition per prodi, dormitory (global)
-- [ ] Installment options per fee type
-- [ ] Test: CRUD, fee lookup
+- [x] `templates/admin/settings/fees.templ` - Fee matrix with HTMX forms
+- [x] Wire `handler/admin.go` to real data - CRUD /admin/settings/fees
+- [x] Set: registration fee (global), tuition per prodi, dormitory (global)
+- [ ] Installment options per fee type (deferred to Phase 5)
+- [x] Playwright E2E tests: Add, edit, toggle status with database persistence
 
 ---
 
@@ -400,27 +403,27 @@ Setup before opening registration.
 
 ---
 
-## Feature 9: Campaign Management
+## Feature 9: Campaign Management ✅
 
 Admin manages campaigns with promo pricing.
 
-**Migrations:** 008
+**Migrations:** 008_create_campaigns ✅
 
 - [x] `model/campaign.go` - CRUD, FindActive, FindByCode
 - [x] `templates/admin/settings_campaigns.templ` - Campaign settings page with HTMX CRUD
 - [x] `handler/admin.go` - CRUD /admin/settings/campaigns
 - [x] Fields: name, type, channel, dates, registration_fee_override
 - [x] Fee override: fixed amount (nullable, overrides default registration fee)
-- [ ] Generate UTM-compatible tracking code
-- [x] Test: E2E CRUD tests in settings-campaigns.spec.ts
+- [ ] Generate UTM-compatible tracking code (deferred enhancement)
+- [x] Playwright E2E tests: CRUD with database persistence
 
 ---
 
-## Feature 10: Reward Configuration
+## Feature 10: Reward Configuration ✅
 
 Configure default rewards by referrer type and MGM.
 
-**Migrations:** 009, 010, 011 (seed)
+**Migrations:** 009_create_reward_configs ✅, 010_create_mgm_reward_configs ✅, 011_seed_reward_data ✅
 
 - [x] `model/reward_config.go` - CRUD, FindByType
 - [x] `model/mgm_reward_config.go` - CRUD, FindActive (FindByYear)
@@ -430,24 +433,24 @@ Configure default rewards by referrer type and MGM.
 - [x] Fields: reward_type (cash, tuition_discount, merchandise), amount, is_percentage, trigger_event
 - [x] MGM rewards: referrer_amount (for enrolled student), referee_amount (for new candidate)
 - [x] Seed defaults: alumni Rp500k, teacher Rp750k, student Rp300k, partner Rp1M, staff Rp250k, MGM Rp200k + 10% tuition
-- [x] Test: E2E CRUD tests in settings-rewards.spec.ts
+- [x] Playwright E2E tests: CRUD with database persistence
 
 ---
 
-## Feature 11: Referrer Management
+## Feature 11: Referrer Management ✅
 
 Admin manages referrers for commission tracking.
 
-**Migrations:** 015
+**Migrations:** 012_create_referrers ✅
 
-- [ ] `model/referrer.go` - CRUD, GenerateCode, FindByCode, SearchByName
-- [ ] `templates/admin/referrers.templ` - Referrer list
-- [ ] `templates/admin/referrer_form.templ` - Create/edit form
-- [ ] `handler/admin.go` - CRUD /admin/referrers
-- [ ] Fields: name, type, institution, contact, bank details
-- [ ] commission_override: optional, overrides reward_config default
+- [x] `model/referrer.go` - CRUD, GenerateCode, FindByCode, SearchByName
+- [x] `templates/admin/settings_referrers.templ` - Referrer list with HTMX forms
+- [x] `handler/admin.go` - CRUD /admin/settings/referrers
+- [x] Fields: name, type, institution, contact, bank details
+- [x] commission_override: optional, overrides reward_config default
+- [x] payout_preference: monthly or per_enrollment
 - [ ] Generate optional referral code (for partners who want trackable links)
-- [ ] Test: CRUD, code generation, search
+- [x] Playwright E2E tests: CRUD, status toggle with database persistence
 
 ---
 
@@ -455,7 +458,7 @@ Admin manages referrers for commission tracking.
 
 Configure consultant assignment algorithm.
 
-**Migrations:** 009, 027 (seed)
+**Migrations:** 013_create_assignment_algorithms
 
 - [ ] `model/assignment_algorithm.go` - List, SetActive
 - [ ] `templates/admin/settings/assignment.templ` - Algorithm selection
@@ -470,7 +473,7 @@ Configure consultant assignment algorithm.
 
 Configure required documents.
 
-**Migrations:** 010, 027 (seed)
+**Migrations:** 014_create_document_types
 
 - [ ] `model/document_type.go` - CRUD, ListActive
 - [ ] `templates/admin/settings/documents.templ` - Document type list
