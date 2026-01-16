@@ -39,11 +39,15 @@ jobs:
         with:
           go-version: '1.25.5'
 
+      - name: Download Go dependencies
+        working-directory: backend
+        run: go mod download
+
       - name: Install gosec
         run: go install github.com/securego/gosec/v2/cmd/gosec@latest
 
       - name: Run gosec
-        run: gosec -exclude-dir=node_modules -exclude-generated -exclude=G104 ./backend/...
+        run: gosec -exclude-dir=node_modules -exclude-generated -exclude=G104 -tests=false ./backend/...
 
   trivy:
     name: Vulnerability Scan (Trivy)
