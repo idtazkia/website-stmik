@@ -18,7 +18,7 @@ type ObstacleItem struct {
 
 templ SettingsCategories(data layouts.PageData, categories []CategoryItem, obstacles []ObstacleItem) {
 	@layouts.Admin(data) {
-		<div class="space-y-6">
+		<div class="space-y-6" data-testid="settings-categories-page">
 			<!-- Header -->
 			<div>
 				<h2 class="text-lg font-semibold text-gray-900">Kategori & Hambatan</h2>
@@ -27,25 +27,25 @@ templ SettingsCategories(data layouts.PageData, categories []CategoryItem, obsta
 
 			<div class="grid grid-cols-2 gap-6">
 				<!-- Interaction Categories -->
-				<div class="bg-white rounded-lg border">
+				<div class="bg-white rounded-lg border" data-testid="categories-section">
 					<div class="p-4 border-b flex items-center justify-between">
 						<h3 class="font-semibold text-gray-900">Kategori Interaksi</h3>
-						<button class="px-3 py-1 bg-primary-600 text-white rounded text-sm hover:bg-primary-700">+ Tambah</button>
+						<button data-testid="add-category-button" class="px-3 py-1 bg-primary-600 text-white rounded text-sm hover:bg-primary-700">+ Tambah</button>
 					</div>
-					<div class="p-4 space-y-3">
+					<div class="p-4 space-y-3" data-testid="categories-list">
 						for _, cat := range categories {
-							<div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+							<div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg" data-testid={ "category-item-" + cat.ID } id={ "category-item-" + cat.ID }>
 								<div class="flex items-center gap-3">
 									if cat.Sentiment == "positive" {
-										<span class="text-2xl">😊</span>
+										<span class="text-2xl" data-testid={ "category-icon-" + cat.ID }>😊</span>
 									} else if cat.Sentiment == "neutral" {
-										<span class="text-2xl">🤔</span>
+										<span class="text-2xl" data-testid={ "category-icon-" + cat.ID }>🤔</span>
 									} else {
-										<span class="text-2xl">😟</span>
+										<span class="text-2xl" data-testid={ "category-icon-" + cat.ID }>😟</span>
 									}
 									<div>
-										<p class="font-medium text-gray-900">{ cat.Name }</p>
-										<p class="text-xs text-gray-500">
+										<p class="font-medium text-gray-900" data-testid={ "category-name-" + cat.ID }>{ cat.Name }</p>
+										<p class="text-xs text-gray-500" data-testid={ "category-sentiment-" + cat.ID }>
 											if cat.Sentiment == "positive" {
 												Positif
 											} else if cat.Sentiment == "neutral" {
@@ -57,8 +57,8 @@ templ SettingsCategories(data layouts.PageData, categories []CategoryItem, obsta
 									</div>
 								</div>
 								<div class="flex items-center gap-3">
-									<span class="text-sm text-gray-500">{ cat.Count } interaksi</span>
-									<button class="text-primary-600 hover:text-primary-800 text-sm">Edit</button>
+									<span class="text-sm text-gray-500" data-testid={ "category-count-" + cat.ID }>{ cat.Count } interaksi</span>
+									<button data-testid={ "category-edit-" + cat.ID } class="text-primary-600 hover:text-primary-800 text-sm">Edit</button>
 								</div>
 							</div>
 						}
@@ -66,25 +66,25 @@ templ SettingsCategories(data layouts.PageData, categories []CategoryItem, obsta
 				</div>
 
 				<!-- Obstacles -->
-				<div class="bg-white rounded-lg border">
+				<div class="bg-white rounded-lg border" data-testid="obstacles-section">
 					<div class="p-4 border-b flex items-center justify-between">
 						<h3 class="font-semibold text-gray-900">Daftar Hambatan</h3>
-						<button class="px-3 py-1 bg-primary-600 text-white rounded text-sm hover:bg-primary-700">+ Tambah</button>
+						<button data-testid="add-obstacle-button" class="px-3 py-1 bg-primary-600 text-white rounded text-sm hover:bg-primary-700">+ Tambah</button>
 					</div>
-					<div class="p-4 space-y-3">
+					<div class="p-4 space-y-3" data-testid="obstacles-list">
 						for _, obs := range obstacles {
-							<div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+							<div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg" data-testid={ "obstacle-item-" + obs.ID } id={ "obstacle-item-" + obs.ID }>
 								<div class="flex items-center gap-3">
 									<span class="w-8 h-8 bg-red-100 text-red-600 rounded flex items-center justify-center">
 										<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
 										</svg>
 									</span>
-									<p class="font-medium text-gray-900">{ obs.Name }</p>
+									<p class="font-medium text-gray-900" data-testid={ "obstacle-name-" + obs.ID }>{ obs.Name }</p>
 								</div>
 								<div class="flex items-center gap-3">
-									<span class="text-sm text-gray-500">{ obs.Count }x dilaporkan</span>
-									<button class="text-primary-600 hover:text-primary-800 text-sm">Edit</button>
+									<span class="text-sm text-gray-500" data-testid={ "obstacle-count-" + obs.ID }>{ obs.Count }x dilaporkan</span>
+									<button data-testid={ "obstacle-edit-" + obs.ID } class="text-primary-600 hover:text-primary-800 text-sm">Edit</button>
 								</div>
 							</div>
 						}

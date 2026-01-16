@@ -14,50 +14,50 @@ type ProgramItem struct {
 
 templ SettingsPrograms(data layouts.PageData, programs []ProgramItem) {
 	@layouts.Admin(data) {
-		<div class="space-y-6">
+		<div class="space-y-6" data-testid="settings-programs-page">
 			<!-- Header -->
 			<div class="flex items-center justify-between">
 				<div>
 					<h2 class="text-lg font-semibold text-gray-900">Program Studi</h2>
 					<p class="text-sm text-gray-500">Kelola program studi dan biaya SPP</p>
 				</div>
-				<button class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 flex items-center gap-2">
+				<button data-testid="add-program-button" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 flex items-center gap-2">
 					<span>+</span> Tambah Prodi
 				</button>
 			</div>
 
 			<!-- Programs Grid -->
-			<div class="grid grid-cols-2 gap-6">
+			<div class="grid grid-cols-2 gap-6" data-testid="programs-grid">
 				for _, prog := range programs {
-					<div class="bg-white rounded-lg border overflow-hidden">
+					<div class="bg-white rounded-lg border overflow-hidden" data-testid={ "program-card-" + prog.ID } id={ "program-card-" + prog.ID }>
 						<div class="p-4 border-b bg-gray-50 flex items-center justify-between">
 							<div class="flex items-center gap-3">
-								<div class="w-10 h-10 bg-primary-100 text-primary-700 rounded-lg flex items-center justify-center font-bold">
+								<div class="w-10 h-10 bg-primary-100 text-primary-700 rounded-lg flex items-center justify-center font-bold" data-testid={ "program-code-" + prog.ID }>
 									{ prog.Code }
 								</div>
 								<div>
-									<h3 class="font-semibold text-gray-900">{ prog.Name }</h3>
-									<p class="text-sm text-gray-500">{ prog.Level }</p>
+									<h3 class="font-semibold text-gray-900" data-testid={ "program-name-" + prog.ID }>{ prog.Name }</h3>
+									<p class="text-sm text-gray-500" data-testid={ "program-level-" + prog.ID }>{ prog.Level }</p>
 								</div>
 							</div>
 							if prog.Status == "active" {
-								<span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">Aktif</span>
+								<span data-testid={ "program-status-" + prog.ID } class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">Aktif</span>
 							} else {
-								<span class="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">Nonaktif</span>
+								<span data-testid={ "program-status-" + prog.ID } class="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">Nonaktif</span>
 							}
 						</div>
 						<div class="p-4 space-y-3">
 							<div class="flex justify-between">
 								<span class="text-gray-500">SPP per Semester</span>
-								<span class="font-semibold text-gray-900">{ prog.SPPFee }</span>
+								<span class="font-semibold text-gray-900" data-testid={ "program-spp-" + prog.ID }>{ prog.SPPFee }</span>
 							</div>
 							<div class="flex justify-between">
 								<span class="text-gray-500">Mahasiswa Aktif</span>
-								<span class="font-semibold text-gray-900">{ prog.Students }</span>
+								<span class="font-semibold text-gray-900" data-testid={ "program-students-" + prog.ID }>{ prog.Students }</span>
 							</div>
 							<div class="pt-3 border-t flex gap-2">
-								<button class="flex-1 px-3 py-2 text-primary-600 border border-primary-600 rounded hover:bg-primary-50 text-sm">Edit</button>
-								<button class="flex-1 px-3 py-2 text-gray-600 border rounded hover:bg-gray-50 text-sm">Lihat Kurikulum</button>
+								<button data-testid={ "program-edit-" + prog.ID } class="flex-1 px-3 py-2 text-primary-600 border border-primary-600 rounded hover:bg-primary-50 text-sm">Edit</button>
+								<button data-testid={ "program-curriculum-" + prog.ID } class="flex-1 px-3 py-2 text-gray-600 border rounded hover:bg-gray-50 text-sm">Lihat Kurikulum</button>
 							</div>
 						</div>
 					</div>

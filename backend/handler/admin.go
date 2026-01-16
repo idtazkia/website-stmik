@@ -1,10 +1,14 @@
 package handler
 
 import (
+	"fmt"
+	"log/slog"
 	"net/http"
+	"time"
 
 	"github.com/idtazkia/stmik-admission-api/auth"
 	"github.com/idtazkia/stmik-admission-api/mockdata"
+	"github.com/idtazkia/stmik-admission-api/model"
 	"github.com/idtazkia/stmik-admission-api/templates/admin"
 )
 
@@ -53,10 +57,13 @@ func (h *AdminHandler) RegisterRoutes(mux *http.ServeMux) {
 
 	// Settings
 	mux.Handle("GET /admin/settings/users", protected(h.handleUsersSettings))
+	mux.Handle("POST /admin/settings/users/{id}/role", protected(h.handleUpdateUserRole))
+	mux.Handle("POST /admin/settings/users/{id}/supervisor", protected(h.handleUpdateUserSupervisor))
+	mux.Handle("POST /admin/settings/users/{id}/toggle-active", protected(h.handleToggleUserActive))
 	mux.Handle("GET /admin/settings/programs", protected(h.handleProgramsSettings))
+	mux.Handle("GET /admin/settings/categories", protected(h.handleCategoriesSettings))
 	mux.Handle("GET /admin/settings/fees", protected(h.handleFeesSettings))
 	mux.Handle("GET /admin/settings/rewards", protected(h.handleRewardsSettings))
-	mux.Handle("GET /admin/settings/categories", protected(h.handleCategoriesSettings))
 }
 
 func (h *AdminHandler) handleDashboard(w http.ResponseWriter, r *http.Request) {
@@ -248,23 +255,286 @@ func (h *AdminHandler) handleCampaignsReport(w http.ResponseWriter, r *http.Requ
 }
 
 func (h *AdminHandler) handleUsersSettings(w http.ResponseWriter, r *http.Request) {
-	data := NewPageDataWithUser(r.Context(),"Users")
-	users := []admin.UserItem{
-		{ID: "1", Name: "Admin PMB", Email: "admin@tazkia.ac.id", Role: "admin", Supervisor: "-", Status: "active", LastLogin: "Hari ini"},
-		{ID: "2", Name: "Budi Santoso", Email: "budi@tazkia.ac.id", Role: "supervisor", Supervisor: "-", Status: "active", LastLogin: "Hari ini"},
-		{ID: "3", Name: "Siti Rahayu", Email: "siti@tazkia.ac.id", Role: "konsultan", Supervisor: "Budi Santoso", Status: "active", LastLogin: "Hari ini"},
-		{ID: "4", Name: "Ahmad Hidayat", Email: "ahmad@tazkia.ac.id", Role: "konsultan", Supervisor: "Budi Santoso", Status: "active", LastLogin: "Kemarin"},
-		{ID: "5", Name: "Dewi Lestari", Email: "dewi@tazkia.ac.id", Role: "konsultan", Supervisor: "Budi Santoso", Status: "active", LastLogin: "2 hari lalu"},
+	data := NewPageDataWithUser(r.Context(), "Users")
+
+	// Fetch users from database
+	dbUsers, err := model.ListUsers(r.Context(), "", false)
+	if err != nil {
+		slog.Error("failed to list users", "error", err)
+		http.Error(w, "Failed to load users", http.StatusInternalServerError)
+		return
 	}
-	admin.SettingsUsers(data, users).Render(r.Context(), w)
+
+	// Fetch supervisors for dropdown
+	dbSupervisors, err := model.ListSupervisors(r.Context())
+	if err != nil {
+		slog.Error("failed to list supervisors", "error", err)
+		http.Error(w, "Failed to load supervisors", http.StatusInternalServerError)
+		return
+	}
+
+	// Convert supervisors to template type
+	supervisors := make([]admin.SupervisorOption, len(dbSupervisors))
+	for i, s := range dbSupervisors {
+		supervisors[i] = admin.SupervisorOption{
+			ID:   s.ID,
+			Name: s.Name,
+		}
+	}
+
+	// Convert to template type
+	users := make([]admin.UserItem, len(dbUsers))
+	for i, u := range dbUsers {
+		status := "inactive"
+		if u.IsActive {
+			status = "active"
+		}
+
+		supervisor := "-"
+		if u.SupervisorName != nil {
+			supervisor = *u.SupervisorName
+		}
+
+		supervisorID := ""
+		if u.SupervisorID != nil {
+			supervisorID = *u.SupervisorID
+		}
+
+		lastLogin := "Belum pernah"
+		if u.LastLoginAt != nil {
+			lastLogin = formatRelativeTime(*u.LastLoginAt)
+		}
+
+		users[i] = admin.UserItem{
+			ID:           u.ID,
+			Name:         u.Name,
+			Email:        u.Email,
+			Role:         u.Role,
+			Supervisor:   supervisor,
+			SupervisorID: supervisorID,
+			Status:       status,
+			LastLogin:    lastLogin,
+		}
+	}
+
+	// Fetch stats
+	counts, err := model.CountUsersByRole(r.Context())
+	if err != nil {
+		slog.Error("failed to count users", "error", err)
+	}
+	stats := admin.UserStats{
+		Total:      counts["admin"] + counts["supervisor"] + counts["consultant"],
+		Admin:      counts["admin"],
+		Supervisor: counts["supervisor"],
+		Consultant: counts["consultant"],
+	}
+
+	admin.SettingsUsers(data, users, stats, supervisors).Render(r.Context(), w)
+}
+
+// handleUpdateUserRole handles POST /admin/settings/users/{id}/role
+func (h *AdminHandler) handleUpdateUserRole(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	if err := r.ParseForm(); err != nil {
+		slog.Error("failed to parse form", "error", err)
+		http.Error(w, "Invalid form data", http.StatusBadRequest)
+		return
+	}
+
+	role := r.FormValue("role")
+	if role == "" {
+		http.Error(w, "Role is required", http.StatusBadRequest)
+		return
+	}
+
+	if err := model.UpdateUserRole(r.Context(), id, role); err != nil {
+		slog.Error("failed to update user role", "error", err, "user_id", id, "role", role)
+		http.Error(w, "Failed to update role", http.StatusInternalServerError)
+		return
+	}
+
+	slog.Info("user role updated", "user_id", id, "role", role)
+
+	// Return updated row
+	h.renderUserRow(w, r, id)
+}
+
+// handleUpdateUserSupervisor handles POST /admin/settings/users/{id}/supervisor
+func (h *AdminHandler) handleUpdateUserSupervisor(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	if err := r.ParseForm(); err != nil {
+		slog.Error("failed to parse form", "error", err)
+		http.Error(w, "Invalid form data", http.StatusBadRequest)
+		return
+	}
+
+	supervisorID := r.FormValue("supervisor_id")
+	var supIDPtr *string
+	if supervisorID != "" {
+		supIDPtr = &supervisorID
+	}
+
+	if err := model.UpdateUserSupervisor(r.Context(), id, supIDPtr); err != nil {
+		slog.Error("failed to update user supervisor", "error", err, "user_id", id, "supervisor_id", supervisorID)
+		http.Error(w, "Failed to update supervisor", http.StatusInternalServerError)
+		return
+	}
+
+	slog.Info("user supervisor updated", "user_id", id, "supervisor_id", supervisorID)
+
+	// Return updated row
+	h.renderUserRow(w, r, id)
+}
+
+// handleToggleUserActive handles POST /admin/settings/users/{id}/toggle-active
+func (h *AdminHandler) handleToggleUserActive(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+
+	if err := model.ToggleUserActive(r.Context(), id); err != nil {
+		slog.Error("failed to toggle user active", "error", err, "user_id", id)
+		http.Error(w, "Failed to toggle status", http.StatusInternalServerError)
+		return
+	}
+
+	slog.Info("user active status toggled", "user_id", id)
+
+	// Return updated row
+	h.renderUserRow(w, r, id)
+}
+
+// renderUserRow renders a single user row for HTMX updates
+func (h *AdminHandler) renderUserRow(w http.ResponseWriter, r *http.Request, userID string) {
+	// Fetch user by ID with supervisor info
+	dbUsers, err := model.ListUsers(r.Context(), "", false)
+	if err != nil {
+		slog.Error("failed to list users", "error", err)
+		http.Error(w, "Failed to load user", http.StatusInternalServerError)
+		return
+	}
+
+	// Fetch supervisors for dropdown
+	dbSupervisors, err := model.ListSupervisors(r.Context())
+	if err != nil {
+		slog.Error("failed to list supervisors", "error", err)
+		http.Error(w, "Failed to load supervisors", http.StatusInternalServerError)
+		return
+	}
+
+	// Convert supervisors to template type
+	supervisors := make([]admin.SupervisorOption, len(dbSupervisors))
+	for i, s := range dbSupervisors {
+		supervisors[i] = admin.SupervisorOption{
+			ID:   s.ID,
+			Name: s.Name,
+		}
+	}
+
+	// Find the user
+	var userItem admin.UserItem
+	found := false
+	for _, u := range dbUsers {
+		if u.ID == userID {
+			status := "inactive"
+			if u.IsActive {
+				status = "active"
+			}
+
+			supervisor := "-"
+			if u.SupervisorName != nil {
+				supervisor = *u.SupervisorName
+			}
+
+			supervisorID := ""
+			if u.SupervisorID != nil {
+				supervisorID = *u.SupervisorID
+			}
+
+			lastLogin := "Belum pernah"
+			if u.LastLoginAt != nil {
+				lastLogin = formatRelativeTime(*u.LastLoginAt)
+			}
+
+			userItem = admin.UserItem{
+				ID:           u.ID,
+				Name:         u.Name,
+				Email:        u.Email,
+				Role:         u.Role,
+				Supervisor:   supervisor,
+				SupervisorID: supervisorID,
+				Status:       status,
+				LastLogin:    lastLogin,
+			}
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		http.NotFound(w, r)
+		return
+	}
+
+	admin.UserRow(userItem, supervisors).Render(r.Context(), w)
+}
+
+// formatRelativeTime formats a time as relative to now
+func formatRelativeTime(t time.Time) string {
+	now := time.Now()
+	diff := now.Sub(t)
+
+	if diff < time.Minute {
+		return "Baru saja"
+	}
+	if diff < time.Hour {
+		return "Beberapa menit lalu"
+	}
+	if diff < 24*time.Hour {
+		return "Hari ini"
+	}
+	if diff < 48*time.Hour {
+		return "Kemarin"
+	}
+	days := int(diff.Hours() / 24)
+	if days < 7 {
+		return formatDays(days) + " lalu"
+	}
+	return t.Format("2 Jan 2006")
+}
+
+func formatDays(days int) string {
+	return fmt.Sprintf("%d hari", days)
 }
 
 func (h *AdminHandler) handleProgramsSettings(w http.ResponseWriter, r *http.Request) {
-	data := NewPageDataWithUser(r.Context(),"Prodi")
-	programs := []admin.ProgramItem{
-		{ID: "1", Name: "Sistem Informasi", Code: "SI", Level: "S1", SPPFee: "Rp 7.500.000", Status: "active", Students: "245"},
-		{ID: "2", Name: "Teknik Informatika", Code: "TI", Level: "S1", SPPFee: "Rp 8.000.000", Status: "active", Students: "312"},
+	data := NewPageDataWithUser(r.Context(), "Prodi")
+
+	// Fetch programs from database
+	dbProdis, err := model.ListProdis(r.Context(), false)
+	if err != nil {
+		slog.Error("failed to list prodis", "error", err)
+		http.Error(w, "Failed to load programs", http.StatusInternalServerError)
+		return
 	}
+
+	// Convert to template type
+	programs := make([]admin.ProgramItem, len(dbProdis))
+	for i, p := range dbProdis {
+		status := "inactive"
+		if p.IsActive {
+			status = "active"
+		}
+
+		programs[i] = admin.ProgramItem{
+			ID:       p.ID,
+			Name:     p.Name,
+			Code:     p.Code,
+			Level:    p.Degree,
+			SPPFee:   "-",       // TODO: fetch from fee_structures
+			Status:   status,
+			Students: "-",       // TODO: count enrolled candidates
+		}
+	}
+
 	admin.SettingsPrograms(data, programs).Render(r.Context(), w)
 }
 
@@ -283,21 +553,45 @@ func (h *AdminHandler) handleRewardsSettings(w http.ResponseWriter, r *http.Requ
 }
 
 func (h *AdminHandler) handleCategoriesSettings(w http.ResponseWriter, r *http.Request) {
-	data := NewPageDataWithUser(r.Context(),"Kategori")
-	categories := []admin.CategoryItem{
-		{ID: "1", Name: "Tertarik", Sentiment: "positive", Count: "125"},
-		{ID: "2", Name: "Mempertimbangkan", Sentiment: "neutral", Count: "89"},
-		{ID: "3", Name: "Ragu-ragu", Sentiment: "neutral", Count: "45"},
-		{ID: "4", Name: "Dingin", Sentiment: "negative", Count: "32"},
-		{ID: "5", Name: "Tidak bisa dihubungi", Sentiment: "negative", Count: "28"},
+	data := NewPageDataWithUser(r.Context(), "Kategori")
+
+	// Fetch categories from database
+	dbCategories, err := model.ListInteractionCategories(r.Context(), false)
+	if err != nil {
+		slog.Error("failed to list interaction categories", "error", err)
+		http.Error(w, "Failed to load categories", http.StatusInternalServerError)
+		return
 	}
-	obstacles := []admin.ObstacleItem{
-		{ID: "1", Name: "Biaya terlalu mahal", Count: "67"},
-		{ID: "2", Name: "Orang tua belum setuju", Count: "45"},
-		{ID: "3", Name: "Lokasi jauh", Count: "23"},
-		{ID: "4", Name: "Memilih kampus lain", Count: "18"},
-		{ID: "5", Name: "Waktu belum tepat", Count: "12"},
+
+	// Convert to template type
+	categories := make([]admin.CategoryItem, len(dbCategories))
+	for i, c := range dbCategories {
+		categories[i] = admin.CategoryItem{
+			ID:        c.ID,
+			Name:      c.Name,
+			Sentiment: c.Sentiment,
+			Count:     "0", // TODO: count interactions using this category
+		}
 	}
+
+	// Fetch obstacles from database
+	dbObstacles, err := model.ListObstacles(r.Context(), false)
+	if err != nil {
+		slog.Error("failed to list obstacles", "error", err)
+		http.Error(w, "Failed to load obstacles", http.StatusInternalServerError)
+		return
+	}
+
+	// Convert to template type
+	obstacles := make([]admin.ObstacleItem, len(dbObstacles))
+	for i, o := range dbObstacles {
+		obstacles[i] = admin.ObstacleItem{
+			ID:    o.ID,
+			Name:  o.Name,
+			Count: "0", // TODO: count interactions with this obstacle
+		}
+	}
+
 	admin.SettingsCategories(data, categories, obstacles).Render(r.Context(), w)
 }
 
