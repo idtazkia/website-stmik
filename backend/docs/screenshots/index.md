@@ -28,6 +28,7 @@ Staff menggunakan akun Google dengan email institusi (@tazkia.ac.id) untuk masuk
 ![Halaman Login](01-login.png)
 
 **Langkah-langkah:**
+
 1. Buka halaman `/admin/login`
 2. Klik tombol "Masuk dengan Google"
 3. Pilih akun Google dengan email institusi
@@ -44,6 +45,7 @@ Setelah login, pengguna akan melihat dashboard dengan ringkasan statistik.
 ![Dashboard Admin](02-dashboard.png)
 
 **Informasi yang ditampilkan:**
+
 - Total Kandidat
 - Jumlah kandidat Prospecting (sedang difollow-up)
 - Jumlah kandidat Committed (menunggu enrollment)
@@ -62,12 +64,14 @@ Halaman ini untuk mengelola akun staff (admin, supervisor, konsultan).
 ![Pengaturan Pengguna](03-settings-users.png)
 
 **Fitur:**
+
 - Lihat daftar semua pengguna
 - Ubah role pengguna (Admin, Supervisor, Konsultan)
 - Tetapkan supervisor untuk konsultan
 - Aktifkan/nonaktifkan pengguna
 
 **Role Pengguna:**
+
 | Role | Akses |
 |------|-------|
 | Admin | Akses penuh ke seluruh sistem |
@@ -89,6 +93,7 @@ Halaman ini untuk mengelola program studi yang ditawarkan.
 ![Tambah Program Studi](04a-settings-programs-add.png)
 
 **Field yang diisi:**
+
 | Field | Keterangan |
 |-------|------------|
 | Nama | Nama lengkap program studi |
@@ -96,6 +101,7 @@ Halaman ini untuk mengelola program studi yang ditawarkan.
 | Jenjang | S1 atau D3 |
 
 **Fitur:**
+
 - Tambah program studi baru
 - Edit program studi
 - Aktifkan/nonaktifkan program studi
@@ -115,6 +121,7 @@ Halaman ini untuk mengatur struktur biaya per program studi dan tahun akademik.
 ![Tambah Struktur Biaya](05a-settings-fees-add.png)
 
 **Field yang diisi:**
+
 | Field | Keterangan |
 |-------|------------|
 | Jenis Biaya | Pendaftaran, SPP, atau Asrama |
@@ -123,6 +130,7 @@ Halaman ini untuk mengatur struktur biaya per program studi dan tahun akademik.
 | Nominal | Jumlah dalam Rupiah |
 
 **Jenis Biaya:**
+
 - **Pendaftaran** - Biaya satu kali saat mendaftar
 - **SPP** - Biaya per semester
 - **Asrama** - Biaya per semester (opsional)
@@ -146,6 +154,7 @@ Digunakan untuk mengkategorikan hasil interaksi dengan kandidat.
 ![Tambah Kategori](06a-settings-categories-add.png)
 
 **Field yang diisi:**
+
 | Field | Keterangan |
 |-------|------------|
 | Nama | Nama kategori |
@@ -153,6 +162,7 @@ Digunakan untuk mengkategorikan hasil interaksi dengan kandidat.
 | Urutan | Urutan tampilan |
 
 **Contoh kategori:**
+
 - Tertarik (positif)
 - Mempertimbangkan (netral)
 - Ragu-ragu (netral)
@@ -168,6 +178,7 @@ Digunakan untuk mencatat hambatan yang dihadapi kandidat.
 ![Tambah Hambatan](06b-settings-obstacles-add.png)
 
 **Field yang diisi:**
+
 | Field | Keterangan |
 |-------|------------|
 | Nama | Nama hambatan |
@@ -175,6 +186,7 @@ Digunakan untuk mencatat hambatan yang dihadapi kandidat.
 | Urutan | Urutan tampilan |
 
 **Contoh hambatan:**
+
 - Biaya terlalu mahal
 - Lokasi jauh
 - Orang tua belum setuju
@@ -196,6 +208,7 @@ Halaman ini untuk mengelola kampanye marketing dan promo.
 ![Tambah Kampanye](07a-settings-campaigns-add.png)
 
 **Field yang diisi:**
+
 | Field | Keterangan |
 |-------|------------|
 | Nama | Nama kampanye |
@@ -206,6 +219,7 @@ Halaman ini untuk mengelola kampanye marketing dan promo.
 | Override Biaya Daftar | Biaya pendaftaran khusus (kosongkan untuk default) |
 
 **Contoh kampanye:**
+
 - "Promo Early Bird 2026" - biaya pendaftaran Rp 0
 - "Education Expo Jakarta" - tracking peserta expo
 - "Instagram Ads Q1" - tracking dari iklan Instagram
@@ -229,6 +243,7 @@ Untuk alumni, guru, siswa, partner, dan staff yang mereferensikan calon mahasisw
 ![Tambah Reward](08a-settings-rewards-add.png)
 
 **Field yang diisi:**
+
 | Field | Keterangan |
 |-------|------------|
 | Tipe Referrer | Alumni, Guru, Siswa, Partner, Staff |
@@ -246,6 +261,7 @@ Untuk mahasiswa aktif yang mereferensikan calon mahasiswa baru.
 ![Tambah Reward MGM](08b-settings-mgm-add.png)
 
 **Field yang diisi:**
+
 | Field | Keterangan |
 |-------|------------|
 | Tahun Akademik | Tahun berlaku |
@@ -269,6 +285,7 @@ Halaman ini untuk mengelola data referrer yang akan mendapat komisi.
 ![Tambah Referrer](09a-settings-referrers-add.png)
 
 **Field yang diisi:**
+
 | Field | Keterangan |
 |-------|------------|
 | Nama | Nama lengkap referrer |
@@ -294,6 +311,7 @@ Halaman ini untuk memilih algoritma distribusi kandidat baru ke konsultan.
 ![Pengaturan Algoritma Assignment](10-settings-assignment.png)
 
 **Pilihan Algoritma:**
+
 | Algoritma | Keterangan |
 |-----------|------------|
 | Round Robin | Bergantian sesuai urutan |
@@ -302,6 +320,7 @@ Halaman ini untuk memilih algoritma distribusi kandidat baru ke konsultan.
 | Activity Based | Berdasarkan aktivitas follow-up |
 
 **Cara menggunakan:**
+
 - Klik tombol "Aktifkan" pada algoritma yang diinginkan
 - Hanya satu algoritma yang aktif pada satu waktu
 - Kandidat baru akan otomatis di-assign sesuai algoritma aktif
@@ -321,6 +340,7 @@ Halaman ini untuk mengelola jenis dokumen yang harus diupload kandidat.
 ![Tambah Jenis Dokumen](11a-settings-document-types-add.png)
 
 **Field yang diisi:**
+
 | Field | Keterangan |
 |-------|------------|
 | Nama | Nama jenis dokumen |
@@ -332,6 +352,7 @@ Halaman ini untuk mengelola jenis dokumen yang harus diupload kandidat.
 | Urutan | Urutan tampilan |
 
 **Contoh jenis dokumen:**
+
 | Dokumen | Wajib | Bisa Ditunda |
 |---------|-------|--------------|
 | KTP | Ya | Tidak |
@@ -354,6 +375,7 @@ Halaman ini untuk mengelola alasan kandidat yang tidak melanjutkan pendaftaran.
 ![Tambah Alasan Kehilangan](12a-settings-lost-reasons-add.png)
 
 **Field yang diisi:**
+
 | Field | Keterangan |
 |-------|------------|
 | Nama | Nama alasan |
@@ -361,6 +383,7 @@ Halaman ini untuk mengelola alasan kandidat yang tidak melanjutkan pendaftaran.
 | Urutan | Urutan tampilan |
 
 **Contoh alasan:**
+
 - Tidak ada respon
 - Memilih kampus lain
 - Masalah biaya
@@ -375,6 +398,7 @@ Halaman ini untuk mengelola alasan kandidat yang tidak melanjutkan pendaftaran.
 ## Kontak Dukungan
 
 Jika mengalami kendala atau membutuhkan bantuan, silakan hubungi tim IT melalui:
+
 - Email: it@tazkia.ac.id
 
 ---
