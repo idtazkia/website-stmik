@@ -15,7 +15,7 @@ type User struct {
 	Name         string     `json:"name"`
 	GoogleID     *string    `json:"google_id,omitempty"`
 	Role         string     `json:"role"`
-	SupervisorID *string    `json:"supervisor_id,omitempty"`
+	IDSupervisor *string    `json:"id_supervisor,omitempty"`
 	IsActive     bool       `json:"is_active"`
 	LastLoginAt  *time.Time `json:"last_login_at,omitempty"`
 	CreatedAt    time.Time  `json:"created_at"`
@@ -39,10 +39,10 @@ func CreateUser(ctx context.Context, email, name, googleID, role string) (*User,
 	err := pool.QueryRow(ctx, `
 		INSERT INTO users (email, name, google_id, role)
 		VALUES ($1, $2, $3, $4)
-		RETURNING id, email, name, google_id, role, supervisor_id, is_active, last_login_at, created_at, updated_at
+		RETURNING id, email, name, google_id, role, id_supervisor, is_active, last_login_at, created_at, updated_at
 	`, email, name, gid, role).Scan(
 		&user.ID, &user.Email, &user.Name, &user.GoogleID, &user.Role,
-		&user.SupervisorID, &user.IsActive, &user.LastLoginAt, &user.CreatedAt, &user.UpdatedAt,
+		&user.IDSupervisor, &user.IsActive, &user.LastLoginAt, &user.CreatedAt, &user.UpdatedAt,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create user: %w", err)
@@ -54,11 +54,11 @@ func CreateUser(ctx context.Context, email, name, googleID, role string) (*User,
 func FindUserByEmail(ctx context.Context, email string) (*User, error) {
 	var user User
 	err := pool.QueryRow(ctx, `
-		SELECT id, email, name, google_id, role, supervisor_id, is_active, last_login_at, created_at, updated_at
+		SELECT id, email, name, google_id, role, id_supervisor, is_active, last_login_at, created_at, updated_at
 		FROM users WHERE email = $1
 	`, email).Scan(
 		&user.ID, &user.Email, &user.Name, &user.GoogleID, &user.Role,
-		&user.SupervisorID, &user.IsActive, &user.LastLoginAt, &user.CreatedAt, &user.UpdatedAt,
+		&user.IDSupervisor, &user.IsActive, &user.LastLoginAt, &user.CreatedAt, &user.UpdatedAt,
 	)
 	if err == pgx.ErrNoRows {
 		return nil, nil
@@ -73,11 +73,11 @@ func FindUserByEmail(ctx context.Context, email string) (*User, error) {
 func FindUserByGoogleID(ctx context.Context, googleID string) (*User, error) {
 	var user User
 	err := pool.QueryRow(ctx, `
-		SELECT id, email, name, google_id, role, supervisor_id, is_active, last_login_at, created_at, updated_at
+		SELECT id, email, name, google_id, role, id_supervisor, is_active, last_login_at, created_at, updated_at
 		FROM users WHERE google_id = $1
 	`, googleID).Scan(
 		&user.ID, &user.Email, &user.Name, &user.GoogleID, &user.Role,
-		&user.SupervisorID, &user.IsActive, &user.LastLoginAt, &user.CreatedAt, &user.UpdatedAt,
+		&user.IDSupervisor, &user.IsActive, &user.LastLoginAt, &user.CreatedAt, &user.UpdatedAt,
 	)
 	if err == pgx.ErrNoRows {
 		return nil, nil
@@ -92,11 +92,11 @@ func FindUserByGoogleID(ctx context.Context, googleID string) (*User, error) {
 func FindUserByID(ctx context.Context, id string) (*User, error) {
 	var user User
 	err := pool.QueryRow(ctx, `
-		SELECT id, email, name, google_id, role, supervisor_id, is_active, last_login_at, created_at, updated_at
+		SELECT id, email, name, google_id, role, id_supervisor, is_active, last_login_at, created_at, updated_at
 		FROM users WHERE id = $1
 	`, id).Scan(
 		&user.ID, &user.Email, &user.Name, &user.GoogleID, &user.Role,
-		&user.SupervisorID, &user.IsActive, &user.LastLoginAt, &user.CreatedAt, &user.UpdatedAt,
+		&user.IDSupervisor, &user.IsActive, &user.LastLoginAt, &user.CreatedAt, &user.UpdatedAt,
 	)
 	if err == pgx.ErrNoRows {
 		return nil, nil
@@ -110,10 +110,10 @@ func FindUserByID(ctx context.Context, id string) (*User, error) {
 // ListUsers returns all users with optional filters
 func ListUsers(ctx context.Context, role string, activeOnly bool) ([]UserWithSupervisor, error) {
 	query := `
-		SELECT u.id, u.email, u.name, u.google_id, u.role, u.supervisor_id, u.is_active,
+		SELECT u.id, u.email, u.name, u.google_id, u.role, u.id_supervisor, u.is_active,
 			   u.last_login_at, u.created_at, u.updated_at, s.name as supervisor_name
 		FROM users u
-		LEFT JOIN users s ON u.supervisor_id = s.id
+		LEFT JOIN users s ON u.id_supervisor = s.id
 		WHERE 1=1
 	`
 	args := []interface{}{}
@@ -141,7 +141,7 @@ func ListUsers(ctx context.Context, role string, activeOnly bool) ([]UserWithSup
 	for rows.Next() {
 		var u UserWithSupervisor
 		err := rows.Scan(
-			&u.ID, &u.Email, &u.Name, &u.GoogleID, &u.Role, &u.SupervisorID,
+			&u.ID, &u.Email, &u.Name, &u.GoogleID, &u.Role, &u.IDSupervisor,
 			&u.IsActive, &u.LastLoginAt, &u.CreatedAt, &u.UpdatedAt, &u.SupervisorName,
 		)
 		if err != nil {
@@ -155,7 +155,7 @@ func ListUsers(ctx context.Context, role string, activeOnly bool) ([]UserWithSup
 // ListSupervisors returns users who can be supervisors (admin and supervisor roles)
 func ListSupervisors(ctx context.Context) ([]User, error) {
 	rows, err := pool.Query(ctx, `
-		SELECT id, email, name, google_id, role, supervisor_id, is_active, last_login_at, created_at, updated_at
+		SELECT id, email, name, google_id, role, id_supervisor, is_active, last_login_at, created_at, updated_at
 		FROM users
 		WHERE role IN ('admin', 'supervisor') AND is_active = true
 		ORDER BY name
@@ -169,7 +169,7 @@ func ListSupervisors(ctx context.Context) ([]User, error) {
 	for rows.Next() {
 		var u User
 		err := rows.Scan(
-			&u.ID, &u.Email, &u.Name, &u.GoogleID, &u.Role, &u.SupervisorID,
+			&u.ID, &u.Email, &u.Name, &u.GoogleID, &u.Role, &u.IDSupervisor,
 			&u.IsActive, &u.LastLoginAt, &u.CreatedAt, &u.UpdatedAt,
 		)
 		if err != nil {
@@ -191,7 +191,7 @@ func UpdateUserRole(ctx context.Context, id, role string) error {
 
 // UpdateUserSupervisor updates a user's supervisor
 func UpdateUserSupervisor(ctx context.Context, id string, supervisorID *string) error {
-	_, err := pool.Exec(ctx, `UPDATE users SET supervisor_id = $1 WHERE id = $2`, supervisorID, id)
+	_, err := pool.Exec(ctx, `UPDATE users SET id_supervisor = $1 WHERE id = $2`, supervisorID, id)
 	if err != nil {
 		return fmt.Errorf("failed to update user supervisor: %w", err)
 	}

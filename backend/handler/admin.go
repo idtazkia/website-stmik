@@ -321,8 +321,8 @@ func (h *AdminHandler) handleUsersSettings(w http.ResponseWriter, r *http.Reques
 		}
 
 		supervisorID := ""
-		if u.SupervisorID != nil {
-			supervisorID = *u.SupervisorID
+		if u.IDSupervisor != nil {
+			supervisorID = *u.IDSupervisor
 		}
 
 		lastLogin := "Belum pernah"
@@ -336,7 +336,7 @@ func (h *AdminHandler) handleUsersSettings(w http.ResponseWriter, r *http.Reques
 			Email:        u.Email,
 			Role:         u.Role,
 			Supervisor:   supervisor,
-			SupervisorID: supervisorID,
+			IDSupervisor: supervisorID,
 			Status:       status,
 			LastLogin:    lastLogin,
 		}
@@ -470,8 +470,8 @@ func (h *AdminHandler) renderUserRow(w http.ResponseWriter, r *http.Request, use
 			}
 
 			supervisorID := ""
-			if u.SupervisorID != nil {
-				supervisorID = *u.SupervisorID
+			if u.IDSupervisor != nil {
+				supervisorID = *u.IDSupervisor
 			}
 
 			lastLogin := "Belum pernah"
@@ -485,7 +485,7 @@ func (h *AdminHandler) renderUserRow(w http.ResponseWriter, r *http.Request, use
 				Email:        u.Email,
 				Role:         u.Role,
 				Supervisor:   supervisor,
-				SupervisorID: supervisorID,
+				IDSupervisor: supervisorID,
 				Status:       status,
 				LastLogin:    lastLogin,
 			}
@@ -710,8 +710,8 @@ func (h *AdminHandler) handleFeesSettings(w http.ResponseWriter, r *http.Request
 		prodiID := ""
 		prodiName := ""
 		prodiCode := ""
-		if f.ProdiID != nil {
-			prodiID = *f.ProdiID
+		if f.IDProdi != nil {
+			prodiID = *f.IDProdi
 		}
 		if f.ProdiName != nil {
 			prodiName = *f.ProdiName
@@ -721,10 +721,10 @@ func (h *AdminHandler) handleFeesSettings(w http.ResponseWriter, r *http.Request
 		}
 		feeStructures[i] = admin.FeeStructureItem{
 			ID:           f.ID,
-			FeeTypeID:    f.FeeTypeID,
+			IDFeeType:    f.IDFeeType,
 			FeeTypeName:  f.FeeTypeName,
 			FeeTypeCode:  f.FeeTypeCode,
-			ProdiID:      prodiID,
+			IDProdi:      prodiID,
 			ProdiName:    prodiName,
 			ProdiCode:    prodiCode,
 			AcademicYear: f.AcademicYear,
@@ -880,7 +880,7 @@ func (h *AdminHandler) renderFeeRow(w http.ResponseWriter, r *http.Request, feeI
 	}
 
 	// Fetch fee type
-	feeType, err := model.FindFeeTypeByID(r.Context(), fee.FeeTypeID)
+	feeType, err := model.FindFeeTypeByID(r.Context(), fee.IDFeeType)
 	if err != nil {
 		slog.Error("failed to find fee type", "error", err)
 		http.Error(w, "Failed to load fee type", http.StatusInternalServerError)
@@ -890,9 +890,9 @@ func (h *AdminHandler) renderFeeRow(w http.ResponseWriter, r *http.Request, feeI
 	// Fetch prodi if exists
 	var prodiName, prodiCode string
 	var prodiID string
-	if fee.ProdiID != nil {
-		prodiID = *fee.ProdiID
-		prodi, err := model.FindProdiByID(r.Context(), *fee.ProdiID)
+	if fee.IDProdi != nil {
+		prodiID = *fee.IDProdi
+		prodi, err := model.FindProdiByID(r.Context(), *fee.IDProdi)
 		if err != nil {
 			slog.Error("failed to find prodi", "error", err)
 		} else if prodi != nil {
@@ -932,10 +932,10 @@ func (h *AdminHandler) renderFeeRow(w http.ResponseWriter, r *http.Request, feeI
 
 	item := admin.FeeStructureItem{
 		ID:           fee.ID,
-		FeeTypeID:    fee.FeeTypeID,
+		IDFeeType:    fee.IDFeeType,
 		FeeTypeName:  feeType.Name,
 		FeeTypeCode:  feeType.Code,
-		ProdiID:      prodiID,
+		IDProdi:      prodiID,
 		ProdiName:    prodiName,
 		ProdiCode:    prodiCode,
 		AcademicYear: fee.AcademicYear,

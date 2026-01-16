@@ -11,8 +11,8 @@ import (
 // FeeStructure represents fee amount per type, prodi, and academic year
 type FeeStructure struct {
 	ID           string    `json:"id"`
-	FeeTypeID    string    `json:"fee_type_id"`
-	ProdiID      *string   `json:"prodi_id,omitempty"`
+	IDFeeType    string    `json:"id_fee_type"`
+	IDProdi      *string   `json:"id_prodi,omitempty"`
 	AcademicYear string    `json:"academic_year"`
 	Amount       int64     `json:"amount"`
 	IsActive     bool      `json:"is_active"`
@@ -33,11 +33,11 @@ type FeeStructureWithDetails struct {
 func CreateFeeStructure(ctx context.Context, feeTypeID string, prodiID *string, academicYear string, amount int64) (*FeeStructure, error) {
 	var fs FeeStructure
 	err := pool.QueryRow(ctx, `
-		INSERT INTO fee_structures (fee_type_id, prodi_id, academic_year, amount)
+		INSERT INTO fee_structures (id_fee_type, id_prodi, academic_year, amount)
 		VALUES ($1, $2, $3, $4)
-		RETURNING id, fee_type_id, prodi_id, academic_year, amount, is_active, created_at, updated_at
+		RETURNING id, id_fee_type, id_prodi, academic_year, amount, is_active, created_at, updated_at
 	`, feeTypeID, prodiID, academicYear, amount).Scan(
-		&fs.ID, &fs.FeeTypeID, &fs.ProdiID, &fs.AcademicYear, &fs.Amount,
+		&fs.ID, &fs.IDFeeType, &fs.IDProdi, &fs.AcademicYear, &fs.Amount,
 		&fs.IsActive, &fs.CreatedAt, &fs.UpdatedAt,
 	)
 	if err != nil {
@@ -50,10 +50,10 @@ func CreateFeeStructure(ctx context.Context, feeTypeID string, prodiID *string, 
 func FindFeeStructureByID(ctx context.Context, id string) (*FeeStructure, error) {
 	var fs FeeStructure
 	err := pool.QueryRow(ctx, `
-		SELECT id, fee_type_id, prodi_id, academic_year, amount, is_active, created_at, updated_at
+		SELECT id, id_fee_type, id_prodi, academic_year, amount, is_active, created_at, updated_at
 		FROM fee_structures WHERE id = $1
 	`, id).Scan(
-		&fs.ID, &fs.FeeTypeID, &fs.ProdiID, &fs.AcademicYear, &fs.Amount,
+		&fs.ID, &fs.IDFeeType, &fs.IDProdi, &fs.AcademicYear, &fs.Amount,
 		&fs.IsActive, &fs.CreatedAt, &fs.UpdatedAt,
 	)
 	if err == pgx.ErrNoRows {
@@ -73,22 +73,22 @@ func FindFeeByTypeProdiYear(ctx context.Context, feeTypeID string, prodiID *stri
 
 	if prodiID == nil {
 		query = `
-			SELECT id, fee_type_id, prodi_id, academic_year, amount, is_active, created_at, updated_at
+			SELECT id, id_fee_type, id_prodi, academic_year, amount, is_active, created_at, updated_at
 			FROM fee_structures
-			WHERE fee_type_id = $1 AND prodi_id IS NULL AND academic_year = $2 AND is_active = true
+			WHERE id_fee_type = $1 AND id_prodi IS NULL AND academic_year = $2 AND is_active = true
 		`
 		args = []interface{}{feeTypeID, academicYear}
 	} else {
 		query = `
-			SELECT id, fee_type_id, prodi_id, academic_year, amount, is_active, created_at, updated_at
+			SELECT id, id_fee_type, id_prodi, academic_year, amount, is_active, created_at, updated_at
 			FROM fee_structures
-			WHERE fee_type_id = $1 AND prodi_id = $2 AND academic_year = $3 AND is_active = true
+			WHERE id_fee_type = $1 AND id_prodi = $2 AND academic_year = $3 AND is_active = true
 		`
 		args = []interface{}{feeTypeID, *prodiID, academicYear}
 	}
 
 	err := pool.QueryRow(ctx, query, args...).Scan(
-		&fs.ID, &fs.FeeTypeID, &fs.ProdiID, &fs.AcademicYear, &fs.Amount,
+		&fs.ID, &fs.IDFeeType, &fs.IDProdi, &fs.AcademicYear, &fs.Amount,
 		&fs.IsActive, &fs.CreatedAt, &fs.UpdatedAt,
 	)
 	if err == pgx.ErrNoRows {
@@ -103,13 +103,13 @@ func FindFeeByTypeProdiYear(ctx context.Context, feeTypeID string, prodiID *stri
 // ListFeeStructures returns all fee structures with details
 func ListFeeStructures(ctx context.Context, academicYear string, activeOnly bool) ([]FeeStructureWithDetails, error) {
 	query := `
-		SELECT fs.id, fs.fee_type_id, fs.prodi_id, fs.academic_year, fs.amount, fs.is_active,
+		SELECT fs.id, fs.id_fee_type, fs.id_prodi, fs.academic_year, fs.amount, fs.is_active,
 			   fs.created_at, fs.updated_at,
 			   ft.name as fee_type_name, ft.code as fee_type_code,
 			   p.name as prodi_name, p.code as prodi_code
 		FROM fee_structures fs
-		JOIN fee_types ft ON fs.fee_type_id = ft.id
-		LEFT JOIN prodis p ON fs.prodi_id = p.id
+		JOIN fee_types ft ON fs.id_fee_type = ft.id
+		LEFT JOIN prodis p ON fs.id_prodi = p.id
 		WHERE 1=1
 	`
 	args := []interface{}{}
@@ -137,7 +137,7 @@ func ListFeeStructures(ctx context.Context, academicYear string, activeOnly bool
 	for rows.Next() {
 		var fs FeeStructureWithDetails
 		err := rows.Scan(
-			&fs.ID, &fs.FeeTypeID, &fs.ProdiID, &fs.AcademicYear, &fs.Amount,
+			&fs.ID, &fs.IDFeeType, &fs.IDProdi, &fs.AcademicYear, &fs.Amount,
 			&fs.IsActive, &fs.CreatedAt, &fs.UpdatedAt,
 			&fs.FeeTypeName, &fs.FeeTypeCode, &fs.ProdiName, &fs.ProdiCode,
 		)
