@@ -12,28 +12,28 @@ export class AdminPage extends BasePage {
     return this.page.getByTestId('nav-dashboard');
   }
 
-  get navProspects(): Locator {
-    return this.page.getByTestId('nav-prospects');
+  get navCandidates(): Locator {
+    return this.page.getByTestId('nav-candidates');
   }
 
-  get navApplications(): Locator {
-    return this.page.getByTestId('nav-applications');
-  }
-
-  get navReferrers(): Locator {
-    return this.page.getByTestId('nav-referrers');
+  get navDocuments(): Locator {
+    return this.page.getByTestId('nav-documents');
   }
 
   get navCampaigns(): Locator {
     return this.page.getByTestId('nav-campaigns');
   }
 
-  get navReports(): Locator {
-    return this.page.getByTestId('nav-reports');
+  get navReferrers(): Locator {
+    return this.page.getByTestId('nav-referrers');
   }
 
-  get navSettings(): Locator {
-    return this.page.getByTestId('nav-settings');
+  get navUsers(): Locator {
+    return this.page.getByTestId('nav-users');
+  }
+
+  get navPrograms(): Locator {
+    return this.page.getByTestId('nav-programs');
   }
 
   async expectPageLoaded(): Promise<void> {
@@ -42,11 +42,11 @@ export class AdminPage extends BasePage {
 
   async expectNavigationVisible(): Promise<void> {
     await expect(this.navDashboard).toBeVisible();
-    await expect(this.navProspects).toBeVisible();
-    await expect(this.navApplications).toBeVisible();
-    await expect(this.navReferrers).toBeVisible();
+    await expect(this.navCandidates).toBeVisible();
+    await expect(this.navDocuments).toBeVisible();
     await expect(this.navCampaigns).toBeVisible();
-    await expect(this.navReports).toBeVisible();
-    await expect(this.navSettings).toBeVisible();
+    await expect(this.navReferrers).toBeVisible();
+    await expect(this.navUsers).toBeVisible();
+    await expect(this.navPrograms).toBeVisible();
   }
 }
