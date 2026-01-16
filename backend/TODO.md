@@ -213,8 +213,8 @@ Phase 2 - Configuration (DONE):
   012_create_referrers.sql            ✅
 
 Phase 2.5 - Remaining Configuration:
-  013_create_assignment_algorithms.sql
-  014_create_document_types.sql
+  013_create_assignment_algorithms.sql  ✅
+  014_create_document_types.sql         ✅
   015_create_lost_reasons.sql
 
 Phase 3 - Candidates:
@@ -469,18 +469,18 @@ Configure consultant assignment algorithm.
 
 ---
 
-## Feature 13: Settings - Document Types
+## Feature 13: Settings - Document Types ✅
 
 Configure required documents.
 
-**Migrations:** 014_create_document_types
+**Migrations:** 014_create_document_types ✅
 
-- [ ] `model/document_type.go` - CRUD, ListActive
-- [ ] `templates/admin/settings/documents.templ` - Document type list
-- [ ] `handler/admin.go` - CRUD /admin/settings/document-types
-- [ ] Fields: name, is_required, can_defer, max_file_size_mb
-- [ ] Seed: KTP (required), Photo (required), Ijazah (required, can_defer), Transcript (required, can_defer)
-- [ ] Test: CRUD operations
+- [x] `model/document_type.go` - CRUD, ListActive
+- [x] `templates/admin/settings_documents.templ` - Document type list with HTMX
+- [x] `handler/admin.go` - CRUD /admin/settings/document-types
+- [x] Fields: name, code, description, is_required, can_defer, max_file_size_mb, display_order
+- [x] Seed: KTP (required), Photo (required), Ijazah (required, can_defer), Transcript (required, can_defer)
+- [x] Playwright E2E tests: CRUD, toggle status with database persistence
 
 ---
 
