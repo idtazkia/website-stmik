@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/idtazkia/stmik-admission-api/auth"
@@ -75,7 +76,21 @@ func (h *AdminHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.Handle("POST /admin/settings/fees", protected(h.handleCreateFeeStructure))
 	mux.Handle("POST /admin/settings/fees/{id}", protected(h.handleUpdateFeeStructure))
 	mux.Handle("POST /admin/settings/fees/{id}/toggle-active", protected(h.handleToggleFeeStructureActive))
+	mux.Handle("GET /admin/settings/campaigns", protected(h.handleCampaignsSettings))
+	mux.Handle("POST /admin/settings/campaigns", protected(h.handleCreateCampaign))
+	mux.Handle("POST /admin/settings/campaigns/{id}", protected(h.handleUpdateCampaign))
+	mux.Handle("POST /admin/settings/campaigns/{id}/toggle-active", protected(h.handleToggleCampaignActive))
 	mux.Handle("GET /admin/settings/rewards", protected(h.handleRewardsSettings))
+	mux.Handle("POST /admin/settings/rewards", protected(h.handleCreateRewardConfig))
+	mux.Handle("POST /admin/settings/rewards/{id}", protected(h.handleUpdateRewardConfig))
+	mux.Handle("POST /admin/settings/rewards/{id}/toggle-active", protected(h.handleToggleRewardConfigActive))
+	mux.Handle("POST /admin/settings/mgm-rewards", protected(h.handleCreateMGMRewardConfig))
+	mux.Handle("POST /admin/settings/mgm-rewards/{id}", protected(h.handleUpdateMGMRewardConfig))
+	mux.Handle("POST /admin/settings/mgm-rewards/{id}/toggle-active", protected(h.handleToggleMGMRewardConfigActive))
+	mux.Handle("GET /admin/settings/referrers", protected(h.handleReferrersSettings))
+	mux.Handle("POST /admin/settings/referrers", protected(h.handleCreateReferrer))
+	mux.Handle("POST /admin/settings/referrers/{id}", protected(h.handleUpdateReferrer))
+	mux.Handle("POST /admin/settings/referrers/{id}/toggle-active", protected(h.handleToggleReferrerActive))
 }
 
 func (h *AdminHandler) handleDashboard(w http.ResponseWriter, r *http.Request) {
@@ -190,25 +205,21 @@ func (h *AdminHandler) handleCandidateDetail(w http.ResponseWriter, r *http.Requ
 // Placeholder handlers - will be implemented later
 func (h *AdminHandler) handleCampaigns(w http.ResponseWriter, r *http.Request) {
 	data := NewPageDataWithUser(r.Context(),"Kampanye")
+	// Temporary: redirect to settings campaigns page
+	// TODO: Implement proper campaigns dashboard page
 	campaigns := []admin.CampaignItem{
-		{ID: "1", Name: "Promo Early Bird", Type: "promo", Channel: "all", Period: "1 Jan - 28 Feb 2026", FeeOverride: "Gratis", Status: "active", Leads: "45", Enrolled: "12", Conversion: "26.7%"},
-		{ID: "2", Name: "Education Expo Jakarta", Type: "event", Channel: "expo", Period: "15-17 Jan 2026", FeeOverride: "", Status: "active", Leads: "38", Enrolled: "10", Conversion: "26.3%"},
-		{ID: "3", Name: "Instagram Ads Q1", Type: "ads", Channel: "instagram", Period: "1 Jan - 31 Mar 2026", FeeOverride: "", Status: "active", Leads: "52", Enrolled: "8", Conversion: "15.4%"},
-		{ID: "4", Name: "Kunjungan Sekolah Q1", Type: "event", Channel: "school_visit", Period: "6 Jan - 31 Mar 2026", FeeOverride: "", Status: "active", Leads: "28", Enrolled: "12", Conversion: "42.9%"},
-		{ID: "5", Name: "Google Ads Q4 2025", Type: "ads", Channel: "google", Period: "1 Oct - 31 Dec 2025", FeeOverride: "", Status: "ended", Leads: "35", Enrolled: "8", Conversion: "22.9%"},
+		{ID: "1", Name: "Promo Early Bird", Type: "promo", Channel: "instagram", StartDate: "2026-01-01", EndDate: "2026-02-28", FeeOverrideStr: "Gratis", IsActive: true},
+		{ID: "2", Name: "Education Expo Jakarta", Type: "event", Channel: "expo", StartDate: "2026-01-15", EndDate: "2026-01-17", IsActive: true},
+		{ID: "3", Name: "Instagram Ads Q1", Type: "ads", Channel: "instagram", StartDate: "2026-01-01", EndDate: "2026-03-31", IsActive: true},
+		{ID: "4", Name: "Kunjungan Sekolah Q1", Type: "event", Channel: "school_visit", StartDate: "2026-01-06", EndDate: "2026-03-31", IsActive: true},
+		{ID: "5", Name: "Google Ads Q4 2025", Type: "ads", Channel: "google", StartDate: "2025-10-01", EndDate: "2025-12-31", IsActive: false},
 	}
 	admin.SettingsCampaigns(data, campaigns).Render(r.Context(), w)
 }
 
 func (h *AdminHandler) handleReferrers(w http.ResponseWriter, r *http.Request) {
-	data := NewPageDataWithUser(r.Context(),"Referrer")
-	referrers := []admin.ReferrerItem{
-		{ID: "1", Name: "Pak Ahmad Fauzi", Type: "guru", Institution: "SMAN 1 Bogor", Phone: "081234567890", Code: "REF-AF01", Commission: "Rp 750.000", Referrals: "8", Enrolled: "5", TotalEarned: "Rp 3.750.000", Status: "active"},
-		{ID: "2", Name: "Siti Nurhaliza", Type: "alumni", Institution: "STMIK Tazkia 2022", Phone: "081234567891", Code: "REF-SN02", Commission: "Rp 500.000", Referrals: "4", Enrolled: "2", TotalEarned: "Rp 1.000.000", Status: "active"},
-		{ID: "3", Name: "PT Edutech Indonesia", Type: "partner", Institution: "Bimbel Edutech", Phone: "021-7654321", Code: "REF-EDU", Commission: "Rp 1.000.000", Referrals: "12", Enrolled: "6", TotalEarned: "Rp 6.000.000", Status: "active"},
-		{ID: "4", Name: "Budi Santoso", Type: "staff", Institution: "STMIK Tazkia", Phone: "081234567893", Code: "REF-BS04", Commission: "Rp 250.000", Referrals: "3", Enrolled: "2", TotalEarned: "Rp 500.000", Status: "active"},
-	}
-	admin.SettingsReferrers(data, referrers).Render(r.Context(), w)
+	// Redirect to settings page for referrers management
+	h.handleReferrersSettings(w, r)
 }
 
 func (h *AdminHandler) handleReferralClaims(w http.ResponseWriter, r *http.Request) {
@@ -935,10 +946,75 @@ func (h *AdminHandler) renderFeeRow(w http.ResponseWriter, r *http.Request, feeI
 }
 
 func (h *AdminHandler) handleRewardsSettings(w http.ResponseWriter, r *http.Request) {
-	data := NewPageDataWithUser(r.Context(),"Reward")
-	w.Header().Set("Content-Type", "text/html")
-	w.Write([]byte(`<html><body><h1>Reward - Coming Soon</h1><a href="/admin">Back to Dashboard</a></body></html>`))
-	_ = data
+	data := NewPageDataWithUser(r.Context(), "Konfigurasi Reward")
+
+	// Fetch reward configs from database
+	dbRewards, err := model.ListRewardConfigs(r.Context())
+	if err != nil {
+		slog.Error("failed to list reward configs", "error", err)
+		http.Error(w, "Failed to load reward configs", http.StatusInternalServerError)
+		return
+	}
+
+	// Convert to template type
+	rewards := make([]admin.RewardConfigItem, len(dbRewards))
+	for i, r := range dbRewards {
+		amountStr := formatRupiah(r.Amount)
+		if r.IsPercentage {
+			amountStr = fmt.Sprintf("%d%%", r.Amount)
+		}
+		description := ""
+		if r.Description != nil {
+			description = *r.Description
+		}
+		rewards[i] = admin.RewardConfigItem{
+			ID:           r.ID,
+			ReferrerType: r.ReferrerType,
+			RewardType:   r.RewardType,
+			Amount:       r.Amount,
+			AmountStr:    amountStr,
+			IsPercentage: r.IsPercentage,
+			TriggerEvent: r.TriggerEvent,
+			Description:  description,
+			IsActive:     r.IsActive,
+		}
+	}
+
+	// Fetch MGM reward configs from database
+	dbMGMRewards, err := model.ListMGMRewardConfigs(r.Context())
+	if err != nil {
+		slog.Error("failed to list MGM reward configs", "error", err)
+		http.Error(w, "Failed to load MGM reward configs", http.StatusInternalServerError)
+		return
+	}
+
+	// Convert to template type
+	mgmRewards := make([]admin.MGMRewardConfigItem, len(dbMGMRewards))
+	for i, m := range dbMGMRewards {
+		referrerStr := formatRupiah(m.ReferrerAmount)
+		refereeStr := ""
+		if m.RefereeAmount != nil {
+			refereeStr = formatRupiah(*m.RefereeAmount)
+		}
+		description := ""
+		if m.Description != nil {
+			description = *m.Description
+		}
+		mgmRewards[i] = admin.MGMRewardConfigItem{
+			ID:             m.ID,
+			AcademicYear:   m.AcademicYear,
+			RewardType:     m.RewardType,
+			ReferrerAmount: m.ReferrerAmount,
+			ReferrerStr:    referrerStr,
+			RefereeAmount:  m.RefereeAmount,
+			RefereeStr:     refereeStr,
+			TriggerEvent:   m.TriggerEvent,
+			Description:    description,
+			IsActive:       m.IsActive,
+		}
+	}
+
+	admin.SettingsRewards(data, rewards, mgmRewards).Render(r.Context(), w)
 }
 
 func (h *AdminHandler) handleCategoriesSettings(w http.ResponseWriter, r *http.Request) {
@@ -1298,4 +1374,869 @@ func (h *AdminHandler) handleDocumentReview(w http.ResponseWriter, r *http.Reque
 	}
 
 	admin.DocumentReviewList(data, filter, documents, stats).Render(r.Context(), w)
+}
+
+// Campaign Settings Handlers
+
+func (h *AdminHandler) handleCampaignsSettings(w http.ResponseWriter, r *http.Request) {
+	data := NewPageDataWithUser(r.Context(), "Kampanye")
+
+	// Fetch campaigns from database
+	dbCampaigns, err := model.ListCampaigns(r.Context(), false)
+	if err != nil {
+		slog.Error("failed to list campaigns", "error", err)
+		http.Error(w, "Failed to load campaigns", http.StatusInternalServerError)
+		return
+	}
+
+	// Convert to template type
+	campaigns := make([]admin.CampaignItem, len(dbCampaigns))
+	for i, c := range dbCampaigns {
+		var channel, description string
+		if c.Channel != nil {
+			channel = *c.Channel
+		}
+		if c.Description != nil {
+			description = *c.Description
+		}
+
+		startDate := ""
+		endDate := ""
+		if c.StartDate != nil {
+			startDate = c.StartDate.Format("2006-01-02")
+		}
+		if c.EndDate != nil {
+			endDate = c.EndDate.Format("2006-01-02")
+		}
+
+		feeOverrideStr := ""
+		if c.RegistrationFeeOverride != nil {
+			feeOverrideStr = formatRupiah(*c.RegistrationFeeOverride)
+		}
+
+		campaigns[i] = admin.CampaignItem{
+			ID:                      c.ID,
+			Name:                    c.Name,
+			Type:                    c.Type,
+			Channel:                 channel,
+			Description:             description,
+			StartDate:               startDate,
+			EndDate:                 endDate,
+			RegistrationFeeOverride: c.RegistrationFeeOverride,
+			FeeOverrideStr:          feeOverrideStr,
+			IsActive:                c.IsActive,
+		}
+	}
+
+	admin.SettingsCampaigns(data, campaigns).Render(r.Context(), w)
+}
+
+func (h *AdminHandler) handleCreateCampaign(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		slog.Error("failed to parse form", "error", err)
+		http.Error(w, "Invalid form data", http.StatusBadRequest)
+		return
+	}
+
+	name := r.FormValue("name")
+	campaignType := r.FormValue("type")
+	channel := r.FormValue("channel")
+	description := r.FormValue("description")
+	startDateStr := r.FormValue("start_date")
+	endDateStr := r.FormValue("end_date")
+	feeOverrideStr := r.FormValue("registration_fee_override")
+
+	if name == "" || campaignType == "" {
+		http.Error(w, "Name and type are required", http.StatusBadRequest)
+		return
+	}
+
+	var channelPtr, descPtr *string
+	if channel != "" {
+		channelPtr = &channel
+	}
+	if description != "" {
+		descPtr = &description
+	}
+
+	var startDate, endDate *time.Time
+	if startDateStr != "" {
+		t, err := time.Parse("2006-01-02", startDateStr)
+		if err == nil {
+			startDate = &t
+		}
+	}
+	if endDateStr != "" {
+		t, err := time.Parse("2006-01-02", endDateStr)
+		if err == nil {
+			endDate = &t
+		}
+	}
+
+	var feeOverride *int64
+	if feeOverrideStr != "" {
+		var fee int64
+		if _, err := fmt.Sscanf(feeOverrideStr, "%d", &fee); err == nil {
+			feeOverride = &fee
+		}
+	}
+
+	campaign, err := model.CreateCampaign(r.Context(), name, campaignType, channelPtr, descPtr, startDate, endDate, feeOverride)
+	if err != nil {
+		slog.Error("failed to create campaign", "error", err)
+		http.Error(w, "Failed to create campaign", http.StatusInternalServerError)
+		return
+	}
+
+	slog.Info("campaign created", "campaign_id", campaign.ID)
+
+	// Return new campaign row
+	h.renderCampaignRow(w, r, campaign.ID)
+}
+
+func (h *AdminHandler) handleUpdateCampaign(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+
+	if err := r.ParseForm(); err != nil {
+		slog.Error("failed to parse form", "error", err)
+		http.Error(w, "Invalid form data", http.StatusBadRequest)
+		return
+	}
+
+	name := r.FormValue("name")
+	campaignType := r.FormValue("type")
+	channel := r.FormValue("channel")
+	description := r.FormValue("description")
+	startDateStr := r.FormValue("start_date")
+	endDateStr := r.FormValue("end_date")
+	feeOverrideStr := r.FormValue("registration_fee_override")
+
+	if name == "" || campaignType == "" {
+		http.Error(w, "Name and type are required", http.StatusBadRequest)
+		return
+	}
+
+	var channelPtr, descPtr *string
+	if channel != "" {
+		channelPtr = &channel
+	}
+	if description != "" {
+		descPtr = &description
+	}
+
+	var startDate, endDate *time.Time
+	if startDateStr != "" {
+		t, err := time.Parse("2006-01-02", startDateStr)
+		if err == nil {
+			startDate = &t
+		}
+	}
+	if endDateStr != "" {
+		t, err := time.Parse("2006-01-02", endDateStr)
+		if err == nil {
+			endDate = &t
+		}
+	}
+
+	var feeOverride *int64
+	if feeOverrideStr != "" {
+		var fee int64
+		if _, err := fmt.Sscanf(feeOverrideStr, "%d", &fee); err == nil {
+			feeOverride = &fee
+		}
+	}
+
+	if err := model.UpdateCampaign(r.Context(), id, name, campaignType, channelPtr, descPtr, startDate, endDate, feeOverride); err != nil {
+		slog.Error("failed to update campaign", "error", err, "campaign_id", id)
+		http.Error(w, "Failed to update campaign", http.StatusInternalServerError)
+		return
+	}
+
+	slog.Info("campaign updated", "campaign_id", id)
+
+	// Return updated campaign row
+	h.renderCampaignRow(w, r, id)
+}
+
+func (h *AdminHandler) handleToggleCampaignActive(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+
+	if err := model.ToggleCampaignActive(r.Context(), id); err != nil {
+		slog.Error("failed to toggle campaign active", "error", err, "campaign_id", id)
+		http.Error(w, "Failed to toggle status", http.StatusInternalServerError)
+		return
+	}
+
+	slog.Info("campaign active status toggled", "campaign_id", id)
+
+	// Return updated campaign row
+	h.renderCampaignRow(w, r, id)
+}
+
+func (h *AdminHandler) renderCampaignRow(w http.ResponseWriter, r *http.Request, campaignID string) {
+	campaign, err := model.FindCampaignByID(r.Context(), campaignID)
+	if err != nil {
+		slog.Error("failed to find campaign", "error", err)
+		http.Error(w, "Failed to load campaign", http.StatusInternalServerError)
+		return
+	}
+
+	if campaign == nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	var channel, description string
+	if campaign.Channel != nil {
+		channel = *campaign.Channel
+	}
+	if campaign.Description != nil {
+		description = *campaign.Description
+	}
+
+	startDate := ""
+	endDate := ""
+	if campaign.StartDate != nil {
+		startDate = campaign.StartDate.Format("2006-01-02")
+	}
+	if campaign.EndDate != nil {
+		endDate = campaign.EndDate.Format("2006-01-02")
+	}
+
+	feeOverrideStr := ""
+	if campaign.RegistrationFeeOverride != nil {
+		feeOverrideStr = formatRupiah(*campaign.RegistrationFeeOverride)
+	}
+
+	item := admin.CampaignItem{
+		ID:                      campaign.ID,
+		Name:                    campaign.Name,
+		Type:                    campaign.Type,
+		Channel:                 channel,
+		Description:             description,
+		StartDate:               startDate,
+		EndDate:                 endDate,
+		RegistrationFeeOverride: campaign.RegistrationFeeOverride,
+		FeeOverrideStr:          feeOverrideStr,
+		IsActive:                campaign.IsActive,
+	}
+
+	admin.CampaignRow(item).Render(r.Context(), w)
+}
+
+// Reward Config Handlers
+
+func (h *AdminHandler) handleCreateRewardConfig(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Invalid form data", http.StatusBadRequest)
+		return
+	}
+
+	referrerType := r.FormValue("referrer_type")
+	rewardType := r.FormValue("reward_type")
+	amountStr := r.FormValue("amount")
+	isPercentage := r.FormValue("is_percentage") == "on"
+	triggerEvent := r.FormValue("trigger_event")
+	descriptionStr := r.FormValue("description")
+
+	amount, err := strconv.ParseInt(amountStr, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid amount", http.StatusBadRequest)
+		return
+	}
+
+	var description *string
+	if descriptionStr != "" {
+		description = &descriptionStr
+	}
+
+	reward, err := model.CreateRewardConfig(r.Context(), referrerType, rewardType, amount, isPercentage, triggerEvent, description)
+	if err != nil {
+		slog.Error("failed to create reward config", "error", err)
+		http.Error(w, "Failed to create reward config", http.StatusInternalServerError)
+		return
+	}
+
+	slog.Info("reward config created", "reward_id", reward.ID)
+	h.renderRewardCard(w, r, reward)
+}
+
+func (h *AdminHandler) handleUpdateRewardConfig(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	if id == "" {
+		http.Error(w, "Missing reward ID", http.StatusBadRequest)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Invalid form data", http.StatusBadRequest)
+		return
+	}
+
+	referrerType := r.FormValue("referrer_type")
+	rewardType := r.FormValue("reward_type")
+	amountStr := r.FormValue("amount")
+	isPercentage := r.FormValue("is_percentage") == "on"
+	triggerEvent := r.FormValue("trigger_event")
+	descriptionStr := r.FormValue("description")
+
+	amount, err := strconv.ParseInt(amountStr, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid amount", http.StatusBadRequest)
+		return
+	}
+
+	var description *string
+	if descriptionStr != "" {
+		description = &descriptionStr
+	}
+
+	err = model.UpdateRewardConfig(r.Context(), id, referrerType, rewardType, amount, isPercentage, triggerEvent, description)
+	if err != nil {
+		slog.Error("failed to update reward config", "error", err)
+		http.Error(w, "Failed to update reward config", http.StatusInternalServerError)
+		return
+	}
+
+	slog.Info("reward config updated", "reward_id", id)
+
+	// Fetch updated reward and render
+	reward, err := model.FindRewardConfigByID(r.Context(), id)
+	if err != nil || reward == nil {
+		http.Error(w, "Failed to fetch updated reward", http.StatusInternalServerError)
+		return
+	}
+
+	h.renderRewardCard(w, r, reward)
+}
+
+func (h *AdminHandler) handleToggleRewardConfigActive(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	if id == "" {
+		http.Error(w, "Missing reward ID", http.StatusBadRequest)
+		return
+	}
+
+	err := model.ToggleRewardConfigActive(r.Context(), id)
+	if err != nil {
+		slog.Error("failed to toggle reward config active", "error", err)
+		http.Error(w, "Failed to toggle reward status", http.StatusInternalServerError)
+		return
+	}
+
+	slog.Info("reward config active status toggled", "reward_id", id)
+
+	// Fetch updated reward and render
+	reward, err := model.FindRewardConfigByID(r.Context(), id)
+	if err != nil || reward == nil {
+		http.Error(w, "Failed to fetch updated reward", http.StatusInternalServerError)
+		return
+	}
+
+	h.renderRewardCard(w, r, reward)
+}
+
+func (h *AdminHandler) renderRewardCard(w http.ResponseWriter, r *http.Request, reward *model.RewardConfig) {
+	amountStr := formatRupiah(reward.Amount)
+	if reward.IsPercentage {
+		amountStr = fmt.Sprintf("%d%%", reward.Amount)
+	}
+	description := ""
+	if reward.Description != nil {
+		description = *reward.Description
+	}
+
+	item := admin.RewardConfigItem{
+		ID:           reward.ID,
+		ReferrerType: reward.ReferrerType,
+		RewardType:   reward.RewardType,
+		Amount:       reward.Amount,
+		AmountStr:    amountStr,
+		IsPercentage: reward.IsPercentage,
+		TriggerEvent: reward.TriggerEvent,
+		Description:  description,
+		IsActive:     reward.IsActive,
+	}
+
+	admin.RewardCard(item).Render(r.Context(), w)
+}
+
+// MGM Reward Config Handlers
+
+func (h *AdminHandler) handleCreateMGMRewardConfig(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Invalid form data", http.StatusBadRequest)
+		return
+	}
+
+	academicYear := r.FormValue("academic_year")
+	rewardType := r.FormValue("reward_type")
+	referrerAmountStr := r.FormValue("referrer_amount")
+	refereeAmountStr := r.FormValue("referee_amount")
+	triggerEvent := r.FormValue("trigger_event")
+	descriptionStr := r.FormValue("description")
+
+	referrerAmount, err := strconv.ParseInt(referrerAmountStr, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid referrer amount", http.StatusBadRequest)
+		return
+	}
+
+	var refereeAmount *int64
+	if refereeAmountStr != "" {
+		amt, err := strconv.ParseInt(refereeAmountStr, 10, 64)
+		if err != nil {
+			http.Error(w, "Invalid referee amount", http.StatusBadRequest)
+			return
+		}
+		refereeAmount = &amt
+	}
+
+	var description *string
+	if descriptionStr != "" {
+		description = &descriptionStr
+	}
+
+	mgmReward, err := model.CreateMGMRewardConfig(r.Context(), academicYear, rewardType, referrerAmount, refereeAmount, triggerEvent, description)
+	if err != nil {
+		slog.Error("failed to create MGM reward config", "error", err)
+		http.Error(w, "Failed to create MGM reward config", http.StatusInternalServerError)
+		return
+	}
+
+	slog.Info("MGM reward config created", "mgm_reward_id", mgmReward.ID)
+	h.renderMGMRewardCard(w, r, mgmReward)
+}
+
+func (h *AdminHandler) handleUpdateMGMRewardConfig(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	if id == "" {
+		http.Error(w, "Missing MGM reward ID", http.StatusBadRequest)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Invalid form data", http.StatusBadRequest)
+		return
+	}
+
+	academicYear := r.FormValue("academic_year")
+	rewardType := r.FormValue("reward_type")
+	referrerAmountStr := r.FormValue("referrer_amount")
+	refereeAmountStr := r.FormValue("referee_amount")
+	triggerEvent := r.FormValue("trigger_event")
+	descriptionStr := r.FormValue("description")
+
+	referrerAmount, err := strconv.ParseInt(referrerAmountStr, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid referrer amount", http.StatusBadRequest)
+		return
+	}
+
+	var refereeAmount *int64
+	if refereeAmountStr != "" {
+		amt, err := strconv.ParseInt(refereeAmountStr, 10, 64)
+		if err != nil {
+			http.Error(w, "Invalid referee amount", http.StatusBadRequest)
+			return
+		}
+		refereeAmount = &amt
+	}
+
+	var description *string
+	if descriptionStr != "" {
+		description = &descriptionStr
+	}
+
+	err = model.UpdateMGMRewardConfig(r.Context(), id, academicYear, rewardType, referrerAmount, refereeAmount, triggerEvent, description)
+	if err != nil {
+		slog.Error("failed to update MGM reward config", "error", err)
+		http.Error(w, "Failed to update MGM reward config", http.StatusInternalServerError)
+		return
+	}
+
+	slog.Info("MGM reward config updated", "mgm_reward_id", id)
+
+	// Fetch updated MGM reward and render
+	mgmReward, err := model.FindMGMRewardConfigByID(r.Context(), id)
+	if err != nil || mgmReward == nil {
+		http.Error(w, "Failed to fetch updated MGM reward", http.StatusInternalServerError)
+		return
+	}
+
+	h.renderMGMRewardCard(w, r, mgmReward)
+}
+
+func (h *AdminHandler) handleToggleMGMRewardConfigActive(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	if id == "" {
+		http.Error(w, "Missing MGM reward ID", http.StatusBadRequest)
+		return
+	}
+
+	err := model.ToggleMGMRewardConfigActive(r.Context(), id)
+	if err != nil {
+		slog.Error("failed to toggle MGM reward config active", "error", err)
+		http.Error(w, "Failed to toggle MGM reward status", http.StatusInternalServerError)
+		return
+	}
+
+	slog.Info("MGM reward config active status toggled", "mgm_reward_id", id)
+
+	// Fetch updated MGM reward and render
+	mgmReward, err := model.FindMGMRewardConfigByID(r.Context(), id)
+	if err != nil || mgmReward == nil {
+		http.Error(w, "Failed to fetch updated MGM reward", http.StatusInternalServerError)
+		return
+	}
+
+	h.renderMGMRewardCard(w, r, mgmReward)
+}
+
+func (h *AdminHandler) renderMGMRewardCard(w http.ResponseWriter, r *http.Request, mgmReward *model.MGMRewardConfig) {
+	referrerStr := formatRupiah(mgmReward.ReferrerAmount)
+	refereeStr := ""
+	if mgmReward.RefereeAmount != nil {
+		refereeStr = formatRupiah(*mgmReward.RefereeAmount)
+	}
+	description := ""
+	if mgmReward.Description != nil {
+		description = *mgmReward.Description
+	}
+
+	item := admin.MGMRewardConfigItem{
+		ID:             mgmReward.ID,
+		AcademicYear:   mgmReward.AcademicYear,
+		RewardType:     mgmReward.RewardType,
+		ReferrerAmount: mgmReward.ReferrerAmount,
+		ReferrerStr:    referrerStr,
+		RefereeAmount:  mgmReward.RefereeAmount,
+		RefereeStr:     refereeStr,
+		TriggerEvent:   mgmReward.TriggerEvent,
+		Description:    description,
+		IsActive:       mgmReward.IsActive,
+	}
+
+	admin.MGMRewardCard(item).Render(r.Context(), w)
+}
+
+// Referrer Settings Handlers
+
+func (h *AdminHandler) handleReferrersSettings(w http.ResponseWriter, r *http.Request) {
+	data := NewPageDataWithUser(r.Context(), "Referrer")
+
+	// Fetch referrers from database
+	dbReferrers, err := model.ListReferrers(r.Context(), "")
+	if err != nil {
+		slog.Error("failed to list referrers", "error", err)
+		http.Error(w, "Failed to load referrers", http.StatusInternalServerError)
+		return
+	}
+
+	// Convert to template type
+	referrers := make([]admin.ReferrerItem, len(dbReferrers))
+	for i, ref := range dbReferrers {
+		institution := ""
+		if ref.Institution != nil {
+			institution = *ref.Institution
+		}
+		phone := ""
+		if ref.Phone != nil {
+			phone = *ref.Phone
+		}
+		email := ""
+		if ref.Email != nil {
+			email = *ref.Email
+		}
+		code := ""
+		if ref.Code != nil {
+			code = *ref.Code
+		}
+		bankName := ""
+		if ref.BankName != nil {
+			bankName = *ref.BankName
+		}
+		bankAccount := ""
+		if ref.BankAccount != nil {
+			bankAccount = *ref.BankAccount
+		}
+		accountHolder := ""
+		if ref.AccountHolder != nil {
+			accountHolder = *ref.AccountHolder
+		}
+		commissionStr := ""
+		if ref.CommissionOverride != nil {
+			commissionStr = formatRupiah(*ref.CommissionOverride)
+		}
+
+		referrers[i] = admin.ReferrerItem{
+			ID:                 ref.ID,
+			Name:               ref.Name,
+			Type:               ref.Type,
+			Institution:        institution,
+			Phone:              phone,
+			Email:              email,
+			Code:               code,
+			BankName:           bankName,
+			BankAccount:        bankAccount,
+			AccountHolder:      accountHolder,
+			CommissionOverride: ref.CommissionOverride,
+			CommissionStr:      commissionStr,
+			PayoutPreference:   ref.PayoutPreference,
+			IsActive:           ref.IsActive,
+		}
+	}
+
+	// Fetch stats
+	counts, err := model.CountReferrersByType(r.Context())
+	if err != nil {
+		slog.Error("failed to count referrers", "error", err)
+	}
+
+	stats := admin.ReferrerStats{
+		Total:   counts["total"],
+		Alumni:  counts["alumni"],
+		Teacher: counts["teacher"],
+		Student: counts["student"],
+		Partner: counts["partner"],
+		Staff:   counts["staff"],
+	}
+
+	admin.SettingsReferrers(data, referrers, stats).Render(r.Context(), w)
+}
+
+func (h *AdminHandler) handleCreateReferrer(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Invalid form data", http.StatusBadRequest)
+		return
+	}
+
+	name := r.FormValue("name")
+	referrerType := r.FormValue("type")
+	institutionStr := r.FormValue("institution")
+	phoneStr := r.FormValue("phone")
+	emailStr := r.FormValue("email")
+	codeStr := r.FormValue("code")
+	bankNameStr := r.FormValue("bank_name")
+	bankAccountStr := r.FormValue("bank_account")
+	accountHolderStr := r.FormValue("account_holder")
+	commissionOverrideStr := r.FormValue("commission_override")
+	payoutPreference := r.FormValue("payout_preference")
+
+	if name == "" || referrerType == "" {
+		http.Error(w, "Name and type are required", http.StatusBadRequest)
+		return
+	}
+
+	if payoutPreference == "" {
+		payoutPreference = "per_enrollment"
+	}
+
+	var institution, phone, email, code, bankName, bankAccount, accountHolder *string
+	if institutionStr != "" {
+		institution = &institutionStr
+	}
+	if phoneStr != "" {
+		phone = &phoneStr
+	}
+	if emailStr != "" {
+		email = &emailStr
+	}
+	if codeStr != "" {
+		code = &codeStr
+	} else {
+		// Generate referral code if not provided
+		generatedCode := model.GenerateReferralCode(name, referrerType)
+		code = &generatedCode
+	}
+	if bankNameStr != "" {
+		bankName = &bankNameStr
+	}
+	if bankAccountStr != "" {
+		bankAccount = &bankAccountStr
+	}
+	if accountHolderStr != "" {
+		accountHolder = &accountHolderStr
+	}
+
+	var commissionOverride *int64
+	if commissionOverrideStr != "" {
+		amt, err := strconv.ParseInt(commissionOverrideStr, 10, 64)
+		if err != nil {
+			http.Error(w, "Invalid commission amount", http.StatusBadRequest)
+			return
+		}
+		commissionOverride = &amt
+	}
+
+	referrer, err := model.CreateReferrer(r.Context(), name, referrerType, institution, phone, email, code, bankName, bankAccount, accountHolder, commissionOverride, payoutPreference)
+	if err != nil {
+		slog.Error("failed to create referrer", "error", err)
+		http.Error(w, "Failed to create referrer", http.StatusInternalServerError)
+		return
+	}
+
+	slog.Info("referrer created", "referrer_id", referrer.ID)
+	h.renderReferrerRow(w, r, referrer.ID)
+}
+
+func (h *AdminHandler) handleUpdateReferrer(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	if id == "" {
+		http.Error(w, "Missing referrer ID", http.StatusBadRequest)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Invalid form data", http.StatusBadRequest)
+		return
+	}
+
+	name := r.FormValue("name")
+	referrerType := r.FormValue("type")
+	institutionStr := r.FormValue("institution")
+	phoneStr := r.FormValue("phone")
+	emailStr := r.FormValue("email")
+	codeStr := r.FormValue("code")
+	bankNameStr := r.FormValue("bank_name")
+	bankAccountStr := r.FormValue("bank_account")
+	accountHolderStr := r.FormValue("account_holder")
+	commissionOverrideStr := r.FormValue("commission_override")
+	payoutPreference := r.FormValue("payout_preference")
+
+	if name == "" || referrerType == "" {
+		http.Error(w, "Name and type are required", http.StatusBadRequest)
+		return
+	}
+
+	if payoutPreference == "" {
+		payoutPreference = "per_enrollment"
+	}
+
+	var institution, phone, email, code, bankName, bankAccount, accountHolder *string
+	if institutionStr != "" {
+		institution = &institutionStr
+	}
+	if phoneStr != "" {
+		phone = &phoneStr
+	}
+	if emailStr != "" {
+		email = &emailStr
+	}
+	if codeStr != "" {
+		code = &codeStr
+	}
+	if bankNameStr != "" {
+		bankName = &bankNameStr
+	}
+	if bankAccountStr != "" {
+		bankAccount = &bankAccountStr
+	}
+	if accountHolderStr != "" {
+		accountHolder = &accountHolderStr
+	}
+
+	var commissionOverride *int64
+	if commissionOverrideStr != "" {
+		amt, err := strconv.ParseInt(commissionOverrideStr, 10, 64)
+		if err != nil {
+			http.Error(w, "Invalid commission amount", http.StatusBadRequest)
+			return
+		}
+		commissionOverride = &amt
+	}
+
+	err := model.UpdateReferrer(r.Context(), id, name, referrerType, institution, phone, email, code, bankName, bankAccount, accountHolder, commissionOverride, payoutPreference)
+	if err != nil {
+		slog.Error("failed to update referrer", "error", err)
+		http.Error(w, "Failed to update referrer", http.StatusInternalServerError)
+		return
+	}
+
+	slog.Info("referrer updated", "referrer_id", id)
+	h.renderReferrerRow(w, r, id)
+}
+
+func (h *AdminHandler) handleToggleReferrerActive(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	if id == "" {
+		http.Error(w, "Missing referrer ID", http.StatusBadRequest)
+		return
+	}
+
+	err := model.ToggleReferrerActive(r.Context(), id)
+	if err != nil {
+		slog.Error("failed to toggle referrer active", "error", err)
+		http.Error(w, "Failed to toggle referrer status", http.StatusInternalServerError)
+		return
+	}
+
+	slog.Info("referrer active status toggled", "referrer_id", id)
+	h.renderReferrerRow(w, r, id)
+}
+
+func (h *AdminHandler) renderReferrerRow(w http.ResponseWriter, r *http.Request, referrerID string) {
+	referrer, err := model.FindReferrerByID(r.Context(), referrerID)
+	if err != nil {
+		slog.Error("failed to find referrer", "error", err)
+		http.Error(w, "Failed to load referrer", http.StatusInternalServerError)
+		return
+	}
+
+	if referrer == nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	institution := ""
+	if referrer.Institution != nil {
+		institution = *referrer.Institution
+	}
+	phone := ""
+	if referrer.Phone != nil {
+		phone = *referrer.Phone
+	}
+	email := ""
+	if referrer.Email != nil {
+		email = *referrer.Email
+	}
+	code := ""
+	if referrer.Code != nil {
+		code = *referrer.Code
+	}
+	bankName := ""
+	if referrer.BankName != nil {
+		bankName = *referrer.BankName
+	}
+	bankAccount := ""
+	if referrer.BankAccount != nil {
+		bankAccount = *referrer.BankAccount
+	}
+	accountHolder := ""
+	if referrer.AccountHolder != nil {
+		accountHolder = *referrer.AccountHolder
+	}
+	commissionStr := ""
+	if referrer.CommissionOverride != nil {
+		commissionStr = formatRupiah(*referrer.CommissionOverride)
+	}
+
+	item := admin.ReferrerItem{
+		ID:                 referrer.ID,
+		Name:               referrer.Name,
+		Type:               referrer.Type,
+		Institution:        institution,
+		Phone:              phone,
+		Email:              email,
+		Code:               code,
+		BankName:           bankName,
+		BankAccount:        bankAccount,
+		AccountHolder:      accountHolder,
+		CommissionOverride: referrer.CommissionOverride,
+		CommissionStr:      commissionStr,
+		PayoutPreference:   referrer.PayoutPreference,
+		IsActive:           referrer.IsActive,
+	}
+
+	admin.ReferrerRow(item).Render(r.Context(), w)
 }
