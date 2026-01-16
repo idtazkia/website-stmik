@@ -106,4 +106,10 @@ func (h *AdminHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.Handle("POST /admin/settings/document-types", protected(h.handleCreateDocumentType))
 	mux.Handle("POST /admin/settings/document-types/{id}", protected(h.handleUpdateDocumentType))
 	mux.Handle("POST /admin/settings/document-types/{id}/toggle-active", protected(h.handleToggleDocumentTypeActive))
+
+	// Settings - Lost Reasons
+	mux.Handle("GET /admin/settings/lost-reasons", protected(h.handleLostReasonsSettings))
+	mux.Handle("POST /admin/settings/lost-reasons", protected(h.handleCreateLostReason))
+	mux.Handle("POST /admin/settings/lost-reasons/{id}", protected(h.handleUpdateLostReason))
+	mux.Handle("POST /admin/settings/lost-reasons/{id}/toggle-active", protected(h.handleToggleLostReasonActive))
 }
