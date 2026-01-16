@@ -330,35 +330,35 @@ All staff (admin, supervisor, consultant) login with domain-restricted Google.
 
 ---
 
-## Feature 5: Staff Management
+## Feature 5: Staff Management ✅
 
 Admin manages staff accounts (admin, supervisor, consultant).
 
 **Migrations:** 001_create_users ✅
 
 - [x] `model/user.go` - Create, FindByEmail, FindByGoogleID (basic)
-- [ ] `model/user.go` - List, UpdateRole, ToggleActive, SetSupervisor
-- [x] `templates/admin/settings/users.templ` - User list (mockup)
-- [ ] Wire `handler/admin.go` to real data - GET /admin/settings/users, POST update role/active
-- [ ] Roles: admin (full access), supervisor (team + suggestions), consultant (own candidates)
-- [ ] Assign supervisor to consultants (hierarchy)
-- [ ] Toggle active status (for assignment pool)
-- [ ] Test: Role changes, supervisor assignment
+- [x] `model/user.go` - List, UpdateRole, ToggleActive, SetSupervisor
+- [x] `templates/admin/settings/users.templ` - User list with HTMX inline editing
+- [x] Wire `handler/admin.go` to real data - GET /admin/settings/users, POST update role/active/supervisor
+- [x] Roles: admin (full access), supervisor (team + suggestions), consultant (own candidates)
+- [x] Assign supervisor to consultants (hierarchy)
+- [x] Toggle active status (for assignment pool)
+- [x] Playwright E2E tests for role changes, status toggle, supervisor assignment
 
 ---
 
-## Feature 6: Settings - Prodi Management
+## Feature 6: Settings - Prodi Management ✅
 
 Admin configures available programs.
 
 **Migrations:** 002_create_prodis ✅
 
 - [x] `model/prodi.go` - CRUD, ListActive (model layer done)
-- [x] `templates/admin/settings/prodis.templ` - Prodi list (mockup)
-- [ ] Wire `handler/admin.go` to real data - CRUD /admin/settings/prodis
-- [ ] Fields: name, code, degree (S1/D3), is_active
-- [ ] HTMX: Inline edit without reload
-- [ ] Test: CRUD operations
+- [x] `templates/admin/settings/prodis.templ` - Prodi list with HTMX forms
+- [x] Wire `handler/admin.go` to real data - CRUD /admin/settings/prodis
+- [x] Fields: name, code, degree (S1/D3), is_active
+- [x] HTMX: Inline edit without reload (toggle status, edit modal)
+- [x] Playwright E2E tests: Add, edit, toggle status with database persistence
 
 ---
 
@@ -378,7 +378,7 @@ Admin configures fees per prodi and academic year.
 
 ---
 
-## Feature 8: Settings - Categories & Obstacles
+## Feature 8: Settings - Categories & Obstacles ✅
 
 Supervisor manages interaction categories and obstacles.
 
@@ -386,11 +386,11 @@ Supervisor manages interaction categories and obstacles.
 
 - [x] `model/interaction_category.go` - CRUD, ListActive (model layer done)
 - [x] `model/obstacle.go` - CRUD, ListActive (model layer done)
-- [x] `templates/admin/settings/categories.templ` - Category list (mockup)
-- [ ] Wire `handler/admin.go` to real data - CRUD for categories, obstacles
+- [x] `templates/admin/settings/categories.templ` - Category and Obstacle list with HTMX forms
+- [x] Wire `handler/admin.go` to real data - CRUD for categories, obstacles
 - [x] Seed default categories: Tertarik, Mempertimbangkan, Ragu-ragu, Dingin, Tidak bisa dihubungi
 - [x] Seed default obstacles: Biaya terlalu mahal, Lokasi jauh, Orang tua belum setuju, Waktu belum tepat, Memilih kampus lain
-- [ ] Test: CRUD operations
+- [x] Playwright E2E tests: Add, edit, toggle status for both categories and obstacles
 
 ---
 
