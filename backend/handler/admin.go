@@ -3,61 +3,64 @@ package handler
 import (
 	"net/http"
 
+	"github.com/idtazkia/stmik-admission-api/auth"
 	"github.com/idtazkia/stmik-admission-api/mockdata"
 	"github.com/idtazkia/stmik-admission-api/templates/admin"
 )
 
 // AdminHandler handles all admin routes
-type AdminHandler struct{}
+type AdminHandler struct {
+	sessionMgr *auth.SessionManager
+}
 
 // NewAdminHandler creates a new admin handler
-func NewAdminHandler() *AdminHandler {
-	return &AdminHandler{}
+func NewAdminHandler(sessionMgr *auth.SessionManager) *AdminHandler {
+	return &AdminHandler{sessionMgr: sessionMgr}
 }
 
 // RegisterRoutes registers all admin routes to the mux
 func (h *AdminHandler) RegisterRoutes(mux *http.ServeMux) {
+	// Helper to wrap handlers with auth middleware
+	protected := func(handler http.HandlerFunc) http.Handler {
+		return RequireAuth(h.sessionMgr, handler)
+	}
+
 	// Dashboard
-	mux.HandleFunc("GET /admin", h.handleDashboard)
-	mux.HandleFunc("GET /admin/", h.handleDashboard)
+	mux.Handle("GET /admin", protected(h.handleDashboard))
+	mux.Handle("GET /admin/", protected(h.handleDashboard))
 
 	// Consultant personal dashboard
-	mux.HandleFunc("GET /admin/my-dashboard", h.handleConsultantDashboard)
+	mux.Handle("GET /admin/my-dashboard", protected(h.handleConsultantDashboard))
 
 	// Candidates
-	mux.HandleFunc("GET /admin/candidates", h.handleCandidates)
-	mux.HandleFunc("GET /admin/candidates/{id}", h.handleCandidateDetail)
-	mux.HandleFunc("GET /admin/candidates/{id}/interaction", h.handleInteractionForm)
+	mux.Handle("GET /admin/candidates", protected(h.handleCandidates))
+	mux.Handle("GET /admin/candidates/{id}", protected(h.handleCandidateDetail))
+	mux.Handle("GET /admin/candidates/{id}/interaction", protected(h.handleInteractionForm))
 
 	// Documents
-	mux.HandleFunc("GET /admin/documents", h.handleDocumentReview)
+	mux.Handle("GET /admin/documents", protected(h.handleDocumentReview))
 
 	// Marketing
-	mux.HandleFunc("GET /admin/campaigns", h.handleCampaigns)
-	mux.HandleFunc("GET /admin/referrers", h.handleReferrers)
-	mux.HandleFunc("GET /admin/referral-claims", h.handleReferralClaims)
-	mux.HandleFunc("GET /admin/commissions", h.handleCommissions)
+	mux.Handle("GET /admin/campaigns", protected(h.handleCampaigns))
+	mux.Handle("GET /admin/referrers", protected(h.handleReferrers))
+	mux.Handle("GET /admin/referral-claims", protected(h.handleReferralClaims))
+	mux.Handle("GET /admin/commissions", protected(h.handleCommissions))
 
 	// Reports
-	mux.HandleFunc("GET /admin/reports/funnel", h.handleFunnelReport)
-	mux.HandleFunc("GET /admin/reports/consultants", h.handleConsultantsReport)
-	mux.HandleFunc("GET /admin/reports/campaigns", h.handleCampaignsReport)
+	mux.Handle("GET /admin/reports/funnel", protected(h.handleFunnelReport))
+	mux.Handle("GET /admin/reports/consultants", protected(h.handleConsultantsReport))
+	mux.Handle("GET /admin/reports/campaigns", protected(h.handleCampaignsReport))
 
 	// Settings
-	mux.HandleFunc("GET /admin/settings/users", h.handleUsersSettings)
-	mux.HandleFunc("GET /admin/settings/programs", h.handleProgramsSettings)
-	mux.HandleFunc("GET /admin/settings/fees", h.handleFeesSettings)
-	mux.HandleFunc("GET /admin/settings/rewards", h.handleRewardsSettings)
-	mux.HandleFunc("GET /admin/settings/categories", h.handleCategoriesSettings)
-
-	// Auth
-	mux.HandleFunc("GET /admin/login", h.handleLogin)
-	mux.HandleFunc("POST /admin/login", h.handleLoginSubmit)
-	mux.HandleFunc("GET /admin/logout", h.handleLogout)
+	mux.Handle("GET /admin/settings/users", protected(h.handleUsersSettings))
+	mux.Handle("GET /admin/settings/programs", protected(h.handleProgramsSettings))
+	mux.Handle("GET /admin/settings/fees", protected(h.handleFeesSettings))
+	mux.Handle("GET /admin/settings/rewards", protected(h.handleRewardsSettings))
+	mux.Handle("GET /admin/settings/categories", protected(h.handleCategoriesSettings))
 }
 
 func (h *AdminHandler) handleDashboard(w http.ResponseWriter, r *http.Request) {
-	data := NewPageData("Dashboard")
+	data := NewPageDataWithUser(r.Context(), "Dashboard")
 	stats := mockdata.GetAdminStats()
 	dashboardStats := admin.DashboardStats{
 		TotalCandidates:  stats.TotalCandidates,
@@ -74,7 +77,7 @@ func (h *AdminHandler) handleDashboard(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AdminHandler) handleCandidates(w http.ResponseWriter, r *http.Request) {
-	data := NewPageData("Kandidat")
+	data := NewPageDataWithUser(r.Context(),"Kandidat")
 
 	// Get filter parameters
 	filter := admin.KandidatFilter{
@@ -118,7 +121,7 @@ func (h *AdminHandler) handleCandidateDetail(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	data := NewPageData("Detail Kandidat - " + candidate.Name)
+	data := NewPageDataWithUser(r.Context(),"Detail Kandidat - " + candidate.Name)
 
 	// Convert to template type
 	c := admin.CandidateDetail{
@@ -167,7 +170,7 @@ func (h *AdminHandler) handleCandidateDetail(w http.ResponseWriter, r *http.Requ
 
 // Placeholder handlers - will be implemented later
 func (h *AdminHandler) handleCampaigns(w http.ResponseWriter, r *http.Request) {
-	data := NewPageData("Kampanye")
+	data := NewPageDataWithUser(r.Context(),"Kampanye")
 	campaigns := []admin.CampaignItem{
 		{ID: "1", Name: "Promo Early Bird", Type: "promo", Channel: "all", Period: "1 Jan - 28 Feb 2026", FeeOverride: "Gratis", Status: "active", Leads: "45", Enrolled: "12", Conversion: "26.7%"},
 		{ID: "2", Name: "Education Expo Jakarta", Type: "event", Channel: "expo", Period: "15-17 Jan 2026", FeeOverride: "", Status: "active", Leads: "38", Enrolled: "10", Conversion: "26.3%"},
@@ -179,7 +182,7 @@ func (h *AdminHandler) handleCampaigns(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AdminHandler) handleReferrers(w http.ResponseWriter, r *http.Request) {
-	data := NewPageData("Referrer")
+	data := NewPageDataWithUser(r.Context(),"Referrer")
 	referrers := []admin.ReferrerItem{
 		{ID: "1", Name: "Pak Ahmad Fauzi", Type: "guru", Institution: "SMAN 1 Bogor", Phone: "081234567890", Code: "REF-AF01", Commission: "Rp 750.000", Referrals: "8", Enrolled: "5", TotalEarned: "Rp 3.750.000", Status: "active"},
 		{ID: "2", Name: "Siti Nurhaliza", Type: "alumni", Institution: "STMIK Tazkia 2022", Phone: "081234567891", Code: "REF-SN02", Commission: "Rp 500.000", Referrals: "4", Enrolled: "2", TotalEarned: "Rp 1.000.000", Status: "active"},
@@ -190,14 +193,14 @@ func (h *AdminHandler) handleReferrers(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AdminHandler) handleReferralClaims(w http.ResponseWriter, r *http.Request) {
-	data := NewPageData("Klaim Referral")
+	data := NewPageDataWithUser(r.Context(),"Klaim Referral")
 	w.Header().Set("Content-Type", "text/html")
 	w.Write([]byte(`<html><body><h1>Klaim Referral - Coming Soon</h1><a href="/admin">Back to Dashboard</a></body></html>`))
 	_ = data
 }
 
 func (h *AdminHandler) handleCommissions(w http.ResponseWriter, r *http.Request) {
-	data := NewPageData("Komisi")
+	data := NewPageDataWithUser(r.Context(),"Komisi")
 	commissions := []admin.CommissionItem{
 		{ID: "1", ReferrerName: "Pak Ahmad Fauzi", ReferrerType: "guru", CandidateName: "Dimas Pratama", CandidateNIM: "2026SI003", Amount: "Rp 750.000", Status: "pending", EnrolledAt: "10 Jan 2026", BankName: "BSI", BankAccount: "7123456789"},
 		{ID: "2", ReferrerName: "Siti Nurhaliza", ReferrerType: "alumni", CandidateName: "Rina Wulandari", CandidateNIM: "2026TI004", Amount: "Rp 500.000", Status: "approved", EnrolledAt: "8 Jan 2026", ApprovedAt: "12 Jan 2026", BankName: "BCA", BankAccount: "1234567890"},
@@ -212,7 +215,7 @@ func (h *AdminHandler) handleCommissions(w http.ResponseWriter, r *http.Request)
 }
 
 func (h *AdminHandler) handleFunnelReport(w http.ResponseWriter, r *http.Request) {
-	data := NewPageData("Laporan Funnel")
+	data := NewPageDataWithUser(r.Context(),"Laporan Funnel")
 	stages := []admin.FunnelStage{
 		{Name: "Registered", Count: "97", Percentage: "100", Color: "bg-gray-500"},
 		{Name: "Prospecting", Count: "80", Percentage: "82", Color: "bg-blue-500"},
@@ -230,7 +233,7 @@ func (h *AdminHandler) handleFunnelReport(w http.ResponseWriter, r *http.Request
 // handleConsultantsReport is implemented below with real template
 
 func (h *AdminHandler) handleCampaignsReport(w http.ResponseWriter, r *http.Request) {
-	data := NewPageData("ROI Kampanye")
+	data := NewPageDataWithUser(r.Context(),"ROI Kampanye")
 	campaigns := []admin.CampaignReportItem{
 		{Name: "Promo Early Bird", Type: "promo", Channel: "all", Leads: "45", Prospecting: "38", Committed: "25", Enrolled: "12", Conversion: "26.7%", Cost: "Rp 0", CostPerLead: "Rp 0"},
 		{Name: "Education Expo Jakarta", Type: "event", Channel: "expo", Leads: "38", Prospecting: "30", Committed: "18", Enrolled: "10", Conversion: "26.3%", Cost: "Rp 15.000.000", CostPerLead: "Rp 394.737"},
@@ -245,7 +248,7 @@ func (h *AdminHandler) handleCampaignsReport(w http.ResponseWriter, r *http.Requ
 }
 
 func (h *AdminHandler) handleUsersSettings(w http.ResponseWriter, r *http.Request) {
-	data := NewPageData("Users")
+	data := NewPageDataWithUser(r.Context(),"Users")
 	users := []admin.UserItem{
 		{ID: "1", Name: "Admin PMB", Email: "admin@tazkia.ac.id", Role: "admin", Supervisor: "-", Status: "active", LastLogin: "Hari ini"},
 		{ID: "2", Name: "Budi Santoso", Email: "budi@tazkia.ac.id", Role: "supervisor", Supervisor: "-", Status: "active", LastLogin: "Hari ini"},
@@ -257,7 +260,7 @@ func (h *AdminHandler) handleUsersSettings(w http.ResponseWriter, r *http.Reques
 }
 
 func (h *AdminHandler) handleProgramsSettings(w http.ResponseWriter, r *http.Request) {
-	data := NewPageData("Prodi")
+	data := NewPageDataWithUser(r.Context(),"Prodi")
 	programs := []admin.ProgramItem{
 		{ID: "1", Name: "Sistem Informasi", Code: "SI", Level: "S1", SPPFee: "Rp 7.500.000", Status: "active", Students: "245"},
 		{ID: "2", Name: "Teknik Informatika", Code: "TI", Level: "S1", SPPFee: "Rp 8.000.000", Status: "active", Students: "312"},
@@ -266,21 +269,21 @@ func (h *AdminHandler) handleProgramsSettings(w http.ResponseWriter, r *http.Req
 }
 
 func (h *AdminHandler) handleFeesSettings(w http.ResponseWriter, r *http.Request) {
-	data := NewPageData("Biaya")
+	data := NewPageDataWithUser(r.Context(),"Biaya")
 	w.Header().Set("Content-Type", "text/html")
 	w.Write([]byte(`<html><body><h1>Biaya - Coming Soon</h1><a href="/admin">Back to Dashboard</a></body></html>`))
 	_ = data
 }
 
 func (h *AdminHandler) handleRewardsSettings(w http.ResponseWriter, r *http.Request) {
-	data := NewPageData("Reward")
+	data := NewPageDataWithUser(r.Context(),"Reward")
 	w.Header().Set("Content-Type", "text/html")
 	w.Write([]byte(`<html><body><h1>Reward - Coming Soon</h1><a href="/admin">Back to Dashboard</a></body></html>`))
 	_ = data
 }
 
 func (h *AdminHandler) handleCategoriesSettings(w http.ResponseWriter, r *http.Request) {
-	data := NewPageData("Kategori")
+	data := NewPageDataWithUser(r.Context(),"Kategori")
 	categories := []admin.CategoryItem{
 		{ID: "1", Name: "Tertarik", Sentiment: "positive", Count: "125"},
 		{ID: "2", Name: "Mempertimbangkan", Sentiment: "neutral", Count: "89"},
@@ -298,23 +301,9 @@ func (h *AdminHandler) handleCategoriesSettings(w http.ResponseWriter, r *http.R
 	admin.SettingsCategories(data, categories, obstacles).Render(r.Context(), w)
 }
 
-func (h *AdminHandler) handleLogin(w http.ResponseWriter, r *http.Request) {
-	data := NewPageData("Login")
-	admin.Login(data, "").Render(r.Context(), w)
-}
-
-func (h *AdminHandler) handleLoginSubmit(w http.ResponseWriter, r *http.Request) {
-	// Mock login - just redirect to dashboard
-	http.Redirect(w, r, "/admin", http.StatusSeeOther)
-}
-
-func (h *AdminHandler) handleLogout(w http.ResponseWriter, r *http.Request) {
-	// Mock logout - just redirect to login
-	http.Redirect(w, r, "/admin/login", http.StatusSeeOther)
-}
 
 func (h *AdminHandler) handleConsultantDashboard(w http.ResponseWriter, r *http.Request) {
-	data := NewPageData("Dashboard Saya")
+	data := NewPageDataWithUser(r.Context(),"Dashboard Saya")
 
 	stats := admin.ConsultantDashboardStats{
 		ConsultantName:      "Siti Rahayu",
@@ -349,7 +338,7 @@ func (h *AdminHandler) handleConsultantDashboard(w http.ResponseWriter, r *http.
 }
 
 func (h *AdminHandler) handleConsultantsReport(w http.ResponseWriter, r *http.Request) {
-	data := NewPageData("Performa Konsultan")
+	data := NewPageDataWithUser(r.Context(),"Performa Konsultan")
 
 	filter := admin.ReportFilter{
 		Period:    r.URL.Query().Get("period"),
@@ -384,7 +373,7 @@ func (h *AdminHandler) handleInteractionForm(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	data := NewPageData("Log Interaksi - " + candidate.Name)
+	data := NewPageDataWithUser(r.Context(),"Log Interaksi - " + candidate.Name)
 
 	candidateSummary := admin.CandidateSummary{
 		ID:        candidate.ID,
@@ -414,7 +403,7 @@ func (h *AdminHandler) handleInteractionForm(w http.ResponseWriter, r *http.Requ
 }
 
 func (h *AdminHandler) handleDocumentReview(w http.ResponseWriter, r *http.Request) {
-	data := NewPageData("Review Dokumen")
+	data := NewPageDataWithUser(r.Context(),"Review Dokumen")
 
 	filter := admin.DocumentFilter{
 		Status: r.URL.Query().Get("status"),

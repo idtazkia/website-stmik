@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/idtazkia/stmik-admission-api/auth"
 	"github.com/idtazkia/stmik-admission-api/config"
 	"github.com/idtazkia/stmik-admission-api/handler"
 	"github.com/idtazkia/stmik-admission-api/model"
@@ -38,6 +39,19 @@ func main() {
 	defer model.Close()
 	log.Println("Connected to database")
 
+	// Initialize auth components
+	googleOAuth := auth.NewGoogleOAuth(
+		cfg.Google.ClientID,
+		cfg.Google.ClientSecret,
+		cfg.Google.RedirectURL,
+		cfg.Google.StaffEmailDomain,
+	)
+	sessionMgr := auth.NewSessionManager(
+		cfg.JWT.Secret,
+		time.Duration(cfg.JWT.ExpirationHours)*time.Hour,
+		false, // secure=false for development
+	)
+
 	mux := http.NewServeMux()
 
 	// Health check endpoint
@@ -54,9 +68,17 @@ func main() {
 	// Static files
 	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
-	// Admin routes (mockup)
-	adminHandler := handler.NewAdminHandler()
+	// Auth routes
+	adminAuthHandler := handler.NewAdminAuthHandler(googleOAuth, sessionMgr)
+	adminAuthHandler.RegisterRoutes(mux)
+
+	// Admin routes (protected)
+	adminHandler := handler.NewAdminHandler(sessionMgr)
 	adminHandler.RegisterRoutes(mux)
+
+	// Portal routes
+	portalHandler := handler.NewPortalHandler()
+	portalHandler.RegisterRoutes(mux)
 
 	// Test routes for Playwright (only in development)
 	mux.HandleFunc("GET /test/portal", func(w http.ResponseWriter, r *http.Request) {
