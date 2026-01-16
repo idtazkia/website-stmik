@@ -130,3 +130,31 @@ func RequireAdmin(next http.Handler) http.Handler {
 func RequireSupervisorOrAdmin(next http.Handler) http.Handler {
 	return RequireRole([]string{"admin", "supervisor"}, next)
 }
+
+// Context key for candidate claims
+const candidateClaimsKey contextKey = "candidate_claims"
+
+// RequireCandidateAuth middleware checks if a candidate is authenticated
+func RequireCandidateAuth(sessionMgr *auth.SessionManager, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		claims, err := sessionMgr.GetClaimsFromRequest(r)
+		if err != nil || claims == nil || !claims.IsCandidate {
+			slog.Debug("candidate authentication failed", "error", err)
+			http.Redirect(w, r, "/login", http.StatusFound)
+			return
+		}
+
+		// Store claims in context for handlers to use
+		ctx := context.WithValue(r.Context(), candidateClaimsKey, claims)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+// GetCandidateClaims retrieves candidate claims from context
+func GetCandidateClaims(ctx context.Context) *auth.Claims {
+	claims, ok := ctx.Value(candidateClaimsKey).(*auth.Claims)
+	if !ok {
+		return nil
+	}
+	return claims
+}

@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { PortalPage, AdminPage } from './pages';
+import { TestPortalPage, AdminPage } from './pages';
 
 test.describe('Health Check API', () => {
   test('GET /health returns ok status with version info', async ({ request }) => {
@@ -20,7 +20,7 @@ test.describe('Health Check API', () => {
 
 test.describe('Version Display in UI', () => {
   test('Portal page displays version in footer', async ({ page }) => {
-    const portalPage = new PortalPage(page);
+    const portalPage = new TestPortalPage(page);
     await portalPage.goto();
     await portalPage.expectPageLoaded();
     await portalPage.expectVersionVisible();
@@ -36,7 +36,7 @@ test.describe('Version Display in UI', () => {
 
 test.describe('CSRF Protection', () => {
   test('Same-origin form submission works', async ({ page }) => {
-    const portalPage = new PortalPage(page);
+    const portalPage = new TestPortalPage(page);
     await portalPage.goto();
 
     const response = await portalPage.fillAndSubmitForm('test value');
@@ -66,7 +66,7 @@ test.describe('CSRF Protection', () => {
 
 test.describe('Navigation', () => {
   test('Portal navigation links are present', async ({ page }) => {
-    const portalPage = new PortalPage(page);
+    const portalPage = new TestPortalPage(page);
     await portalPage.goto();
     await portalPage.expectNavigationVisible();
   });
