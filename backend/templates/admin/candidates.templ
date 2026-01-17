@@ -393,6 +393,63 @@ func getSourceLabel(sourceType string) string {
 	}
 }
 
+// ConsultantWorkloadItem for reassignment modal
+type ConsultantWorkloadItem struct {
+	ID          string
+	Name        string
+	Email       string
+	ActiveCount int
+	TotalCount  int
+}
+
+// ReassignModal renders the modal for reassigning a candidate to a different consultant
+templ ReassignModal(candidateID string, currentConsultantID string, consultants []ConsultantWorkloadItem) {
+	<div id="reassign-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" data-testid="reassign-modal">
+		<div class="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4">
+			<div class="px-6 py-4 border-b flex items-center justify-between">
+				<h3 class="font-semibold text-gray-900" data-testid="modal-title">Reassign Kandidat</h3>
+				<button onclick="document.getElementById('reassign-modal').remove()" class="text-gray-400 hover:text-gray-600" data-testid="modal-close">✕</button>
+			</div>
+			<form action={ templ.SafeURL("/admin/candidates/" + candidateID + "/reassign") } method="POST" class="p-6 space-y-4" data-testid="form-reassign">
+				<p class="text-sm text-gray-600">Pilih konsultan baru untuk kandidat ini:</p>
+				<div class="max-h-80 overflow-y-auto space-y-2" data-testid="consultant-list">
+					for _, c := range consultants {
+						<label class={ "flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-gray-50",
+							templ.KV("border-primary-500 bg-primary-50", c.ID == currentConsultantID) } data-testid={ "consultant-option-" + c.ID }>
+							<div class="flex items-center gap-3">
+								<input
+									type="radio"
+									name="consultant_id"
+									value={ c.ID }
+									checked?={ c.ID == currentConsultantID }
+									class="text-primary-600"
+									data-testid={ "radio-" + c.ID }
+								/>
+								<div>
+									<p class="font-medium text-gray-900">{ c.Name }</p>
+									<p class="text-sm text-gray-500">{ c.Email }</p>
+								</div>
+							</div>
+							<div class="text-right">
+								<p class="text-sm font-medium text-gray-900">{ fmt.Sprintf("%d", c.ActiveCount) } aktif</p>
+								<p class="text-xs text-gray-500">{ fmt.Sprintf("%d", c.TotalCount) } total</p>
+							</div>
+						</label>
+					}
+				</div>
+				<div class="flex gap-2 pt-4">
+					<button type="button" onclick="document.getElementById('reassign-modal').remove()" class="flex-1 border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50" data-testid="btn-cancel">
+						Batal
+					</button>
+					<button type="submit" class="flex-1 bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700" data-testid="btn-submit">
+						Reassign
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+}
+
 // StatusBadge renders a status badge for candidates
 templ StatusBadge(status string) {
 	switch status {

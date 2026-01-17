@@ -306,3 +306,88 @@ func candidateSourceLabel(sourceType string) string {
 		return sourceType
 	}
 }
+
+func (h *AdminHandler) handleReassignCandidate(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	candidateID := r.PathValue("id")
+
+	// Get current user
+	claims := GetUserClaims(ctx)
+	if claims == nil {
+		http.Redirect(w, r, "/admin/login", http.StatusFound)
+		return
+	}
+
+	// Only admin and supervisor can reassign
+	if claims.Role != "admin" && claims.Role != "supervisor" {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
+	newConsultantID := r.FormValue("consultant_id")
+	if newConsultantID == "" {
+		http.Error(w, "Consultant ID is required", http.StatusBadRequest)
+		return
+	}
+
+	// Reassign the candidate
+	err := model.ReassignCandidate(ctx, candidateID, newConsultantID, claims.UserID)
+	if err != nil {
+		log.Printf("Error reassigning candidate: %v", err)
+		http.Error(w, "Failed to reassign candidate", http.StatusInternalServerError)
+		return
+	}
+
+	log.Printf("Candidate %s reassigned to consultant %s by %s", candidateID, newConsultantID, claims.UserID)
+
+	// Redirect back to candidate detail
+	http.Redirect(w, r, "/admin/candidates/"+candidateID, http.StatusSeeOther)
+}
+
+func (h *AdminHandler) handleGetConsultantsForReassign(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	// Get current user
+	claims := GetUserClaims(ctx)
+	if claims == nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	// Only admin and supervisor can view consultant list for reassign
+	if claims.Role != "admin" && claims.Role != "supervisor" {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
+	consultants, err := model.ListConsultantsWithWorkload(ctx)
+	if err != nil {
+		log.Printf("Error listing consultants: %v", err)
+		http.Error(w, "Failed to load consultants", http.StatusInternalServerError)
+		return
+	}
+
+	// Convert to template type
+	items := make([]admin.ConsultantWorkloadItem, len(consultants))
+	for i, c := range consultants {
+		items[i] = admin.ConsultantWorkloadItem{
+			ID:          c.ID,
+			Name:        c.Name,
+			Email:       c.Email,
+			ActiveCount: c.ActiveCount,
+			TotalCount:  c.TotalCount,
+		}
+	}
+
+	// Get candidate ID from query for current selection
+	candidateID := r.URL.Query().Get("candidate_id")
+	currentConsultantID := ""
+	if candidateID != "" {
+		candidate, err := model.FindCandidateByID(ctx, candidateID)
+		if err == nil && candidate != nil && candidate.AssignedConsultantID != nil {
+			currentConsultantID = *candidate.AssignedConsultantID
+		}
+	}
+
+	admin.ReassignModal(candidateID, currentConsultantID, items).Render(ctx, w)
+}

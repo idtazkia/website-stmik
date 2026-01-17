@@ -3,6 +3,7 @@ package model
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -676,4 +677,86 @@ func GetNextConsultantForAssignment(ctx context.Context) (*string, error) {
 		return nil, fmt.Errorf("failed to get next consultant: %w", err)
 	}
 	return &consultantID, nil
+}
+
+// ConsultantWithWorkload represents a consultant with their candidate counts
+type ConsultantWithWorkload struct {
+	ID             string `json:"id"`
+	Name           string `json:"name"`
+	Email          string `json:"email"`
+	ActiveCount    int    `json:"active_count"`    // prospecting + committed
+	TotalCount     int    `json:"total_count"`     // all assigned
+	SupervisorID   *string `json:"supervisor_id,omitempty"`
+	SupervisorName *string `json:"supervisor_name,omitempty"`
+}
+
+// ListConsultantsWithWorkload returns all active consultants with their candidate counts
+func ListConsultantsWithWorkload(ctx context.Context) ([]ConsultantWithWorkload, error) {
+	rows, err := pool.Query(ctx, `
+		SELECT
+			u.id, u.name, u.email, u.id_supervisor,
+			s.name as supervisor_name,
+			COUNT(c.id) FILTER (WHERE c.status IN ('registered', 'prospecting', 'committed')) as active_count,
+			COUNT(c.id) as total_count
+		FROM users u
+		LEFT JOIN users s ON s.id = u.id_supervisor
+		LEFT JOIN candidates c ON c.assigned_consultant_id = u.id
+		WHERE u.role = 'consultant' AND u.is_active = true
+		GROUP BY u.id, u.name, u.email, u.id_supervisor, s.name
+		ORDER BY u.name
+	`)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list consultants: %w", err)
+	}
+	defer rows.Close()
+
+	var consultants []ConsultantWithWorkload
+	for rows.Next() {
+		var c ConsultantWithWorkload
+		err := rows.Scan(&c.ID, &c.Name, &c.Email, &c.SupervisorID, &c.SupervisorName, &c.ActiveCount, &c.TotalCount)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan consultant: %w", err)
+		}
+		consultants = append(consultants, c)
+	}
+	return consultants, nil
+}
+
+// ReassignCandidate reassigns a candidate to a different consultant
+func ReassignCandidate(ctx context.Context, candidateID, newConsultantID, reassignedBy string) error {
+	// Get current consultant for logging
+	var oldConsultantID *string
+	err := pool.QueryRow(ctx, `SELECT assigned_consultant_id FROM candidates WHERE id = $1`, candidateID).Scan(&oldConsultantID)
+	if err != nil {
+		return fmt.Errorf("failed to get current consultant: %w", err)
+	}
+
+	// Update assignment
+	_, err = pool.Exec(ctx, `
+		UPDATE candidates SET assigned_consultant_id = $2, updated_at = NOW() WHERE id = $1
+	`, candidateID, newConsultantID)
+	if err != nil {
+		return fmt.Errorf("failed to reassign candidate: %w", err)
+	}
+
+	// Log the reassignment as an interaction
+	oldID := ""
+	if oldConsultantID != nil {
+		oldID = *oldConsultantID
+	}
+	remarks := fmt.Sprintf("Kandidat dipindahkan dari konsultan sebelumnya")
+	if oldID == "" {
+		remarks = "Konsultan pertama kali ditugaskan"
+	}
+
+	_, err = pool.Exec(ctx, `
+		INSERT INTO interactions (candidate_id, user_id, channel, category, remarks)
+		VALUES ($1, $2, 'system', 'reassignment', $3)
+	`, candidateID, reassignedBy, remarks)
+	if err != nil {
+		// Log error but don't fail the reassignment
+		slog.Error("failed to log reassignment interaction", "error", err)
+	}
+
+	return nil
 }

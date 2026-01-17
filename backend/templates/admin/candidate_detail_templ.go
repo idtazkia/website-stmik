@@ -301,50 +301,63 @@ func KandidatDetail(data layouts.PageData, c CandidateDetail, interactions []Int
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</p><button class=\"text-sm text-primary-600 hover:text-primary-800 mt-1\" data-testid=\"btn-reassign\">Reassign</button></div></div></div><!-- Payment Status --><div class=\"bg-white rounded-lg shadow\" data-testid=\"section-payment-status\"><div class=\"px-6 py-4 border-b\"><h3 class=\"font-semibold text-gray-900\" data-testid=\"section-title-payment-status\">Status Pembayaran</h3></div><div class=\"p-6 space-y-4\"><div class=\"flex items-center justify-between\" data-testid=\"field-registration-fee\"><span class=\"text-gray-700\">Biaya Pendaftaran</span> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</p><button hx-get=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var19 string
+			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs("/admin/reassign-modal?candidate_id=" + c.ID)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/candidate_detail.templ`, Line: 117, Col: 62}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "\" hx-target=\"body\" hx-swap=\"beforeend\" class=\"text-sm text-primary-600 hover:text-primary-800 mt-1\" data-testid=\"btn-reassign\">Reassign</button></div></div></div><!-- Payment Status --><div class=\"bg-white rounded-lg shadow\" data-testid=\"section-payment-status\"><div class=\"px-6 py-4 border-b\"><h3 class=\"font-semibold text-gray-900\" data-testid=\"section-title-payment-status\">Status Pembayaran</h3></div><div class=\"p-6 space-y-4\"><div class=\"flex items-center justify-between\" data-testid=\"field-registration-fee\"><span class=\"text-gray-700\">Biaya Pendaftaran</span> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if c.RegistrationFeePaid {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<span class=\"text-green-600 font-medium\" data-testid=\"fee-status-paid\">✓ Lunas</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<span class=\"text-green-600 font-medium\" data-testid=\"fee-status-paid\">✓ Lunas</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<span class=\"text-red-600 font-medium\" data-testid=\"fee-status-unpaid\">Belum Bayar</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<span class=\"text-red-600 font-medium\" data-testid=\"fee-status-unpaid\">Belum Bayar</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div></div></div><!-- Documents --><div class=\"bg-white rounded-lg shadow\" data-testid=\"section-documents\"><div class=\"px-6 py-4 border-b\"><h3 class=\"font-semibold text-gray-900\" data-testid=\"section-title-documents\">Dokumen</h3></div><div class=\"p-6 space-y-3\"><div class=\"flex items-center justify-between\" data-testid=\"doc-ktp\"><span class=\"text-gray-700\">KTP</span> <span class=\"text-gray-400\">Belum upload</span></div><div class=\"flex items-center justify-between\" data-testid=\"doc-foto\"><span class=\"text-gray-700\">Foto</span> <span class=\"text-gray-400\">Belum upload</span></div><div class=\"flex items-center justify-between\" data-testid=\"doc-ijazah\"><span class=\"text-gray-700\">Ijazah</span> <span class=\"text-gray-400\">Belum upload</span></div><div class=\"flex items-center justify-between\" data-testid=\"doc-transkrip\"><span class=\"text-gray-700\">Transkrip</span> <span class=\"text-gray-400\">Belum upload</span></div></div></div></div><!-- Right: Timeline --><div class=\"lg:col-span-2\"><div class=\"bg-white rounded-lg shadow\" data-testid=\"section-timeline\"><div class=\"px-6 py-4 border-b\"><h3 class=\"font-semibold text-gray-900\" data-testid=\"section-title-timeline\">Timeline Interaksi</h3></div><div class=\"p-6\" data-testid=\"timeline-content\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</div></div></div><!-- Documents --><div class=\"bg-white rounded-lg shadow\" data-testid=\"section-documents\"><div class=\"px-6 py-4 border-b\"><h3 class=\"font-semibold text-gray-900\" data-testid=\"section-title-documents\">Dokumen</h3></div><div class=\"p-6 space-y-3\"><div class=\"flex items-center justify-between\" data-testid=\"doc-ktp\"><span class=\"text-gray-700\">KTP</span> <span class=\"text-gray-400\">Belum upload</span></div><div class=\"flex items-center justify-between\" data-testid=\"doc-foto\"><span class=\"text-gray-700\">Foto</span> <span class=\"text-gray-400\">Belum upload</span></div><div class=\"flex items-center justify-between\" data-testid=\"doc-ijazah\"><span class=\"text-gray-700\">Ijazah</span> <span class=\"text-gray-400\">Belum upload</span></div><div class=\"flex items-center justify-between\" data-testid=\"doc-transkrip\"><span class=\"text-gray-700\">Transkrip</span> <span class=\"text-gray-400\">Belum upload</span></div></div></div></div><!-- Right: Timeline --><div class=\"lg:col-span-2\"><div class=\"bg-white rounded-lg shadow\" data-testid=\"section-timeline\"><div class=\"px-6 py-4 border-b\"><h3 class=\"font-semibold text-gray-900\" data-testid=\"section-title-timeline\">Timeline Interaksi</h3></div><div class=\"p-6\" data-testid=\"timeline-content\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(interactions) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<p class=\"text-gray-500 text-center py-8\" data-testid=\"timeline-empty\">Belum ada interaksi tercatat</p>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<p class=\"text-gray-500 text-center py-8\" data-testid=\"timeline-empty\">Belum ada interaksi tercatat</p>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<div class=\"space-y-6\" data-testid=\"timeline-list\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<div class=\"space-y-6\" data-testid=\"timeline-list\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, i := range interactions {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<div class=\"relative pl-8 pb-6 border-l-2 border-gray-200 last:pb-0\" data-testid=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<div class=\"relative pl-8 pb-6 border-l-2 border-gray-200 last:pb-0\" data-testid=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var19 string
-					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs("interaction-" + i.ID)
+					var templ_7745c5c3_Var20 string
+					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs("interaction-" + i.ID)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/candidate_detail.templ`, Line: 176, Col: 114}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/candidate_detail.templ`, Line: 184, Col: 114}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\"><div class=\"absolute -left-2 top-0 w-4 h-4 rounded-full bg-white border-2 border-primary-600\"></div><div class=\"bg-gray-50 rounded-lg p-4\"><div class=\"flex items-center justify-between mb-2\"><div class=\"flex items-center gap-2\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "\"><div class=\"absolute -left-2 top-0 w-4 h-4 rounded-full bg-white border-2 border-primary-600\"></div><div class=\"bg-gray-50 rounded-lg p-4\"><div class=\"flex items-center justify-between mb-2\"><div class=\"flex items-center gap-2\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -356,136 +369,194 @@ func KandidatDetail(data layouts.PageData, c CandidateDetail, interactions []Int
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</div><span class=\"text-sm text-gray-500\" data-testid=\"interaction-date\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var20 string
-					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(i.CreatedAt)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/candidate_detail.templ`, Line: 184, Col: 93}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</span></div><p class=\"text-gray-700\" data-testid=\"interaction-remarks\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</div><span class=\"text-sm text-gray-500\" data-testid=\"interaction-date\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var21 string
-					templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(i.Remarks)
+					templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(i.CreatedAt)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/candidate_detail.templ`, Line: 186, Col: 82}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/candidate_detail.templ`, Line: 192, Col: 93}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</p>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</span></div><p class=\"text-gray-700\" data-testid=\"interaction-remarks\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var22 string
+					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(i.Remarks)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/candidate_detail.templ`, Line: 194, Col: 82}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</p>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if i.Obstacle != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<p class=\"text-sm text-red-600 mt-2\" data-testid=\"interaction-obstacle\">Hambatan: ")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var22 string
-						templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(i.Obstacle)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/candidate_detail.templ`, Line: 188, Col: 107}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</p>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					if i.NextFollowupDate != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<p class=\"text-sm text-gray-500 mt-2\" data-testid=\"interaction-followup\">Follow-up: ")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<p class=\"text-sm text-red-600 mt-2\" data-testid=\"interaction-obstacle\">Hambatan: ")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var23 string
-						templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(i.NextFollowupDate)
+						templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(i.Obstacle)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/candidate_detail.templ`, Line: 191, Col: 117}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/candidate_detail.templ`, Line: 196, Col: 107}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</p>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</p>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<p class=\"text-sm text-gray-400 mt-2\" data-testid=\"interaction-consultant\">oleh ")
+					if i.NextFollowupDate != "" {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<p class=\"text-sm text-gray-500 mt-2\" data-testid=\"interaction-followup\">Follow-up: ")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var24 string
+						templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(i.NextFollowupDate)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/candidate_detail.templ`, Line: 199, Col: 117}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</p>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<p class=\"text-sm text-gray-400 mt-2\" data-testid=\"interaction-consultant\">oleh ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var24 string
-					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(i.ConsultantName)
+					var templ_7745c5c3_Var25 string
+					templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(i.ConsultantName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/candidate_detail.templ`, Line: 193, Col: 110}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/candidate_detail.templ`, Line: 201, Col: 110}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</p>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</p>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if i.SupervisorSuggestion != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "<div class=\"mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded\" data-testid=\"interaction-suggestion\"><p class=\"text-sm font-medium text-yellow-800\">Saran Supervisor:</p><p class=\"text-sm text-yellow-700\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<div class=\"mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded\" data-testid=\"interaction-suggestion\"><p class=\"text-sm font-medium text-yellow-800\">Saran Supervisor:</p><p class=\"text-sm text-yellow-700\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						var templ_7745c5c3_Var25 string
-						templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(i.SupervisorSuggestion)
+						var templ_7745c5c3_Var26 string
+						templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(i.SupervisorSuggestion)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/candidate_detail.templ`, Line: 197, Col: 73}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/candidate_detail.templ`, Line: 205, Col: 73}
 						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</p>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</p><div id=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var27 string
+						templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs("suggestion-read-" + i.ID)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/candidate_detail.templ`, Line: 206, Col: 49}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						if i.SuggestionRead {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "<span class=\"text-xs text-yellow-600\">✓ Sudah dibaca</span>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<span class=\"text-xs text-yellow-600\">✓ Sudah dibaca</span>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 						} else {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<button class=\"text-xs text-yellow-800 font-medium hover:underline\" data-testid=\"btn-mark-read\">Tandai sudah dibaca</button>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<button hx-post=\"")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							var templ_7745c5c3_Var28 string
+							templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs("/admin/interactions/" + i.ID + "/mark-read")
+							if templ_7745c5c3_Err != nil {
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/candidate_detail.templ`, Line: 211, Col: 71}
+							}
+							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "\" hx-target=\"")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							var templ_7745c5c3_Var29 string
+							templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs("#suggestion-read-" + i.ID)
+							if templ_7745c5c3_Err != nil {
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/candidate_detail.templ`, Line: 212, Col: 55}
+							}
+							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "\" hx-swap=\"innerHTML\" class=\"text-xs text-yellow-800 font-medium hover:underline\" data-testid=\"btn-mark-read\">Tandai sudah dibaca</button>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</div>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</div></div>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</div></div>")
+					if i.SupervisorSuggestion == "" && (data.UserRole == "supervisor" || data.UserRole == "admin") {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "<div class=\"mt-3\" data-testid=\"add-suggestion-form\"><form hx-post=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var30 string
+						templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs("/admin/interactions/" + i.ID + "/suggestion")
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/candidate_detail.templ`, Line: 227, Col: 70}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "\" hx-swap=\"outerHTML\" hx-target=\"closest div[data-testid='add-suggestion-form']\" class=\"flex gap-2\"><input type=\"text\" name=\"suggestion\" placeholder=\"Tambahkan saran untuk konsultan...\" class=\"flex-1 text-sm px-3 py-1.5 border border-gray-300 rounded focus:ring-2 focus:ring-primary-500\" data-testid=\"input-suggestion\"> <button type=\"submit\" class=\"text-sm px-3 py-1.5 bg-yellow-500 text-white rounded hover:bg-yellow-600\" data-testid=\"btn-add-suggestion\">Kirim Saran</button></form></div>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "</div></div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "</div></div></div></div></div><!-- Modal Log Interaksi --> <div id=\"modal-interaksi\" class=\"hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50\" data-testid=\"modal-interaction\"><div class=\"bg-white rounded-lg shadow-xl w-full max-w-lg mx-4\"><div class=\"px-6 py-4 border-b flex items-center justify-between\"><h3 class=\"font-semibold text-gray-900\" data-testid=\"modal-title\">Log Interaksi Baru</h3><button onclick=\"document.getElementById('modal-interaksi').classList.add('hidden')\" class=\"text-gray-400 hover:text-gray-600\" data-testid=\"modal-close\">✕</button></div><form class=\"p-6 space-y-4\" data-testid=\"form-interaction\"><div><label class=\"block text-sm font-medium text-gray-700 mb-1\">Channel</label> <select name=\"channel\" class=\"w-full border border-gray-300 rounded-md px-3 py-2\" data-testid=\"select-channel\"><option value=\"call\">Telepon</option> <option value=\"whatsapp\">WhatsApp</option> <option value=\"email\">Email</option> <option value=\"campus_visit\">Kunjungan Kampus</option> <option value=\"home_visit\">Kunjungan Rumah</option></select></div><div><label class=\"block text-sm font-medium text-gray-700 mb-1\">Kategori</label> <select name=\"category\" class=\"w-full border border-gray-300 rounded-md px-3 py-2\" data-testid=\"select-category\"><option value=\"interested\">Tertarik</option> <option value=\"considering\">Mempertimbangkan</option> <option value=\"hesitant\">Ragu-ragu</option> <option value=\"cold\">Dingin</option> <option value=\"unreachable\">Tidak bisa dihubungi</option></select></div><div><label class=\"block text-sm font-medium text-gray-700 mb-1\">Hambatan (opsional)</label> <select name=\"obstacle\" class=\"w-full border border-gray-300 rounded-md px-3 py-2\" data-testid=\"select-obstacle\"><option value=\"\">- Pilih hambatan -</option> <option value=\"price\">Biaya terlalu mahal</option> <option value=\"location\">Lokasi jauh</option> <option value=\"parents\">Orang tua belum setuju</option> <option value=\"timing\">Waktu belum tepat</option> <option value=\"competitor\">Memilih kampus lain</option></select></div><div><label class=\"block text-sm font-medium text-gray-700 mb-1\">Catatan</label> <textarea name=\"remarks\" rows=\"3\" class=\"w-full border border-gray-300 rounded-md px-3 py-2\" placeholder=\"Hasil percakapan...\" data-testid=\"input-remarks\"></textarea></div><div><label class=\"block text-sm font-medium text-gray-700 mb-1\">Follow-up Berikutnya</label> <input type=\"date\" name=\"next_followup\" class=\"w-full border border-gray-300 rounded-md px-3 py-2\" data-testid=\"input-next-followup\"></div><div class=\"flex gap-2 pt-4\"><button type=\"button\" onclick=\"document.getElementById('modal-interaksi').classList.add('hidden')\" class=\"flex-1 border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50\" data-testid=\"btn-cancel\">Batal</button> <button type=\"submit\" class=\"flex-1 bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700\" data-testid=\"btn-submit\">Simpan</button></div></form></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</div></div></div></div></div><!-- Modal Log Interaksi --> <div id=\"modal-interaksi\" class=\"hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50\" data-testid=\"modal-interaction\"><div class=\"bg-white rounded-lg shadow-xl w-full max-w-lg mx-4\"><div class=\"px-6 py-4 border-b flex items-center justify-between\"><h3 class=\"font-semibold text-gray-900\" data-testid=\"modal-title\">Log Interaksi Baru</h3><button onclick=\"document.getElementById('modal-interaksi').classList.add('hidden')\" class=\"text-gray-400 hover:text-gray-600\" data-testid=\"modal-close\">✕</button></div><form class=\"p-6 space-y-4\" data-testid=\"form-interaction\"><div><label class=\"block text-sm font-medium text-gray-700 mb-1\">Channel</label> <select name=\"channel\" class=\"w-full border border-gray-300 rounded-md px-3 py-2\" data-testid=\"select-channel\"><option value=\"call\">Telepon</option> <option value=\"whatsapp\">WhatsApp</option> <option value=\"email\">Email</option> <option value=\"campus_visit\">Kunjungan Kampus</option> <option value=\"home_visit\">Kunjungan Rumah</option></select></div><div><label class=\"block text-sm font-medium text-gray-700 mb-1\">Kategori</label> <select name=\"category\" class=\"w-full border border-gray-300 rounded-md px-3 py-2\" data-testid=\"select-category\"><option value=\"interested\">Tertarik</option> <option value=\"considering\">Mempertimbangkan</option> <option value=\"hesitant\">Ragu-ragu</option> <option value=\"cold\">Dingin</option> <option value=\"unreachable\">Tidak bisa dihubungi</option></select></div><div><label class=\"block text-sm font-medium text-gray-700 mb-1\">Hambatan (opsional)</label> <select name=\"obstacle\" class=\"w-full border border-gray-300 rounded-md px-3 py-2\" data-testid=\"select-obstacle\"><option value=\"\">- Pilih hambatan -</option> <option value=\"price\">Biaya terlalu mahal</option> <option value=\"location\">Lokasi jauh</option> <option value=\"parents\">Orang tua belum setuju</option> <option value=\"timing\">Waktu belum tepat</option> <option value=\"competitor\">Memilih kampus lain</option></select></div><div><label class=\"block text-sm font-medium text-gray-700 mb-1\">Catatan</label> <textarea name=\"remarks\" rows=\"3\" class=\"w-full border border-gray-300 rounded-md px-3 py-2\" placeholder=\"Hasil percakapan...\" data-testid=\"input-remarks\"></textarea></div><div><label class=\"block text-sm font-medium text-gray-700 mb-1\">Follow-up Berikutnya</label> <input type=\"date\" name=\"next_followup\" class=\"w-full border border-gray-300 rounded-md px-3 py-2\" data-testid=\"input-next-followup\"></div><div class=\"flex gap-2 pt-4\"><button type=\"button\" onclick=\"document.getElementById('modal-interaksi').classList.add('hidden')\" class=\"flex-1 border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50\" data-testid=\"btn-cancel\">Batal</button> <button type=\"submit\" class=\"flex-1 bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700\" data-testid=\"btn-submit\">Simpan</button></div></form></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -515,52 +586,52 @@ func ChannelBadge(channel string) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var26 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var26 == nil {
-			templ_7745c5c3_Var26 = templ.NopComponent
+		templ_7745c5c3_Var31 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var31 == nil {
+			templ_7745c5c3_Var31 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		switch channel {
 		case "call":
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<span class=\"px-2 py-1 text-xs font-medium rounded bg-purple-100 text-purple-800\">📞 Telepon</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "<span class=\"px-2 py-1 text-xs font-medium rounded bg-purple-100 text-purple-800\">📞 Telepon</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		case "whatsapp":
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "<span class=\"px-2 py-1 text-xs font-medium rounded bg-green-100 text-green-800\">💬 WhatsApp</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "<span class=\"px-2 py-1 text-xs font-medium rounded bg-green-100 text-green-800\">💬 WhatsApp</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		case "email":
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "<span class=\"px-2 py-1 text-xs font-medium rounded bg-blue-100 text-blue-800\">📧 Email</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "<span class=\"px-2 py-1 text-xs font-medium rounded bg-blue-100 text-blue-800\">📧 Email</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		case "campus_visit":
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "<span class=\"px-2 py-1 text-xs font-medium rounded bg-orange-100 text-orange-800\">🏫 Kunjungan Kampus</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "<span class=\"px-2 py-1 text-xs font-medium rounded bg-orange-100 text-orange-800\">🏫 Kunjungan Kampus</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		case "home_visit":
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "<span class=\"px-2 py-1 text-xs font-medium rounded bg-yellow-100 text-yellow-800\">🏠 Kunjungan Rumah</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "<span class=\"px-2 py-1 text-xs font-medium rounded bg-yellow-100 text-yellow-800\">🏠 Kunjungan Rumah</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		default:
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "<span class=\"px-2 py-1 text-xs font-medium rounded bg-gray-100 text-gray-800\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "<span class=\"px-2 py-1 text-xs font-medium rounded bg-gray-100 text-gray-800\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var27 string
-			templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(channel)
+			var templ_7745c5c3_Var32 string
+			templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(channel)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/candidate_detail.templ`, Line: 290, Col: 90}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/candidate_detail.templ`, Line: 334, Col: 90}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -585,81 +656,81 @@ func CategoryBadge(category string, sentiment string) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var28 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var28 == nil {
-			templ_7745c5c3_Var28 = templ.NopComponent
+		templ_7745c5c3_Var33 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var33 == nil {
+			templ_7745c5c3_Var33 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		switch sentiment {
 		case "positive":
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "<span class=\"px-2 py-1 text-xs font-medium rounded bg-green-100 text-green-800\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "<span class=\"px-2 py-1 text-xs font-medium rounded bg-green-100 text-green-800\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var29 string
-			templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(category)
+			var templ_7745c5c3_Var34 string
+			templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(category)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/candidate_detail.templ`, Line: 297, Col: 93}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/candidate_detail.templ`, Line: 341, Col: 93}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "</span>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		case "neutral":
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "<span class=\"px-2 py-1 text-xs font-medium rounded bg-yellow-100 text-yellow-800\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var30 string
-			templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(category)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/candidate_detail.templ`, Line: 299, Col: 95}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "</span>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		case "negative":
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "<span class=\"px-2 py-1 text-xs font-medium rounded bg-red-100 text-red-800\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var31 string
-			templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(category)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/candidate_detail.templ`, Line: 301, Col: 89}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "</span>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		default:
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "<span class=\"px-2 py-1 text-xs font-medium rounded bg-gray-100 text-gray-800\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var32 string
-			templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(category)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/candidate_detail.templ`, Line: 303, Col: 91}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "</span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		case "neutral":
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "<span class=\"px-2 py-1 text-xs font-medium rounded bg-yellow-100 text-yellow-800\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var35 string
+			templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(category)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/candidate_detail.templ`, Line: 343, Col: 95}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "</span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		case "negative":
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "<span class=\"px-2 py-1 text-xs font-medium rounded bg-red-100 text-red-800\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var36 string
+			templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(category)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/candidate_detail.templ`, Line: 345, Col: 89}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "</span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		default:
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "<span class=\"px-2 py-1 text-xs font-medium rounded bg-gray-100 text-gray-800\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var37 string
+			templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(category)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/admin/candidate_detail.templ`, Line: 347, Col: 91}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -35,6 +35,12 @@ func (h *AdminHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.Handle("GET /admin/candidates/{id}", protected(h.handleCandidateDetail))
 	mux.Handle("GET /admin/candidates/{id}/interaction", protected(h.handleInteractionForm))
 	mux.Handle("POST /admin/candidates/{id}/interaction", protected(h.handleCreateInteraction))
+	mux.Handle("POST /admin/candidates/{id}/reassign", protected(h.handleReassignCandidate))
+	mux.Handle("GET /admin/reassign-modal", protected(h.handleGetConsultantsForReassign))
+
+	// Interactions - Supervisor Suggestions
+	mux.Handle("POST /admin/interactions/{id}/suggestion", protected(h.handleAddSuggestion))
+	mux.Handle("POST /admin/interactions/{id}/mark-read", protected(h.handleMarkSuggestionRead))
 
 	// Documents
 	mux.Handle("GET /admin/documents", protected(h.handleDocumentReview))

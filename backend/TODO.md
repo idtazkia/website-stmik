@@ -719,29 +719,32 @@ Consultants log each contact.
 
 ---
 
-## Feature 26: Supervisor Suggestions
+## Feature 26: Supervisor Suggestions ✅
 
 Supervisor reviews and provides guidance.
 
 - [x] `templates/admin/consultant_dashboard.templ` - Suggestions section (UI mockup done)
-- [ ] `templates/admin/candidate_detail.templ` - Suggestion field in timeline
-- [ ] `handler/admin.go` - POST /admin/interactions/{id}/suggestion
-- [ ] Consultant sees suggestion, marks as read
-- [ ] Notification badge for unread suggestions
-- [ ] Test: Add suggestion, mark as read
+- [x] `templates/admin/candidate_detail.templ` - Suggestion field in timeline with add form for supervisor/admin
+- [x] `handler/admin_interactions.go` - handleAddSuggestion, handleMarkSuggestionRead
+- [x] Routes: POST /admin/interactions/{id}/suggestion, POST /admin/interactions/{id}/mark-read
+- [x] Consultant sees suggestion, marks as read via HTMX
+- [x] Notification badge for unread suggestions in sidebar (for consultants)
+- [x] E2E Test: `e2e/supervisor-suggestions.spec.ts` - Add suggestion, mark as read, notification badge
 
 ---
 
-## Feature 27: Consultant Assignment
+## Feature 27: Consultant Assignment ✅
 
 Manual reassignment of candidates.
 
-- [ ] `model/candidate.go` - Assign, GetAssignmentStats
-- [ ] `handler/admin.go` - POST /admin/candidates/{id}/assign
-- [ ] Supervisor/admin can reassign candidates
-- [ ] Show consultant workload in dropdown
-- [ ] Log assignment change in timeline
-- [ ] Test: Reassignment, workload display
+- [x] `model/candidate.go` - ListConsultantsWithWorkload, ReassignCandidate
+- [x] `handler/admin_candidates.go` - handleReassignCandidate, handleGetConsultantsForReassign
+- [x] Routes: POST /admin/candidates/{id}/reassign, GET /admin/reassign-modal
+- [x] Supervisor/admin can reassign candidates (role check in handler)
+- [x] Show consultant workload in dropdown (active count, total count)
+- [x] Log assignment change in timeline (creates interaction with channel "system")
+- [x] HTMX modal for reassignment UI
+- [x] E2E Test: `e2e/reassignment.spec.ts` - Modal behavior, access control, reassignment flow
 
 ---
 

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/idtazkia/stmik-admission-api/auth"
+	"github.com/idtazkia/stmik-admission-api/model"
 	"github.com/idtazkia/stmik-admission-api/templates/layouts"
 	"github.com/idtazkia/stmik-admission-api/version"
 )
@@ -45,6 +46,16 @@ func NewPageDataWithUser(ctx context.Context, title string) layouts.PageData {
 	if claims := GetUserClaims(ctx); claims != nil {
 		data.UserName = claims.Name
 		data.UserRole = claims.Role
+
+		// For consultants, fetch unread suggestions count
+		if claims.Role == "consultant" {
+			count, err := model.CountUnreadSuggestions(ctx, claims.UserID)
+			if err != nil {
+				slog.Warn("failed to count unread suggestions", "error", err)
+			} else {
+				data.UnreadSuggestions = count
+			}
+		}
 	}
 	return data
 }

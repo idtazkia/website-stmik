@@ -1,6 +1,9 @@
 package layouts
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 // userInitials returns the initials from a name (max 2 chars)
 func userInitials(name string) string {
@@ -35,10 +38,11 @@ func roleLabel(role string) string {
 // Note: CSRF protection uses Go 1.25's http.CrossOriginProtection (header-based)
 // No token fields needed - uses Sec-Fetch-Site and Origin headers
 type PageData struct {
-	Title    string
-	Version  string
-	UserName string
-	UserRole string
+	Title                string
+	Version              string
+	UserName             string
+	UserRole             string
+	UnreadSuggestions    int // For consultants: count of unread supervisor suggestions
 }
 
 templ Base(data PageData) {
@@ -100,8 +104,11 @@ templ Admin(data PageData) {
 					<a href="/admin" class="block px-4 py-2 hover:bg-primary-800" data-testid="nav-dashboard">
 						<span class="mr-2">📊</span> Dashboard
 					</a>
-					<a href="/admin/my-dashboard" class="block px-4 py-2 hover:bg-primary-800" data-testid="nav-my-dashboard">
-						<span class="mr-2">🏠</span> Dashboard Saya
+					<a href="/admin/my-dashboard" class="block px-4 py-2 hover:bg-primary-800 flex items-center justify-between" data-testid="nav-my-dashboard">
+						<span><span class="mr-2">🏠</span> Dashboard Saya</span>
+						if data.UnreadSuggestions > 0 {
+							<span class="bg-yellow-500 text-white text-xs px-2 py-0.5 rounded-full" data-testid="unread-suggestions-badge">{ fmt.Sprintf("%d", data.UnreadSuggestions) }</span>
+						}
 					</a>
 					<a href="/admin/candidates" class="block px-4 py-2 hover:bg-primary-800" data-testid="nav-candidates">
 						<span class="mr-2">👥</span> Kandidat
