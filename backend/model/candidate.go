@@ -502,7 +502,7 @@ func ListCandidates(ctx context.Context, filters CandidateListFilters, visibilit
 	}
 
 	// Build ORDER BY clause
-	orderBy := "c.created_at DESC" // Default
+	orderBy := "c.created_at" // Default
 	switch filters.SortBy {
 	case "name":
 		orderBy = "c.name"
