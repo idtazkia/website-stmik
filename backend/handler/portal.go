@@ -32,6 +32,7 @@ func (h *PortalHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.Handle("GET /portal/documents", RequireCandidateAuth(h.sessionMgr, http.HandlerFunc(h.handleDocuments)))
 	mux.Handle("POST /portal/documents/upload", RequireCandidateAuth(h.sessionMgr, http.HandlerFunc(h.handleDocumentUpload)))
 	mux.Handle("GET /portal/payments", RequireCandidateAuth(h.sessionMgr, http.HandlerFunc(h.handlePayments)))
+	mux.Handle("POST /portal/payments/{id}/proof", RequireCandidateAuth(h.sessionMgr, http.HandlerFunc(h.handlePaymentUpload)))
 	mux.Handle("GET /portal/announcements", RequireCandidateAuth(h.sessionMgr, http.HandlerFunc(h.handleAnnouncements)))
 	mux.Handle("POST /portal/announcements/{id}/read", RequireCandidateAuth(h.sessionMgr, http.HandlerFunc(h.handleMarkAnnouncementRead)))
 	mux.Handle("GET /portal/referral", RequireCandidateAuth(h.sessionMgr, http.HandlerFunc(h.handleReferral)))
@@ -336,7 +337,8 @@ func (h *PortalHandler) handlePayments(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	candidateData, err := model.GetCandidateDashboardData(r.Context(), claims.CandidateID)
+	ctx := r.Context()
+	candidateData, err := model.GetCandidateDashboardData(ctx, claims.CandidateID)
 	if err != nil {
 		slog.Error("failed to get candidate data", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -347,21 +349,193 @@ func (h *PortalHandler) handlePayments(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Fetch billings with payment info
+	billings, err := model.ListBillingsByCandidate(ctx, claims.CandidateID)
+	if err != nil {
+		slog.Error("failed to list billings", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	// Fetch summary
+	totalDue, totalPaid, totalPending, err := model.GetBillingSummary(ctx, claims.CandidateID)
+	if err != nil {
+		slog.Error("failed to get billing summary", "error", err)
+		totalDue, totalPaid, totalPending = 0, 0, 0
+	}
+
 	data := NewPageData("Pembayaran")
 	candidate := portal.PortalCandidate{
 		ID:   candidateData.ID,
 		Name: safeString(candidateData.Name),
 	}
 
-	// TODO: Fetch real payments from database when payment feature is implemented
-	payments := []portal.PaymentItem{}
-	summary := portal.PaymentSummary{
-		TotalDue:     "Rp 0",
-		TotalPaid:    "Rp 0",
-		TotalPending: "Rp 0",
+	// Convert billings to template payment items
+	payments := make([]portal.PaymentItem, len(billings))
+	for i, b := range billings {
+		// Determine status for display
+		status := b.Status
+		if status == "pending_verification" {
+			status = "pending"
+		}
+
+		dueDate := ""
+		if b.DueDate != nil {
+			dueDate = b.DueDate.Format("02 Jan 2006")
+		}
+
+		paidAt := ""
+		if b.PaidAt != nil {
+			paidAt = b.PaidAt.Format("02 Jan 2006")
+		}
+
+		proofURL := ""
+		if b.PaymentProofURL != nil {
+			proofURL = h.storage.GetURL(*b.PaymentProofURL)
+		}
+
+		payments[i] = portal.PaymentItem{
+			ID:          b.ID,
+			Type:        model.BillingTypeLabel(b.BillingType),
+			Description: safeString(b.Description),
+			Amount:      formatRupiah(int64(b.Amount)),
+			DueDate:     dueDate,
+			Status:      status,
+			PaidAt:      paidAt,
+			ProofURL:    proofURL,
+		}
 	}
 
-	portal.Payments(data, candidate, payments, summary).Render(r.Context(), w)
+	summary := portal.PaymentSummary{
+		TotalDue:     formatRupiah(int64(totalDue)),
+		TotalPaid:    formatRupiah(int64(totalPaid)),
+		TotalPending: formatRupiah(int64(totalPending)),
+	}
+
+	portal.Payments(data, candidate, payments, summary).Render(ctx, w)
+}
+
+func (h *PortalHandler) handlePaymentUpload(w http.ResponseWriter, r *http.Request) {
+	claims := GetCandidateClaims(r.Context())
+	if claims == nil {
+		http.Redirect(w, r, "/login", http.StatusFound)
+		return
+	}
+
+	ctx := r.Context()
+	billingID := r.PathValue("id")
+
+	// Verify billing belongs to this candidate
+	billing, err := model.FindBillingByID(ctx, billingID)
+	if err != nil {
+		slog.Error("failed to find billing", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+	if billing == nil || billing.CandidateID != claims.CandidateID {
+		http.Error(w, "Billing not found", http.StatusNotFound)
+		return
+	}
+
+	// Parse multipart form (max 10MB)
+	if err := r.ParseMultipartForm(10 << 20); err != nil {
+		slog.Error("failed to parse form", "error", err)
+		http.Error(w, "File too large", http.StatusBadRequest)
+		return
+	}
+
+	// Get transfer date
+	transferDateStr := r.FormValue("transfer_date")
+	if transferDateStr == "" {
+		http.Error(w, "Transfer date is required", http.StatusBadRequest)
+		return
+	}
+	transferDate, err := time.Parse("2006-01-02", transferDateStr)
+	if err != nil {
+		http.Error(w, "Invalid transfer date format", http.StatusBadRequest)
+		return
+	}
+
+	// Get transfer amount
+	amountStr := r.FormValue("amount")
+	if amountStr == "" {
+		http.Error(w, "Transfer amount is required", http.StatusBadRequest)
+		return
+	}
+	// Parse amount (remove "Rp" and dots)
+	amountStr = strings.ReplaceAll(amountStr, "Rp", "")
+	amountStr = strings.ReplaceAll(amountStr, ".", "")
+	amountStr = strings.ReplaceAll(amountStr, ",", "")
+	amountStr = strings.TrimSpace(amountStr)
+	var amount int
+	_, err = fmt.Sscanf(amountStr, "%d", &amount)
+	if err != nil {
+		http.Error(w, "Invalid amount format", http.StatusBadRequest)
+		return
+	}
+
+	// Get uploaded file
+	file, header, err := r.FormFile("proof")
+	if err != nil {
+		slog.Error("failed to get file", "error", err)
+		http.Error(w, "Proof file is required", http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+
+	// Validate file size (max 5MB)
+	maxSize := int64(5) * 1024 * 1024
+	if header.Size > maxSize {
+		http.Error(w, "File too large. Maximum size is 5 MB", http.StatusBadRequest)
+		return
+	}
+
+	// Validate file extension
+	ext := strings.ToLower(strings.TrimPrefix(filepath.Ext(header.Filename), "."))
+	validExts := []string{"jpg", "jpeg", "png", "pdf"}
+	validExt := false
+	for _, allowed := range validExts {
+		if ext == allowed {
+			validExt = true
+			break
+		}
+	}
+	if !validExt {
+		http.Error(w, "Invalid file type. Allowed: JPG, PNG, PDF", http.StatusBadRequest)
+		return
+	}
+
+	// Generate storage path: payments/{candidate_id}/{billing_id}_{timestamp}.{ext}
+	timestamp := time.Now().Unix()
+	storagePath := fmt.Sprintf("payments/%s/%s_%d.%s", claims.CandidateID, billingID, timestamp, ext)
+
+	// Upload file to storage
+	if err := h.storage.Upload(ctx, storagePath, file); err != nil {
+		slog.Error("failed to upload file", "error", err)
+		http.Error(w, "Failed to upload file", http.StatusInternalServerError)
+		return
+	}
+
+	// Get MIME type
+	mimeType := header.Header.Get("Content-Type")
+	if mimeType == "" {
+		mimeType = getMimeType(ext)
+	}
+
+	// Create payment record
+	_, err = model.CreatePayment(ctx, billingID, amount, transferDate, storagePath, header.Filename, int(header.Size), mimeType)
+	if err != nil {
+		slog.Error("failed to create payment record", "error", err)
+		// Try to clean up uploaded file
+		_ = h.storage.Delete(ctx, storagePath)
+		http.Error(w, "Failed to save payment proof", http.StatusInternalServerError)
+		return
+	}
+
+	slog.Info("payment proof uploaded", "candidate_id", claims.CandidateID, "billing_id", billingID, "file", header.Filename)
+
+	// Redirect back to payments page
+	http.Redirect(w, r, "/portal/payments", http.StatusSeeOther)
 }
 
 func (h *PortalHandler) handleAnnouncements(w http.ResponseWriter, r *http.Request) {

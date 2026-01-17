@@ -601,23 +601,23 @@ Candidate uploads and tracks documents.
 
 ---
 
-## Feature 19: Candidate Portal - Payments
+## Feature 19: Candidate Portal - Payments ✅
 
 Candidate views billing and uploads payment proof.
 
-**Migrations:** 022_create_billings, 023_create_payments (pending)
+**Migrations:** 022_create_billings ✅, 023_create_payments ✅
 
-- [x] `templates/portal/payments.templ` - Billing list with installments (UI mockup done)
-- [ ] `model/billing.go` - Create, FindByCandidate
-- [ ] `model/payment.go` - UploadProof
-- [ ] `handler/portal.go` - GET /portal/payments, POST /portal/payments/{id}/proof (wire to real data)
-- [ ] List all billings: registration, tuition, dormitory
-- [ ] Show per billing: total, paid, remaining, installments
-- [ ] Show per installment: amount, due date, status, proof
-- [ ] Upload payment proof (image)
-- [ ] Registration fee: generated on registration
-- [ ] Tuition/dormitory: generated on commitment (by admin)
-- [ ] Test: Billing display, proof upload
+- [x] `templates/portal/payments.templ` - Billing list with upload modal
+- [x] `model/billing.go` - Create, FindByCandidate, GetSummary
+- [x] `model/payment.go` - CreatePayment, ApprovePayment, RejectPayment
+- [x] `handler/portal.go` - GET /portal/payments, POST /portal/payments/{id}/proof
+- [x] List all billings: registration, tuition, dormitory
+- [x] Show per billing: amount, due date, status, proof URL
+- [x] Upload payment proof (image/PDF)
+- [x] E2E Test: `e2e/payments.spec.ts` - Page display, empty state
+- [ ] Registration fee: generated on registration (to be integrated with registration flow)
+- [ ] Tuition/dormitory: generated on commitment (to be added in admin billing management)
+- [ ] Admin payment review: approve/reject payment proofs (Feature TBD)
 
 ---
 

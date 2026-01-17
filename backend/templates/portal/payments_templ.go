@@ -112,166 +112,176 @@ func Payments(data layouts.PageData, candidate PortalCandidate, payments []Payme
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "-[Nama]</p></div></div></div><!-- Payment List --><div class=\"bg-white rounded-lg border\" data-testid=\"payments-list\"><div class=\"p-4 border-b\"><h2 class=\"font-semibold text-gray-900\">Daftar Tagihan</h2></div><div class=\"divide-y\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "-[Nama]</p></div></div></div><!-- Payment List --><div class=\"bg-white rounded-lg border\" data-testid=\"payments-list\"><div class=\"p-4 border-b\"><h2 class=\"font-semibold text-gray-900\">Daftar Tagihan</h2></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if len(payments) == 0 {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"p-8 text-center text-gray-500\"><p>Belum ada tagihan</p></div>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"divide-y\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, payment := range payments {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"p-4\"><div class=\"flex items-start justify-between\"><div class=\"flex-1\"><div class=\"flex items-center gap-2\"><h3 class=\"font-medium text-gray-900\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div class=\"p-4\"><div class=\"flex items-start justify-between\"><div class=\"flex-1\"><div class=\"flex items-center gap-2\"><h3 class=\"font-medium text-gray-900\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(payment.Type)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/portal/payments.templ`, Line: 81, Col: 62}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/portal/payments.templ`, Line: 86, Col: 62}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</h3>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</h3>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if payment.Status == "paid" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<span class=\"px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs\">Lunas</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span class=\"px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs\">Lunas</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				} else if payment.Status == "pending" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<span class=\"px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded text-xs\">Menunggu Verifikasi</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span class=\"px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded text-xs\">Menunggu Verifikasi</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span class=\"px-2 py-0.5 bg-red-100 text-red-700 rounded text-xs\">Belum Dibayar</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<span class=\"px-2 py-0.5 bg-red-100 text-red-700 rounded text-xs\">Belum Dibayar</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div><p class=\"text-sm text-gray-500 mt-1\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div><p class=\"text-sm text-gray-500 mt-1\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(payment.Description)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/portal/payments.templ`, Line: 90, Col: 68}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/portal/payments.templ`, Line: 95, Col: 68}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</p><div class=\"flex items-center gap-4 mt-2 text-sm\"><span class=\"text-gray-500\">Jatuh tempo: <span class=\"text-gray-700\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</p><div class=\"flex items-center gap-4 mt-2 text-sm\"><span class=\"text-gray-500\">Jatuh tempo: <span class=\"text-gray-700\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(payment.DueDate)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/portal/payments.templ`, Line: 92, Col: 96}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/portal/payments.templ`, Line: 97, Col: 96}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</span></span> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</span></span> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if payment.PaidAt != "" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<span class=\"text-gray-500\">Dibayar: <span class=\"text-gray-700\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span class=\"text-gray-500\">Dibayar: <span class=\"text-gray-700\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var10 string
 					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(payment.PaidAt)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/portal/payments.templ`, Line: 94, Col: 92}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/portal/payments.templ`, Line: 99, Col: 92}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</span></span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</span></span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div></div><div class=\"text-right\"><p class=\"text-xl font-bold text-gray-900\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div></div><div class=\"text-right\"><p class=\"text-xl font-bold text-gray-900\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(payment.Amount)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/portal/payments.templ`, Line: 99, Col: 68}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/portal/payments.templ`, Line: 104, Col: 68}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</p>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</p>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if payment.Status == "unpaid" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<button class=\"mt-2 px-4 py-2 bg-primary-600 text-white rounded-lg text-sm hover:bg-primary-700\" onclick=\"openUploadModal(this)\" data-payment-id=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<button class=\"mt-2 px-4 py-2 bg-primary-600 text-white rounded-lg text-sm hover:bg-primary-700\" onclick=\"openUploadModal(this)\" data-payment-id=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var12 string
 					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(payment.ID)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/portal/payments.templ`, Line: 101, Col: 167}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/portal/payments.templ`, Line: 106, Col: 167}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" data-payment-type=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\" data-payment-type=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var13 string
 					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(payment.Type)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/portal/payments.templ`, Line: 101, Col: 202}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/portal/payments.templ`, Line: 106, Col: 202}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\">Upload Bukti Bayar</button>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\">Upload Bukti Bayar</button>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				} else if payment.Status == "pending" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<a href=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<a href=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var14 templ.SafeURL
 					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(payment.ProofURL))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/portal/payments.templ`, Line: 105, Col: 51}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/portal/payments.templ`, Line: 110, Col: 51}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\" target=\"_blank\" class=\"mt-2 inline-block px-4 py-2 border border-primary-600 text-primary-600 rounded-lg text-sm hover:bg-primary-50\">Lihat Bukti</a>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" target=\"_blank\" class=\"mt-2 inline-block px-4 py-2 border border-primary-600 text-primary-600 rounded-lg text-sm hover:bg-primary-50\">Lihat Bukti</a>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</div></div></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</div></div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div></div><!-- Upload Modal (hidden by default) --><div id=\"uploadModal\" class=\"hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50\"><div class=\"bg-white rounded-xl shadow-xl w-full max-w-md mx-4\"><div class=\"p-4 border-b flex items-center justify-between\"><h3 class=\"font-semibold text-gray-900\">Upload Bukti Pembayaran</h3><button onclick=\"closeUploadModal()\" class=\"text-gray-400 hover:text-gray-600\"><svg class=\"w-5 h-5\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M6 18L18 6M6 6l12 12\"></path></svg></button></div><form class=\"p-4 space-y-4\"><div><label class=\"block text-sm font-medium text-gray-700 mb-1\">Jenis Pembayaran</label> <input type=\"text\" id=\"paymentType\" class=\"w-full px-3 py-2 border rounded-lg bg-gray-50\" readonly></div><div><label class=\"block text-sm font-medium text-gray-700 mb-1\">Tanggal Transfer</label> <input type=\"date\" class=\"w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500\" required></div><div><label class=\"block text-sm font-medium text-gray-700 mb-1\">Nominal Transfer</label> <input type=\"text\" class=\"w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500\" placeholder=\"Rp\" required></div><div><label class=\"block text-sm font-medium text-gray-700 mb-1\">Bukti Transfer</label><div class=\"border-2 border-dashed rounded-lg p-6 text-center\"><svg class=\"mx-auto h-12 w-12 text-gray-400\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12\"></path></svg><p class=\"mt-2 text-sm text-gray-500\">Klik atau drag file ke sini</p><p class=\"text-xs text-gray-400\">JPG, PNG atau PDF (max 5MB)</p><input type=\"file\" class=\"hidden\" accept=\"image/*,.pdf\"></div></div><div class=\"flex gap-2 pt-2\"><button type=\"button\" onclick=\"closeUploadModal()\" class=\"flex-1 px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-50\">Batal</button> <button type=\"submit\" class=\"flex-1 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700\">Upload</button></div></form></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</div></div><!-- Upload Modal (hidden by default) --><div id=\"uploadModal\" class=\"hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50\"><div class=\"bg-white rounded-xl shadow-xl w-full max-w-md mx-4\"><div class=\"p-4 border-b flex items-center justify-between\"><h3 class=\"font-semibold text-gray-900\">Upload Bukti Pembayaran</h3><button type=\"button\" onclick=\"closeUploadModal()\" class=\"text-gray-400 hover:text-gray-600\"><svg class=\"w-5 h-5\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M6 18L18 6M6 6l12 12\"></path></svg></button></div><form id=\"uploadForm\" method=\"POST\" enctype=\"multipart/form-data\" class=\"p-4 space-y-4\"><div><label class=\"block text-sm font-medium text-gray-700 mb-1\">Jenis Pembayaran</label> <input type=\"text\" id=\"paymentTypeDisplay\" class=\"w-full px-3 py-2 border rounded-lg bg-gray-50\" readonly></div><div><label class=\"block text-sm font-medium text-gray-700 mb-1\">Tanggal Transfer</label> <input type=\"date\" name=\"transfer_date\" data-testid=\"input-transfer-date\" class=\"w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500\" required></div><div><label class=\"block text-sm font-medium text-gray-700 mb-1\">Nominal Transfer</label> <input type=\"text\" name=\"amount\" data-testid=\"input-amount\" class=\"w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500\" placeholder=\"Rp\" required></div><div><label class=\"block text-sm font-medium text-gray-700 mb-1\">Bukti Transfer</label><div class=\"border-2 border-dashed rounded-lg p-6 text-center cursor-pointer hover:bg-gray-50\" onclick=\"document.getElementById('proofFile').click()\"><svg class=\"mx-auto h-12 w-12 text-gray-400\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12\"></path></svg><p class=\"mt-2 text-sm text-gray-500\" id=\"fileLabel\">Klik untuk memilih file</p><p class=\"text-xs text-gray-400\">JPG, PNG atau PDF (max 5MB)</p></div><input type=\"file\" id=\"proofFile\" name=\"proof\" data-testid=\"input-proof\" class=\"hidden\" accept=\"image/jpeg,image/png,application/pdf\" required onchange=\"updateFileLabel(this)\"></div><div class=\"flex gap-2 pt-2\"><button type=\"button\" onclick=\"closeUploadModal()\" class=\"flex-1 px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-50\">Batal</button> <button type=\"submit\" data-testid=\"btn-upload-proof\" class=\"flex-1 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700\">Upload</button></div></form></div></div><script>\n\t\t\t\tfunction openUploadModal(button) {\n\t\t\t\t\tconst paymentId = button.getAttribute('data-payment-id');\n\t\t\t\t\tconst paymentType = button.getAttribute('data-payment-type');\n\t\t\t\t\tdocument.getElementById('uploadForm').action = '/portal/payments/' + paymentId + '/proof';\n\t\t\t\t\tdocument.getElementById('paymentTypeDisplay').value = paymentType;\n\t\t\t\t\tdocument.getElementById('uploadModal').classList.remove('hidden');\n\t\t\t\t}\n\n\t\t\t\tfunction closeUploadModal() {\n\t\t\t\t\tdocument.getElementById('uploadModal').classList.add('hidden');\n\t\t\t\t\tdocument.getElementById('uploadForm').reset();\n\t\t\t\t\tdocument.getElementById('fileLabel').textContent = 'Klik untuk memilih file';\n\t\t\t\t}\n\n\t\t\t\tfunction updateFileLabel(input) {\n\t\t\t\t\tconst label = document.getElementById('fileLabel');\n\t\t\t\t\tif (input.files && input.files[0]) {\n\t\t\t\t\t\tlabel.textContent = input.files[0].name;\n\t\t\t\t\t} else {\n\t\t\t\t\t\tlabel.textContent = 'Klik untuk memilih file';\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t</script></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
