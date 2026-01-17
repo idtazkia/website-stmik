@@ -179,3 +179,117 @@ test.describe('User Manual Screenshots - Admin Settings', () => {
     await page.screenshot({ path: `${SCREENSHOT_DIR}/12a-settings-lost-reasons-add.png`, fullPage: true });
   });
 });
+
+// Generate unique identifiers for test data
+function generateUniqueEmail(): string {
+  const timestamp = Date.now();
+  return `screenshot${timestamp}@example.com`;
+}
+
+test.describe('User Manual Screenshots - Candidate Registration', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+  });
+
+  // Registration Step 1 - Account Creation
+  test('20 - Registration Step 1 - Account', async ({ page }) => {
+    await page.goto('/register');
+    await expect(page.getByTestId('registration-form')).toBeVisible();
+    await expect(page.getByTestId('step1-form')).toBeVisible();
+    await page.screenshot({ path: `${SCREENSHOT_DIR}/20-registration-step1.png`, fullPage: true });
+  });
+
+  // Registration Step 2 - Personal Info
+  test('21 - Registration Step 2 - Personal Info', async ({ page }) => {
+    // Complete step 1 first
+    await page.goto('/register');
+    await expect(page.getByTestId('step1-form')).toBeVisible();
+
+    const email = generateUniqueEmail();
+    await page.getByTestId('input-email').fill(email);
+    await page.getByTestId('input-password').fill('testpassword123');
+    await page.getByTestId('input-password-confirm').fill('testpassword123');
+    await page.getByTestId('btn-submit-step1').click();
+
+    await expect(page.getByTestId('step2-form')).toBeVisible();
+    await page.screenshot({ path: `${SCREENSHOT_DIR}/21-registration-step2.png`, fullPage: true });
+  });
+
+  // Registration Step 3 - Education
+  test('22 - Registration Step 3 - Education', async ({ page }) => {
+    // Complete steps 1 and 2
+    await page.goto('/register');
+    await expect(page.getByTestId('step1-form')).toBeVisible();
+
+    const email = generateUniqueEmail();
+    await page.getByTestId('input-email').fill(email);
+    await page.getByTestId('input-password').fill('testpassword123');
+    await page.getByTestId('input-password-confirm').fill('testpassword123');
+    await page.getByTestId('btn-submit-step1').click();
+
+    await expect(page.getByTestId('step2-form')).toBeVisible();
+    await page.getByTestId('input-name').fill('Test Candidate');
+    await page.getByTestId('input-address').fill('Jl. Test No. 123');
+    await page.getByTestId('input-city').fill('Jakarta');
+    await page.getByTestId('input-province').fill('DKI Jakarta');
+    await page.getByTestId('btn-submit-step2').click();
+
+    await expect(page.getByTestId('step3-form')).toBeVisible();
+    await page.screenshot({ path: `${SCREENSHOT_DIR}/22-registration-step3.png`, fullPage: true });
+  });
+
+  // Registration Step 4 - Source Tracking
+  test('23 - Registration Step 4 - Source Tracking', async ({ page }) => {
+    // Complete steps 1, 2, and 3
+    await page.goto('/register');
+    await expect(page.getByTestId('step1-form')).toBeVisible();
+
+    const email = generateUniqueEmail();
+    await page.getByTestId('input-email').fill(email);
+    await page.getByTestId('input-password').fill('testpassword123');
+    await page.getByTestId('input-password-confirm').fill('testpassword123');
+    await page.getByTestId('btn-submit-step1').click();
+
+    await expect(page.getByTestId('step2-form')).toBeVisible();
+    await page.getByTestId('input-name').fill('Test Candidate');
+    await page.getByTestId('input-address').fill('Jl. Test No. 123');
+    await page.getByTestId('input-city').fill('Jakarta');
+    await page.getByTestId('input-province').fill('DKI Jakarta');
+    await page.getByTestId('btn-submit-step2').click();
+
+    await expect(page.getByTestId('step3-form')).toBeVisible();
+
+    // Check if there are programs available
+    const prodiRadios = page.locator('[data-testid^="radio-prodi-"]');
+    const radioCount = await prodiRadios.count();
+
+    if (radioCount === 0) {
+      test.skip();
+      return;
+    }
+
+    await page.getByTestId('input-high-school').fill('SMA Negeri 1 Jakarta');
+    await page.getByTestId('select-graduation-year').selectOption('2025');
+    await prodiRadios.first().click();
+    await page.getByTestId('btn-submit-step3').click();
+
+    await expect(page.getByTestId('step4-form')).toBeVisible();
+    await page.screenshot({ path: `${SCREENSHOT_DIR}/23-registration-step4.png`, fullPage: true });
+  });
+
+  // Candidate Login Page
+  test('24 - Candidate Login', async ({ page }) => {
+    await page.goto('/login');
+    await expect(page.getByTestId('portal-login-form')).toBeVisible();
+    await page.screenshot({ path: `${SCREENSHOT_DIR}/24-candidate-login.png`, fullPage: true });
+  });
+
+  // Candidate Portal Dashboard
+  test('25 - Candidate Portal Dashboard', async ({ page }) => {
+    // Login as test candidate
+    await page.goto('/test/login/candidate');
+    await page.waitForURL(/\/portal\/?$/);
+    await expect(page.getByTestId('portal-dashboard')).toBeVisible();
+    await page.screenshot({ path: `${SCREENSHOT_DIR}/25-portal-dashboard.png`, fullPage: true });
+  });
+});

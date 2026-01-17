@@ -72,7 +72,7 @@ func Dashboard(data layouts.PageData, candidate DashboardCandidate, checklist []
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"space-y-6\"><!-- Welcome Banner --><div class=\"bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl p-6 text-white\"><div class=\"flex items-center justify-between\"><div><h1 class=\"text-2xl font-bold\">Selamat Datang, ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"space-y-6\" data-testid=\"portal-dashboard\"><!-- Welcome Banner --><div class=\"bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl p-6 text-white\"><div class=\"flex items-center justify-between\"><div><h1 class=\"text-2xl font-bold\">Selamat Datang, ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
