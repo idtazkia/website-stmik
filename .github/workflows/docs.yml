@@ -1,11 +1,10 @@
-name: Deploy User Manual to GitHub Pages
+name: Generate and Deploy User Manual Screenshots
 
 on:
   push:
     branches: [main]
     paths:
-      - 'backend/docs/screenshots/**'
-      - '.github/workflows/docs.yml'
+      - 'backend/**'
   workflow_dispatch:
 
 permissions:
@@ -18,11 +17,79 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build:
+  generate-and-deploy:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: stmik_admission
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+          cache-dependency-path: backend/go.sum
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install Go dependencies
+        run: go mod download
+
+      - name: Install templ
+        run: go install github.com/a-h/templ/cmd/templ@latest
+
+      - name: Generate templ files
+        run: templ generate
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build CSS
+        run: npm run css:build
+
+      - name: Run migrations
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/stmik_admission?sslmode=disable
+        run: go run ./cmd/migrate up
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Generate screenshots
+        env:
+          CI: true
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/stmik_admission?sslmode=disable
+          JWT_SECRET: test-jwt-secret-for-ci
+          GOOGLE_CLIENT_ID: test-client-id
+          GOOGLE_CLIENT_SECRET: test-client-secret
+          STAFF_EMAIL_DOMAIN: tazkia.ac.id
+        run: npx playwright test e2e/screenshots.spec.ts
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -36,13 +103,6 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
 
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
