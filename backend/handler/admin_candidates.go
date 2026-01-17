@@ -223,9 +223,35 @@ func (h *AdminHandler) handleCandidateDetail(w http.ResponseWriter, r *http.Requ
 		CreatedAt:           candidate.CreatedAt.Format("2 Jan 2006"),
 	}
 
-	// Interactions will be empty for now (interactions table not yet created)
-	// Will be populated in Feature 24
-	interactions := []admin.Interaction{}
+	// Fetch interactions from database
+	dbInteractions, err := model.ListInteractionsByCandidate(ctx, id)
+	if err != nil {
+		log.Printf("Error fetching interactions: %v", err)
+		dbInteractions = []model.InteractionWithDetails{}
+	}
+
+	// Convert to template type
+	interactions := make([]admin.Interaction, len(dbInteractions))
+	for i, intr := range dbInteractions {
+		nextFollowup := ""
+		if intr.NextFollowupDate != nil {
+			nextFollowup = intr.NextFollowupDate.Format("2 Jan 2006")
+		}
+
+		interactions[i] = admin.Interaction{
+			ID:                   intr.ID,
+			Channel:              intr.Channel,
+			Category:             ptrToString(intr.CategoryName),
+			CategorySentiment:    ptrToString(intr.CategorySentiment),
+			Obstacle:             ptrToString(intr.ObstacleName),
+			Remarks:              intr.Remarks,
+			NextFollowupDate:     nextFollowup,
+			SupervisorSuggestion: ptrToString(intr.SupervisorSuggestion),
+			SuggestionRead:       intr.SuggestionReadAt != nil,
+			ConsultantName:       intr.ConsultantName,
+			CreatedAt:            intr.CreatedAt.Format("2 Jan 2006 15:04"),
+		}
+	}
 
 	admin.KandidatDetail(data, c, interactions).Render(ctx, w)
 }

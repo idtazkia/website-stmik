@@ -153,43 +153,6 @@ func (h *AdminHandler) handleConsultantDashboard(w http.ResponseWriter, r *http.
 	admin.ConsultantDashboard(data, stats, overdueList, todayTasks, suggestions).Render(r.Context(), w)
 }
 
-func (h *AdminHandler) handleInteractionForm(w http.ResponseWriter, r *http.Request) {
-	id := r.PathValue("id")
-	candidate := mockdata.GetCandidateByID(id)
-	if candidate == nil {
-		http.NotFound(w, r)
-		return
-	}
-
-	data := NewPageDataWithUser(r.Context(), "Catat Interaksi - "+candidate.Name)
-
-	c := admin.CandidateSummary{
-		ID:        candidate.ID,
-		Name:      candidate.Name,
-		ProdiName: candidate.ProdiName,
-		WhatsApp:  candidate.WhatsApp,
-		Status:    candidate.Status,
-	}
-
-	categories := []admin.InteractionCategoryOption{
-		{Value: "interested", Label: "Tertarik", Icon: "😊", Sentiment: "positive"},
-		{Value: "considering", Label: "Mempertimbangkan", Icon: "🤔", Sentiment: "neutral"},
-		{Value: "hesitant", Label: "Ragu-ragu", Icon: "😕", Sentiment: "neutral"},
-		{Value: "cold", Label: "Dingin", Icon: "😐", Sentiment: "negative"},
-		{Value: "unreachable", Label: "Tidak bisa dihubungi", Icon: "📵", Sentiment: "negative"},
-	}
-
-	obstacles := []admin.ObstacleOption{
-		{Value: "expensive", Label: "Biaya mahal"},
-		{Value: "far", Label: "Lokasi jauh"},
-		{Value: "parent_not_agreed", Label: "Orang tua belum setuju"},
-		{Value: "bad_timing", Label: "Waktu belum tepat"},
-		{Value: "other_campus", Label: "Memilih kampus lain"},
-	}
-
-	admin.InteractionForm(data, c, categories, obstacles).Render(r.Context(), w)
-}
-
 func (h *AdminHandler) handleDocumentReview(w http.ResponseWriter, r *http.Request) {
 	data := NewPageDataWithUser(r.Context(), "Review Dokumen")
 

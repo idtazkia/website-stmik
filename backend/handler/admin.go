@@ -34,6 +34,7 @@ func (h *AdminHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.Handle("GET /admin/candidates", protected(h.handleCandidates))
 	mux.Handle("GET /admin/candidates/{id}", protected(h.handleCandidateDetail))
 	mux.Handle("GET /admin/candidates/{id}/interaction", protected(h.handleInteractionForm))
+	mux.Handle("POST /admin/candidates/{id}/interaction", protected(h.handleCreateInteraction))
 
 	// Documents
 	mux.Handle("GET /admin/documents", protected(h.handleDocumentReview))
