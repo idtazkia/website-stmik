@@ -1,27 +1,159 @@
 # Panduan Pengguna - Sistem Penerimaan Mahasiswa Baru STMIK Tazkia
 
-Panduan ini menjelaskan cara menggunakan aplikasi Admin CRM untuk mengelola penerimaan mahasiswa baru.
+Panduan ini menjelaskan cara menggunakan sistem penerimaan mahasiswa baru STMIK Tazkia, baik untuk calon mahasiswa maupun staff admin.
 
 ---
 
 ## Daftar Isi
 
-1. [Login](#1-login)
-2. [Dashboard](#2-dashboard)
-3. [Pengaturan Pengguna](#3-pengaturan-pengguna)
-4. [Pengaturan Program Studi](#4-pengaturan-program-studi)
-5. [Pengaturan Biaya](#5-pengaturan-biaya)
-6. [Pengaturan Kategori & Hambatan](#6-pengaturan-kategori--hambatan)
-7. [Pengaturan Kampanye](#7-pengaturan-kampanye)
-8. [Pengaturan Reward](#8-pengaturan-reward)
-9. [Pengaturan Referrer](#9-pengaturan-referrer)
-10. [Pengaturan Algoritma Assignment](#10-pengaturan-algoritma-assignment)
-11. [Pengaturan Jenis Dokumen](#11-pengaturan-jenis-dokumen)
-12. [Pengaturan Alasan Kehilangan](#12-pengaturan-alasan-kehilangan)
+### Portal Calon Mahasiswa
+1. [Pendaftaran Akun](#1-pendaftaran-akun)
+2. [Login Calon Mahasiswa](#2-login-calon-mahasiswa)
+3. [Dashboard Portal](#3-dashboard-portal)
+
+### Admin CRM
+4. [Login Admin](#4-login-admin)
+5. [Dashboard Admin](#5-dashboard-admin)
+6. [Pengaturan Pengguna](#6-pengaturan-pengguna)
+7. [Pengaturan Program Studi](#7-pengaturan-program-studi)
+8. [Pengaturan Biaya](#8-pengaturan-biaya)
+9. [Pengaturan Kategori & Hambatan](#9-pengaturan-kategori--hambatan)
+10. [Pengaturan Kampanye](#10-pengaturan-kampanye)
+11. [Pengaturan Reward](#11-pengaturan-reward)
+12. [Pengaturan Referrer](#12-pengaturan-referrer)
+13. [Pengaturan Algoritma Assignment](#13-pengaturan-algoritma-assignment)
+14. [Pengaturan Jenis Dokumen](#14-pengaturan-jenis-dokumen)
+15. [Pengaturan Alasan Kehilangan](#15-pengaturan-alasan-kehilangan)
 
 ---
 
-## 1. Login
+# Portal Calon Mahasiswa
+
+---
+
+## 1. Pendaftaran Akun
+
+Calon mahasiswa dapat mendaftar melalui portal pendaftaran online dengan 4 langkah mudah.
+
+### Langkah 1: Buat Akun
+
+![Pendaftaran - Langkah 1](20-registration-step1.png)
+
+**Field yang diisi:**
+
+| Field | Keterangan |
+|-------|------------|
+| Email | Alamat email (opsional, minimal isi email atau HP) |
+| Nomor HP | Nomor WhatsApp aktif (opsional, minimal isi email atau HP) |
+| Password | Minimal 8 karakter |
+| Konfirmasi Password | Ulangi password |
+
+**Catatan:** Minimal salah satu dari email atau nomor HP harus diisi.
+
+### Langkah 2: Data Diri
+
+![Pendaftaran - Langkah 2](21-registration-step2.png)
+
+**Field yang diisi:**
+
+| Field | Keterangan |
+|-------|------------|
+| Nama Lengkap | Sesuai KTP/Ijazah |
+| Alamat Lengkap | Jalan, RT/RW, Kelurahan, Kecamatan |
+| Kota/Kabupaten | Kota tempat tinggal |
+| Provinsi | Provinsi tempat tinggal |
+
+### Langkah 3: Data Pendidikan
+
+![Pendaftaran - Langkah 3](22-registration-step3.png)
+
+**Field yang diisi:**
+
+| Field | Keterangan |
+|-------|------------|
+| Asal Sekolah | Nama SMA/SMK/MA |
+| Tahun Lulus | Tahun kelulusan |
+| Program Studi | Pilih program studi yang diminati |
+
+### Langkah 4: Informasi Tambahan
+
+![Pendaftaran - Langkah 4](23-registration-step4.png)
+
+**Field yang diisi:**
+
+| Field | Keterangan |
+|-------|------------|
+| Sumber Informasi | Dari mana mengetahui STMIK Tazkia |
+| Detail | Informasi tambahan (untuk sumber tertentu) |
+
+**Pilihan sumber informasi:**
+
+- Instagram
+- Google
+- TikTok
+- YouTube
+- Pameran Pendidikan
+- Kunjungan Sekolah
+- Teman/Keluarga
+- Guru/Alumni
+- Datang Langsung
+- Lainnya
+
+Setelah selesai, sistem akan otomatis:
+- Menugaskan konsultan akademik untuk membantu proses pendaftaran
+- Mengarahkan ke dashboard portal
+
+---
+
+## 2. Login Calon Mahasiswa
+
+Calon mahasiswa yang sudah memiliki akun dapat login untuk melanjutkan proses pendaftaran.
+
+![Login Calon Mahasiswa](24-candidate-login.png)
+
+**Langkah-langkah:**
+
+1. Buka halaman `/login`
+2. Masukkan email atau nomor HP yang terdaftar
+3. Masukkan password
+4. Klik tombol "Masuk"
+
+**Catatan:** Jika lupa password, hubungi konsultan akademik untuk reset password.
+
+---
+
+## 3. Dashboard Portal
+
+Setelah login, calon mahasiswa akan melihat dashboard dengan informasi pendaftaran.
+
+![Dashboard Portal](25-portal-dashboard.png)
+
+**Informasi yang ditampilkan:**
+
+- Status pendaftaran (Terdaftar, Dalam Proses, Berkomitmen, Diterima)
+- Checklist langkah-langkah pendaftaran
+- Pengumuman terbaru
+- Informasi konsultan akademik yang ditugaskan
+- Menu cepat untuk akses dokumen, pembayaran, dan pengumuman
+
+**Checklist Pendaftaran:**
+
+| Langkah | Keterangan |
+|---------|------------|
+| Verifikasi Email | Opsional - verifikasi alamat email |
+| Verifikasi WhatsApp | Opsional - verifikasi nomor HP |
+| Data Diri | Lengkapi informasi pribadi |
+| Data Pendidikan | Lengkapi informasi pendidikan |
+| Upload Dokumen | Upload dokumen yang diperlukan |
+| Pembayaran | Selesaikan pembayaran biaya pendaftaran |
+
+---
+
+# Admin CRM
+
+---
+
+## 4. Login Admin
 
 Staff menggunakan akun Google dengan email institusi (@tazkia.ac.id) untuk masuk ke sistem.
 
@@ -38,7 +170,7 @@ Staff menggunakan akun Google dengan email institusi (@tazkia.ac.id) untuk masuk
 
 ---
 
-## 2. Dashboard
+## 5. Dashboard Admin
 
 Setelah login, pengguna akan melihat dashboard dengan ringkasan statistik.
 
@@ -55,7 +187,7 @@ Setelah login, pengguna akan melihat dashboard dengan ringkasan statistik.
 
 ---
 
-## 3. Pengaturan Pengguna
+## 6. Pengaturan Pengguna
 
 Menu: **Settings > Users**
 
@@ -80,7 +212,7 @@ Halaman ini untuk mengelola akun staff (admin, supervisor, konsultan).
 
 ---
 
-## 4. Pengaturan Program Studi
+## 7. Pengaturan Program Studi
 
 Menu: **Settings > Programs**
 
@@ -108,7 +240,7 @@ Halaman ini untuk mengelola program studi yang ditawarkan.
 
 ---
 
-## 5. Pengaturan Biaya
+## 8. Pengaturan Biaya
 
 Menu: **Settings > Fees**
 
@@ -137,7 +269,7 @@ Halaman ini untuk mengatur struktur biaya per program studi dan tahun akademik.
 
 ---
 
-## 6. Pengaturan Kategori & Hambatan
+## 9. Pengaturan Kategori & Hambatan
 
 Menu: **Settings > Categories**
 
@@ -195,7 +327,7 @@ Digunakan untuk mencatat hambatan yang dihadapi kandidat.
 
 ---
 
-## 7. Pengaturan Kampanye
+## 10. Pengaturan Kampanye
 
 Menu: **Settings > Campaigns**
 
@@ -226,7 +358,7 @@ Halaman ini untuk mengelola kampanye marketing dan promo.
 
 ---
 
-## 8. Pengaturan Reward
+## 11. Pengaturan Reward
 
 Menu: **Settings > Rewards**
 
@@ -272,7 +404,7 @@ Untuk mahasiswa aktif yang mereferensikan calon mahasiswa baru.
 
 ---
 
-## 9. Pengaturan Referrer
+## 12. Pengaturan Referrer
 
 Menu: **Settings > Referrers**
 
@@ -302,7 +434,7 @@ Halaman ini untuk mengelola data referrer yang akan mendapat komisi.
 
 ---
 
-## 10. Pengaturan Algoritma Assignment
+## 13. Pengaturan Algoritma Assignment
 
 Menu: **Settings > Assignment**
 
@@ -327,7 +459,7 @@ Halaman ini untuk memilih algoritma distribusi kandidat baru ke konsultan.
 
 ---
 
-## 11. Pengaturan Jenis Dokumen
+## 14. Pengaturan Jenis Dokumen
 
 Menu: **Settings > Document Types**
 
@@ -362,7 +494,7 @@ Halaman ini untuk mengelola jenis dokumen yang harus diupload kandidat.
 
 ---
 
-## 12. Pengaturan Alasan Kehilangan
+## 15. Pengaturan Alasan Kehilangan
 
 Menu: **Settings > Lost Reasons**
 

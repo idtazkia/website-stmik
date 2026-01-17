@@ -33,7 +33,7 @@ type AnnouncementItem struct {
 
 templ Dashboard(data layouts.PageData, candidate DashboardCandidate, checklist []ChecklistItem, announcements []AnnouncementItem) {
 	@layouts.Portal(data) {
-		<div class="space-y-6">
+		<div class="space-y-6" data-testid="portal-dashboard">
 			<!-- Welcome Banner -->
 			<div class="bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl p-6 text-white">
 				<div class="flex items-center justify-between">
