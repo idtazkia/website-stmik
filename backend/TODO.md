@@ -217,19 +217,20 @@ Phase 2.5 - Remaining Configuration (DONE):
   014_create_document_types.sql         ✅
   015_create_lost_reasons.sql           ✅
 
-Phase 3 - Candidates:
-  016_create_announcements.sql        → prodis
-  017_create_candidates.sql           → prodis, campaigns, referrers, users, lost_reasons
+Phase 3 - Candidates (DONE):
+  016_create_candidates.sql             ✅ → prodis, campaigns, referrers, users, lost_reasons
+  017_create_verification_tokens.sql    ✅ → candidates
+  018_document_source_types.sql         ✅ (seed data)
+  019_create_announcements.sql          ✅ → prodis
+  020_create_interactions.sql           ✅ → candidates, users, categories, obstacles
 
 Phase 4 - Transactions:
-  018_create_billings.sql             → candidates, fee_types
-  019_create_payments.sql             → billings, users
-  020_create_interactions.sql         → candidates, users, categories, obstacles
-  021_create_documents.sql            → candidates, document_types
-  022_create_commission_ledger.sql    → candidates, referrers
-  023_create_notification_logs.sql    → candidates
-  024_create_verification_tokens.sql  → candidates
-  025_create_announcement_reads.sql   → announcements, candidates
+  021_create_billings.sql             → candidates, fee_types
+  022_create_payments.sql             → billings, users
+  023_create_documents.sql            → candidates, document_types
+  024_create_commission_ledger.sql    → candidates, referrers
+  025_create_notification_logs.sql    → candidates
+  026_create_announcement_reads.sql   → announcements, candidates
 ```
 
 ---
@@ -484,86 +485,100 @@ Configure required documents.
 
 ---
 
+## Feature 14: Settings - Lost Reasons ✅
+
+Configure reasons for lost candidates.
+
+**Migrations:** 015_create_lost_reasons ✅
+
+- [x] `model/lost_reason.go` - CRUD, ListActive
+- [x] `templates/admin/settings_lost_reasons.templ` - Lost reason list with HTMX
+- [x] `handler/admin.go` - CRUD /admin/settings/lost-reasons
+- [x] Fields: name, description, display_order, is_active
+- [x] Seed: No response, Chose competitor, Financial issues, Not qualified, Bad timing, Location, Parents disagree, Other
+- [x] Playwright E2E tests: CRUD, toggle status with database persistence
+
+---
+
 # Phase 3: Public Registration & Candidate Portal
 
 Candidate-facing features.
 
 ---
 
-## Feature 14: Candidate Registration
+## Feature 15: Candidate Registration ✅
 
-Registration with password and email/phone verification.
+Registration with password. Email/phone verification optional.
 
-**Migrations:** 018, 025
+**Migrations:** 016_create_candidates ✅, 017_create_verification_tokens ✅, 018_document_source_types ✅
 
-**Setup - Email (for OTP):**
-- [ ] Choose email provider (SMTP, SendGrid, AWS SES, Resend, etc.)
-- [ ] Create account and get API key/credentials
-- [ ] Configure sender email and domain verification
-- [ ] Store credentials: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS (or provider-specific)
+**Setup - Email (for OTP) - Optional:**
+- [x] Provider: Resend (configured via RESEND_API_KEY, RESEND_FROM)
+- [x] Integration created but optional - candidates can register without verification
 
-**Setup - WhatsApp (for OTP):**
-- [ ] Choose WhatsApp API provider (Fonnte, Wablas, Twilio, etc.)
-- [ ] Create account and get API key
-- [ ] Register sender phone number
-- [ ] Store credentials: WHATSAPP_API_URL, WHATSAPP_API_KEY
+**Setup - WhatsApp (for OTP) - Optional:**
+- [x] Provider: Custom WhatsApp API (configured via WHATSAPP_API_URL, WHATSAPP_API_TOKEN)
+- [x] Integration created but optional - candidates can register without verification
 
 **Implementation:**
-- [ ] `model/candidate.go` - Create, FindByEmail, FindByPhone
-- [ ] `model/verification_token.go` - Create, Verify, Cleanup
-- [ ] `integration/email.go` - SendOTP via email
-- [ ] `integration/whatsapp.go` - SendOTP via WhatsApp
-- [ ] `templates/public/register.templ` - Multi-step registration form
-- [ ] `handler/public.go` - GET/POST /register, /verify-email, /verify-phone
-- [ ] Step 1: Account (email, password, phone)
-- [ ] Step 2: Email verification (6-digit OTP via email)
-- [ ] Step 3: Phone verification (6-digit OTP via WhatsApp)
-- [ ] Step 4: Personal info (name, address, city, province)
-- [ ] Step 5: Education (high_school, graduation_year, prodi)
-- [ ] Step 6: Source tracking (source_type dropdown, source_detail if referral)
-- [ ] Source types: instagram, google, tiktok, youtube, expo, school_visit, friend_family, teacher_alumni, walkin, other
-- [ ] If URL has `?ref=CODE`, auto-link to referrer or referred_by_candidate
-- [ ] If URL has `?utm_campaign=X`, auto-link to campaign
-- [ ] Auto-assign to consultant (using active algorithm)
-- [ ] Hash password with bcrypt
-- [ ] Test: Registration flow, OTP verification
+- [x] `model/candidate.go` - Create, FindByEmail, FindByPhone, FindByID
+- [x] `model/candidate.go` - UpdatePersonalInfo, UpdateEducation, UpdateSourceTracking
+- [x] `model/candidate.go` - Authenticate, SetEmailVerified, SetPhoneVerified
+- [x] `model/candidate.go` - AssignConsultant (using active algorithm)
+- [x] `model/verification_token.go` - CreateToken, VerifyToken, CleanupExpired
+- [x] `integration/resend.go` - SendOTP via Resend (optional)
+- [x] `integration/whatsapp.go` - SendOTP via WhatsApp (optional)
+- [x] `templates/portal/registration.templ` - 4-step registration form
+- [x] `handler/public.go` - Registration routes
+- [x] `auth/session.go` - CreateCandidateToken for candidate sessions
+- [x] Step 1: Account (email or phone required, password)
+- [x] Step 2: Personal info (name, address, city, province)
+- [x] Step 3: Education (high_school, graduation_year, prodi)
+- [x] Step 4: Source tracking (source_type dropdown, source_detail if referral)
+- [x] Source types seeded: instagram, google, tiktok, youtube, expo, school_visit, friend_family, teacher_alumni, walkin, other
+- [x] If URL has `?ref=CODE`, auto-link to referrer
+- [x] If URL has `?utm_campaign=X`, auto-link to campaign
+- [x] Auto-assign to consultant (using active assignment algorithm)
+- [x] Hash password with bcrypt
+- [ ] E2E Test: Full registration flow
+- [ ] E2E Test: Login by email and phone
 
 ---
 
-## Feature 15: Candidate Login
+## Feature 16: Candidate Login ✅
 
-Candidate authenticates with email + password.
+Candidate authenticates with email or phone + password.
 
-- [ ] `model/candidate.go` - Authenticate
-- [ ] `templates/public/login.templ` - Login form
-- [ ] `handler/public.go` - GET/POST /login, /logout
-- [ ] Validate email is verified
-- [ ] Cookie-based session (HttpOnly JWT, 30-day expiry)
-- [ ] Redirect to portal dashboard after login
-- [ ] Test: Login, session persistence
+- [x] `model/candidate.go` - Authenticate (by email or phone)
+- [x] `templates/portal/login.templ` - Login form
+- [x] `handler/public.go` - GET/POST /login, /logout
+- [x] Email/phone verification not required (optional)
+- [x] Cookie-based session (HttpOnly JWT)
+- [x] Redirect to portal dashboard after login
+- [ ] E2E Test: Login by email, login by phone, session persistence
 
 ---
 
-## Feature 16: Candidate Portal - Dashboard
+## Feature 17: Candidate Portal - Dashboard ✅
 
 Overview of candidate status and actions.
 
-- [ ] `templates/portal/dashboard.templ` - Status summary
-- [ ] `handler/portal.go` - GET /portal
-- [ ] `handler/middleware.go` - RequireCandidateAuth
-- [ ] Show: status badge, assigned consultant contact, registration fee status
-- [ ] Show: document checklist (uploaded/pending/rejected)
-- [ ] Show: unread announcements count
-- [ ] Quick links: upload documents, view payments, announcements
-- [ ] Test: Dashboard displays correct info
+- [x] `templates/portal/dashboard.templ` - Status summary with checklist
+- [x] `handler/portal.go` - GET /portal/dashboard
+- [x] `handler/middleware.go` - RequireCandidateAuth middleware
+- [x] Show: status badge, assigned consultant contact
+- [x] Show: checklist (verification, personal info, education, documents, payment)
+- [x] Show: recent announcements
+- [x] Quick links: upload documents, view payments, announcements
+- [ ] E2E Test: Dashboard displays correct info
 
 ---
 
-## Feature 17: Candidate Portal - Documents
+## Feature 18: Candidate Portal - Documents
 
 Candidate uploads and tracks documents.
 
-**Migrations:** 022
+**Migrations:** 023_create_documents (pending)
 
 **Setup - File Storage:**
 - [ ] Choose storage provider (Cloudflare R2, AWS S3, local disk, etc.)
@@ -573,11 +588,11 @@ Candidate uploads and tracks documents.
 - [ ] Store credentials: STORAGE_TYPE, STORAGE_BUCKET, STORAGE_ACCESS_KEY, STORAGE_SECRET_KEY, STORAGE_ENDPOINT
 
 **Implementation:**
+- [x] `templates/portal/documents.templ` - Upload form with status (UI mockup done)
 - [ ] `storage/storage.go` - Upload, Download, Delete interface
 - [ ] `storage/r2.go` or `storage/s3.go` - Provider implementation
 - [ ] `model/document.go` - Upload, ListByCandidate
-- [ ] `templates/portal/documents.templ` - Upload form with status
-- [ ] `handler/portal.go` - GET/POST /portal/documents
+- [ ] `handler/portal.go` - GET/POST /portal/documents (wire to real data)
 - [ ] List: document type, status (pending/approved/rejected), rejection reason
 - [ ] Upload: file picker with type/size validation
 - [ ] Re-upload rejected documents
@@ -586,16 +601,16 @@ Candidate uploads and tracks documents.
 
 ---
 
-## Feature 18: Candidate Portal - Payments
+## Feature 19: Candidate Portal - Payments
 
 Candidate views billing and uploads payment proof.
 
-**Migrations:** 019, 020
+**Migrations:** 021_create_billings, 022_create_payments (pending)
 
+- [x] `templates/portal/payments.templ` - Billing list with installments (UI mockup done)
 - [ ] `model/billing.go` - Create, FindByCandidate
 - [ ] `model/payment.go` - UploadProof
-- [ ] `templates/portal/payments.templ` - Billing list with installments
-- [ ] `handler/portal.go` - GET /portal/payments, POST /portal/payments/{id}/proof
+- [ ] `handler/portal.go` - GET /portal/payments, POST /portal/payments/{id}/proof (wire to real data)
 - [ ] List all billings: registration, tuition, dormitory
 - [ ] Show per billing: total, paid, remaining, installments
 - [ ] Show per installment: amount, due date, status, proof
@@ -606,15 +621,15 @@ Candidate views billing and uploads payment proof.
 
 ---
 
-## Feature 19: Candidate Portal - Announcements
+## Feature 20: Candidate Portal - Announcements
 
 Candidate receives targeted announcements.
 
-**Migrations:** 017, 026
+**Migrations:** 019_create_announcements ✅, 026_create_announcement_reads (pending)
 
+- [x] `templates/portal/announcements.templ` - Announcement list (UI mockup done)
 - [ ] `model/announcement.go` - ListForCandidate, MarkRead
-- [ ] `templates/portal/announcements.templ` - Announcement list
-- [ ] `handler/portal.go` - GET /portal/announcements, POST mark-read
+- [ ] `handler/portal.go` - GET /portal/announcements, POST mark-read (wire to real data)
 - [ ] Filter by: target_status, target_prodi (or null for all)
 - [ ] Show: title, preview, published date, read status
 - [ ] Detail view with full content
@@ -623,9 +638,11 @@ Candidate receives targeted announcements.
 
 ---
 
-## Feature 20: Announcement Management (Admin)
+## Feature 21: Announcement Management (Admin)
 
 Admin creates and targets announcements.
+
+**Migrations:** 019_create_announcements ✅
 
 - [ ] `model/announcement.go` - CRUD
 - [ ] `templates/admin/announcements.templ` - Announcement list
@@ -638,18 +655,18 @@ Admin creates and targets announcements.
 
 ---
 
-## Feature 21: Member Get Member Referral
+## Feature 22: Member Get Member Referral
 
 Enrolled students refer new candidates.
 
+- [x] `templates/portal/referral.templ` - Referral dashboard (UI mockup done)
 - [ ] `model/candidate.go` - GenerateReferralCode, FindByReferralCode
-- [ ] `templates/portal/referral.templ` - Referral dashboard
-- [ ] `handler/portal.go` - GET /portal/referral
+- [ ] `handler/portal.go` - GET /portal/referral (wire to real data)
 - [ ] Generate unique referral_code on enrollment
 - [ ] Show: shareable link with code
 - [ ] List: referred candidates with status
 - [ ] Show: reward status (pending/earned based on enrollment)
-- [ ] Registration form: if `?ref=CODE` matches candidate, set referred_by_candidate_id
+- [x] Registration form: `?ref=CODE` support implemented
 - [ ] Test: Code generation, referral tracking
 
 ---
@@ -660,13 +677,13 @@ Day-to-day sales operations.
 
 ---
 
-## Feature 22: Candidate List & Filters
+## Feature 23: Candidate List & Filters
 
 Admin/consultant views candidates.
 
+- [x] `templates/admin/candidates_list.templ` - Table with filters (UI mockup done)
 - [ ] `model/candidate.go` - List with filters, pagination
-- [ ] `templates/admin/candidates_list.templ` - Table with filters
-- [ ] `handler/admin.go` - GET /admin/candidates
+- [ ] `handler/admin.go` - GET /admin/candidates (wire to real data)
 - [ ] Filters: status, assigned consultant, prodi, campaign, source_type, date range
 - [ ] Sort: newest, oldest, next followup due, last interaction
 - [ ] Highlight overdue followups (red if > 3 days)
@@ -676,12 +693,12 @@ Admin/consultant views candidates.
 
 ---
 
-## Feature 23: Candidate Detail & Timeline
+## Feature 24: Candidate Detail & Timeline
 
 View candidate info and history.
 
-- [ ] `templates/admin/candidate_detail.templ` - Info + timeline
-- [ ] `handler/admin.go` - GET /admin/candidates/{id}
+- [x] `templates/admin/candidate_detail.templ` - Info + timeline (UI mockup done)
+- [ ] `handler/admin.go` - GET /admin/candidates/{id} (wire to real data)
 - [ ] Show: personal info, prodi, source, campaign/referrer, status, assigned consultant
 - [ ] Timeline: interactions, payments, documents, status changes
 - [ ] Quick actions: log interaction, reassign, change status
@@ -689,15 +706,15 @@ View candidate info and history.
 
 ---
 
-## Feature 24: Interaction Logging
+## Feature 25: Interaction Logging
 
 Consultants log each contact.
 
-**Migrations:** 021
+**Migrations:** 020_create_interactions ✅
 
+- [x] `templates/admin/interaction_form.templ` - Log interaction modal (UI mockup done)
 - [ ] `model/interaction.go` - Create, ListByCandidate, ListByConsultant
-- [ ] `templates/admin/interaction_form.templ` - Log interaction modal
-- [ ] `handler/admin.go` - POST /admin/candidates/{id}/interactions
+- [ ] `handler/admin.go` - POST /admin/candidates/{id}/interactions (wire to real data)
 - [ ] Fields: channel, category, obstacle (optional), remarks, next_followup_date
 - [ ] Channels: call, whatsapp, email, campus_visit, home_visit
 - [ ] Auto-update candidate last_interaction_at
@@ -705,10 +722,11 @@ Consultants log each contact.
 
 ---
 
-## Feature 25: Supervisor Suggestions
+## Feature 26: Supervisor Suggestions
 
 Supervisor reviews and provides guidance.
 
+- [x] `templates/admin/consultant_dashboard.templ` - Suggestions section (UI mockup done)
 - [ ] `templates/admin/candidate_detail.templ` - Suggestion field in timeline
 - [ ] `handler/admin.go` - POST /admin/interactions/{id}/suggestion
 - [ ] Consultant sees suggestion, marks as read
@@ -717,7 +735,7 @@ Supervisor reviews and provides guidance.
 
 ---
 
-## Feature 26: Consultant Assignment
+## Feature 27: Consultant Assignment
 
 Manual reassignment of candidates.
 
@@ -730,12 +748,12 @@ Manual reassignment of candidates.
 
 ---
 
-## Feature 27: Referral Claim Verification
+## Feature 28: Referral Claim Verification
 
 Link referral claims to referrers.
 
-- [ ] `templates/admin/referral_claims.templ` - List unverified claims
-- [ ] `handler/admin.go` - GET /admin/referral-claims, POST link
+- [x] `templates/admin/referral_claims.templ` - List unverified claims (UI mockup done)
+- [ ] `handler/admin.go` - GET /admin/referral-claims, POST link (wire to real data)
 - [ ] Show candidates with source_detail (referral claim) but no referrer_id
 - [ ] Search existing referrers by name/institution
 - [ ] Actions: link to existing referrer, create new referrer then link, mark as invalid
@@ -749,9 +767,11 @@ Convert candidates to students.
 
 ---
 
-## Feature 28: Commitment & Tuition Billing
+## Feature 29: Commitment & Tuition Billing
 
 Generate billing when candidate commits.
+
+**Migrations:** 021_create_billings, 022_create_payments (pending)
 
 - [ ] `model/candidate.go` - Commit (change status)
 - [ ] `model/billing.go` - CreateTuitionBilling, CreateDormitoryBilling
@@ -764,9 +784,11 @@ Generate billing when candidate commits.
 
 ---
 
-## Feature 29: Payment Tracking
+## Feature 30: Payment Tracking
 
 Track and verify installment payments.
+
+**Migrations:** 022_create_payments (pending)
 
 - [ ] `model/payment.go` - ListByBilling, RecordPayment, VerifyPayment
 - [ ] `templates/admin/payments.templ` - Payment list
@@ -780,9 +802,11 @@ Track and verify installment payments.
 
 ---
 
-## Feature 30: Document Review
+## Feature 31: Document Review
 
 Admin reviews uploaded documents.
+
+**Migrations:** 023_create_documents (pending)
 
 - [ ] `model/document.go` - UpdateStatus
 - [ ] `templates/admin/document_review.templ` - Review modal
@@ -793,7 +817,7 @@ Admin reviews uploaded documents.
 
 ---
 
-## Feature 31: Enrollment
+## Feature 32: Enrollment
 
 Mark candidate as enrolled.
 
@@ -811,13 +835,13 @@ Mark candidate as enrolled.
 
 ---
 
-## Feature 32: Lost Candidate
+## Feature 33: Lost Candidate
 
 Mark candidate as lost.
 
-**Migrations:** 011, 027 (seed)
+**Migrations:** 015_create_lost_reasons ✅
 
-- [ ] `model/lost_reason.go` - ListActive
+- [x] `model/lost_reason.go` - ListActive (already implemented)
 - [ ] `model/candidate.go` - MarkLost
 - [ ] `templates/admin/lost_form.templ` - Lost modal with reason
 - [ ] `handler/admin.go` - POST /admin/candidates/{id}/lost
@@ -834,12 +858,13 @@ Track referrer commissions.
 
 ---
 
-## Feature 33: Commission Tracking
+## Feature 34: Commission Tracking
 
 Auto-create and track commissions.
 
-**Migrations:** 023
+**Migrations:** 024_create_commission_ledger (pending)
 
+- [x] `templates/admin/commissions.templ` - Commission list (UI mockup done)
 - [ ] `model/commission.go` - Create, ListByReferrer, ListPending
 - [ ] Auto-create commission when referred candidate enrolls
 - [ ] Amount from referrer.commission_per_enrollment
@@ -848,12 +873,12 @@ Auto-create and track commissions.
 
 ---
 
-## Feature 34: Commission Payout
+## Feature 35: Commission Payout
 
 Approve and pay commissions.
 
-- [ ] `templates/admin/commissions.templ` - Commission list
-- [ ] `handler/admin.go` - GET /admin/commissions, POST approve, POST mark-paid
+- [x] `templates/admin/commissions.templ` - Commission list (UI mockup done)
+- [ ] `handler/admin.go` - GET /admin/commissions, POST approve, POST mark-paid (wire to real data)
 - [ ] Filter by: referrer, status, date range
 - [ ] Batch approve, batch mark as paid
 - [ ] Export for bank transfer
@@ -867,83 +892,85 @@ Insights for decision making.
 
 ---
 
-## Feature 35: Dashboard - Consultant
+## Feature 36: Dashboard - Consultant ✅
 
 Consultant's daily view.
 
+- [x] `templates/admin/consultant_dashboard.templ` - Consultant personal dashboard (UI mockup done)
+- [x] `handler/admin_mockups.go` - GET /admin/my-dashboard (mockup handler)
+- [x] Show: my candidates by status, overdue followups, today's tasks
+- [x] Quick access to pending followups
+- [x] Supervisor suggestions section
 - [ ] `model/stats.go` - GetConsultantStats
-- [ ] `templates/admin/dashboard_consultant.templ`
-- [ ] `handler/admin.go` - GET /admin (role-based)
-- [ ] Show: my candidates by status, overdue followups, today's tasks
-- [ ] Quick access to pending followups
+- [ ] Wire to real data
 - [ ] Test: Dashboard data accuracy
 
 ---
 
-## Feature 36: Dashboard - Supervisor
+## Feature 37: Dashboard - Supervisor
 
 Supervisor's team view.
 
+- [x] `templates/admin/dashboard.templ` - Admin/Supervisor dashboard (UI mockup done)
 - [ ] `model/stats.go` - GetTeamStats, GetFunnelStats
-- [ ] `templates/admin/dashboard_supervisor.templ`
 - [ ] Show: team funnel, consultant leaderboard, stuck candidates (> 7 days no interaction)
 - [ ] Common obstacles this period
 - [ ] Test: Dashboard data accuracy
 
 ---
 
-## Feature 37: Reports - Funnel
+## Feature 38: Reports - Funnel
 
 Conversion funnel analysis.
 
+- [x] `templates/admin/reports_funnel.templ` - Funnel report (UI mockup done)
 - [ ] `model/stats.go` - GetFunnelByDateRange, GetFunnelByProdi
-- [ ] `templates/admin/reports/funnel.templ`
-- [ ] `handler/admin.go` - GET /admin/reports/funnel
+- [ ] `handler/admin.go` - GET /admin/reports/funnel (wire to real data)
 - [ ] Filter by: date range, prodi, campaign
 - [ ] Show: registered → prospecting → committed → enrolled, with conversion rates
 - [ ] Test: Report accuracy
 
 ---
 
-## Feature 38: Reports - Consultant Performance
+## Feature 39: Reports - Consultant Performance ✅
 
 Individual performance metrics.
 
+- [x] `templates/admin/consultant_report.templ` - Consultant performance report (UI mockup done)
 - [ ] `model/stats.go` - GetConsultantPerformance
-- [ ] `templates/admin/reports/consultants.templ`
-- [ ] `handler/admin.go` - GET /admin/reports/consultants
+- [ ] `handler/admin.go` - GET /admin/reports/consultants (wire to real data)
 - [ ] Metrics: candidates handled, success rate, avg days to commit, interaction frequency
 - [ ] Ranking by success rate
 - [ ] Test: Metrics calculation
 
 ---
 
-## Feature 39: Reports - Campaign ROI
+## Feature 40: Reports - Campaign ROI
 
 Campaign effectiveness.
 
+- [x] `templates/admin/reports_campaigns.templ` - Campaign report (UI mockup done)
 - [ ] `model/stats.go` - GetCampaignStats
-- [ ] `templates/admin/reports/campaigns.templ`
-- [ ] `handler/admin.go` - GET /admin/reports/campaigns
+- [ ] `handler/admin.go` - GET /admin/reports/campaigns (wire to real data)
 - [ ] Show: leads, commits, enrollments, conversion rate per campaign
 - [ ] Cost per enrollment (if cost data available)
 - [ ] Test: Report accuracy
 
 ---
 
-## Feature 40: Reports - Referrer Leaderboard
+## Feature 41: Reports - Referrer Leaderboard
 
 Referrer performance.
 
+- [x] `templates/admin/reports_referrers.templ` - Referrer report (UI mockup done)
 - [ ] `model/stats.go` - GetReferrerStats
-- [ ] `templates/admin/reports/referrers.templ`
-- [ ] `handler/admin.go` - GET /admin/reports/referrers
+- [ ] `handler/admin.go` - GET /admin/reports/referrers (wire to real data)
 - [ ] Show: referrals, enrollments, conversion rate, commission earned/paid
 - [ ] Test: Report accuracy
 
 ---
 
-## Feature 41: CSV Export
+## Feature 42: CSV Export
 
 Export data for external analysis.
 
@@ -960,13 +987,13 @@ Communication automation.
 
 ---
 
-## Feature 42: WhatsApp Notifications
+## Feature 43: WhatsApp Notifications
 
 Send notifications at key events.
 
-**Migrations:** 024
+**Migrations:** 025_create_notification_logs (pending)
 
-- [ ] `integration/whatsapp.go` - Send via API (Fonnte/similar)
+- [x] `integration/whatsapp.go` - SendOTP via WhatsApp API (implemented for OTP)
 - [ ] `model/notification.go` - Create, ListByCandidate
 - [ ] Templates: registration_confirmed, payment_reminder, document_reminder, enrolled
 - [ ] Manual send from candidate detail
