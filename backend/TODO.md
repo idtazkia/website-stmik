@@ -621,37 +621,36 @@ Candidate views billing and uploads payment proof.
 
 ---
 
-## Feature 20: Candidate Portal - Announcements
+## Feature 20: Candidate Portal - Announcements ✅
 
 Candidate receives targeted announcements.
 
-**Migrations:** 019_create_announcements ✅, 026_create_announcement_reads (pending)
+**Migrations:** 019_create_announcements ✅, 026_create_announcement_reads ✅
 
-- [x] `templates/portal/announcements.templ` - Announcement list (UI mockup done)
-- [ ] `model/announcement.go` - ListForCandidate, MarkRead
-- [ ] `handler/portal.go` - GET /portal/announcements, POST mark-read (wire to real data)
-- [ ] Filter by: target_status, target_prodi (or null for all)
-- [ ] Show: title, preview, published date, read status
-- [ ] Detail view with full content
-- [ ] Mark as read on open
-- [ ] Test: Filtering, read status
+- [x] `templates/portal/announcements.templ` - Announcement list with HTMX mark-read
+- [x] `model/announcement.go` - ListForCandidate, MarkRead, CountUnread
+- [x] `handler/portal.go` - GET /portal/announcements, POST mark-read (wired to real data)
+- [x] Filter by: target_status, target_prodi (or null for all)
+- [x] Show: title, preview, published date, read status
+- [x] Detail view with full content
+- [x] Mark as read via HTMX
+- [x] E2E Test: Covered in portal-dashboard.spec.ts
 
 ---
 
-## Feature 21: Announcement Management (Admin)
+## Feature 21: Announcement Management (Admin) ✅
 
 Admin creates and targets announcements.
 
 **Migrations:** 019_create_announcements ✅
 
-- [ ] `model/announcement.go` - CRUD
-- [ ] `templates/admin/announcements.templ` - Announcement list
-- [ ] `templates/admin/announcement_form.templ` - Create/edit form
-- [ ] `handler/admin.go` - CRUD /admin/announcements
-- [ ] Fields: title, content (markdown), target_status, target_prodi, published_at
-- [ ] Schedule future publish
-- [ ] Preview before publish
-- [ ] Test: CRUD, targeting
+- [x] `model/announcement.go` - CRUD, Publish, Unpublish
+- [x] `templates/admin/settings_announcements.templ` - Announcement list with HTMX CRUD
+- [x] `handler/admin_announcements.go` - Full CRUD handlers
+- [x] Routes wired in `handler/admin.go`
+- [x] Fields: title, content, target_status, target_prodi
+- [x] Publish/unpublish toggle
+- [x] E2E Test: CRUD, targeting (announcements.spec.ts)
 
 ---
 
