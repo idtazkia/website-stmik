@@ -26,43 +26,6 @@ func (h *AdminHandler) handleDashboard(w http.ResponseWriter, r *http.Request) {
 	admin.Dashboard(data, dashboardStats).Render(r.Context(), w)
 }
 
-func (h *AdminHandler) handleCandidates(w http.ResponseWriter, r *http.Request) {
-	data := NewPageDataWithUser(r.Context(), "Kandidat")
-
-	// Get filter parameters
-	filter := admin.KandidatFilter{
-		Status:     r.URL.Query().Get("status"),
-		Prodi:      r.URL.Query().Get("prodi"),
-		Consultant: r.URL.Query().Get("consultant"),
-		Search:     r.URL.Query().Get("search"),
-	}
-
-	// Get filtered candidates from mockdata
-	mockCandidates := mockdata.FilterCandidates(filter.Status, filter.Prodi, filter.Consultant, filter.Search)
-
-	// Convert mockdata.CandidateView to admin.Candidate
-	candidates := make([]admin.Candidate, len(mockCandidates))
-	for i, c := range mockCandidates {
-		candidates[i] = admin.Candidate{
-			ID:             c.ID,
-			Name:           c.Name,
-			Email:          c.Email,
-			Phone:          c.Phone,
-			HighSchool:     c.HighSchool,
-			ProdiName:      c.ProdiName,
-			SourceType:     c.SourceType,
-			CampaignName:   c.CampaignName,
-			ReferrerName:   c.ReferrerName,
-			Status:         c.Status,
-			ConsultantName: c.ConsultantName,
-			NextFollowup:   c.NextFollowup,
-			IsOverdue:      c.IsOverdue,
-		}
-	}
-
-	admin.KandidatList(data, candidates, filter).Render(r.Context(), w)
-}
-
 func (h *AdminHandler) handleCandidateDetail(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	candidate := mockdata.GetCandidateByID(id)

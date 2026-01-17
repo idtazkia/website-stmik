@@ -342,6 +342,238 @@ func GetCandidateDashboardData(ctx context.Context, id string) (*CandidateDashbo
 	return &data, nil
 }
 
+// CandidateListItem is a trimmed version for list display
+type CandidateListItem struct {
+	ID               string     `json:"id"`
+	Name             *string    `json:"name,omitempty"`
+	Email            *string    `json:"email,omitempty"`
+	Phone            *string    `json:"phone,omitempty"`
+	Status           string     `json:"status"`
+	ProdiName        *string    `json:"prodi_name,omitempty"`
+	ConsultantName   *string    `json:"consultant_name,omitempty"`
+	CampaignName     *string    `json:"campaign_name,omitempty"`
+	SourceType       *string    `json:"source_type,omitempty"`
+	CreatedAt        time.Time  `json:"created_at"`
+	LastInteraction  *time.Time `json:"last_interaction,omitempty"`
+	NextFollowup     *time.Time `json:"next_followup,omitempty"`
+}
+
+// CandidateListFilters holds filter parameters for listing candidates
+type CandidateListFilters struct {
+	Status       string // Filter by status
+	ConsultantID string // Filter by assigned consultant
+	ProdiID      string // Filter by prodi
+	CampaignID   string // Filter by campaign
+	SourceType   string // Filter by source type
+	Search       string // Search by name, email, or phone
+	SortBy       string // Sort column: created_at, name, status, last_interaction
+	SortOrder    string // asc or desc
+	Limit        int    // Pagination limit
+	Offset       int    // Pagination offset
+}
+
+// CandidateListResult contains list results with pagination info
+type CandidateListResult struct {
+	Candidates []CandidateListItem `json:"candidates"`
+	Total      int                 `json:"total"`
+	Limit      int                 `json:"limit"`
+	Offset     int                 `json:"offset"`
+}
+
+// ListCandidates lists candidates with filters and pagination
+// If consultantID is provided in visibility, only shows that consultant's candidates
+// If supervisorID is provided in visibility, shows all candidates under that supervisor's team
+func ListCandidates(ctx context.Context, filters CandidateListFilters, visibilityConsultantID, visibilitySupervisorID *string) (*CandidateListResult, error) {
+	// Build WHERE clause
+	whereClause := "WHERE 1=1"
+	args := []interface{}{}
+	argNum := 1
+
+	// Role-based visibility
+	if visibilityConsultantID != nil && *visibilityConsultantID != "" {
+		// Consultant sees only their candidates
+		whereClause += fmt.Sprintf(" AND c.assigned_consultant_id = $%d", argNum)
+		args = append(args, *visibilityConsultantID)
+		argNum++
+	} else if visibilitySupervisorID != nil && *visibilitySupervisorID != "" {
+		// Supervisor sees their team's candidates
+		whereClause += fmt.Sprintf(" AND c.assigned_consultant_id IN (SELECT id FROM users WHERE supervisor_id = $%d OR id = $%d)", argNum, argNum+1)
+		args = append(args, *visibilitySupervisorID, *visibilitySupervisorID)
+		argNum += 2
+	}
+	// Admin sees all (no filter)
+
+	// Apply filters
+	if filters.Status != "" {
+		whereClause += fmt.Sprintf(" AND c.status = $%d", argNum)
+		args = append(args, filters.Status)
+		argNum++
+	}
+
+	if filters.ConsultantID != "" {
+		whereClause += fmt.Sprintf(" AND c.assigned_consultant_id = $%d", argNum)
+		args = append(args, filters.ConsultantID)
+		argNum++
+	}
+
+	if filters.ProdiID != "" {
+		whereClause += fmt.Sprintf(" AND c.prodi_id = $%d", argNum)
+		args = append(args, filters.ProdiID)
+		argNum++
+	}
+
+	if filters.CampaignID != "" {
+		whereClause += fmt.Sprintf(" AND c.campaign_id = $%d", argNum)
+		args = append(args, filters.CampaignID)
+		argNum++
+	}
+
+	if filters.SourceType != "" {
+		whereClause += fmt.Sprintf(" AND c.source_type = $%d", argNum)
+		args = append(args, filters.SourceType)
+		argNum++
+	}
+
+	if filters.Search != "" {
+		search := "%" + filters.Search + "%"
+		whereClause += fmt.Sprintf(" AND (c.name ILIKE $%d OR c.email ILIKE $%d OR c.phone ILIKE $%d)", argNum, argNum, argNum)
+		args = append(args, search)
+		argNum++
+	}
+
+	// Count total
+	countQuery := fmt.Sprintf(`
+		SELECT COUNT(*)
+		FROM candidates c
+		%s
+	`, whereClause)
+
+	var total int
+	err := pool.QueryRow(ctx, countQuery, args...).Scan(&total)
+	if err != nil {
+		return nil, fmt.Errorf("failed to count candidates: %w", err)
+	}
+
+	// Build ORDER BY clause
+	orderBy := "c.created_at DESC" // Default
+	switch filters.SortBy {
+	case "name":
+		orderBy = "c.name"
+	case "status":
+		orderBy = "c.status"
+	case "created_at":
+		orderBy = "c.created_at"
+	}
+	if filters.SortOrder == "asc" {
+		orderBy += " ASC NULLS LAST"
+	} else {
+		orderBy += " DESC NULLS LAST"
+	}
+
+	// Apply pagination
+	limit := filters.Limit
+	if limit <= 0 {
+		limit = 20
+	}
+	if limit > 100 {
+		limit = 100
+	}
+	offset := filters.Offset
+	if offset < 0 {
+		offset = 0
+	}
+
+	// Main query
+	query := fmt.Sprintf(`
+		SELECT c.id, c.name, c.email, c.phone, c.status, c.source_type, c.created_at,
+		       p.name as prodi_name, u.name as consultant_name, camp.name as campaign_name
+		FROM candidates c
+		LEFT JOIN prodis p ON p.id = c.prodi_id
+		LEFT JOIN users u ON u.id = c.assigned_consultant_id
+		LEFT JOIN campaigns camp ON camp.id = c.campaign_id
+		%s
+		ORDER BY %s
+		LIMIT %d OFFSET %d
+	`, whereClause, orderBy, limit, offset)
+
+	rows, err := pool.Query(ctx, query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list candidates: %w", err)
+	}
+	defer rows.Close()
+
+	candidates := []CandidateListItem{}
+	for rows.Next() {
+		var c CandidateListItem
+		err := rows.Scan(
+			&c.ID, &c.Name, &c.Email, &c.Phone, &c.Status, &c.SourceType, &c.CreatedAt,
+			&c.ProdiName, &c.ConsultantName, &c.CampaignName,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan candidate: %w", err)
+		}
+		candidates = append(candidates, c)
+	}
+
+	return &CandidateListResult{
+		Candidates: candidates,
+		Total:      total,
+		Limit:      limit,
+		Offset:     offset,
+	}, nil
+}
+
+// CandidateStatusStats holds counts by status
+type CandidateStatusStats struct {
+	Total       int `json:"total"`
+	Registered  int `json:"registered"`
+	Prospecting int `json:"prospecting"`
+	Committed   int `json:"committed"`
+	Enrolled    int `json:"enrolled"`
+	Lost        int `json:"lost"`
+}
+
+// GetCandidateStatusStats returns counts for each status
+// If visibilityConsultantID is set, only counts that consultant's candidates
+// If visibilitySupervisorID is set, counts team's candidates
+func GetCandidateStatusStats(ctx context.Context, visibilityConsultantID, visibilitySupervisorID *string) (*CandidateStatusStats, error) {
+	whereClause := "WHERE 1=1"
+	args := []interface{}{}
+	argNum := 1
+
+	// Role-based visibility
+	if visibilityConsultantID != nil && *visibilityConsultantID != "" {
+		whereClause += fmt.Sprintf(" AND assigned_consultant_id = $%d", argNum)
+		args = append(args, *visibilityConsultantID)
+		argNum++
+	} else if visibilitySupervisorID != nil && *visibilitySupervisorID != "" {
+		whereClause += fmt.Sprintf(" AND assigned_consultant_id IN (SELECT id FROM users WHERE supervisor_id = $%d OR id = $%d)", argNum, argNum+1)
+		args = append(args, *visibilitySupervisorID, *visibilitySupervisorID)
+		argNum += 2
+	}
+
+	query := fmt.Sprintf(`
+		SELECT
+			COUNT(*) as total,
+			COUNT(*) FILTER (WHERE status = 'registered') as registered,
+			COUNT(*) FILTER (WHERE status = 'prospecting') as prospecting,
+			COUNT(*) FILTER (WHERE status = 'committed') as committed,
+			COUNT(*) FILTER (WHERE status = 'enrolled') as enrolled,
+			COUNT(*) FILTER (WHERE status = 'lost') as lost
+		FROM candidates
+		%s
+	`, whereClause)
+
+	var stats CandidateStatusStats
+	err := pool.QueryRow(ctx, query, args...).Scan(
+		&stats.Total, &stats.Registered, &stats.Prospecting, &stats.Committed, &stats.Enrolled, &stats.Lost,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get candidate stats: %w", err)
+	}
+	return &stats, nil
+}
+
 // GetNextConsultantForAssignment gets the next consultant using the active algorithm
 func GetNextConsultantForAssignment(ctx context.Context) (*string, error) {
 	// Get active algorithm
