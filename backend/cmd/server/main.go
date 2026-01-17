@@ -142,6 +142,68 @@ func main() {
 		http.Redirect(w, r, "/admin", http.StatusFound)
 	})
 
+	// Test login endpoint for candidate - for E2E testing only
+	// Creates or retrieves a test candidate and logs them in
+	mux.HandleFunc("GET /test/login/candidate", func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		testEmail := "test-candidate@example.com"
+
+		// Try to find existing test candidate
+		candidate, err := model.FindCandidateByEmail(ctx, testEmail)
+		if err != nil {
+			log.Printf("Error finding test candidate: %v", err)
+			http.Error(w, "Failed to find test candidate", http.StatusInternalServerError)
+			return
+		}
+
+		// Create test candidate if not exists
+		if candidate == nil {
+			passwordHash, err := model.HashPassword("testpassword123")
+			if err != nil {
+				log.Printf("Error hashing password: %v", err)
+				http.Error(w, "Failed to create test candidate", http.StatusInternalServerError)
+				return
+			}
+
+			candidate, err = model.CreateCandidate(ctx, testEmail, "08123456789", passwordHash)
+			if err != nil {
+				log.Printf("Error creating test candidate: %v", err)
+				http.Error(w, "Failed to create test candidate", http.StatusInternalServerError)
+				return
+			}
+
+			// Update personal info
+			if err := model.UpdateCandidatePersonalInfo(ctx, candidate.ID, "Test Candidate", "Test Address 123", "Jakarta", "DKI Jakarta"); err != nil {
+				log.Printf("Error updating personal info: %v", err)
+			}
+
+			// Update status to prospecting
+			if err := model.UpdateCandidateStatus(ctx, candidate.ID, "prospecting"); err != nil {
+				log.Printf("Error updating status: %v", err)
+			}
+
+			log.Printf("Created test candidate: %s", candidate.ID)
+		}
+
+		// Create session
+		candidateEmail := ""
+		if candidate.Email != nil {
+			candidateEmail = *candidate.Email
+		}
+		candidateName := ""
+		if candidate.Name != nil {
+			candidateName = *candidate.Name
+		}
+
+		token, err := sessionMgr.CreateCandidateToken(candidate.ID, candidateEmail, candidateName)
+		if err != nil {
+			http.Error(w, "Failed to create session", http.StatusInternalServerError)
+			return
+		}
+		sessionMgr.SetCookie(w, token)
+		http.Redirect(w, r, "/portal", http.StatusFound)
+	})
+
 	// Apply CSRF protection middleware
 	protectedMux := handler.CrossOriginProtection(mux)
 
