@@ -43,7 +43,7 @@ func ConsultantDashboard(data layouts.PageData, stats ConsultantDashboardStats, 
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"space-y-6\"><!-- Welcome & Stats --><div class=\"bg-white rounded-lg shadow p-6\"><div class=\"flex items-center justify-between mb-6\"><div><h2 class=\"text-2xl font-bold text-gray-900\">Selamat Datang, ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"space-y-6\" data-testid=\"consultant-dashboard\"><!-- Welcome & Stats --><div class=\"bg-white rounded-lg shadow p-6\" data-testid=\"welcome-section\"><div class=\"flex items-center justify-between mb-6\"><div><h2 class=\"text-2xl font-bold text-gray-900\">Selamat Datang, ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -69,7 +69,7 @@ func ConsultantDashboard(data layouts.PageData, stats ConsultantDashboardStats, 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</p></div></div><!-- Personal Stats --><div class=\"grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4\"><div class=\"bg-gray-50 rounded-lg p-4 text-center\"><div class=\"text-2xl font-bold text-gray-900\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</p></div></div><!-- Personal Stats --><div class=\"grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4\" data-testid=\"personal-stats\"><div class=\"bg-gray-50 rounded-lg p-4 text-center\"><div class=\"text-2xl font-bold text-gray-900\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -147,7 +147,7 @@ func ConsultantDashboard(data layouts.PageData, stats ConsultantDashboardStats, 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><div class=\"text-sm text-gray-500\">Saran Baru</div></div></div></div><div class=\"grid grid-cols-1 lg:grid-cols-2 gap-6\"><!-- Overdue Follow-ups --><div class=\"bg-white rounded-lg shadow\"><div class=\"px-6 py-4 border-b flex items-center justify-between\"><h3 class=\"font-semibold text-gray-900\">Follow-up Terlambat</h3><span class=\"bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><div class=\"text-sm text-gray-500\">Saran Baru</div></div></div></div><div class=\"grid grid-cols-1 lg:grid-cols-2 gap-6\"><!-- Overdue Follow-ups --><div class=\"bg-white rounded-lg shadow\" data-testid=\"ac-overdue-section\"><div class=\"px-6 py-4 border-b flex items-center justify-between\"><h3 class=\"font-semibold text-gray-900\">Follow-up Terlambat</h3><span class=\"bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -250,7 +250,7 @@ func ConsultantDashboard(data layouts.PageData, stats ConsultantDashboardStats, 
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div></div><!-- Today's Tasks --><div class=\"bg-white rounded-lg shadow\"><div class=\"px-6 py-4 border-b flex items-center justify-between\"><h3 class=\"font-semibold text-gray-900\">Tugas Hari Ini</h3><span class=\"bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div></div><!-- Today's Tasks --><div class=\"bg-white rounded-lg shadow\" data-testid=\"ac-today-tasks-section\"><div class=\"px-6 py-4 border-b flex items-center justify-between\"><h3 class=\"font-semibold text-gray-900\">Tugas Hari Ini</h3><span class=\"bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -353,7 +353,7 @@ func ConsultantDashboard(data layouts.PageData, stats ConsultantDashboardStats, 
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</div></div></div><!-- Supervisor Suggestions --><div class=\"bg-white rounded-lg shadow\"><div class=\"px-6 py-4 border-b flex items-center justify-between\"><h3 class=\"font-semibold text-gray-900\">Saran dari Supervisor</h3>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</div></div></div><!-- Supervisor Suggestions --><div class=\"bg-white rounded-lg shadow\" data-testid=\"supervisor-suggestions-section\"><div class=\"px-6 py-4 border-b flex items-center justify-between\"><h3 class=\"font-semibold text-gray-900\">Saran dari Supervisor</h3>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -504,7 +504,7 @@ func ConsultantDashboard(data layouts.PageData, stats ConsultantDashboardStats, 
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</div></div><!-- My Performance This Month --><div class=\"bg-white rounded-lg shadow\"><div class=\"px-6 py-4 border-b\"><h3 class=\"font-semibold text-gray-900\">Performa Bulan Ini</h3></div><div class=\"p-6\"><div class=\"grid grid-cols-2 md:grid-cols-4 gap-6\"><div class=\"text-center\"><div class=\"text-3xl font-bold text-gray-900\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</div></div><!-- My Performance This Month --><div class=\"bg-white rounded-lg shadow\" data-testid=\"monthly-performance-section\"><div class=\"px-6 py-4 border-b\"><h3 class=\"font-semibold text-gray-900\">Performa Bulan Ini</h3></div><div class=\"p-6\"><div class=\"grid grid-cols-2 md:grid-cols-4 gap-6\"><div class=\"text-center\"><div class=\"text-3xl font-bold text-gray-900\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

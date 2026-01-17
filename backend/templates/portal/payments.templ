@@ -21,7 +21,7 @@ type PaymentSummary struct {
 
 templ Payments(data layouts.PageData, candidate PortalCandidate, payments []PaymentItem, summary PaymentSummary) {
 	@layouts.Portal(data) {
-		<div class="space-y-6">
+		<div class="space-y-6" data-testid="payments-page">
 			<!-- Header -->
 			<div>
 				<h1 class="text-2xl font-bold text-gray-900">Pembayaran</h1>
@@ -29,7 +29,7 @@ templ Payments(data layouts.PageData, candidate PortalCandidate, payments []Paym
 			</div>
 
 			<!-- Summary Cards -->
-			<div class="grid grid-cols-3 gap-4">
+			<div class="grid grid-cols-3 gap-4" data-testid="payment-summary">
 				<div class="bg-white rounded-lg border p-4">
 					<p class="text-sm text-gray-500">Total Tagihan</p>
 					<p class="text-2xl font-bold text-gray-900">{ summary.TotalDue }</p>
@@ -45,7 +45,7 @@ templ Payments(data layouts.PageData, candidate PortalCandidate, payments []Paym
 			</div>
 
 			<!-- Bank Info -->
-			<div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+			<div class="bg-blue-50 border border-blue-200 rounded-lg p-4" data-testid="bank-info">
 				<h3 class="font-semibold text-blue-900 mb-2">Informasi Rekening Pembayaran</h3>
 				<div class="grid grid-cols-2 gap-4 text-sm">
 					<div>
@@ -68,7 +68,7 @@ templ Payments(data layouts.PageData, candidate PortalCandidate, payments []Paym
 			</div>
 
 			<!-- Payment List -->
-			<div class="bg-white rounded-lg border">
+			<div class="bg-white rounded-lg border" data-testid="payments-list">
 				<div class="p-4 border-b">
 					<h2 class="font-semibold text-gray-900">Daftar Tagihan</h2>
 				</div>

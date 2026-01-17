@@ -4,9 +4,9 @@ import "github.com/idtazkia/stmik-admission-api/templates/layouts"
 
 templ ConsultantReport(data layouts.PageData, filter ReportFilter, consultants []ConsultantPerformance, summary ReportSummary) {
 	@layouts.Admin(data) {
-		<div class="space-y-6">
+		<div class="space-y-6" data-testid="consultant-report-page">
 			<!-- Filter -->
-			<div class="bg-white rounded-lg shadow p-4">
+			<div class="bg-white rounded-lg shadow p-4" data-testid="report-filter">
 				<form class="flex flex-wrap gap-4 items-end">
 					<div>
 						<label class="block text-sm font-medium text-gray-700 mb-1">Periode</label>
@@ -41,7 +41,7 @@ templ ConsultantReport(data layouts.PageData, filter ReportFilter, consultants [
 			</div>
 
 			<!-- Summary Cards -->
-			<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+			<div class="grid grid-cols-1 md:grid-cols-4 gap-4" data-testid="report-summary">
 				<div class="bg-white rounded-lg shadow p-6">
 					<div class="text-sm text-gray-500">Total Leads</div>
 					<div class="text-3xl font-bold text-gray-900">{ summary.TotalLeads }</div>

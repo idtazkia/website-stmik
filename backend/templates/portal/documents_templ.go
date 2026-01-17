@@ -43,7 +43,7 @@ func Documents(data layouts.PageData, candidate PortalCandidate, documents []Doc
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"max-w-4xl mx-auto\"><div class=\"mb-6\"><h1 class=\"text-2xl font-bold text-gray-900\">Dokumen Persyaratan</h1><p class=\"text-gray-500 mt-1\">Upload dokumen yang diperlukan untuk melengkapi pendaftaran Anda</p></div><!-- Progress --><div class=\"bg-white rounded-lg shadow p-6 mb-6\"><div class=\"flex items-center justify-between mb-4\"><h2 class=\"font-semibold text-gray-900\">Progress Kelengkapan</h2><span class=\"text-sm text-gray-500\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"max-w-4xl mx-auto\" data-testid=\"documents-page\"><div class=\"mb-6\"><h1 class=\"text-2xl font-bold text-gray-900\">Dokumen Persyaratan</h1><p class=\"text-gray-500 mt-1\">Upload dokumen yang diperlukan untuk melengkapi pendaftaran Anda</p></div><!-- Progress --><div class=\"bg-white rounded-lg shadow p-6 mb-6\" data-testid=\"document-progress\"><div class=\"flex items-center justify-between mb-4\"><h2 class=\"font-semibold text-gray-900\">Progress Kelengkapan</h2><span class=\"text-sm text-gray-500\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -69,7 +69,7 @@ func Documents(data layouts.PageData, candidate PortalCandidate, documents []Doc
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\"></div></div></div><!-- Documents List --><div class=\"space-y-4\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\"></div></div></div><!-- Documents List --><div class=\"space-y-4\" data-testid=\"documents-list\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

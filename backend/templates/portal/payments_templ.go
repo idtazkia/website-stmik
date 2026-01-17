@@ -60,7 +60,7 @@ func Payments(data layouts.PageData, candidate PortalCandidate, payments []Payme
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"space-y-6\"><!-- Header --><div><h1 class=\"text-2xl font-bold text-gray-900\">Pembayaran</h1><p class=\"text-gray-500\">Kelola tagihan dan upload bukti pembayaran</p></div><!-- Summary Cards --><div class=\"grid grid-cols-3 gap-4\"><div class=\"bg-white rounded-lg border p-4\"><p class=\"text-sm text-gray-500\">Total Tagihan</p><p class=\"text-2xl font-bold text-gray-900\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"space-y-6\" data-testid=\"payments-page\"><!-- Header --><div><h1 class=\"text-2xl font-bold text-gray-900\">Pembayaran</h1><p class=\"text-gray-500\">Kelola tagihan dan upload bukti pembayaran</p></div><!-- Summary Cards --><div class=\"grid grid-cols-3 gap-4\" data-testid=\"payment-summary\"><div class=\"bg-white rounded-lg border p-4\"><p class=\"text-sm text-gray-500\">Total Tagihan</p><p class=\"text-2xl font-bold text-gray-900\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -99,7 +99,7 @@ func Payments(data layouts.PageData, candidate PortalCandidate, payments []Payme
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</p></div></div><!-- Bank Info --><div class=\"bg-blue-50 border border-blue-200 rounded-lg p-4\"><h3 class=\"font-semibold text-blue-900 mb-2\">Informasi Rekening Pembayaran</h3><div class=\"grid grid-cols-2 gap-4 text-sm\"><div><p class=\"text-blue-700\">Bank</p><p class=\"font-medium text-blue-900\">Bank Syariah Indonesia (BSI)</p></div><div><p class=\"text-blue-700\">No. Rekening</p><p class=\"font-medium text-blue-900\">7123456789</p></div><div><p class=\"text-blue-700\">Atas Nama</p><p class=\"font-medium text-blue-900\">Yayasan Tazkia</p></div><div><p class=\"text-blue-700\">Berita Transfer</p><p class=\"font-medium text-blue-900\">PMB-")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</p></div></div><!-- Bank Info --><div class=\"bg-blue-50 border border-blue-200 rounded-lg p-4\" data-testid=\"bank-info\"><h3 class=\"font-semibold text-blue-900 mb-2\">Informasi Rekening Pembayaran</h3><div class=\"grid grid-cols-2 gap-4 text-sm\"><div><p class=\"text-blue-700\">Bank</p><p class=\"font-medium text-blue-900\">Bank Syariah Indonesia (BSI)</p></div><div><p class=\"text-blue-700\">No. Rekening</p><p class=\"font-medium text-blue-900\">7123456789</p></div><div><p class=\"text-blue-700\">Atas Nama</p><p class=\"font-medium text-blue-900\">Yayasan Tazkia</p></div><div><p class=\"text-blue-700\">Berita Transfer</p><p class=\"font-medium text-blue-900\">PMB-")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -112,7 +112,7 @@ func Payments(data layouts.PageData, candidate PortalCandidate, payments []Payme
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "-[Nama]</p></div></div></div><!-- Payment List --><div class=\"bg-white rounded-lg border\"><div class=\"p-4 border-b\"><h2 class=\"font-semibold text-gray-900\">Daftar Tagihan</h2></div><div class=\"divide-y\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "-[Nama]</p></div></div></div><!-- Payment List --><div class=\"bg-white rounded-lg border\" data-testid=\"payments-list\"><div class=\"p-4 border-b\"><h2 class=\"font-semibold text-gray-900\">Daftar Tagihan</h2></div><div class=\"divide-y\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
