@@ -38,4 +38,6 @@ uploads/
 .DS_Store
 Thumbs.db
 mockup
-server
+
+# Binary output
+/server
