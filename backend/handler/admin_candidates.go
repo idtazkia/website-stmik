@@ -172,6 +172,64 @@ func (h *AdminHandler) handleCandidates(w http.ResponseWriter, r *http.Request) 
 	admin.Candidates(data, listData).Render(ctx, w)
 }
 
+func (h *AdminHandler) handleCandidateDetail(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	id := r.PathValue("id")
+
+	// Fetch candidate with all related data
+	candidate, err := model.GetCandidateDetailData(ctx, id)
+	if err != nil {
+		log.Printf("Error fetching candidate detail: %v", err)
+		http.Error(w, "Failed to load candidate", http.StatusInternalServerError)
+		return
+	}
+	if candidate == nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	// Build page title
+	title := "Detail Kandidat"
+	if candidate.Name != nil && *candidate.Name != "" {
+		title = "Detail Kandidat - " + *candidate.Name
+	}
+	data := NewPageDataWithUser(ctx, title)
+
+	// Convert to template type
+	graduationYear := ""
+	if candidate.GraduationYear != nil {
+		graduationYear = strconv.Itoa(*candidate.GraduationYear)
+	}
+
+	c := admin.CandidateDetail{
+		ID:                  candidate.ID,
+		Name:                ptrToString(candidate.Name),
+		Email:               ptrToString(candidate.Email),
+		Phone:               ptrToString(candidate.Phone),
+		WhatsApp:            ptrToString(candidate.Phone), // Use phone as WhatsApp for now
+		Address:             ptrToString(candidate.Address),
+		City:                ptrToString(candidate.City),
+		Province:            ptrToString(candidate.Province),
+		HighSchool:          ptrToString(candidate.HighSchool),
+		GraduationYear:      graduationYear,
+		ProdiName:           ptrToString(candidate.ProdiName),
+		SourceType:          candidateSourceLabel(ptrToString(candidate.SourceType)),
+		SourceDetail:        ptrToString(candidate.SourceDetail),
+		CampaignName:        ptrToString(candidate.CampaignName),
+		ReferrerName:        ptrToString(candidate.ReferrerName),
+		Status:              candidate.Status,
+		ConsultantName:      ptrToString(candidate.ConsultantName),
+		RegistrationFeePaid: false, // TODO: check actual payment status when billing is implemented
+		CreatedAt:           candidate.CreatedAt.Format("2 Jan 2006"),
+	}
+
+	// Interactions will be empty for now (interactions table not yet created)
+	// Will be populated in Feature 24
+	interactions := []admin.Interaction{}
+
+	admin.KandidatDetail(data, c, interactions).Render(ctx, w)
+}
+
 func ptrToString(s *string) string {
 	if s == nil {
 		return ""

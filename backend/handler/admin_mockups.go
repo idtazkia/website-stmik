@@ -26,61 +26,6 @@ func (h *AdminHandler) handleDashboard(w http.ResponseWriter, r *http.Request) {
 	admin.Dashboard(data, dashboardStats).Render(r.Context(), w)
 }
 
-func (h *AdminHandler) handleCandidateDetail(w http.ResponseWriter, r *http.Request) {
-	id := r.PathValue("id")
-	candidate := mockdata.GetCandidateByID(id)
-	if candidate == nil {
-		http.NotFound(w, r)
-		return
-	}
-
-	data := NewPageDataWithUser(r.Context(), "Detail Kandidat - "+candidate.Name)
-
-	// Convert to template type
-	c := admin.CandidateDetail{
-		ID:                  candidate.ID,
-		Name:                candidate.Name,
-		Email:               candidate.Email,
-		Phone:               candidate.Phone,
-		WhatsApp:            candidate.WhatsApp,
-		Address:             candidate.Address,
-		City:                candidate.City,
-		Province:            candidate.Province,
-		HighSchool:          candidate.HighSchool,
-		GraduationYear:      candidate.GraduationYear,
-		ProdiName:           candidate.ProdiName,
-		SourceType:          candidate.SourceType,
-		SourceDetail:        candidate.SourceDetail,
-		CampaignName:        candidate.CampaignName,
-		ReferrerName:        candidate.ReferrerName,
-		Status:              candidate.Status,
-		ConsultantName:      candidate.ConsultantName,
-		RegistrationFeePaid: candidate.RegistrationFeePaid,
-		CreatedAt:           candidate.CreatedAt,
-	}
-
-	// Get interactions
-	mockInteractions := mockdata.GetInteractionsByCandidateID(id)
-	interactions := make([]admin.Interaction, len(mockInteractions))
-	for i, inter := range mockInteractions {
-		interactions[i] = admin.Interaction{
-			ID:                   inter.ID,
-			Channel:              inter.Channel,
-			Category:             inter.Category,
-			CategorySentiment:    inter.CategorySentiment,
-			Obstacle:             inter.Obstacle,
-			Remarks:              inter.Remarks,
-			NextFollowupDate:     inter.NextFollowupDate,
-			SupervisorSuggestion: inter.SupervisorSuggestion,
-			SuggestionRead:       inter.SuggestionRead,
-			ConsultantName:       inter.ConsultantName,
-			CreatedAt:            inter.CreatedAt,
-		}
-	}
-
-	admin.KandidatDetail(data, c, interactions).Render(r.Context(), w)
-}
-
 func (h *AdminHandler) handleCampaigns(w http.ResponseWriter, r *http.Request) {
 	data := NewPageDataWithUser(r.Context(), "Kampanye")
 	// Temporary: redirect to settings campaigns page

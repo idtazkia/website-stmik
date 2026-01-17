@@ -312,6 +312,53 @@ type CandidateDashboardData struct {
 	ConsultantEmail  *string `json:"consultant_email,omitempty"`
 }
 
+// CandidateDetailData contains all data needed for admin candidate detail view
+type CandidateDetailData struct {
+	Candidate
+	ProdiName      *string `json:"prodi_name,omitempty"`
+	ConsultantName *string `json:"consultant_name,omitempty"`
+	CampaignName   *string `json:"campaign_name,omitempty"`
+	ReferrerName   *string `json:"referrer_name,omitempty"`
+	LostReasonName *string `json:"lost_reason_name,omitempty"`
+}
+
+// GetCandidateDetailData gets candidate with all related data for admin detail view
+func GetCandidateDetailData(ctx context.Context, id string) (*CandidateDetailData, error) {
+	var data CandidateDetailData
+	err := pool.QueryRow(ctx, `
+		SELECT c.id, c.email, c.email_verified, c.phone, c.phone_verified, c.password_hash, c.name, c.address, c.city, c.province,
+		       c.high_school, c.graduation_year, c.prodi_id, c.campaign_id, c.referrer_id, c.referred_by_candidate_id,
+		       c.source_type, c.source_detail, c.assigned_consultant_id, c.status, c.lost_reason_id, c.lost_at, c.created_at, c.updated_at,
+		       p.name as prodi_name,
+		       u.name as consultant_name,
+		       camp.name as campaign_name,
+		       ref.name as referrer_name,
+		       lr.name as lost_reason_name
+		FROM candidates c
+		LEFT JOIN prodis p ON p.id = c.prodi_id
+		LEFT JOIN users u ON u.id = c.assigned_consultant_id
+		LEFT JOIN campaigns camp ON camp.id = c.campaign_id
+		LEFT JOIN referrers ref ON ref.id = c.referrer_id
+		LEFT JOIN lost_reasons lr ON lr.id = c.lost_reason_id
+		WHERE c.id = $1
+	`, id).Scan(
+		&data.ID, &data.Email, &data.EmailVerified, &data.Phone, &data.PhoneVerified,
+		&data.PasswordHash, &data.Name, &data.Address, &data.City, &data.Province,
+		&data.HighSchool, &data.GraduationYear, &data.ProdiID, &data.CampaignID,
+		&data.ReferrerID, &data.ReferredByCandidateID, &data.SourceType, &data.SourceDetail,
+		&data.AssignedConsultantID, &data.Status, &data.LostReasonID, &data.LostAt,
+		&data.CreatedAt, &data.UpdatedAt,
+		&data.ProdiName, &data.ConsultantName, &data.CampaignName, &data.ReferrerName, &data.LostReasonName,
+	)
+	if err == pgx.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to get candidate detail data: %w", err)
+	}
+	return &data, nil
+}
+
 // GetCandidateDashboardData gets candidate with related details for dashboard
 func GetCandidateDashboardData(ctx context.Context, id string) (*CandidateDashboardData, error) {
 	var data CandidateDashboardData
