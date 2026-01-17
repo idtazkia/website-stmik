@@ -540,8 +540,8 @@ Registration with password. Email/phone verification optional.
 - [x] If URL has `?utm_campaign=X`, auto-link to campaign
 - [x] Auto-assign to consultant (using active assignment algorithm)
 - [x] Hash password with bcrypt
-- [ ] E2E Test: Full registration flow
-- [ ] E2E Test: Login by email and phone
+- [x] E2E Test: Full registration flow
+- [x] E2E Test: Login by email and phone
 
 ---
 
@@ -555,7 +555,7 @@ Candidate authenticates with email or phone + password.
 - [x] Email/phone verification not required (optional)
 - [x] Cookie-based session (HttpOnly JWT)
 - [x] Redirect to portal dashboard after login
-- [ ] E2E Test: Login by email, login by phone, session persistence
+- [x] E2E Test: Login by email, login by phone, session persistence
 
 ---
 
@@ -570,7 +570,7 @@ Overview of candidate status and actions.
 - [x] Show: checklist (verification, personal info, education, documents, payment)
 - [x] Show: recent announcements
 - [x] Quick links: upload documents, view payments, announcements
-- [ ] E2E Test: Dashboard displays correct info
+- [x] E2E Test: Dashboard displays correct info
 
 ---
 
