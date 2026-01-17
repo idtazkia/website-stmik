@@ -22,6 +22,9 @@ playwright-report/
 test-results/
 .playwright/
 
+# User manual screenshots (generated in CI)
+docs/screenshots/*.png
+
 # IDE
 .idea/
 .vscode/
