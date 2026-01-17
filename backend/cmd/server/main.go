@@ -110,7 +110,7 @@ func main() {
 	})
 
 	// Test login endpoint - for E2E testing only
-	// Creates a session as the specified test user (admin, supervisor, or consultant)
+	// Creates a session as a real user from the database with the specified role
 	mux.HandleFunc("GET /test/login/{role}", func(w http.ResponseWriter, r *http.Request) {
 		role := r.PathValue("role")
 		if role != "admin" && role != "supervisor" && role != "consultant" {
@@ -118,12 +118,21 @@ func main() {
 			return
 		}
 
-		// Create test user session
+		// Look up a real user from the database with the specified role
+		users, err := model.ListUsers(r.Context(), role, true)
+		if err != nil || len(users) == 0 {
+			log.Printf("No active %s user found in database for test login", role)
+			http.Error(w, "No user found with role: "+role, http.StatusNotFound)
+			return
+		}
+
+		// Use the first user with this role
+		user := users[0]
 		token, err := sessionMgr.CreateToken(
-			"test-"+role,
-			"test-"+role+"@test.local",
-			"Test "+role,
-			role,
+			user.ID,
+			user.Email,
+			user.Name,
+			user.Role,
 		)
 		if err != nil {
 			http.Error(w, "Failed to create session", http.StatusInternalServerError)

@@ -12,3 +12,4 @@ export { SettingsAssignmentPage } from './SettingsAssignmentPage';
 export { RegistrationPage, LoginPage } from './RegistrationPage';
 export { AnnouncementsPage, PortalAnnouncementsPage } from './AnnouncementsPage';
 export { CandidatesPage } from './CandidatesPage';
+export { CandidateDetailPage } from './CandidateDetailPage';

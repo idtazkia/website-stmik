@@ -4,10 +4,6 @@ import { BasePage } from './BasePage';
 export class SettingsLostReasonsPage extends BasePage {
   readonly path = '/admin/settings/lost-reasons';
 
-  async login(role: 'admin' | 'supervisor' | 'consultant' = 'admin'): Promise<void> {
-    await this.page.goto(`/test/login/${role}`);
-    await this.page.waitForURL(/\/admin\/?$/);
-  }
 
   // Page elements
   get pageContainer(): Locator {

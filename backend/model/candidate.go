@@ -444,7 +444,7 @@ func ListCandidates(ctx context.Context, filters CandidateListFilters, visibilit
 		argNum++
 	} else if visibilitySupervisorID != nil && *visibilitySupervisorID != "" {
 		// Supervisor sees their team's candidates
-		whereClause += fmt.Sprintf(" AND c.assigned_consultant_id IN (SELECT id FROM users WHERE supervisor_id = $%d OR id = $%d)", argNum, argNum+1)
+		whereClause += fmt.Sprintf(" AND c.assigned_consultant_id IN (SELECT id FROM users WHERE id_supervisor = $%d OR id = $%d)", argNum, argNum+1)
 		args = append(args, *visibilitySupervisorID, *visibilitySupervisorID)
 		argNum += 2
 	}
@@ -594,7 +594,7 @@ func GetCandidateStatusStats(ctx context.Context, visibilityConsultantID, visibi
 		args = append(args, *visibilityConsultantID)
 		argNum++
 	} else if visibilitySupervisorID != nil && *visibilitySupervisorID != "" {
-		whereClause += fmt.Sprintf(" AND assigned_consultant_id IN (SELECT id FROM users WHERE supervisor_id = $%d OR id = $%d)", argNum, argNum+1)
+		whereClause += fmt.Sprintf(" AND assigned_consultant_id IN (SELECT id FROM users WHERE id_supervisor = $%d OR id = $%d)", argNum, argNum+1)
 		args = append(args, *visibilitySupervisorID, *visibilitySupervisorID)
 		argNum += 2
 	}

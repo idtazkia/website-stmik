@@ -1,18 +1,20 @@
 import { test, expect } from '@playwright/test';
-import { CandidatesPage } from './pages';
+import { CandidatesPage, CandidateDetailPage } from './pages';
 
 test.describe('Admin Candidate Detail', () => {
+  let candidatesPage: CandidatesPage;
+  let detailPage: CandidateDetailPage;
+
   test.beforeEach(async ({ page }) => {
-    // Login as admin before each test
-    await page.goto('/test/login/admin');
-    await page.waitForURL(/\/admin\/?$/);
+    candidatesPage = new CandidatesPage(page);
+    detailPage = new CandidateDetailPage(page);
+    await candidatesPage.login('admin');
   });
 
   test.describe('Page Navigation', () => {
     test('should navigate to candidate detail from list', async ({ page }) => {
-      // Go to candidates list
       await page.goto('/admin/candidates');
-      await page.waitForSelector('[data-testid="candidates-page"]');
+      await candidatesPage.expectPageLoaded();
 
       // Click on the first candidate's detail link
       const detailLink = page.locator('[data-testid^="view-candidate-"]').first();
@@ -23,14 +25,14 @@ test.describe('Admin Candidate Detail', () => {
         await page.waitForURL(/\/admin\/candidates\/[a-f0-9-]+/);
 
         // Verify detail page loaded
-        await expect(page.locator('text=Data Pribadi')).toBeVisible();
+        await expect(detailPage.detailPage).toBeVisible();
+        await expect(detailPage.sectionTitlePersonalInfo).toBeVisible();
       }
     });
 
     test('should show back link to candidates list', async ({ page }) => {
-      // Go to candidates list first
       await page.goto('/admin/candidates');
-      await page.waitForSelector('[data-testid="candidates-page"]');
+      await candidatesPage.expectPageLoaded();
 
       // Click on first candidate if available
       const detailLink = page.locator('[data-testid^="view-candidate-"]').first();
@@ -39,21 +41,18 @@ test.describe('Admin Candidate Detail', () => {
         await page.waitForURL(/\/admin\/candidates\/[a-f0-9-]+/);
 
         // Check back link exists
-        const backLink = page.locator('a[href="/admin/candidates"]');
-        await expect(backLink).toBeVisible();
+        await expect(detailPage.backLink).toBeVisible();
 
         // Click back and verify navigation
-        await backLink.click();
-        await page.waitForURL(/\/admin\/candidates\/?$/);
+        await detailPage.goBackToCandidatesList();
       }
     });
   });
 
   test.describe('Page Content', () => {
     test('should display personal info section', async ({ page }) => {
-      // Go to candidates list
       await page.goto('/admin/candidates');
-      await page.waitForSelector('[data-testid="candidates-page"]');
+      await candidatesPage.expectPageLoaded();
 
       // Click on first candidate if available
       const detailLink = page.locator('[data-testid^="view-candidate-"]').first();
@@ -62,16 +61,15 @@ test.describe('Admin Candidate Detail', () => {
         await page.waitForURL(/\/admin\/candidates\/[a-f0-9-]+/);
 
         // Check personal info section
-        await expect(page.locator('text=Data Pribadi')).toBeVisible();
-        await expect(page.locator('text=Email')).toBeVisible();
-        await expect(page.locator('text=Telepon')).toBeVisible();
+        await expect(detailPage.sectionTitlePersonalInfo).toBeVisible();
+        await expect(detailPage.fieldEmail).toBeVisible();
+        await expect(detailPage.fieldPhone).toBeVisible();
       }
     });
 
     test('should display education section', async ({ page }) => {
-      // Go to candidates list
       await page.goto('/admin/candidates');
-      await page.waitForSelector('[data-testid="candidates-page"]');
+      await candidatesPage.expectPageLoaded();
 
       // Click on first candidate if available
       const detailLink = page.locator('[data-testid^="view-candidate-"]').first();
@@ -80,16 +78,15 @@ test.describe('Admin Candidate Detail', () => {
         await page.waitForURL(/\/admin\/candidates\/[a-f0-9-]+/);
 
         // Check education section
-        await expect(page.locator('text=Pendidikan')).toBeVisible();
-        await expect(page.locator('text=Asal Sekolah')).toBeVisible();
-        await expect(page.locator('text=Pilihan Prodi')).toBeVisible();
+        await expect(detailPage.sectionTitleEducation).toBeVisible();
+        await expect(detailPage.fieldHighSchool).toBeVisible();
+        await expect(detailPage.fieldProdi).toBeVisible();
       }
     });
 
     test('should display source and assignment section', async ({ page }) => {
-      // Go to candidates list
       await page.goto('/admin/candidates');
-      await page.waitForSelector('[data-testid="candidates-page"]');
+      await candidatesPage.expectPageLoaded();
 
       // Click on first candidate if available
       const detailLink = page.locator('[data-testid^="view-candidate-"]').first();
@@ -98,16 +95,15 @@ test.describe('Admin Candidate Detail', () => {
         await page.waitForURL(/\/admin\/candidates\/[a-f0-9-]+/);
 
         // Check source & assignment section
-        await expect(page.locator('text=Sumber & Assignment')).toBeVisible();
-        await expect(page.locator('text=Sumber Info')).toBeVisible();
-        await expect(page.locator('text=Konsultan')).toBeVisible();
+        await expect(detailPage.sectionTitleSourceAssignment).toBeVisible();
+        await expect(detailPage.fieldSourceInfo).toBeVisible();
+        await expect(detailPage.fieldConsultant).toBeVisible();
       }
     });
 
     test('should display payment status section', async ({ page }) => {
-      // Go to candidates list
       await page.goto('/admin/candidates');
-      await page.waitForSelector('[data-testid="candidates-page"]');
+      await candidatesPage.expectPageLoaded();
 
       // Click on first candidate if available
       const detailLink = page.locator('[data-testid^="view-candidate-"]').first();
@@ -116,15 +112,14 @@ test.describe('Admin Candidate Detail', () => {
         await page.waitForURL(/\/admin\/candidates\/[a-f0-9-]+/);
 
         // Check payment status section
-        await expect(page.locator('text=Status Pembayaran')).toBeVisible();
-        await expect(page.locator('text=Biaya Pendaftaran')).toBeVisible();
+        await expect(detailPage.sectionTitlePaymentStatus).toBeVisible();
+        await expect(detailPage.fieldRegistrationFee).toBeVisible();
       }
     });
 
     test('should display documents section', async ({ page }) => {
-      // Go to candidates list
       await page.goto('/admin/candidates');
-      await page.waitForSelector('[data-testid="candidates-page"]');
+      await candidatesPage.expectPageLoaded();
 
       // Click on first candidate if available
       const detailLink = page.locator('[data-testid^="view-candidate-"]').first();
@@ -133,14 +128,13 @@ test.describe('Admin Candidate Detail', () => {
         await page.waitForURL(/\/admin\/candidates\/[a-f0-9-]+/);
 
         // Check documents section
-        await expect(page.locator('h3:has-text("Dokumen")')).toBeVisible();
+        await expect(detailPage.sectionTitleDocuments).toBeVisible();
       }
     });
 
     test('should display timeline section', async ({ page }) => {
-      // Go to candidates list
       await page.goto('/admin/candidates');
-      await page.waitForSelector('[data-testid="candidates-page"]');
+      await candidatesPage.expectPageLoaded();
 
       // Click on first candidate if available
       const detailLink = page.locator('[data-testid^="view-candidate-"]').first();
@@ -149,16 +143,15 @@ test.describe('Admin Candidate Detail', () => {
         await page.waitForURL(/\/admin\/candidates\/[a-f0-9-]+/);
 
         // Check timeline section
-        await expect(page.locator('text=Timeline Interaksi')).toBeVisible();
+        await expect(detailPage.sectionTitleTimeline).toBeVisible();
       }
     });
   });
 
   test.describe('Action Buttons', () => {
     test('should display log interaction button', async ({ page }) => {
-      // Go to candidates list
       await page.goto('/admin/candidates');
-      await page.waitForSelector('[data-testid="candidates-page"]');
+      await candidatesPage.expectPageLoaded();
 
       // Click on first candidate if available
       const detailLink = page.locator('[data-testid^="view-candidate-"]').first();
@@ -167,14 +160,13 @@ test.describe('Admin Candidate Detail', () => {
         await page.waitForURL(/\/admin\/candidates\/[a-f0-9-]+/);
 
         // Check action buttons
-        await expect(page.locator('button:has-text("Log Interaksi")')).toBeVisible();
+        await expect(detailPage.btnLogInteraction).toBeVisible();
       }
     });
 
     test('should display mark as lost button', async ({ page }) => {
-      // Go to candidates list
       await page.goto('/admin/candidates');
-      await page.waitForSelector('[data-testid="candidates-page"]');
+      await candidatesPage.expectPageLoaded();
 
       // Click on first candidate if available
       const detailLink = page.locator('[data-testid^="view-candidate-"]').first();
@@ -183,14 +175,13 @@ test.describe('Admin Candidate Detail', () => {
         await page.waitForURL(/\/admin\/candidates\/[a-f0-9-]+/);
 
         // Check mark as lost button
-        await expect(page.locator('button:has-text("Mark as Lost")')).toBeVisible();
+        await expect(detailPage.btnMarkLost).toBeVisible();
       }
     });
 
     test('should open interaction modal when clicking log interaction', async ({ page }) => {
-      // Go to candidates list
       await page.goto('/admin/candidates');
-      await page.waitForSelector('[data-testid="candidates-page"]');
+      await candidatesPage.expectPageLoaded();
 
       // Click on first candidate if available
       const detailLink = page.locator('[data-testid^="view-candidate-"]').first();
@@ -198,16 +189,17 @@ test.describe('Admin Candidate Detail', () => {
         await detailLink.click();
         await page.waitForURL(/\/admin\/candidates\/[a-f0-9-]+/);
 
-        // Click log interaction button
-        await page.click('button:has-text("Log Interaksi")');
+        // Open interaction modal
+        await detailPage.openInteractionModal();
 
-        // Check modal is visible
-        await expect(page.locator('#modal-interaksi')).toBeVisible();
-        await expect(page.locator('text=Log Interaksi Baru')).toBeVisible();
+        // Check modal is visible with form elements
+        await expect(detailPage.modalTitle).toBeVisible();
+        await expect(detailPage.selectChannel).toBeVisible();
+        await expect(detailPage.selectCategory).toBeVisible();
+        await expect(detailPage.inputRemarks).toBeVisible();
 
         // Close modal
-        await page.click('#modal-interaksi button:has-text("✕")');
-        await expect(page.locator('#modal-interaksi')).toBeHidden();
+        await detailPage.closeInteractionModal();
       }
     });
   });
