@@ -38,6 +38,8 @@ func (h *AdminHandler) RegisterRoutes(mux *http.ServeMux) {
 
 	// Documents
 	mux.Handle("GET /admin/documents", protected(h.handleDocumentReview))
+	mux.Handle("POST /admin/documents/approve", protected(h.handleApproveDocument))
+	mux.Handle("POST /admin/documents/reject", protected(h.handleRejectDocument))
 
 	// Marketing
 	mux.Handle("GET /admin/campaigns", protected(h.handleCampaigns))

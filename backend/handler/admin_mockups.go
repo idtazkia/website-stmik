@@ -153,27 +153,4 @@ func (h *AdminHandler) handleConsultantDashboard(w http.ResponseWriter, r *http.
 	admin.ConsultantDashboard(data, stats, overdueList, todayTasks, suggestions).Render(r.Context(), w)
 }
 
-func (h *AdminHandler) handleDocumentReview(w http.ResponseWriter, r *http.Request) {
-	data := NewPageDataWithUser(r.Context(), "Review Dokumen")
-
-	filter := admin.DocumentFilter{
-		Status: r.URL.Query().Get("status"),
-		Type:   r.URL.Query().Get("type"),
-		Search: r.URL.Query().Get("search"),
-	}
-
-	documents := []admin.DocumentReviewItem{
-		{ID: "1", CandidateID: "1", CandidateName: "Ahmad Pratama", ProdiName: "S1 Sistem Informasi", Type: "ktp", TypeName: "KTP", FileName: "ktp_ahmad.jpg", FileSize: "1.2 MB", FileURL: "#", ThumbnailURL: "#", IsImage: true, Status: "pending", UploadedAt: "14 Jan 2026"},
-		{ID: "2", CandidateID: "2", CandidateName: "Siti Rahayu", ProdiName: "S1 Teknik Informatika", Type: "ijazah", TypeName: "Ijazah", FileName: "ijazah_siti.pdf", FileSize: "2.5 MB", FileURL: "#", ThumbnailURL: "", IsImage: false, Status: "approved", UploadedAt: "13 Jan 2026"},
-		{ID: "3", CandidateID: "3", CandidateName: "Budi Santoso", ProdiName: "S1 Sistem Informasi", Type: "photo", TypeName: "Foto", FileName: "foto_budi.jpg", FileSize: "800 KB", FileURL: "#", ThumbnailURL: "#", IsImage: true, Status: "rejected", RejectionReason: "Foto tidak jelas", UploadedAt: "12 Jan 2026"},
-	}
-
-	stats := admin.DocumentStats{
-		Pending:       "5",
-		ApprovedToday: "3",
-		RejectedToday: "1",
-		Total:         "53",
-	}
-
-	admin.DocumentReviewList(data, filter, documents, stats).Render(r.Context(), w)
-}
+// handleDocumentReview moved to admin_documents.go with real implementation

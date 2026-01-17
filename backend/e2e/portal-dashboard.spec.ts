@@ -172,8 +172,8 @@ test.describe('Portal Documents Page', () => {
 
   test('should show document upload requirements', async ({ page }) => {
     await page.goto('/portal/documents');
-    // Check for format info - use first() to avoid ambiguity
-    await expect(page.locator('text=JPG, PNG, PDF').first()).toBeVisible();
+    // Check for format info (actual text from template)
+    await expect(page.locator('text=Gunakan format JPG, PNG, atau PDF').first()).toBeVisible();
   });
 });
 
