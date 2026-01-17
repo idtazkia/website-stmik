@@ -574,30 +574,30 @@ Overview of candidate status and actions.
 
 ---
 
-## Feature 18: Candidate Portal - Documents
+## Feature 18: Candidate Portal - Documents ✅
 
 Candidate uploads and tracks documents.
 
-**Migrations:** 023_create_documents (pending)
+**Migrations:** 021_create_documents ✅
 
 **Setup - File Storage:**
-- [ ] Choose storage provider (Cloudflare R2, AWS S3, local disk, etc.)
-- [ ] Create bucket/container for documents
-- [ ] Configure CORS if using object storage
-- [ ] Set up access credentials and permissions
-- [ ] Store credentials: STORAGE_TYPE, STORAGE_BUCKET, STORAGE_ACCESS_KEY, STORAGE_SECRET_KEY, STORAGE_ENDPOINT
+- [x] Choose storage provider: Local disk (can swap to R2/S3 later via storage interface)
+- [x] Configure upload directory via UPLOAD_DIR env var
+- [x] Serve uploaded files via /uploads/ route
 
 **Implementation:**
-- [x] `templates/portal/documents.templ` - Upload form with status (UI mockup done)
-- [ ] `storage/storage.go` - Upload, Download, Delete interface
-- [ ] `storage/r2.go` or `storage/s3.go` - Provider implementation
-- [ ] `model/document.go` - Upload, ListByCandidate
-- [ ] `handler/portal.go` - GET/POST /portal/documents (wire to real data)
-- [ ] List: document type, status (pending/approved/rejected), rejection reason
-- [ ] Upload: file picker with type/size validation
-- [ ] Re-upload rejected documents
-- [ ] Show deferrable documents with note
-- [ ] Test: Upload, re-upload, status display
+- [x] `templates/portal/documents.templ` - Upload form with status
+- [x] `storage/storage.go` - Upload, Delete, GetURL interface
+- [x] `storage/local.go` - Local filesystem implementation
+- [x] `model/document.go` - CreateDocument, ListDocumentsByCandidate, document types
+- [x] `handler/portal.go` - GET /portal/documents, POST /portal/documents/upload
+- [x] List: document type, status (pending/approved/rejected), rejection reason
+- [x] Upload: file picker with type/size validation
+- [x] Re-upload rejected documents (UPSERT behavior)
+- [x] Show deferrable documents with note
+- [x] `handler/admin_documents.go` - Admin review, approve, reject
+- [x] E2E Test: `e2e/documents-upload.spec.ts` - Upload, re-upload, status display
+- [x] E2E Test: `e2e/admin-document-review.spec.ts` - Admin approve/reject flow
 
 ---
 
@@ -605,7 +605,7 @@ Candidate uploads and tracks documents.
 
 Candidate views billing and uploads payment proof.
 
-**Migrations:** 021_create_billings, 022_create_payments (pending)
+**Migrations:** 022_create_billings, 023_create_payments (pending)
 
 - [x] `templates/portal/payments.templ` - Billing list with installments (UI mockup done)
 - [ ] `model/billing.go` - Create, FindByCandidate
