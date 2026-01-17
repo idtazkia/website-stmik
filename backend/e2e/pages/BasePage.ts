@@ -9,6 +9,12 @@ export abstract class BasePage {
     await this.page.goto(this.path);
   }
 
+  async login(role: 'admin' | 'supervisor' | 'consultant' = 'admin'): Promise<void> {
+    await this.page.goto(`/test/login/${role}`);
+    // Wait for redirect to admin dashboard (with or without trailing slash)
+    await this.page.waitForURL(/\/admin\/?$/);
+  }
+
   get versionInfo(): Locator {
     return this.page.getByTestId('version-info');
   }

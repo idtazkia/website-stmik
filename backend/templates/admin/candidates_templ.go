@@ -494,7 +494,7 @@ func CandidatesTableBody(candidates []CandidateListItem, total, limit, offset in
 		}
 		ctx = templ.ClearChildren(ctx)
 		if len(candidates) == 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<tr><td colspan=\"7\" class=\"px-4 py-8 text-center text-gray-500\">Tidak ada kandidat yang ditemukan.</td></tr>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<tr data-testid=\"empty-candidates-row\"><td colspan=\"7\" class=\"px-4 py-8 text-center text-gray-500\" data-testid=\"empty-candidates-message\">Tidak ada kandidat yang ditemukan.</td></tr>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

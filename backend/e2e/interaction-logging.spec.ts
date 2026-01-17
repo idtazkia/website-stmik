@@ -2,8 +2,8 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Admin Interaction Logging', () => {
   test.beforeEach(async ({ page }) => {
-    // Login as admin before each test
-    await page.goto('/test/login/admin');
+    // Login as consultant (who can log interactions)
+    await page.goto('/test/login/consultant');
     await page.waitForURL(/\/admin\/?$/);
   });
 
@@ -248,7 +248,7 @@ test.describe('Admin Interaction Logging', () => {
       }
     });
 
-    test('should fill and submit interaction form', async ({ page }) => {
+    test('should submit interaction and redirect to candidate detail', async ({ page }) => {
       // Go to candidates list
       await page.goto('/admin/candidates');
       await page.waitForSelector('[data-testid="candidates-page"]');
@@ -259,10 +259,13 @@ test.describe('Admin Interaction Logging', () => {
         await detailLink.click();
         await page.waitForURL(/\/admin\/candidates\/[a-f0-9-]+/);
 
-        // Get candidate ID from URL and navigate to interaction form
+        // Get candidate ID from URL
         const url = page.url();
         const candidateId = url.split('/').pop();
+
+        // Navigate to interaction form
         await page.goto(`/admin/candidates/${candidateId}/interaction`);
+        await expect(page.locator('text=Log Interaksi Baru')).toBeVisible();
 
         // Fill required fields
         // Select channel (click on label containing the hidden radio)
@@ -271,20 +274,107 @@ test.describe('Admin Interaction Logging', () => {
         // Select category (click the label containing the first category radio)
         await page.click('label:has(input[name="category"]):first-of-type');
 
-        // Fill remarks
-        await page.fill('textarea[name="remarks"]', 'Test interaction - kandidat tertarik dengan program studi dan ingin info lebih lanjut tentang beasiswa.');
+        // Fill remarks with unique text for verification
+        const uniqueRemarks = `E2E Test interaction at ${Date.now()} - kandidat tertarik dengan program studi.`;
+        await page.fill('textarea[name="remarks"]', uniqueRemarks);
 
-        // Set next followup date (optional)
+        // Submit the form
+        await page.click('button[value="save"]');
+
+        // Should redirect to candidate detail page
+        await page.waitForURL(new RegExp(`/admin/candidates/${candidateId}$`), { timeout: 10000 });
+
+        // Verify we're on the candidate detail page
+        await expect(page.locator('text=Timeline Interaksi')).toBeVisible();
+
+        // Verify the interaction appears in the timeline
+        await expect(page.locator(`text=${uniqueRemarks.substring(0, 30)}`)).toBeVisible();
+      }
+    });
+
+    test('should persist interaction after page reload', async ({ page }) => {
+      // Go to candidates list
+      await page.goto('/admin/candidates');
+      await page.waitForSelector('[data-testid="candidates-page"]');
+
+      // Click on first candidate if available
+      const detailLink = page.locator('[data-testid^="view-candidate-"]').first();
+      if (await detailLink.isVisible()) {
+        await detailLink.click();
+        await page.waitForURL(/\/admin\/candidates\/[a-f0-9-]+/);
+
+        // Get candidate ID from URL
+        const url = page.url();
+        const candidateId = url.split('/').pop();
+
+        // Navigate to interaction form
+        await page.goto(`/admin/candidates/${candidateId}/interaction`);
+        await expect(page.locator('text=Log Interaksi Baru')).toBeVisible();
+
+        // Fill required fields
+        await page.click('label:has(input[name="channel"][value="call"])');
+        await page.click('label:has(input[name="category"]):first-of-type');
+
+        // Fill remarks with unique text for verification
+        const uniqueRemarks = `Persistence test ${Date.now()} - follow up via telepon.`;
+        await page.fill('textarea[name="remarks"]', uniqueRemarks);
+
+        // Set next followup date
         const nextWeek = new Date();
         nextWeek.setDate(nextWeek.getDate() + 7);
         const dateStr = nextWeek.toISOString().split('T')[0];
         await page.fill('input[name="next_followup_date"]', dateStr);
 
-        // Verify form is filled and submit button is clickable
-        await expect(page.locator('button[value="save"]')).toBeEnabled();
+        // Submit the form
+        await page.click('button[value="save"]');
 
-        // Note: Actual submission requires a real user session (not test-admin)
-        // The form structure and validation are tested by other tests
+        // Wait for redirect
+        await page.waitForURL(new RegExp(`/admin/candidates/${candidateId}$`), { timeout: 10000 });
+
+        // Reload the page
+        await page.reload();
+
+        // Verify the interaction still appears after reload (persisted to database)
+        await expect(page.locator('text=Timeline Interaksi')).toBeVisible();
+        await expect(page.locator(`text=${uniqueRemarks.substring(0, 20)}`)).toBeVisible();
+      }
+    });
+
+    test('should display channel badge in timeline after submission', async ({ page }) => {
+      // Go to candidates list
+      await page.goto('/admin/candidates');
+      await page.waitForSelector('[data-testid="candidates-page"]');
+
+      // Click on first candidate if available
+      const detailLink = page.locator('[data-testid^="view-candidate-"]').first();
+      if (await detailLink.isVisible()) {
+        await detailLink.click();
+        await page.waitForURL(/\/admin\/candidates\/[a-f0-9-]+/);
+
+        // Get candidate ID from URL
+        const url = page.url();
+        const candidateId = url.split('/').pop();
+
+        // Navigate to interaction form
+        await page.goto(`/admin/candidates/${candidateId}/interaction`);
+
+        // Fill required fields - use email channel
+        await page.click('label:has(input[name="channel"][value="email"])');
+        await page.click('label:has(input[name="category"]):first-of-type');
+
+        const uniqueRemarks = `Email channel test ${Date.now()}`;
+        await page.fill('textarea[name="remarks"]', uniqueRemarks);
+
+        // Submit the form
+        await page.click('button[value="save"]');
+
+        // Wait for redirect
+        await page.waitForURL(new RegExp(`/admin/candidates/${candidateId}$`), { timeout: 10000 });
+
+        // Verify channel badge appears (email icon or text)
+        await expect(page.locator('text=Timeline Interaksi')).toBeVisible();
+        // The timeline should show the email channel
+        await expect(page.locator(`text=${uniqueRemarks.substring(0, 15)}`)).toBeVisible();
       }
     });
   });

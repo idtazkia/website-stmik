@@ -140,10 +140,14 @@ export class CandidatesPage extends BasePage {
   }
 
   async searchCandidates(query: string): Promise<void> {
+    // Set up response listener before filling the input
+    const responsePromise = this.page.waitForResponse(
+      resp => resp.url().includes('/admin/candidates') && resp.status() === 200,
+      { timeout: 10000 }
+    );
     await this.filterSearch.fill(query);
-    // Wait for debounced search (500ms delay + request time)
-    await this.page.waitForTimeout(600);
-    await this.page.waitForResponse(resp => resp.url().includes('/admin/candidates') && resp.status() === 200);
+    // Wait for debounced HTMX request to complete
+    await responsePromise;
   }
 
   async clearFilters(): Promise<void> {
@@ -186,7 +190,7 @@ export class CandidatesPage extends BasePage {
   }
 
   async expectEmptyList(): Promise<void> {
-    await expect(this.candidatesList).toContainText('Tidak ada kandidat yang ditemukan');
+    await expect(this.page.getByTestId('empty-candidates-message')).toBeVisible();
   }
 
   async viewCandidateDetail(id: string): Promise<void> {

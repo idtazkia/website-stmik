@@ -80,12 +80,15 @@ templ SettingsAnnouncements(data layouts.PageData, announcements []AnnouncementI
 
 			<!-- Add Announcement Modal -->
 			@AddAnnouncementModal(prodis)
+
+			<!-- Edit Announcement Modal -->
+			@EditAnnouncementModal()
 		</div>
 	}
 }
 
 templ AnnouncementRow(a AnnouncementItem) {
-	<tr class="border-b hover:bg-gray-50" data-testid={ "announcement-row-" + a.ID }>
+	<tr id={ "announcement-row-" + a.ID } class="border-b hover:bg-gray-50" data-testid={ "announcement-row-" + a.ID }>
 		<td class="px-4 py-3">
 			<div class="font-medium text-gray-900" data-testid="announcement-title">{ a.Title }</div>
 			<div class="text-sm text-gray-500 truncate max-w-xs">{ truncateText(a.Content, 60) }</div>

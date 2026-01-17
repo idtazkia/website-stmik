@@ -4,11 +4,6 @@ import { BasePage } from './BasePage';
 export class SettingsProgramsPage extends BasePage {
   readonly path = '/admin/settings/programs';
 
-  async login(role: 'admin' | 'supervisor' | 'consultant' = 'admin'): Promise<void> {
-    await this.page.goto(`/test/login/${role}`);
-    // Wait for redirect to admin dashboard (with or without trailing slash)
-    await this.page.waitForURL(/\/admin\/?$/);
-  }
 
   // Page elements
   get pageContainer(): Locator {

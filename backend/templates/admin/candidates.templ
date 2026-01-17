@@ -215,8 +215,8 @@ templ Candidates(data layouts.PageData, listData CandidateListData) {
 
 templ CandidatesTableBody(candidates []CandidateListItem, total, limit, offset int) {
 	if len(candidates) == 0 {
-		<tr>
-			<td colspan="7" class="px-4 py-8 text-center text-gray-500">
+		<tr data-testid="empty-candidates-row">
+			<td colspan="7" class="px-4 py-8 text-center text-gray-500" data-testid="empty-candidates-message">
 				Tidak ada kandidat yang ditemukan.
 			</td>
 		</tr>

@@ -4,10 +4,6 @@ import { BasePage } from './BasePage';
 export class AnnouncementsPage extends BasePage {
   readonly path = '/admin/announcements';
 
-  async login(role: 'admin' | 'supervisor' | 'consultant' = 'admin'): Promise<void> {
-    await this.page.goto(`/test/login/${role}`);
-    await this.page.waitForURL(/\/admin\/?$/);
-  }
 
   // Page elements
   get pageContainer(): Locator {
@@ -54,6 +50,22 @@ export class AnnouncementsPage extends BasePage {
   // Edit Announcement Modal elements
   get editAnnouncementModal(): Locator {
     return this.page.getByTestId('edit-announcement-modal');
+  }
+
+  get editInputTitle(): Locator {
+    return this.editAnnouncementModal.getByTestId('input-title');
+  }
+
+  get editInputContent(): Locator {
+    return this.editAnnouncementModal.getByTestId('input-content');
+  }
+
+  get editSelectTargetStatus(): Locator {
+    return this.editAnnouncementModal.getByTestId('select-target-status');
+  }
+
+  get editSelectTargetProdi(): Locator {
+    return this.editAnnouncementModal.getByTestId('select-target-prodi');
   }
 
   get submitEditAnnouncementButton(): Locator {
@@ -165,11 +177,16 @@ export class AnnouncementsPage extends BasePage {
   }
 
   async openEditAnnouncementModal(announcementId: string): Promise<void> {
+    // Set up response listener before clicking
+    const responsePromise = this.page.waitForResponse(
+      response => response.url().includes(`/admin/announcements/${announcementId}/edit`) && response.status() === 200
+    );
     // Trigger HTMX to load edit form
     await this.getEditButton(announcementId).click();
+    await responsePromise;
     await expect(this.editAnnouncementModal).toBeVisible();
     // Wait for content to be loaded via HTMX
-    await expect(this.inputTitle).toBeVisible();
+    await expect(this.editInputTitle).toBeVisible();
   }
 
   async editAnnouncement(
@@ -180,15 +197,15 @@ export class AnnouncementsPage extends BasePage {
     targetProdiId?: string
   ): Promise<void> {
     await this.openEditAnnouncementModal(announcementId);
-    await this.inputTitle.fill(title);
-    await this.inputContent.fill(content);
+    await this.editInputTitle.fill(title);
+    await this.editInputContent.fill(content);
 
     if (targetStatus !== undefined) {
-      await this.selectTargetStatus.selectOption(targetStatus);
+      await this.editSelectTargetStatus.selectOption(targetStatus);
     }
 
     if (targetProdiId !== undefined) {
-      await this.selectTargetProdi.selectOption(targetProdiId);
+      await this.editSelectTargetProdi.selectOption(targetProdiId);
     }
 
     const responsePromise = this.page.waitForResponse(response =>
@@ -201,20 +218,24 @@ export class AnnouncementsPage extends BasePage {
   }
 
   async publishAnnouncement(announcementId: string): Promise<void> {
+    const publishButton = this.getPublishButton(announcementId);
+    await expect(publishButton).toBeVisible({ timeout: 10000 });
     const responsePromise = this.page.waitForResponse(response =>
       response.url().includes(`/admin/announcements/${announcementId}/publish`) &&
       response.status() === 200
     );
-    await this.getPublishButton(announcementId).click();
+    await publishButton.click();
     await responsePromise;
   }
 
   async unpublishAnnouncement(announcementId: string): Promise<void> {
+    const unpublishButton = this.getUnpublishButton(announcementId);
+    await expect(unpublishButton).toBeVisible({ timeout: 10000 });
     const responsePromise = this.page.waitForResponse(response =>
       response.url().includes(`/admin/announcements/${announcementId}/unpublish`) &&
       response.status() === 200
     );
-    await this.getUnpublishButton(announcementId).click();
+    await unpublishButton.click();
     await responsePromise;
   }
 
