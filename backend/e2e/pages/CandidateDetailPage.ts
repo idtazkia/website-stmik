@@ -234,6 +234,43 @@ export class CandidateDetailPage extends BasePage {
     return this.page.getByTestId('btn-submit');
   }
 
+  // Reassign Modal
+  get reassignModal(): Locator {
+    return this.page.getByTestId('reassign-modal');
+  }
+
+  get reassignModalTitle(): Locator {
+    return this.reassignModal.getByTestId('modal-title');
+  }
+
+  get reassignModalClose(): Locator {
+    return this.reassignModal.getByTestId('modal-close');
+  }
+
+  get reassignForm(): Locator {
+    return this.page.getByTestId('form-reassign');
+  }
+
+  get consultantList(): Locator {
+    return this.page.getByTestId('consultant-list');
+  }
+
+  getConsultantOption(id: string): Locator {
+    return this.page.getByTestId(`consultant-option-${id}`);
+  }
+
+  getConsultantRadio(id: string): Locator {
+    return this.page.getByTestId(`radio-${id}`);
+  }
+
+  get reassignBtnCancel(): Locator {
+    return this.reassignModal.getByTestId('btn-cancel');
+  }
+
+  get reassignBtnSubmit(): Locator {
+    return this.reassignModal.getByTestId('btn-submit');
+  }
+
   // Helper methods
   async expectPageLoaded(): Promise<void> {
     await expect(this.detailPage).toBeVisible();
@@ -258,5 +295,25 @@ export class CandidateDetailPage extends BasePage {
   async goBackToCandidatesList(): Promise<void> {
     await this.backLink.click();
     await this.page.waitForURL(/\/admin\/candidates\/?$/);
+  }
+
+  async openReassignModal(): Promise<void> {
+    await this.btnReassign.click();
+    await expect(this.reassignModal).toBeVisible();
+  }
+
+  async closeReassignModal(): Promise<void> {
+    await this.reassignModalClose.click();
+    await expect(this.reassignModal).toBeHidden();
+  }
+
+  async selectConsultant(id: string): Promise<void> {
+    await this.getConsultantRadio(id).click();
+  }
+
+  async submitReassign(): Promise<void> {
+    await this.reassignBtnSubmit.click();
+    // Wait for page to reload after redirect
+    await this.page.waitForURL(/\/admin\/candidates\/[a-f0-9-]+/);
   }
 }
