@@ -43,7 +43,7 @@ func ConsultantReport(data layouts.PageData, filter ReportFilter, consultants []
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"space-y-6\"><!-- Filter --><div class=\"bg-white rounded-lg shadow p-4\"><form class=\"flex flex-wrap gap-4 items-end\"><div><label class=\"block text-sm font-medium text-gray-700 mb-1\">Periode</label> <select name=\"period\" class=\"border border-gray-300 rounded-md px-3 py-2 text-sm\"><option value=\"this_month\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"space-y-6\" data-testid=\"consultant-report-page\"><!-- Filter --><div class=\"bg-white rounded-lg shadow p-4\" data-testid=\"report-filter\"><form class=\"flex flex-wrap gap-4 items-end\"><div><label class=\"block text-sm font-medium text-gray-700 mb-1\">Periode</label> <select name=\"period\" class=\"border border-gray-300 rounded-md px-3 py-2 text-sm\"><option value=\"this_month\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -119,7 +119,7 @@ func ConsultantReport(data layouts.PageData, filter ReportFilter, consultants []
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\" class=\"border border-gray-300 rounded-md px-3 py-2 text-sm\"></div><div><label class=\"block text-sm font-medium text-gray-700 mb-1\">Supervisor</label> <select name=\"supervisor\" class=\"border border-gray-300 rounded-md px-3 py-2 text-sm\"><option value=\"\">Semua Supervisor</option> <option value=\"2\">Budi Santoso</option></select></div><button type=\"submit\" class=\"bg-primary-600 text-white px-4 py-2 rounded-md text-sm hover:bg-primary-700\">Terapkan</button> <a href=\"/admin/reports/consultants\" class=\"text-gray-600 hover:text-gray-800 text-sm\">Reset</a></form></div><!-- Summary Cards --><div class=\"grid grid-cols-1 md:grid-cols-4 gap-4\"><div class=\"bg-white rounded-lg shadow p-6\"><div class=\"text-sm text-gray-500\">Total Leads</div><div class=\"text-3xl font-bold text-gray-900\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\" class=\"border border-gray-300 rounded-md px-3 py-2 text-sm\"></div><div><label class=\"block text-sm font-medium text-gray-700 mb-1\">Supervisor</label> <select name=\"supervisor\" class=\"border border-gray-300 rounded-md px-3 py-2 text-sm\"><option value=\"\">Semua Supervisor</option> <option value=\"2\">Budi Santoso</option></select></div><button type=\"submit\" class=\"bg-primary-600 text-white px-4 py-2 rounded-md text-sm hover:bg-primary-700\">Terapkan</button> <a href=\"/admin/reports/consultants\" class=\"text-gray-600 hover:text-gray-800 text-sm\">Reset</a></form></div><!-- Summary Cards --><div class=\"grid grid-cols-1 md:grid-cols-4 gap-4\" data-testid=\"report-summary\"><div class=\"bg-white rounded-lg shadow p-6\"><div class=\"text-sm text-gray-500\">Total Leads</div><div class=\"text-3xl font-bold text-gray-900\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

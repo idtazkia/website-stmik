@@ -4,9 +4,9 @@ import "github.com/idtazkia/stmik-admission-api/templates/layouts"
 
 templ Dashboard(data layouts.PageData, stats DashboardStats) {
 	@layouts.Admin(data) {
-		<div class="space-y-6">
+		<div class="space-y-6" data-testid="admin-dashboard">
 			<!-- Stats Cards -->
-			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" data-testid="stats-cards">
 				<div class="bg-white rounded-lg shadow p-6">
 					<div class="text-sm text-gray-500">Total Kandidat</div>
 					<div class="text-3xl font-bold text-gray-900">{ stats.TotalCandidates }</div>
@@ -32,7 +32,7 @@ templ Dashboard(data layouts.PageData, stats DashboardStats) {
 			<!-- Quick Actions & Alerts -->
 			<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 				<!-- Overdue Follow-ups -->
-				<div class="bg-white rounded-lg shadow">
+				<div class="bg-white rounded-lg shadow" data-testid="overdue-section">
 					<div class="px-6 py-4 border-b flex items-center justify-between">
 						<h2 class="font-semibold text-gray-900">Follow-up Terlambat</h2>
 						<span class="bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded">{ stats.OverdueFollowups } kandidat</span>
@@ -55,7 +55,7 @@ templ Dashboard(data layouts.PageData, stats DashboardStats) {
 				</div>
 
 				<!-- Today's Tasks -->
-				<div class="bg-white rounded-lg shadow">
+				<div class="bg-white rounded-lg shadow" data-testid="today-tasks-section">
 					<div class="px-6 py-4 border-b flex items-center justify-between">
 						<h2 class="font-semibold text-gray-900">Tugas Hari Ini</h2>
 						<span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded">{ stats.TodayFollowups } follow-up</span>
@@ -82,7 +82,7 @@ templ Dashboard(data layouts.PageData, stats DashboardStats) {
 			</div>
 
 			<!-- Funnel Overview -->
-			<div class="bg-white rounded-lg shadow">
+			<div class="bg-white rounded-lg shadow" data-testid="funnel-section">
 				<div class="px-6 py-4 border-b">
 					<h2 class="font-semibold text-gray-900">Funnel Overview</h2>
 				</div>
@@ -124,7 +124,7 @@ templ Dashboard(data layouts.PageData, stats DashboardStats) {
 			</div>
 
 			<!-- Recent Candidates -->
-			<div class="bg-white rounded-lg shadow">
+			<div class="bg-white rounded-lg shadow" data-testid="recent-candidates-section">
 				<div class="px-6 py-4 border-b flex items-center justify-between">
 					<h2 class="font-semibold text-gray-900">Kandidat Terbaru</h2>
 					<a href="/admin/candidates" class="text-primary-600 hover:text-primary-800 text-sm font-medium">Lihat Semua →</a>
