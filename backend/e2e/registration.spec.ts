@@ -198,10 +198,11 @@ test.describe('Candidate Login', () => {
   let loginPage: LoginPage;
   let registrationPage: RegistrationPage;
   let testEmail: string;
+  let testPhone: string;
   const testPassword = 'testpassword123';
 
   test.beforeAll(async ({ browser }) => {
-    // Create a test candidate first
+    // Create a test candidate with email first
     const page = await browser.newPage();
     registrationPage = new RegistrationPage(page);
     testEmail = generateUniqueEmail();
@@ -232,6 +233,37 @@ test.describe('Candidate Login', () => {
     }
 
     await page.close();
+
+    // Create another test candidate with phone
+    const page2 = await browser.newPage();
+    const registrationPage2 = new RegistrationPage(page2);
+    testPhone = generateUniquePhone();
+
+    await registrationPage2.goto();
+    await registrationPage2.expectPageLoaded();
+    await registrationPage2.fillStep1WithPhone(testPhone, testPassword);
+    await registrationPage2.expectStep2Visible();
+    await registrationPage2.fillStep2(
+      'Phone Login Test User',
+      'Jl. Phone Test No. 789',
+      'Surabaya',
+      'Jawa Timur'
+    );
+    await registrationPage2.expectStep3Visible();
+
+    const prodiRadios2 = page2.locator('[data-testid^="radio-prodi-"]');
+    const radioCount2 = await prodiRadios2.count();
+
+    if (radioCount2 > 0) {
+      await registrationPage2.inputHighSchool.fill('SMA Negeri 1 Surabaya');
+      await registrationPage2.selectGraduationYear.selectOption('2025');
+      await prodiRadios2.first().click();
+      await registrationPage2.btnSubmitStep3.click();
+      await registrationPage2.expectStep4Visible();
+      await registrationPage2.fillStep4('instagram');
+    }
+
+    await page2.close();
   });
 
   test.beforeEach(async ({ page }) => {
@@ -256,12 +288,67 @@ test.describe('Candidate Login', () => {
     await loginPage.expectRedirectToPortal();
   });
 
+  test('should login with correct phone and password', async () => {
+    await loginPage.login(testPhone, testPassword);
+    await loginPage.expectRedirectToPortal();
+  });
+
   test('should redirect to login when accessing portal without session', async ({ page }) => {
     // Clear cookies first
     await page.context().clearCookies();
     await page.goto('/portal');
     // Should still be on portal for mockup (no auth protection yet)
     // This test can be updated when portal is protected
+  });
+});
+
+test.describe('Duplicate Account Prevention', () => {
+  let registrationPage: RegistrationPage;
+  let existingEmail: string;
+  let existingPhone: string;
+  const testPassword = 'testpassword123';
+
+  test.beforeAll(async ({ browser }) => {
+    // Create a test candidate with both email and phone
+    const page = await browser.newPage();
+    registrationPage = new RegistrationPage(page);
+    existingEmail = generateUniqueEmail();
+    existingPhone = generateUniquePhone();
+
+    await registrationPage.goto();
+    await registrationPage.expectPageLoaded();
+    await registrationPage.fillStep1WithBoth(existingEmail, existingPhone, testPassword);
+    await registrationPage.expectStep2Visible();
+
+    await page.close();
+  });
+
+  test('should show error when registering with existing email', async ({ page }) => {
+    const regPage = new RegistrationPage(page);
+    await regPage.goto();
+    await regPage.expectPageLoaded();
+
+    // Try to register with the same email
+    await regPage.inputEmail.fill(existingEmail);
+    await regPage.inputPassword.fill(testPassword);
+    await regPage.inputPasswordConfirm.fill(testPassword);
+    await regPage.btnSubmitStep1.click();
+
+    await regPage.expectErrorMessage('sudah terdaftar');
+  });
+
+  test('should show error when registering with existing phone', async ({ page }) => {
+    const regPage = new RegistrationPage(page);
+    await regPage.goto();
+    await regPage.expectPageLoaded();
+
+    // Try to register with the same phone
+    await regPage.inputPhone.fill(existingPhone);
+    await regPage.inputPassword.fill(testPassword);
+    await regPage.inputPasswordConfirm.fill(testPassword);
+    await regPage.btnSubmitStep1.click();
+
+    await regPage.expectErrorMessage('sudah terdaftar');
   });
 });
 
