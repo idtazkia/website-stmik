@@ -10,20 +10,33 @@ Panduan ini menjelaskan cara menggunakan sistem penerimaan mahasiswa baru STMIK 
 1. [Pendaftaran Akun](#1-pendaftaran-akun)
 2. [Login Calon Mahasiswa](#2-login-calon-mahasiswa)
 3. [Dashboard Portal](#3-dashboard-portal)
+4. [Upload Dokumen](#4-upload-dokumen)
+5. [Pembayaran](#5-pembayaran)
+6. [Pengumuman](#6-pengumuman)
 
-### Admin CRM
-4. [Login Admin](#4-login-admin)
-5. [Dashboard Admin](#5-dashboard-admin)
-6. [Pengaturan Pengguna](#6-pengaturan-pengguna)
-7. [Pengaturan Program Studi](#7-pengaturan-program-studi)
-8. [Pengaturan Biaya](#8-pengaturan-biaya)
-9. [Pengaturan Kategori & Hambatan](#9-pengaturan-kategori--hambatan)
-10. [Pengaturan Kampanye](#10-pengaturan-kampanye)
-11. [Pengaturan Reward](#11-pengaturan-reward)
-12. [Pengaturan Referrer](#12-pengaturan-referrer)
-13. [Pengaturan Algoritma Assignment](#13-pengaturan-algoritma-assignment)
-14. [Pengaturan Jenis Dokumen](#14-pengaturan-jenis-dokumen)
-15. [Pengaturan Alasan Kehilangan](#15-pengaturan-alasan-kehilangan)
+### Admin CRM - Pengaturan
+7. [Login Admin](#7-login-admin)
+8. [Pengaturan Pengguna](#8-pengaturan-pengguna)
+9. [Pengaturan Program Studi](#9-pengaturan-program-studi)
+10. [Pengaturan Biaya](#10-pengaturan-biaya)
+11. [Pengaturan Kategori & Hambatan](#11-pengaturan-kategori--hambatan)
+12. [Pengaturan Kampanye](#12-pengaturan-kampanye)
+13. [Pengaturan Reward](#13-pengaturan-reward)
+14. [Pengaturan Referrer](#14-pengaturan-referrer)
+15. [Pengaturan Algoritma Assignment](#15-pengaturan-algoritma-assignment)
+16. [Pengaturan Jenis Dokumen](#16-pengaturan-jenis-dokumen)
+17. [Pengaturan Alasan Kehilangan](#17-pengaturan-alasan-kehilangan)
+
+### Admin CRM - Dashboard & Monitoring
+18. [Dashboard Admin](#18-dashboard-admin)
+19. [Daftar Kandidat](#19-daftar-kandidat)
+20. [Detail Kandidat](#20-detail-kandidat)
+
+### Dashboard Konsultan Akademik (AC)
+21. [Dashboard Konsultan](#21-dashboard-konsultan)
+
+### Laporan
+22. [Laporan Performa Konsultan](#22-laporan-performa-konsultan)
 
 ---
 
@@ -50,6 +63,10 @@ Calon mahasiswa dapat mendaftar melalui portal pendaftaran online dengan 4 langk
 
 **Catatan:** Minimal salah satu dari email atau nomor HP harus diisi.
 
+**Contoh pengisian:**
+
+![Pendaftaran - Langkah 1 (Terisi)](20a-registration-step1-filled.png)
+
 ### Langkah 2: Data Diri
 
 ![Pendaftaran - Langkah 2](21-registration-step2.png)
@@ -63,6 +80,10 @@ Calon mahasiswa dapat mendaftar melalui portal pendaftaran online dengan 4 langk
 | Kota/Kabupaten | Kota tempat tinggal |
 | Provinsi | Provinsi tempat tinggal |
 
+**Contoh pengisian:**
+
+![Pendaftaran - Langkah 2 (Terisi)](21a-registration-step2-filled.png)
+
 ### Langkah 3: Data Pendidikan
 
 ![Pendaftaran - Langkah 3](22-registration-step3.png)
@@ -74,6 +95,10 @@ Calon mahasiswa dapat mendaftar melalui portal pendaftaran online dengan 4 langk
 | Asal Sekolah | Nama SMA/SMK/MA |
 | Tahun Lulus | Tahun kelulusan |
 | Program Studi | Pilih program studi yang diminati |
+
+**Contoh pengisian:**
+
+![Pendaftaran - Langkah 3 (Terisi)](22a-registration-step3-filled.png)
 
 ### Langkah 4: Informasi Tambahan
 
@@ -98,6 +123,10 @@ Calon mahasiswa dapat mendaftar melalui portal pendaftaran online dengan 4 langk
 - Guru/Alumni
 - Datang Langsung
 - Lainnya
+
+**Contoh pengisian:**
+
+![Pendaftaran - Langkah 4 (Terisi)](23a-registration-step4-filled.png)
 
 Setelah selesai, sistem akan otomatis:
 - Menugaskan konsultan akademik untuk membantu proses pendaftaran
@@ -149,11 +178,107 @@ Setelah login, calon mahasiswa akan melihat dashboard dengan informasi pendaftar
 
 ---
 
-# Admin CRM
+## 4. Upload Dokumen
+
+Halaman untuk mengelola dokumen persyaratan pendaftaran.
+
+![Upload Dokumen](26-portal-documents.png)
+
+**Proses Bisnis:**
+
+1. Sistem menampilkan daftar dokumen yang diperlukan beserta statusnya
+2. Progress kelengkapan ditampilkan di bagian atas halaman
+3. Calon mahasiswa dapat mengupload dokumen satu per satu
+4. Setiap dokumen yang diupload akan menunggu verifikasi dari admin
+
+**Status Dokumen:**
+
+| Status | Keterangan |
+|--------|------------|
+| Belum Upload | Dokumen belum diupload |
+| Menunggu Review | Dokumen sudah diupload, menunggu verifikasi admin |
+| Disetujui | Dokumen sudah diverifikasi dan diterima |
+| Ditolak | Dokumen tidak sesuai, perlu upload ulang |
+| Menyusul | Dokumen akan diupload nanti (untuk ijazah yang belum terbit) |
+
+**Dokumen yang Diperlukan:**
+
+| Dokumen | Wajib | Bisa Ditunda |
+|---------|-------|--------------|
+| KTP | Ya | Tidak |
+| Pas Photo | Ya | Tidak |
+| Ijazah | Ya | Ya (untuk yang belum wisuda) |
+| Transkrip | Ya | Ya (untuk yang belum wisuda) |
+| Surat Keterangan Lulus | Tidak | Ya |
+
+**Tips Upload:**
+- Pastikan dokumen jelas dan tidak buram
+- Foto KTP dan Ijazah harus terlihat seluruh bagiannya
+- Gunakan format JPG, PNG, atau PDF
+- Ukuran file maksimal 5MB per dokumen
+- Untuk foto pas photo, gunakan background merah atau biru
 
 ---
 
-## 4. Login Admin
+## 5. Pembayaran
+
+Halaman untuk mengelola tagihan dan upload bukti pembayaran.
+
+![Pembayaran](27-portal-payments.png)
+
+**Proses Bisnis:**
+
+1. Sistem menampilkan ringkasan pembayaran (total tagihan, sudah dibayar, menunggu verifikasi)
+2. Informasi rekening pembayaran ditampilkan dengan format berita transfer
+3. Daftar tagihan ditampilkan dengan status masing-masing
+4. Calon mahasiswa dapat mengupload bukti bayar untuk setiap tagihan
+
+**Alur Pembayaran:**
+
+1. Lihat tagihan yang belum dibayar
+2. Transfer ke rekening yang tertera dengan berita transfer sesuai format
+3. Klik "Upload Bukti Bayar" pada tagihan yang sudah ditransfer
+4. Upload foto/screenshot bukti transfer
+5. Tunggu verifikasi dari admin
+
+**Status Pembayaran:**
+
+| Status | Keterangan |
+|--------|------------|
+| Belum Dibayar | Tagihan belum dibayar |
+| Menunggu Verifikasi | Bukti bayar sudah diupload, menunggu verifikasi |
+| Lunas | Pembayaran sudah diverifikasi |
+
+---
+
+## 6. Pengumuman
+
+Halaman untuk melihat pengumuman terbaru dari panitia PMB.
+
+![Pengumuman](28-portal-announcements.png)
+
+**Proses Bisnis:**
+
+1. Pengumuman ditampilkan dalam bentuk daftar dengan urutan terbaru di atas
+2. Setiap pengumuman menampilkan judul, tanggal, dan ringkasan isi
+3. Klik pada pengumuman untuk melihat detail lengkap
+4. Pengumuman penting ditandai dengan badge khusus
+
+**Jenis Pengumuman:**
+
+| Jenis | Keterangan |
+|-------|------------|
+| Informasi | Pengumuman umum tentang proses PMB |
+| Jadwal | Jadwal kegiatan seperti tes, wawancara, daftar ulang |
+| Penting | Pengumuman yang memerlukan tindakan segera |
+
+---
+
+# Admin CRM - Pengaturan
+
+---
+
+## 7. Login Admin
 
 Staff menggunakan akun Google dengan email institusi (@tazkia.ac.id) untuk masuk ke sistem.
 
@@ -170,24 +295,7 @@ Staff menggunakan akun Google dengan email institusi (@tazkia.ac.id) untuk masuk
 
 ---
 
-## 5. Dashboard Admin
-
-Setelah login, pengguna akan melihat dashboard dengan ringkasan statistik.
-
-![Dashboard Admin](02-dashboard.png)
-
-**Informasi yang ditampilkan:**
-
-- Total Kandidat
-- Jumlah kandidat Prospecting (sedang difollow-up)
-- Jumlah kandidat Committed (menunggu enrollment)
-- Jumlah kandidat Enrolled (mahasiswa baru)
-- Daftar follow-up yang terlambat
-- Aktivitas terbaru
-
----
-
-## 6. Pengaturan Pengguna
+## 8. Pengaturan Pengguna
 
 Menu: **Settings > Users**
 
@@ -212,7 +320,7 @@ Halaman ini untuk mengelola akun staff (admin, supervisor, konsultan).
 
 ---
 
-## 7. Pengaturan Program Studi
+## 9. Pengaturan Program Studi
 
 Menu: **Settings > Programs**
 
@@ -240,7 +348,7 @@ Halaman ini untuk mengelola program studi yang ditawarkan.
 
 ---
 
-## 8. Pengaturan Biaya
+## 10. Pengaturan Biaya
 
 Menu: **Settings > Fees**
 
@@ -269,7 +377,7 @@ Halaman ini untuk mengatur struktur biaya per program studi dan tahun akademik.
 
 ---
 
-## 9. Pengaturan Kategori & Hambatan
+## 11. Pengaturan Kategori & Hambatan
 
 Menu: **Settings > Categories**
 
@@ -327,7 +435,7 @@ Digunakan untuk mencatat hambatan yang dihadapi kandidat.
 
 ---
 
-## 10. Pengaturan Kampanye
+## 12. Pengaturan Kampanye
 
 Menu: **Settings > Campaigns**
 
@@ -358,7 +466,7 @@ Halaman ini untuk mengelola kampanye marketing dan promo.
 
 ---
 
-## 11. Pengaturan Reward
+## 13. Pengaturan Reward
 
 Menu: **Settings > Rewards**
 
@@ -404,7 +512,7 @@ Untuk mahasiswa aktif yang mereferensikan calon mahasiswa baru.
 
 ---
 
-## 12. Pengaturan Referrer
+## 14. Pengaturan Referrer
 
 Menu: **Settings > Referrers**
 
@@ -434,7 +542,7 @@ Halaman ini untuk mengelola data referrer yang akan mendapat komisi.
 
 ---
 
-## 13. Pengaturan Algoritma Assignment
+## 15. Pengaturan Algoritma Assignment
 
 Menu: **Settings > Assignment**
 
@@ -459,7 +567,7 @@ Halaman ini untuk memilih algoritma distribusi kandidat baru ke konsultan.
 
 ---
 
-## 14. Pengaturan Jenis Dokumen
+## 16. Pengaturan Jenis Dokumen
 
 Menu: **Settings > Document Types**
 
@@ -494,7 +602,7 @@ Halaman ini untuk mengelola jenis dokumen yang harus diupload kandidat.
 
 ---
 
-## 15. Pengaturan Alasan Kehilangan
+## 17. Pengaturan Alasan Kehilangan
 
 Menu: **Settings > Lost Reasons**
 
@@ -524,6 +632,390 @@ Halaman ini untuk mengelola alasan kandidat yang tidak melanjutkan pendaftaran.
 - Lokasi terlalu jauh
 - Orang tua tidak setuju
 - Lainnya
+
+---
+
+# Admin CRM - Dashboard & Monitoring
+
+---
+
+## 18. Dashboard Admin
+
+Menu: **Dashboard**
+
+Dashboard utama admin menampilkan ringkasan statistik dan aktivitas terkini.
+
+![Dashboard Admin](30-admin-dashboard-overview.png)
+
+### 18.1 Statistik Utama
+
+![Statistik Dashboard](30a-admin-dashboard-stats.png)
+
+**Informasi yang ditampilkan:**
+
+| Metrik | Keterangan |
+|--------|------------|
+| Total Kandidat | Jumlah seluruh kandidat yang terdaftar |
+| Prospecting | Kandidat yang sedang difollow-up |
+| Committed | Kandidat yang sudah berkomitmen mendaftar |
+| Enrolled | Kandidat yang sudah menjadi mahasiswa |
+
+### 18.2 Follow-up yang Terlambat
+
+![Follow-up Terlambat](30b-admin-dashboard-overdue.png)
+
+**Proses Bisnis:**
+
+1. Sistem menampilkan daftar kandidat yang sudah lewat jadwal follow-up
+2. Diurutkan berdasarkan yang paling lama terlambat
+3. Admin/supervisor dapat melihat kandidat mana yang perlu segera dihubungi
+4. Klik nama kandidat untuk melihat detail dan melakukan follow-up
+
+### 18.3 Tugas Hari Ini
+
+![Tugas Hari Ini](30c-admin-dashboard-today-tasks.png)
+
+**Informasi yang ditampilkan:**
+
+- Daftar kandidat yang dijadwalkan untuk follow-up hari ini
+- Prioritas berdasarkan waktu yang dijadwalkan
+- Status terakhir interaksi dengan kandidat
+
+### 18.4 Funnel Konversi
+
+![Funnel Konversi](30d-admin-dashboard-funnel.png)
+
+**Proses Bisnis:**
+
+1. Menampilkan visualisasi jumlah kandidat di setiap tahap
+2. Membantu mengidentifikasi bottleneck dalam proses konversi
+3. Persentase konversi antar tahap ditampilkan
+
+**Tahapan Funnel:**
+
+| Tahap | Keterangan |
+|-------|------------|
+| Registered | Baru mendaftar |
+| Prospecting | Sedang difollow-up |
+| Committed | Sudah berkomitmen |
+| Enrolled | Sudah menjadi mahasiswa |
+| Lost | Tidak melanjutkan |
+
+### 18.5 Kandidat Terbaru
+
+![Kandidat Terbaru](30e-admin-dashboard-recent-candidates.png)
+
+**Informasi yang ditampilkan:**
+
+- 10 kandidat terbaru yang mendaftar
+- Nama, program studi, dan tanggal pendaftaran
+- Status saat ini
+- Konsultan yang menangani
+
+---
+
+## 19. Daftar Kandidat
+
+Menu: **Candidates**
+
+Halaman untuk mengelola seluruh kandidat dalam sistem.
+
+![Daftar Kandidat](31-candidates-list.png)
+
+### 19.1 Statistik Kandidat
+
+![Statistik Kandidat](31a-candidates-stats.png)
+
+**Informasi yang ditampilkan:**
+
+- Total kandidat
+- Breakdown per status
+- Persentase masing-masing status
+
+### 19.2 Filter Kandidat
+
+![Filter Kandidat](31b-candidates-filters.png)
+
+**Opsi Filter:**
+
+| Filter | Keterangan |
+|--------|------------|
+| Status | Filter berdasarkan status kandidat |
+| Konsultan | Filter berdasarkan konsultan yang menangani |
+| Program Studi | Filter berdasarkan prodi pilihan |
+| Tanggal | Filter berdasarkan tanggal pendaftaran |
+
+**Contoh penggunaan filter status:**
+
+![Filter Status](31c-candidates-filter-status.png)
+
+### 19.3 Pencarian Kandidat
+
+![Pencarian Kandidat](31d-candidates-search.png)
+
+**Fitur Pencarian:**
+
+- Cari berdasarkan nama
+- Cari berdasarkan email
+- Cari berdasarkan nomor HP
+- Hasil pencarian real-time
+
+### 19.4 Tabel Kandidat
+
+![Tabel Kandidat](31e-candidates-table.png)
+
+**Kolom yang ditampilkan:**
+
+| Kolom | Keterangan |
+|-------|------------|
+| Nama | Nama lengkap kandidat |
+| Email/HP | Kontak kandidat |
+| Program Studi | Prodi pilihan |
+| Status | Status saat ini |
+| Konsultan | AC yang menangani |
+| Terakhir Follow-up | Tanggal follow-up terakhir |
+| Aksi | Tombol untuk detail |
+
+---
+
+## 20. Detail Kandidat
+
+Halaman detail untuk mengelola informasi dan interaksi dengan kandidat.
+
+![Detail Kandidat](32-candidate-detail.png)
+
+### 20.1 Header Kandidat
+
+![Header Kandidat](32a-candidate-detail-header.png)
+
+**Informasi yang ditampilkan:**
+
+- Nama kandidat
+- Status saat ini dengan badge warna
+- Tombol aksi cepat (hubungi, catat interaksi, ubah status)
+
+### 20.2 Data Pribadi
+
+![Data Pribadi](32b-candidate-personal-info.png)
+
+**Informasi yang ditampilkan:**
+
+| Field | Keterangan |
+|-------|------------|
+| Nama Lengkap | Nama sesuai KTP |
+| Email | Alamat email |
+| No HP | Nomor WhatsApp |
+| Alamat | Alamat lengkap |
+| Kota | Kota/Kabupaten |
+| Provinsi | Provinsi |
+
+### 20.3 Data Pendidikan
+
+![Data Pendidikan](32c-candidate-education.png)
+
+**Informasi yang ditampilkan:**
+
+| Field | Keterangan |
+|-------|------------|
+| Asal Sekolah | Nama SMA/SMK/MA |
+| Tahun Lulus | Tahun kelulusan |
+| Program Studi | Prodi yang dipilih |
+
+### 20.4 Sumber & Assignment
+
+![Sumber dan Assignment](32d-candidate-source-assignment.png)
+
+**Informasi yang ditampilkan:**
+
+| Field | Keterangan |
+|-------|------------|
+| Sumber | Dari mana mengetahui STMIK Tazkia |
+| Referrer | Siapa yang mereferensikan (jika ada) |
+| Kampanye | Kampanye yang diikuti (jika ada) |
+| Konsultan | AC yang menangani |
+| Tanggal Assign | Tanggal ditugaskan ke konsultan |
+
+### 20.5 Timeline Interaksi
+
+![Timeline Interaksi](32e-candidate-timeline.png)
+
+**Proses Bisnis:**
+
+1. Menampilkan riwayat semua interaksi dengan kandidat
+2. Urutan dari yang terbaru di atas
+3. Setiap entry menampilkan tanggal, jenis interaksi, catatan, dan konsultan
+4. Icon berbeda untuk jenis interaksi berbeda (telepon, WhatsApp, email, tatap muka)
+
+### 20.6 Form Catat Interaksi
+
+![Form Catat Interaksi](32f-candidate-interaction-modal.png)
+
+**Field yang diisi:**
+
+| Field | Keterangan |
+|-------|------------|
+| Jenis Interaksi | Telepon, WhatsApp, Email, Tatap Muka |
+| Kategori Respon | Hasil interaksi (Tertarik, Ragu, dll) |
+| Hambatan | Hambatan yang disampaikan kandidat (jika ada) |
+| Catatan | Detail percakapan |
+| Jadwal Follow-up | Tanggal follow-up berikutnya |
+
+**Proses Bisnis:**
+
+1. Klik tombol "Catat Interaksi" di header
+2. Pilih jenis interaksi (telepon/WA/email/tatap muka)
+3. Pilih kategori respon dari dropdown
+4. Pilih hambatan jika kandidat menyampaikan keberatan
+5. Tulis catatan detail percakapan
+6. Tentukan jadwal follow-up berikutnya
+7. Klik "Simpan" untuk menyimpan
+
+---
+
+# Dashboard Konsultan Akademik (AC)
+
+---
+
+## 21. Dashboard Konsultan
+
+Menu: **My Dashboard**
+
+Dashboard personal untuk konsultan akademik menampilkan kandidat yang ditangani dan tugas harian.
+
+![Dashboard Konsultan](40-ac-dashboard.png)
+
+### 21.1 Sambutan & Ringkasan
+
+![Sambutan Dashboard](40a-ac-dashboard-welcome.png)
+
+**Informasi yang ditampilkan:**
+
+- Sapaan personal dengan nama konsultan
+- Ringkasan kandidat yang ditangani
+- Quick stats performa bulan ini
+
+### 21.2 Statistik Personal
+
+![Statistik Personal](40b-ac-dashboard-stats.png)
+
+**Metrik yang ditampilkan:**
+
+| Metrik | Keterangan |
+|--------|------------|
+| Total Kandidat | Jumlah kandidat yang di-handle |
+| Prospecting | Kandidat sedang difollow-up |
+| Committed | Kandidat yang sudah berkomitmen |
+| Enrolled | Kandidat yang berhasil didaftarkan |
+
+### 21.3 Follow-up yang Terlambat
+
+![Follow-up Terlambat AC](40c-ac-dashboard-overdue.png)
+
+**Proses Bisnis:**
+
+1. Menampilkan kandidat yang sudah melewati jadwal follow-up
+2. Diurutkan berdasarkan yang paling lama terlambat
+3. Klik untuk langsung membuka detail kandidat
+4. Badge merah menunjukkan jumlah hari keterlambatan
+
+### 21.4 Tugas Hari Ini
+
+![Tugas Hari Ini AC](40d-ac-dashboard-today-tasks.png)
+
+**Informasi yang ditampilkan:**
+
+- Daftar kandidat yang harus difollow-up hari ini
+- Jam yang dijadwalkan
+- Status interaksi terakhir
+- Tombol cepat untuk menghubungi
+
+### 21.5 Saran dari Supervisor
+
+![Saran Supervisor](40e-ac-dashboard-suggestions.png)
+
+**Proses Bisnis:**
+
+1. Supervisor memberikan saran untuk kandidat tertentu
+2. Saran muncul di dashboard konsultan
+3. Konsultan dapat melihat konteks dan rekomendasi aksi
+4. Klik "Selesai" setelah mengikuti saran
+
+**Jenis Saran:**
+
+| Jenis | Keterangan |
+|-------|------------|
+| Follow-up | Saran untuk segera menghubungi kandidat |
+| Strategi | Saran pendekatan untuk kandidat tertentu |
+| Eskalasi | Kandidat perlu ditangani supervisor |
+
+### 21.6 Performa Bulanan
+
+![Performa Bulanan](40f-ac-dashboard-monthly-performance.png)
+
+**Metrik yang ditampilkan:**
+
+- Jumlah kandidat baru bulan ini
+- Jumlah enrolled bulan ini
+- Rasio konversi
+- Perbandingan dengan bulan sebelumnya
+
+---
+
+# Laporan
+
+---
+
+## 22. Laporan Performa Konsultan
+
+Menu: **Reports > Consultant Performance**
+
+Laporan untuk mengevaluasi performa setiap konsultan akademik.
+
+![Laporan Performa Konsultan](50-consultant-report.png)
+
+### 22.1 Filter Laporan
+
+![Filter Laporan](50a-consultant-report-filters.png)
+
+**Opsi Filter:**
+
+| Filter | Keterangan |
+|--------|------------|
+| Periode | Pilih rentang tanggal |
+| Konsultan | Filter konsultan tertentu atau semua |
+| Tim | Filter berdasarkan tim supervisor |
+
+### 22.2 Ringkasan Performa
+
+![Ringkasan Performa](50b-consultant-report-summary.png)
+
+**Metrik yang ditampilkan:**
+
+| Metrik | Keterangan |
+|--------|------------|
+| Total Kandidat | Jumlah kandidat yang ditangani |
+| Enrolled | Jumlah yang berhasil menjadi mahasiswa |
+| Konversi Rate | Persentase keberhasilan konversi |
+| Avg Response Time | Rata-rata waktu respons ke kandidat baru |
+| Follow-up Rate | Persentase follow-up tepat waktu |
+
+**Tabel Perbandingan Konsultan:**
+
+| Kolom | Keterangan |
+|-------|------------|
+| Nama Konsultan | Nama AC |
+| Kandidat Aktif | Jumlah kandidat yang sedang ditangani |
+| Enrolled Bulan Ini | Jumlah enrolled periode ini |
+| Conversion Rate | Tingkat konversi |
+| Overdue | Jumlah follow-up terlambat |
+| Rating | Skor performa keseluruhan |
+
+**Proses Bisnis:**
+
+1. Pilih periode yang ingin dilihat
+2. Sistem menampilkan performa semua konsultan
+3. Klik nama konsultan untuk melihat detail
+4. Export ke Excel untuk analisis lebih lanjut
 
 ---
 
