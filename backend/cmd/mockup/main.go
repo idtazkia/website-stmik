@@ -15,6 +15,7 @@ import (
 
 	"github.com/idtazkia/stmik-admission-api/auth"
 	"github.com/idtazkia/stmik-admission-api/handler"
+	"github.com/idtazkia/stmik-admission-api/storage"
 	"github.com/idtazkia/stmik-admission-api/templates/pages"
 	"github.com/idtazkia/stmik-admission-api/version"
 )
@@ -76,8 +77,14 @@ func main() {
 	adminHandler := handler.NewAdminHandler(mockSessionMgr)
 	adminHandler.RegisterRoutes(mux)
 
+	// Initialize local storage for file uploads (mockup mode uses ./uploads)
+	mockStorage, err := storage.NewLocalStorage("./uploads", "/uploads")
+	if err != nil {
+		log.Fatalf("failed to initialize local storage: %v", err)
+	}
+
 	// Portal routes (mockup)
-	portalHandler := handler.NewPortalHandler(mockSessionMgr)
+	portalHandler := handler.NewPortalHandler(mockSessionMgr, mockStorage)
 	portalHandler.RegisterRoutes(mux)
 
 	// Test routes for Playwright

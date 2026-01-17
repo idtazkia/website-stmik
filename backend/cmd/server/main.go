@@ -16,6 +16,7 @@ import (
 	"github.com/idtazkia/stmik-admission-api/handler"
 	"github.com/idtazkia/stmik-admission-api/integration"
 	"github.com/idtazkia/stmik-admission-api/model"
+	"github.com/idtazkia/stmik-admission-api/storage"
 	"github.com/idtazkia/stmik-admission-api/templates/pages"
 	"github.com/idtazkia/stmik-admission-api/version"
 	"github.com/joho/godotenv"
@@ -57,6 +58,13 @@ func main() {
 	resendClient := integration.NewResendClient(cfg.Resend.APIKey, cfg.Resend.From)
 	whatsappClient := integration.NewWhatsAppClient(cfg.WhatsApp.APIURL, cfg.WhatsApp.APIToken)
 
+	// Initialize local storage for file uploads
+	localStorage, err := storage.NewLocalStorage(cfg.Upload.Dir, "/uploads")
+	if err != nil {
+		log.Fatalf("failed to initialize local storage: %v", err)
+	}
+	log.Printf("Local storage initialized at %s", cfg.Upload.Dir)
+
 	mux := http.NewServeMux()
 
 	// Health check endpoint
@@ -73,6 +81,9 @@ func main() {
 	// Static files
 	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
+	// Uploaded files
+	mux.Handle("GET /uploads/", http.StripPrefix("/uploads/", http.FileServer(http.Dir(cfg.Upload.Dir))))
+
 	// Auth routes
 	adminAuthHandler := handler.NewAdminAuthHandler(googleOAuth, sessionMgr)
 	adminAuthHandler.RegisterRoutes(mux)
@@ -82,7 +93,7 @@ func main() {
 	adminHandler.RegisterRoutes(mux)
 
 	// Portal routes (candidate portal)
-	portalHandler := handler.NewPortalHandler(sessionMgr)
+	portalHandler := handler.NewPortalHandler(sessionMgr, localStorage)
 	portalHandler.RegisterRoutes(mux)
 
 	// Public routes (registration and login)
