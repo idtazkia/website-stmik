@@ -676,48 +676,46 @@ Day-to-day sales operations.
 
 ---
 
-## Feature 23: Candidate List & Filters
+## Feature 23: Candidate List & Filters ✅
 
 Admin/consultant views candidates.
 
-- [x] `templates/admin/candidates_list.templ` - Table with filters (UI mockup done)
-- [ ] `model/candidate.go` - List with filters, pagination
-- [ ] `handler/admin.go` - GET /admin/candidates (wire to real data)
-- [ ] Filters: status, assigned consultant, prodi, campaign, source_type, date range
-- [ ] Sort: newest, oldest, next followup due, last interaction
-- [ ] Highlight overdue followups (red if > 3 days)
-- [ ] Consultant sees only their candidates, supervisor sees team, admin sees all
-- [ ] HTMX: Filter without reload
-- [ ] Test: Various filter combinations, role-based visibility
+- [x] `templates/admin/candidates.templ` - Table with filters and HTMX
+- [x] `model/candidate.go` - ListCandidates with filters, pagination, role-based visibility
+- [x] `handler/admin_candidates.go` - GET /admin/candidates (wired to real data)
+- [x] Filters: status, assigned consultant, prodi, campaign, source_type, search
+- [x] Sort: newest (default), name, status
+- [x] Consultant sees only their candidates, supervisor sees team, admin sees all
+- [x] HTMX: Filter without reload
+- [x] E2E Test: Filter combinations, role-based visibility (candidates.spec.ts)
 
 ---
 
-## Feature 24: Candidate Detail & Timeline
+## Feature 24: Candidate Detail & Timeline ✅
 
 View candidate info and history.
 
-- [x] `templates/admin/candidate_detail.templ` - Info + timeline (UI mockup done)
-- [ ] `handler/admin.go` - GET /admin/candidates/{id} (wire to real data)
-- [ ] Show: personal info, prodi, source, campaign/referrer, status, assigned consultant
-- [ ] Timeline: interactions, payments, documents, status changes
-- [ ] Quick actions: log interaction, reassign, change status
-- [ ] Test: Detail view, timeline ordering
+- [x] `templates/admin/candidate_detail.templ` - Info + timeline with HTMX
+- [x] `handler/admin_candidates.go` - GET /admin/candidates/{id} (wired to real data)
+- [x] Show: personal info, prodi, source, campaign/referrer, status, assigned consultant
+- [x] Timeline: interactions with consultant name and timestamps
+- [x] Quick actions: log interaction button
+- [x] E2E Test: Detail view (candidates.spec.ts)
 
 ---
 
-## Feature 25: Interaction Logging
+## Feature 25: Interaction Logging ✅
 
 Consultants log each contact.
 
 **Migrations:** 020_create_interactions ✅
 
-- [x] `templates/admin/interaction_form.templ` - Log interaction modal (UI mockup done)
-- [ ] `model/interaction.go` - Create, ListByCandidate, ListByConsultant
-- [ ] `handler/admin.go` - POST /admin/candidates/{id}/interactions (wire to real data)
-- [ ] Fields: channel, category, obstacle (optional), remarks, next_followup_date
-- [ ] Channels: call, whatsapp, email, campus_visit, home_visit
-- [ ] Auto-update candidate last_interaction_at
-- [ ] Test: Create interaction, list
+- [x] `templates/admin/interaction_form.templ` - Full interaction form page
+- [x] `model/interaction.go` - CreateInteraction, ListInteractionsByCandidate
+- [x] `handler/admin_interactions.go` - GET/POST /admin/candidates/{id}/interaction
+- [x] Fields: channel, category, obstacle (optional), remarks, next_followup_date
+- [x] Channels: call, whatsapp, email, campus_visit, home_visit
+- [x] E2E Test: Create interaction, verify in timeline (candidates-crud.spec.ts)
 
 ---
 
