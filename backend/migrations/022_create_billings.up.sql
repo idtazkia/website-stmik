@@ -6,7 +6,7 @@ CREATE TABLE billings (
     description TEXT,
     amount INTEGER NOT NULL, -- in IDR (smallest unit)
     due_date DATE,
-    status VARCHAR(20) NOT NULL DEFAULT 'unpaid', -- unpaid, pending_verification, paid
+    status VARCHAR(20) NOT NULL DEFAULT 'unpaid', -- unpaid, pending_verification, paid, cancelled
     paid_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()

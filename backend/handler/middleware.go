@@ -142,6 +142,16 @@ func RequireSupervisorOrAdmin(next http.Handler) http.Handler {
 	return RequireRole([]string{"admin", "supervisor"}, next)
 }
 
+// RequireFinanceOrAdmin is a shorthand for requiring finance or admin role
+func RequireFinanceOrAdmin(next http.Handler) http.Handler {
+	return RequireRole([]string{"admin", "finance"}, next)
+}
+
+// RequireAcademicOrAdmin is a shorthand for requiring academic or admin role
+func RequireAcademicOrAdmin(next http.Handler) http.Handler {
+	return RequireRole([]string{"admin", "academic"}, next)
+}
+
 // Context key for candidate claims
 const candidateClaimsKey contextKey = "candidate_claims"
 

@@ -1,0 +1,39 @@
+{{template "header"}}
+<h2 style="margin: 0 0 16px 0; color: #194189; font-size: 20px;">Pembayaran Dikonfirmasi</h2>
+<p style="margin: 0 0 8px 0;">Yth. <strong>{{.CandidateName}}</strong>,</p>
+<p style="margin: 0 0 24px 0;">Pembayaran Anda telah kami terima dan dikonfirmasi.</p>
+
+<!-- Success badge -->
+<div style="background-color: #d4edda; padding: 12px 16px; border-radius: 6px; margin-bottom: 24px; border-left: 4px solid #28a745;">
+    <span style="color: #155724; font-weight: 600; font-size: 15px;">✓ Pembayaran Berhasil Diverifikasi</span>
+</div>
+
+<!-- Payment details -->
+<div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 24px;">
+    <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+            <td style="padding: 10px 0; color: #666; border-bottom: 1px solid #e9ecef;">Jenis Pembayaran</td>
+            <td style="padding: 10px 0; text-align: right; font-weight: 600; border-bottom: 1px solid #e9ecef;">{{.BillingType}}</td>
+        </tr>
+        <tr>
+            <td style="padding: 10px 0; color: #666; border-bottom: 1px solid #e9ecef;">Jumlah</td>
+            <td style="padding: 10px 0; text-align: right; font-weight: 700; color: #194189; font-size: 16px; border-bottom: 1px solid #e9ecef;">{{.Amount}}</td>
+        </tr>
+        <tr>
+            <td style="padding: 10px 0; color: #666; border-bottom: 1px solid #e9ecef;">Tanggal Transfer</td>
+            <td style="padding: 10px 0; text-align: right; border-bottom: 1px solid #e9ecef;">{{.TransferDate}}</td>
+        </tr>
+        <tr>
+            <td style="padding: 10px 0; color: #666;">Dikonfirmasi Pada</td>
+            <td style="padding: 10px 0; text-align: right;">{{.ApprovedAt}}</td>
+        </tr>
+    </table>
+</div>
+
+<p style="margin: 0 0 8px 0;">Terima kasih atas kepercayaan Anda memilih STMIK Tazkia.</p>
+
+<!-- CTA Button -->
+<div style="text-align: center; margin: 24px 0;">
+    <a href="https://spmb.stmik.tazkia.ac.id/portal/billing" style="display: inline-block; padding: 12px 32px; background-color: #194189; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 600;">Lihat Status Pembayaran</a>
+</div>
+{{template "footer"}}

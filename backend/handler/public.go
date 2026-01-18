@@ -48,6 +48,10 @@ func (h *PublicHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /portal/confirm-email", h.handleConfirmEmailOTP)
 	mux.HandleFunc("POST /portal/verify-phone", h.handleRequestPhoneOTP)
 	mux.HandleFunc("POST /portal/confirm-phone", h.handleConfirmPhoneOTP)
+
+	// HTMX-compatible verification routes
+	mux.HandleFunc("POST /portal/verify-email/send", h.handleSendEmailOTP)
+	mux.HandleFunc("POST /portal/verify-email/confirm", h.handleVerifyEmailOTP)
 }
 
 // Source type options
@@ -617,6 +621,102 @@ func (h *PublicHandler) handleConfirmPhoneOTP(w http.ResponseWriter, r *http.Req
 	slog.Info("candidate phone verified", "id", claims.CandidateID)
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, "Phone verified")
+}
+
+// handleSendEmailOTP sends OTP and returns HTMX fragment
+func (h *PublicHandler) handleSendEmailOTP(w http.ResponseWriter, r *http.Request) {
+	claims, err := h.sessionMgr.GetClaimsFromRequest(r)
+	if err != nil || claims == nil || !claims.IsCandidate {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	candidate, err := model.FindCandidateByID(r.Context(), claims.CandidateID)
+	if err != nil || candidate == nil {
+		http.Error(w, "Candidate not found", http.StatusNotFound)
+		return
+	}
+
+	if candidate.Email == nil || *candidate.Email == "" {
+		portal.VerifyEmailOTPForm("", "Email tidak tersedia").Render(r.Context(), w)
+		return
+	}
+
+	if candidate.EmailVerified {
+		portal.VerifyEmailSuccess().Render(r.Context(), w)
+		return
+	}
+
+	if h.resend == nil {
+		portal.VerifyEmailOTPForm(*candidate.Email, "Layanan email tidak tersedia").Render(r.Context(), w)
+		return
+	}
+
+	// Generate OTP
+	otp, err := model.CreateVerificationToken(r.Context(), candidate.ID, model.TokenTypeEmail)
+	if err != nil {
+		slog.Error("failed to create email OTP", "error", err)
+		portal.VerifyEmailOTPForm(*candidate.Email, "Gagal membuat kode verifikasi").Render(r.Context(), w)
+		return
+	}
+
+	// Send OTP
+	if err := h.resend.SendOTP(*candidate.Email, otp); err != nil {
+		slog.Error("failed to send email OTP", "error", err)
+		portal.VerifyEmailOTPForm(*candidate.Email, "Gagal mengirim email").Render(r.Context(), w)
+		return
+	}
+
+	slog.Info("email OTP sent", "candidate_id", candidate.ID, "email", *candidate.Email)
+	portal.VerifyEmailOTPForm(*candidate.Email, "").Render(r.Context(), w)
+}
+
+// handleVerifyEmailOTP verifies OTP and returns HTMX fragment
+func (h *PublicHandler) handleVerifyEmailOTP(w http.ResponseWriter, r *http.Request) {
+	claims, err := h.sessionMgr.GetClaimsFromRequest(r)
+	if err != nil || claims == nil || !claims.IsCandidate {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	candidate, err := model.FindCandidateByID(r.Context(), claims.CandidateID)
+	if err != nil || candidate == nil {
+		http.Error(w, "Candidate not found", http.StatusNotFound)
+		return
+	}
+
+	email := ""
+	if candidate.Email != nil {
+		email = *candidate.Email
+	}
+
+	if err := r.ParseForm(); err != nil {
+		portal.VerifyEmailOTPForm(email, "Form tidak valid").Render(r.Context(), w)
+		return
+	}
+
+	otp := r.FormValue("otp")
+	if otp == "" {
+		portal.VerifyEmailOTPForm(email, "Kode OTP harus diisi").Render(r.Context(), w)
+		return
+	}
+
+	// Verify OTP
+	if err := model.VerifyToken(r.Context(), claims.CandidateID, model.TokenTypeEmail, otp); err != nil {
+		slog.Warn("email OTP verification failed", "error", err)
+		portal.VerifyEmailOTPForm(email, "Kode OTP salah atau sudah kadaluarsa").Render(r.Context(), w)
+		return
+	}
+
+	// Mark email as verified
+	if err := model.SetCandidateEmailVerified(r.Context(), claims.CandidateID); err != nil {
+		slog.Error("failed to set email verified", "error", err)
+		portal.VerifyEmailOTPForm(email, "Gagal memverifikasi email").Render(r.Context(), w)
+		return
+	}
+
+	slog.Info("candidate email verified", "id", claims.CandidateID)
+	portal.VerifyEmailSuccess().Render(r.Context(), w)
 }
 
 // renderRegistration renders the registration form

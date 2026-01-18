@@ -20,6 +20,7 @@ const (
 	BillingStatusUnpaid              = "unpaid"
 	BillingStatusPendingVerification = "pending_verification"
 	BillingStatusPaid                = "paid"
+	BillingStatusCancelled           = "cancelled"
 )
 
 // Billing represents a billing record for a candidate
@@ -175,4 +176,160 @@ func BillingTypeLabel(billingType string) string {
 	default:
 		return billingType
 	}
+}
+
+// BillingStatusLabel returns the display label for a billing status
+func BillingStatusLabel(status string) string {
+	switch status {
+	case BillingStatusUnpaid:
+		return "Belum Dibayar"
+	case BillingStatusPendingVerification:
+		return "Menunggu Verifikasi"
+	case BillingStatusPaid:
+		return "Lunas"
+	case BillingStatusCancelled:
+		return "Dibatalkan"
+	default:
+		return status
+	}
+}
+
+// BillingWithCandidate includes candidate info for finance listing
+type BillingWithCandidate struct {
+	Billing
+	CandidateName  *string `json:"candidate_name,omitempty"`
+	CandidateEmail string  `json:"candidate_email"`
+	ProdiName      *string `json:"prodi_name,omitempty"`
+}
+
+// BillingFilters contains filters for listing billings
+type BillingFilters struct {
+	Search      string // search by candidate name or email
+	Status      string // filter by status
+	BillingType string // filter by billing type
+	Page        int
+	PageSize    int
+}
+
+// ListAllBillings returns all billings with filters for finance
+func ListAllBillings(ctx context.Context, filters BillingFilters) ([]BillingWithCandidate, int, error) {
+	// Build query
+	baseQuery := `
+		FROM billings b
+		JOIN candidates c ON c.id = b.candidate_id
+		LEFT JOIN prodis p ON p.id = c.prodi_id
+		WHERE 1=1
+	`
+	args := []any{}
+	argCount := 0
+
+	if filters.Search != "" {
+		argCount++
+		baseQuery += fmt.Sprintf(" AND (c.name ILIKE $%d OR c.email ILIKE $%d)", argCount, argCount)
+		args = append(args, "%"+filters.Search+"%")
+	}
+	if filters.Status != "" {
+		argCount++
+		baseQuery += fmt.Sprintf(" AND b.status = $%d", argCount)
+		args = append(args, filters.Status)
+	}
+	if filters.BillingType != "" {
+		argCount++
+		baseQuery += fmt.Sprintf(" AND b.billing_type = $%d", argCount)
+		args = append(args, filters.BillingType)
+	}
+
+	// Get total count
+	var total int
+	countQuery := "SELECT COUNT(*) " + baseQuery
+	err := pool.QueryRow(ctx, countQuery, args...).Scan(&total)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to count billings: %w", err)
+	}
+
+	// Pagination
+	if filters.PageSize <= 0 {
+		filters.PageSize = 20
+	}
+	if filters.Page <= 0 {
+		filters.Page = 1
+	}
+	offset := (filters.Page - 1) * filters.PageSize
+
+	// Get billings
+	selectQuery := `
+		SELECT b.id, b.candidate_id, b.billing_type, b.description, b.amount, b.due_date,
+		       b.status, b.paid_at, b.created_at, b.updated_at,
+		       c.name, c.email, p.name as prodi_name
+	` + baseQuery + fmt.Sprintf(" ORDER BY b.created_at DESC LIMIT $%d OFFSET $%d", argCount+1, argCount+2)
+	args = append(args, filters.PageSize, offset)
+
+	rows, err := pool.Query(ctx, selectQuery, args...)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to list billings: %w", err)
+	}
+	defer rows.Close()
+
+	var billings []BillingWithCandidate
+	for rows.Next() {
+		var b BillingWithCandidate
+		err := rows.Scan(
+			&b.ID, &b.CandidateID, &b.BillingType, &b.Description, &b.Amount, &b.DueDate,
+			&b.Status, &b.PaidAt, &b.CreatedAt, &b.UpdatedAt,
+			&b.CandidateName, &b.CandidateEmail, &b.ProdiName,
+		)
+		if err != nil {
+			return nil, 0, fmt.Errorf("failed to scan billing: %w", err)
+		}
+		billings = append(billings, b)
+	}
+	return billings, total, nil
+}
+
+// UpdateBilling updates billing amount and due date (only for unpaid billings)
+func UpdateBilling(ctx context.Context, id string, amount int, dueDate *time.Time, description *string) error {
+	result, err := pool.Exec(ctx, `
+		UPDATE billings
+		SET amount = $2, due_date = $3, description = $4, updated_at = NOW()
+		WHERE id = $1 AND status = 'unpaid'
+	`, id, amount, dueDate, description)
+	if err != nil {
+		return fmt.Errorf("failed to update billing: %w", err)
+	}
+	if result.RowsAffected() == 0 {
+		return fmt.Errorf("billing not found or not in unpaid status")
+	}
+	return nil
+}
+
+// CancelBilling sets billing status to cancelled (only for unpaid billings)
+func CancelBilling(ctx context.Context, id string) error {
+	result, err := pool.Exec(ctx, `
+		UPDATE billings
+		SET status = 'cancelled', updated_at = NOW()
+		WHERE id = $1 AND status = 'unpaid'
+	`, id)
+	if err != nil {
+		return fmt.Errorf("failed to cancel billing: %w", err)
+	}
+	if result.RowsAffected() == 0 {
+		return fmt.Errorf("billing not found or not in unpaid status")
+	}
+	return nil
+}
+
+// GetBillingStats returns billing statistics for finance dashboard
+func GetBillingStats(ctx context.Context) (unpaid, pending, paid, cancelled int, err error) {
+	err = pool.QueryRow(ctx, `
+		SELECT
+			COALESCE(SUM(CASE WHEN status = 'unpaid' THEN 1 ELSE 0 END), 0),
+			COALESCE(SUM(CASE WHEN status = 'pending_verification' THEN 1 ELSE 0 END), 0),
+			COALESCE(SUM(CASE WHEN status = 'paid' THEN 1 ELSE 0 END), 0),
+			COALESCE(SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END), 0)
+		FROM billings
+	`).Scan(&unpaid, &pending, &paid, &cancelled)
+	if err != nil {
+		err = fmt.Errorf("failed to get billing stats: %w", err)
+	}
+	return
 }

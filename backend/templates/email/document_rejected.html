@@ -1,0 +1,33 @@
+{{template "header"}}
+<h2 style="margin: 0 0 16px 0; color: #194189; font-size: 20px;">Dokumen Memerlukan Perbaikan</h2>
+<p style="margin: 0 0 8px 0;">Yth. <strong>{{.CandidateName}}</strong>,</p>
+<p style="margin: 0 0 24px 0;">Dokumen yang Anda upload memerlukan perbaikan.</p>
+
+<!-- Error badge -->
+<div style="background-color: #f8d7da; padding: 12px 16px; border-radius: 6px; margin-bottom: 24px; border-left: 4px solid #dc3545;">
+    <span style="color: #721c24; font-weight: 600; font-size: 15px;">Dokumen Ditolak</span>
+</div>
+
+<!-- Document details -->
+<div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 24px;">
+    <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+            <td style="padding: 10px 0; color: #666;">Jenis Dokumen</td>
+            <td style="padding: 10px 0; text-align: right; font-weight: 600;">{{.DocumentType}}</td>
+        </tr>
+    </table>
+</div>
+
+<!-- Reason box -->
+<div style="background-color: #fff3cd; padding: 16px; border-radius: 8px; margin: 24px 0; border-left: 4px solid #EE7B1D;">
+    <p style="margin: 0 0 4px 0; font-weight: 600; color: #856404;">Alasan:</p>
+    <p style="margin: 0; color: #856404;">{{.Reason}}</p>
+</div>
+
+<p style="margin: 0;">Silakan login ke portal pendaftaran dan upload ulang dokumen yang sesuai.</p>
+
+<!-- CTA Button -->
+<div style="text-align: center; margin: 24px 0;">
+    <a href="https://spmb.stmik.tazkia.ac.id/portal/documents" style="display: inline-block; padding: 12px 32px; background-color: #194189; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 600;">Upload Ulang Dokumen</a>
+</div>
+{{template "footer"}}

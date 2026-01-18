@@ -89,8 +89,14 @@ func main() {
 	adminAuthHandler.RegisterRoutes(mux)
 
 	// Admin routes (protected)
-	adminHandler := handler.NewAdminHandler(sessionMgr)
+	adminHandler := handler.NewAdminHandler(sessionMgr, resendClient)
 	adminHandler.RegisterRoutes(mux)
+
+	// Finance routes (protected, finance or admin only)
+	financeHandler := handler.NewFinanceHandler(resendClient)
+	financeHandler.RegisterRoutes(mux, func(next http.Handler) http.Handler {
+		return handler.RequireAuth(sessionMgr, next)
+	})
 
 	// Portal routes (candidate portal)
 	portalHandler := handler.NewPortalHandler(sessionMgr, localStorage)
@@ -108,6 +114,7 @@ func main() {
 
 	mux.HandleFunc("GET /test/admin", func(w http.ResponseWriter, r *http.Request) {
 		data := handler.NewPageData("Test Admin")
+		data.UserRole = "admin" // Default to admin for test page
 		pages.TestAdmin(data).Render(r.Context(), w)
 	})
 
@@ -124,7 +131,7 @@ func main() {
 	// Creates a session as a real user from the database with the specified role
 	mux.HandleFunc("GET /test/login/{role}", func(w http.ResponseWriter, r *http.Request) {
 		role := r.PathValue("role")
-		if role != "admin" && role != "supervisor" && role != "consultant" {
+		if role != "admin" && role != "supervisor" && role != "consultant" && role != "finance" && role != "academic" {
 			http.Error(w, "Invalid role", http.StatusBadRequest)
 			return
 		}

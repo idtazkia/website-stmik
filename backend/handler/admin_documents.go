@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/idtazkia/stmik-admission-api/integration"
 	"github.com/idtazkia/stmik-admission-api/model"
 	"github.com/idtazkia/stmik-admission-api/templates/admin"
 )
@@ -104,8 +105,28 @@ func (h *AdminHandler) handleApproveDocument(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	// Get document details before approving (for email)
+	doc, err := model.FindDocumentByID(ctx, documentID)
+	if err != nil || doc == nil {
+		slog.Error("failed to find document", "error", err, "document_id", documentID)
+		http.Error(w, "Document not found", http.StatusNotFound)
+		return
+	}
+
+	// Get candidate info
+	candidate, err := model.FindCandidateByID(ctx, doc.CandidateID)
+	if err != nil {
+		slog.Error("failed to find candidate", "error", err)
+	}
+
+	// Get document type name
+	docType, err := model.FindDocumentTypeByID(ctx, doc.DocumentTypeID)
+	if err != nil {
+		slog.Error("failed to find document type", "error", err)
+	}
+
 	// Approve the document
-	err := model.ApproveDocument(ctx, documentID, claims.UserID)
+	err = model.ApproveDocument(ctx, documentID, claims.UserID)
 	if err != nil {
 		slog.Error("failed to approve document", "error", err, "document_id", documentID)
 		http.Error(w, "Failed to approve document", http.StatusInternalServerError)
@@ -113,6 +134,32 @@ func (h *AdminHandler) handleApproveDocument(w http.ResponseWriter, r *http.Requ
 	}
 
 	slog.Info("document approved", "document_id", documentID, "reviewer_id", claims.UserID)
+
+	// Send approval email (non-blocking)
+	if h.resend != nil && candidate != nil && candidate.Email != nil && *candidate.Email != "" {
+		candidateName := ""
+		if candidate.Name != nil {
+			candidateName = *candidate.Name
+		}
+		docTypeName := "Dokumen"
+		if docType != nil {
+			docTypeName = docType.Name
+		}
+
+		emailData := integration.DocumentStatusData{
+			CandidateName: candidateName,
+			DocumentType:  docTypeName,
+			Status:        "approved",
+		}
+
+		go func() {
+			if err := h.resend.SendDocumentApproved(*candidate.Email, emailData); err != nil {
+				slog.Error("failed to send document approval email", "error", err, "email", *candidate.Email)
+			} else {
+				slog.Info("document approval email sent", "email", *candidate.Email, "document_id", documentID)
+			}
+		}()
+	}
 
 	// Redirect back to documents page
 	http.Redirect(w, r, "/admin/documents", http.StatusSeeOther)
@@ -143,8 +190,28 @@ func (h *AdminHandler) handleRejectDocument(w http.ResponseWriter, r *http.Reque
 		reason = reason + ": " + rejectionNotes
 	}
 
+	// Get document details before rejecting (for email)
+	doc, err := model.FindDocumentByID(ctx, documentID)
+	if err != nil || doc == nil {
+		slog.Error("failed to find document", "error", err, "document_id", documentID)
+		http.Error(w, "Document not found", http.StatusNotFound)
+		return
+	}
+
+	// Get candidate info
+	candidate, err := model.FindCandidateByID(ctx, doc.CandidateID)
+	if err != nil {
+		slog.Error("failed to find candidate", "error", err)
+	}
+
+	// Get document type name
+	docType, err := model.FindDocumentTypeByID(ctx, doc.DocumentTypeID)
+	if err != nil {
+		slog.Error("failed to find document type", "error", err)
+	}
+
 	// Reject the document
-	err := model.RejectDocument(ctx, documentID, claims.UserID, reason)
+	err = model.RejectDocument(ctx, documentID, claims.UserID, reason)
 	if err != nil {
 		slog.Error("failed to reject document", "error", err, "document_id", documentID)
 		http.Error(w, "Failed to reject document", http.StatusInternalServerError)
@@ -152,6 +219,33 @@ func (h *AdminHandler) handleRejectDocument(w http.ResponseWriter, r *http.Reque
 	}
 
 	slog.Info("document rejected", "document_id", documentID, "reviewer_id", claims.UserID, "reason", reason)
+
+	// Send rejection email (non-blocking)
+	if h.resend != nil && candidate != nil && candidate.Email != nil && *candidate.Email != "" {
+		candidateName := ""
+		if candidate.Name != nil {
+			candidateName = *candidate.Name
+		}
+		docTypeName := "Dokumen"
+		if docType != nil {
+			docTypeName = docType.Name
+		}
+
+		emailData := integration.DocumentStatusData{
+			CandidateName: candidateName,
+			DocumentType:  docTypeName,
+			Status:        "rejected",
+			Reason:        reason,
+		}
+
+		go func() {
+			if err := h.resend.SendDocumentRejected(*candidate.Email, emailData); err != nil {
+				slog.Error("failed to send document rejection email", "error", err, "email", *candidate.Email)
+			} else {
+				slog.Info("document rejection email sent", "email", *candidate.Email, "document_id", documentID)
+			}
+		}()
+	}
 
 	// Redirect back to documents page
 	http.Redirect(w, r, "/admin/documents", http.StatusSeeOther)

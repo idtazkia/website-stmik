@@ -1,0 +1,11 @@
+{{template "header"}}
+<h2 style="margin: 0 0 16px 0; color: #194189; font-size: 20px;">Kode Verifikasi Email</h2>
+<p style="margin: 0 0 24px 0;">Gunakan kode berikut untuk memverifikasi email Anda:</p>
+
+<div style="background-color: #e6eaf3; padding: 24px; text-align: center; border-radius: 8px; margin: 24px 0;">
+    <span style="font-size: 36px; font-weight: bold; letter-spacing: 8px; color: #194189;">{{.OTP}}</span>
+</div>
+
+<p style="margin: 0; color: #666; font-size: 14px;">Kode ini berlaku selama <strong>15 menit</strong>.</p>
+<p style="margin: 16px 0 0 0; color: #666; font-size: 14px;">Jika Anda tidak meminta kode ini, abaikan email ini.</p>
+{{template "footer"}}
