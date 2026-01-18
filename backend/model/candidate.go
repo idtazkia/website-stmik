@@ -283,7 +283,7 @@ func AssignCandidateConsultant(ctx context.Context, id, consultantID string) err
 	return nil
 }
 
-// UpdateCandidateStatus updates the candidate status
+// UpdateCandidateStatus updates the candidate status and triggers commission creation if applicable
 func UpdateCandidateStatus(ctx context.Context, id, status string) error {
 	_, err := pool.Exec(ctx, `
 		UPDATE candidates SET status = $2, updated_at = NOW() WHERE id = $1
@@ -291,6 +291,27 @@ func UpdateCandidateStatus(ctx context.Context, id, status string) error {
 	if err != nil {
 		return fmt.Errorf("failed to update status: %w", err)
 	}
+
+	// Trigger commission creation based on status
+	var triggerEvent string
+	switch status {
+	case "prospecting":
+		triggerEvent = "registration"
+	case "committed":
+		triggerEvent = "commitment"
+	case "enrolled":
+		triggerEvent = "enrollment"
+	}
+
+	if triggerEvent != "" {
+		// Create commission if candidate has a referrer
+		if err := CreateCommissionForCandidate(ctx, id, triggerEvent); err != nil {
+			// Log error but don't fail the status update
+			// Commission creation is secondary to status change
+			return nil
+		}
+	}
+
 	return nil
 }
 

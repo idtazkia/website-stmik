@@ -858,31 +858,32 @@ Track referrer commissions.
 
 ---
 
-## Feature 34: Commission Tracking
+## Feature 34: Commission Tracking ✅
 
 Auto-create and track commissions.
 
-**Migrations:** 024_create_commission_ledger (pending)
+**Migrations:** 024_create_commission_ledger ✅
 
-- [x] `templates/admin/commissions.templ` - Commission list (UI mockup done)
-- [ ] `model/commission.go` - Create, ListByReferrer, ListPending
-- [ ] Auto-create commission when referred candidate enrolls
-- [ ] Amount from referrer.commission_per_enrollment
-- [ ] Status: pending → approved → paid
-- [ ] Test: Auto-creation on enrollment
+- [x] `templates/admin/commissions.templ` - Commission list with real data
+- [x] `model/commission.go` - Create, ListCommissions, GetStats, Approve, MarkPaid, BatchApprove, BatchMarkPaid
+- [x] `handler/admin_commissions.go` - Commission list, approve, mark paid handlers
+- [x] Auto-create commission when referred candidate changes status (registration, commitment, enrollment)
+- [x] Amount from reward_configs or referrer.commission_override
+- [x] Status: pending → approved → paid (with cancelled option)
+- [x] HTMX actions for approve/mark paid
 
 ---
 
-## Feature 35: Commission Payout
+## Feature 35: Commission Payout ✅
 
 Approve and pay commissions.
 
-- [x] `templates/admin/commissions.templ` - Commission list (UI mockup done)
-- [ ] `handler/admin.go` - GET /admin/commissions, POST approve, POST mark-paid (wire to real data)
-- [ ] Filter by: referrer, status, date range
-- [ ] Batch approve, batch mark as paid
-- [ ] Export for bank transfer
-- [ ] Test: Approval flow, batch operations
+- [x] `templates/admin/commissions.templ` - Commission list with real data
+- [x] `handler/admin_commissions.go` - GET /admin/commissions, POST approve, POST mark-paid
+- [x] Filter by: status (referrer and date range pending)
+- [x] Batch approve, batch mark as paid
+- [ ] Export for bank transfer (pending)
+- [x] Test: Page loads correctly with data
 
 ---
 

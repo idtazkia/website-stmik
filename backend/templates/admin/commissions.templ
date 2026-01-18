@@ -28,7 +28,7 @@ type CommissionStats struct {
 
 templ Commissions(data layouts.PageData, commissions []CommissionItem, stats CommissionStats) {
 	@layouts.Admin(data) {
-		<div class="space-y-6">
+		<div class="space-y-6" data-testid="commissions-page">
 			<!-- Header -->
 			<div class="flex items-center justify-between">
 				<div>
@@ -36,13 +36,19 @@ templ Commissions(data layouts.PageData, commissions []CommissionItem, stats Com
 					<p class="text-sm text-gray-500">Kelola komisi referrer yang kandidatnya sudah enrolled</p>
 				</div>
 				<div class="flex gap-2">
-					<button class="px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-50 flex items-center gap-2">
+					<button class="px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-50 flex items-center gap-2" data-testid="btn-export">
 						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
 						</svg>
 						Export untuk Transfer
 					</button>
-					<button class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2">
+					<button
+						id="btn-batch-approve"
+						onclick="batchApprove()"
+						class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2 disabled:opacity-50"
+						disabled
+						data-testid="btn-batch-approve"
+					>
 						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
 						</svg>
@@ -83,11 +89,11 @@ templ Commissions(data layouts.PageData, commissions []CommissionItem, stats Com
 			</div>
 
 			<!-- Filter Tabs -->
-			<div class="flex gap-2">
-				<button class="px-4 py-2 bg-yellow-100 text-yellow-700 rounded-lg text-sm font-medium">Pending</button>
-				<button class="px-4 py-2 bg-white border rounded-lg text-sm text-gray-600 hover:bg-gray-50">Approved</button>
-				<button class="px-4 py-2 bg-white border rounded-lg text-sm text-gray-600 hover:bg-gray-50">Paid</button>
-				<button class="px-4 py-2 bg-white border rounded-lg text-sm text-gray-600 hover:bg-gray-50">Semua</button>
+			<div class="flex gap-2" data-testid="filter-tabs">
+				<a href="/admin/commissions?status=pending" class="px-4 py-2 bg-yellow-100 text-yellow-700 rounded-lg text-sm font-medium" data-testid="filter-pending">Pending ({ stats.Pending })</a>
+				<a href="/admin/commissions?status=approved" class="px-4 py-2 bg-white border rounded-lg text-sm text-gray-600 hover:bg-gray-50" data-testid="filter-approved">Approved ({ stats.Approved })</a>
+				<a href="/admin/commissions?status=paid" class="px-4 py-2 bg-white border rounded-lg text-sm text-gray-600 hover:bg-gray-50" data-testid="filter-paid">Paid ({ stats.Paid })</a>
+				<a href="/admin/commissions" class="px-4 py-2 bg-white border rounded-lg text-sm text-gray-600 hover:bg-gray-50" data-testid="filter-all">Semua</a>
 			</div>
 
 			<!-- Commission Table -->
@@ -109,10 +115,10 @@ templ Commissions(data layouts.PageData, commissions []CommissionItem, stats Com
 					</thead>
 					<tbody class="divide-y">
 						for _, c := range commissions {
-							<tr class="hover:bg-gray-50">
+							<tr class="hover:bg-gray-50" data-testid={ "commission-row-" + c.ID }>
 								<td class="px-4 py-3">
 									if c.Status == "pending" || c.Status == "approved" {
-										<input type="checkbox" class="rounded" />
+										<input type="checkbox" name="commission_ids" value={ c.ID } class="rounded" />
 									}
 								</td>
 								<td class="px-4 py-3">
@@ -154,18 +160,67 @@ templ Commissions(data layouts.PageData, commissions []CommissionItem, stats Com
 								</td>
 								<td class="px-4 py-3">
 									if c.Status == "pending" {
-										<button class="text-green-600 hover:text-green-800 text-sm">Approve</button>
+										<button
+											hx-post={ "/admin/commissions/" + c.ID + "/approve" }
+											hx-swap="none"
+											class="text-green-600 hover:text-green-800 text-sm"
+											data-testid={ "btn-approve-" + c.ID }
+										>
+											Approve
+										</button>
 									} else if c.Status == "approved" {
-										<button class="text-primary-600 hover:text-primary-800 text-sm">Mark Paid</button>
+										<button
+											hx-post={ "/admin/commissions/" + c.ID + "/paid" }
+											hx-swap="none"
+											class="text-primary-600 hover:text-primary-800 text-sm"
+											data-testid={ "btn-paid-" + c.ID }
+										>
+											Mark Paid
+										</button>
 									} else {
 										<span class="text-gray-400 text-sm">{ c.PaidAt }</span>
 									}
 								</td>
 							</tr>
 						}
+						if len(commissions) == 0 {
+							<tr>
+								<td colspan="8" class="px-4 py-8 text-center text-gray-500">
+									Belum ada data komisi
+								</td>
+							</tr>
+						}
 					</tbody>
 				</table>
 			</div>
+
+			<!-- Batch operations JavaScript -->
+			<script>
+				function updateBatchButtons() {
+					const checkboxes = document.querySelectorAll('input[name="commission_ids"]:checked');
+					const batchApproveBtn = document.getElementById('btn-batch-approve');
+					if (batchApproveBtn) {
+						batchApproveBtn.disabled = checkboxes.length === 0;
+					}
+				}
+
+				function batchApprove() {
+					const checkboxes = document.querySelectorAll('input[name="commission_ids"]:checked');
+					const ids = Array.from(checkboxes).map(cb => cb.value).join(',');
+					if (ids) {
+						htmx.ajax('POST', '/admin/commissions/batch-approve', {
+							values: { ids: ids },
+							swap: 'none'
+						});
+					}
+				}
+
+				document.addEventListener('change', function(e) {
+					if (e.target.name === 'commission_ids' || e.target.id === 'select-all') {
+						updateBatchButtons();
+					}
+				});
+			</script>
 		</div>
 	}
 }
