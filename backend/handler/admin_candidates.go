@@ -391,3 +391,97 @@ func (h *AdminHandler) handleGetConsultantsForReassign(w http.ResponseWriter, r 
 
 	admin.ReassignModal(candidateID, currentConsultantID, items).Render(ctx, w)
 }
+
+func (h *AdminHandler) handleGetLostModal(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	candidateID := r.PathValue("id")
+
+	// Get candidate info
+	candidate, err := model.FindCandidateByID(ctx, candidateID)
+	if err != nil || candidate == nil {
+		http.Error(w, "Candidate not found", http.StatusNotFound)
+		return
+	}
+
+	// Don't allow marking already lost or enrolled candidates
+	if candidate.Status == "lost" || candidate.Status == "enrolled" {
+		http.Error(w, "Cannot mark this candidate as lost", http.StatusBadRequest)
+		return
+	}
+
+	// Get lost reasons
+	reasons, err := model.ListLostReasons(ctx, true)
+	if err != nil {
+		log.Printf("Error listing lost reasons: %v", err)
+		http.Error(w, "Failed to load lost reasons", http.StatusInternalServerError)
+		return
+	}
+
+	// Convert to template type
+	reasonItems := make([]admin.LostReasonItem, len(reasons))
+	for i, r := range reasons {
+		reasonItems[i] = admin.LostReasonItem{
+			ID:   r.ID,
+			Name: r.Name,
+		}
+	}
+
+	candidateName := ""
+	if candidate.Name != nil {
+		candidateName = *candidate.Name
+	}
+
+	admin.LostCandidateModal(candidateID, candidateName, reasonItems).Render(ctx, w)
+}
+
+func (h *AdminHandler) handleMarkLost(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	candidateID := r.PathValue("id")
+
+	// Get current user
+	claims := GetUserClaims(ctx)
+	if claims == nil {
+		http.Redirect(w, r, "/admin/login", http.StatusFound)
+		return
+	}
+
+	lostReasonID := r.FormValue("lost_reason_id")
+	if lostReasonID == "" {
+		http.Error(w, "Lost reason is required", http.StatusBadRequest)
+		return
+	}
+
+	// Get candidate to validate
+	candidate, err := model.FindCandidateByID(ctx, candidateID)
+	if err != nil || candidate == nil {
+		http.Error(w, "Candidate not found", http.StatusNotFound)
+		return
+	}
+
+	// Don't allow marking already lost or enrolled candidates
+	if candidate.Status == "lost" || candidate.Status == "enrolled" {
+		http.Error(w, "Cannot mark this candidate as lost", http.StatusBadRequest)
+		return
+	}
+
+	// Mark as lost
+	err = model.MarkCandidateLost(ctx, candidateID, lostReasonID)
+	if err != nil {
+		log.Printf("Error marking candidate as lost: %v", err)
+		http.Error(w, "Failed to mark candidate as lost", http.StatusInternalServerError)
+		return
+	}
+
+	// Log the action as an interaction
+	_, err = model.CreateInteraction(ctx, candidateID, claims.UserID, "system", nil, nil, "Kandidat ditandai sebagai lost", nil, nil)
+	if err != nil {
+		log.Printf("Error logging lost interaction: %v", err)
+		// Don't fail the request, just log
+	}
+
+	log.Printf("Candidate %s marked as lost by %s with reason %s", candidateID, claims.UserID, lostReasonID)
+
+	// Send HTMX redirect
+	w.Header().Set("HX-Redirect", "/admin/candidates/"+candidateID)
+	w.WriteHeader(http.StatusOK)
+}

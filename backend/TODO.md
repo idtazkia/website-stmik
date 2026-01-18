@@ -835,20 +835,20 @@ Mark candidate as enrolled.
 
 ---
 
-## Feature 33: Lost Candidate
+## Feature 33: Lost Candidate ✅
 
 Mark candidate as lost.
 
 **Migrations:** 015_create_lost_reasons ✅
 
 - [x] `model/lost_reason.go` - ListActive (already implemented)
-- [ ] `model/candidate.go` - MarkLost
-- [ ] `templates/admin/lost_form.templ` - Lost modal with reason
-- [ ] `handler/admin.go` - POST /admin/candidates/{id}/lost
-- [ ] Select reason: no_response, chose_competitor, financial, not_qualified, timing, other
-- [ ] Change status: any → lost
-- [ ] Record lost_at timestamp
-- [ ] Test: Mark as lost with reason
+- [x] `model/candidate.go` - MarkCandidateLost
+- [x] `templates/admin/candidate_detail.templ` - Lost modal with reason
+- [x] `handler/admin_candidates.go` - GET /admin/candidates/{id}/lost-modal, POST /admin/candidates/{id}/lost
+- [x] Select reason from lost_reasons table
+- [x] Change status: any (except lost/enrolled) → lost
+- [x] Record lost_at timestamp and lost_reason_id
+- [x] Test: E2E tests for lost modal
 
 ---
 

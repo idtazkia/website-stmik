@@ -316,4 +316,41 @@ export class CandidateDetailPage extends BasePage {
     // Wait for page to reload after redirect
     await this.page.waitForURL(/\/admin\/candidates\/[a-f0-9-]+/);
   }
+
+  // Lost Modal
+  get modalLost(): Locator {
+    return this.page.getByTestId('modal-lost');
+  }
+
+  get formLost(): Locator {
+    return this.page.getByTestId('form-lost');
+  }
+
+  get selectLostReason(): Locator {
+    return this.page.getByTestId('select-lost-reason');
+  }
+
+  get btnConfirmLost(): Locator {
+    return this.page.getByTestId('btn-confirm-lost');
+  }
+
+  async openLostModal(): Promise<void> {
+    await this.btnMarkLost.click();
+    await expect(this.modalLost).toBeVisible();
+  }
+
+  async closeLostModal(): Promise<void> {
+    await this.modalLost.locator('button:has-text("Batal")').click();
+    await expect(this.modalLost).toBeHidden();
+  }
+
+  async selectLostReasonOption(value: string): Promise<void> {
+    await this.selectLostReason.selectOption(value);
+  }
+
+  async submitLost(): Promise<void> {
+    await this.btnConfirmLost.click();
+    // Wait for page to reload after redirect
+    await this.page.waitForURL(/\/admin\/candidates\/[a-f0-9-]+/);
+  }
 }

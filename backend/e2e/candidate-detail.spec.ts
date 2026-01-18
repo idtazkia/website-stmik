@@ -202,6 +202,33 @@ test.describe('Admin Candidate Detail', () => {
         await detailPage.closeInteractionModal();
       }
     });
+
+    test('should open lost modal when clicking mark as lost', async ({ page }) => {
+      await page.goto('/admin/candidates');
+      await candidatesPage.expectPageLoaded();
+
+      // Click on first candidate if available
+      const detailLink = page.locator('[data-testid^="view-candidate-"]').first();
+      if (await detailLink.isVisible()) {
+        await detailLink.click();
+        await page.waitForURL(/\/admin\/candidates\/[a-f0-9-]+/);
+
+        // Check if mark as lost button is visible (not for lost/enrolled candidates)
+        if (await detailPage.btnMarkLost.isVisible()) {
+          // Open lost modal
+          await detailPage.openLostModal();
+
+          // Check modal is visible with form elements
+          await expect(detailPage.modalLost).toBeVisible();
+          await expect(detailPage.formLost).toBeVisible();
+          await expect(detailPage.selectLostReason).toBeVisible();
+          await expect(detailPage.btnConfirmLost).toBeVisible();
+
+          // Close modal
+          await detailPage.closeLostModal();
+        }
+      }
+    });
   });
 
   test.describe('Error Handling', () => {
