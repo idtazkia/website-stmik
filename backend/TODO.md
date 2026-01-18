@@ -897,14 +897,14 @@ Insights for decision making.
 
 Consultant's daily view.
 
-- [x] `templates/admin/consultant_dashboard.templ` - Consultant personal dashboard (UI mockup done)
-- [x] `handler/admin_mockups.go` - GET /admin/my-dashboard (mockup handler)
+- [x] `templates/admin/consultant_dashboard.templ` - Consultant personal dashboard
+- [x] `handler/admin_dashboard.go` - GET /admin/my-dashboard with real data
 - [x] Show: my candidates by status, overdue followups, today's tasks
 - [x] Quick access to pending followups
 - [x] Supervisor suggestions section
-- [ ] `model/stats.go` - GetConsultantStats
-- [ ] Wire to real data
-- [ ] Test: Dashboard data accuracy
+- [x] `model/stats.go` - GetConsultantStats, GetOverdueCandidates, GetTodayTasks, GetUnreadSuggestions
+- [x] Wire to real data
+- [x] Test: Dashboard data accuracy verified
 
 ---
 

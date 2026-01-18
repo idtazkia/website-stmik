@@ -30,7 +30,7 @@ func (h *AdminHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.Handle("GET /admin/", protected(h.handleDashboard))
 
 	// Consultant personal dashboard
-	mux.Handle("GET /admin/my-dashboard", protected(h.handleConsultantDashboard))
+	mux.Handle("GET /admin/my-dashboard", protected(h.handleConsultantDashboardReal))
 
 	// Candidates
 	mux.Handle("GET /admin/candidates", protected(h.handleCandidates))
