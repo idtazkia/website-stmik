@@ -39,15 +39,15 @@ async function setupCandidateWithInteraction(browser: Browser): Promise<{ candid
 
   await candidatePage.close();
 
-  // Login as consultant to create an interaction
+  // Login as admin to find and interact with the candidate
   const consultantPage = await browser.newPage();
-  await consultantPage.goto('/test/login/consultant');
+  await consultantPage.goto('/test/login/admin');
   await consultantPage.goto('/admin/candidates?search=' + encodeURIComponent(uniqueEmail));
   await expect(consultantPage.getByTestId('candidates-page')).toBeVisible();
-  await consultantPage.waitForTimeout(1000);
 
-  // Get candidate ID
+  // Wait for search results to load
   const viewLink = consultantPage.locator('[data-testid^="view-candidate-"]').first();
+  await expect(viewLink).toBeVisible({ timeout: 10000 });
   const testId = await viewLink.getAttribute('data-testid');
   const candidateId = testId?.replace('view-candidate-', '') || '';
 
@@ -59,8 +59,9 @@ async function setupCandidateWithInteraction(browser: Browser): Promise<{ candid
   await consultantPage.goto(`/admin/candidates/${candidateId}/interaction`);
   await expect(consultantPage.getByTestId('interaction-form-page')).toBeVisible();
 
-  await consultantPage.getByTestId('select-channel').selectOption('whatsapp');
-  await consultantPage.getByTestId('select-category').first().click();
+  // Click on WhatsApp radio button and category radio button
+  await consultantPage.locator('input[name="channel"][value="whatsapp"]').click({ force: true });
+  await consultantPage.locator('input[name="category"]').first().click({ force: true });
   await consultantPage.getByTestId('input-remarks').fill('Test interaction for suggestion');
   await consultantPage.getByTestId('btn-submit').click();
 
@@ -95,7 +96,14 @@ test.describe('Supervisor Suggestions', () => {
     });
 
     test('consultant should not see add suggestion form', async ({ browser }) => {
-      const { candidateId, page: consultantPage } = await setupCandidateWithInteraction(browser);
+      const { candidateId, page: adminPage } = await setupCandidateWithInteraction(browser);
+      await adminPage.close();
+
+      // Login as consultant (not admin) to test visibility
+      const consultantPage = await browser.newPage();
+      await consultantPage.goto('/test/login/consultant');
+      await consultantPage.goto(`/admin/candidates/${candidateId}`);
+      await expect(consultantPage.getByTestId('candidate-detail-page')).toBeVisible();
 
       // Consultant should NOT see the add suggestion form
       await expect(consultantPage.getByTestId('add-suggestion-form')).not.toBeVisible();

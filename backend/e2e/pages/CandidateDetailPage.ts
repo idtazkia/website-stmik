@@ -207,7 +207,13 @@ export class CandidateDetailPage extends BasePage {
   }
 
   get selectChannel(): Locator {
+    // This is for the modal on candidate detail page (uses select dropdown)
     return this.page.getByTestId('select-channel');
+  }
+
+  // Method to select a channel by clicking the radio button (for interaction form page)
+  selectChannelOption(value: string): Locator {
+    return this.page.locator(`input[name="channel"][value="${value}"]`);
   }
 
   get selectCategory(): Locator {
