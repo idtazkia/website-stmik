@@ -771,8 +771,8 @@ func ReassignCandidate(ctx context.Context, candidateID, newConsultantID, reassi
 	}
 
 	_, err = pool.Exec(ctx, `
-		INSERT INTO interactions (candidate_id, user_id, channel, category, remarks)
-		VALUES ($1, $2, 'system', 'reassignment', $3)
+		INSERT INTO interactions (candidate_id, consultant_id, channel, remarks)
+		VALUES ($1, $2, 'system', $3)
 	`, candidateID, reassignedBy, remarks)
 	if err != nil {
 		// Log error but don't fail the reassignment

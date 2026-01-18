@@ -290,7 +290,7 @@ test.describe('Candidate Reassignment', () => {
             await expect(timelineList).toBeVisible();
 
             // Look for reassignment entry in timeline
-            const reassignEntry = adminPage.locator('text=dialihkan ke konsultan');
+            const reassignEntry = adminPage.locator('text=dipindahkan dari konsultan');
             await expect(reassignEntry).toBeVisible();
             break;
           }
