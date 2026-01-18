@@ -55,7 +55,11 @@ func (h *AdminHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.Handle("GET /admin/campaigns", protected(h.handleCampaigns))
 	mux.Handle("GET /admin/referrers", protected(h.handleReferrers))
 	mux.Handle("GET /admin/referral-claims", protected(h.handleReferralClaims))
-	mux.Handle("GET /admin/commissions", protected(h.handleCommissions))
+	mux.Handle("GET /admin/commissions", protected(h.handleCommissionsReal))
+	mux.Handle("POST /admin/commissions/{id}/approve", protected(h.handleApproveCommission))
+	mux.Handle("POST /admin/commissions/{id}/paid", protected(h.handleMarkCommissionPaid))
+	mux.Handle("POST /admin/commissions/batch-approve", protected(h.handleBatchApproveCommissions))
+	mux.Handle("POST /admin/commissions/batch-paid", protected(h.handleBatchMarkCommissionsPaid))
 
 	// Reports
 	mux.Handle("GET /admin/reports/funnel", protected(h.handleFunnelReport))
