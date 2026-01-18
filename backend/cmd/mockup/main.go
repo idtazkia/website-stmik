@@ -74,7 +74,7 @@ func main() {
 	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
 	// Admin routes (mockup) - uses session manager for auth middleware
-	adminHandler := handler.NewAdminHandler(mockSessionMgr)
+	adminHandler := handler.NewAdminHandler(mockSessionMgr, nil)
 	adminHandler.RegisterRoutes(mux)
 
 	// Initialize local storage for file uploads (mockup mode uses ./uploads)

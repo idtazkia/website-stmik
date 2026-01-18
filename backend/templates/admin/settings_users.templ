@@ -110,6 +110,8 @@ templ UserRow(user UserItem, supervisors []SupervisorOption) {
 					<option value="admin" selected?={ user.Role == "admin" }>Admin</option>
 					<option value="supervisor" selected?={ user.Role == "supervisor" }>Supervisor</option>
 					<option value="consultant" selected?={ user.Role == "consultant" }>Konsultan</option>
+					<option value="finance" selected?={ user.Role == "finance" }>Keuangan</option>
+					<option value="academic" selected?={ user.Role == "academic" }>Akademik</option>
 				</select>
 			</form>
 		</td>

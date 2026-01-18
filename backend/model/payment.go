@@ -176,6 +176,119 @@ func GetPaymentReviewStats(ctx context.Context) (*PaymentReviewStats, error) {
 	return &stats, nil
 }
 
+// GetPaymentStats returns total count by status for finance
+func GetPaymentStats(ctx context.Context) (pending, approved, rejected int, err error) {
+	err = pool.QueryRow(ctx, `
+		SELECT
+			COALESCE(SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END), 0),
+			COALESCE(SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END), 0),
+			COALESCE(SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END), 0)
+		FROM payments
+	`).Scan(&pending, &approved, &rejected)
+	if err != nil {
+		err = fmt.Errorf("failed to get payment stats: %w", err)
+	}
+	return
+}
+
+// ListPaymentsWithDetails returns payments with candidate and billing info, with pagination
+func ListPaymentsWithDetails(ctx context.Context, status string, page, pageSize int) ([]PaymentWithBilling, int, error) {
+	// Build query
+	baseQuery := `
+		FROM payments p
+		JOIN billings b ON b.id = p.billing_id
+		JOIN candidates c ON c.id = b.candidate_id
+		LEFT JOIN prodis pr ON pr.id = c.prodi_id
+		WHERE 1=1
+	`
+	args := []any{}
+	argCount := 0
+
+	if status != "" {
+		argCount++
+		baseQuery += fmt.Sprintf(" AND p.status = $%d", argCount)
+		args = append(args, status)
+	}
+
+	// Get total count
+	var total int
+	countQuery := "SELECT COUNT(*) " + baseQuery
+	err := pool.QueryRow(ctx, countQuery, args...).Scan(&total)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to count payments: %w", err)
+	}
+
+	// Pagination
+	if pageSize <= 0 {
+		pageSize = 20
+	}
+	if page <= 0 {
+		page = 1
+	}
+	offset := (page - 1) * pageSize
+
+	// Get payments
+	selectQuery := `
+		SELECT p.id, p.billing_id, p.amount, p.transfer_date, p.proof_file_path, p.proof_file_name,
+		       p.proof_file_size, p.proof_mime_type, p.status, p.rejection_reason, p.reviewed_by,
+		       p.reviewed_at, p.created_at, p.updated_at,
+		       b.billing_type, b.amount as billing_amount, c.id as candidate_id, c.name as candidate_name,
+		       pr.name as candidate_prodi
+	` + baseQuery + fmt.Sprintf(" ORDER BY p.created_at DESC LIMIT $%d OFFSET $%d", argCount+1, argCount+2)
+	args = append(args, pageSize, offset)
+
+	rows, err := pool.Query(ctx, selectQuery, args...)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to list payments: %w", err)
+	}
+	defer rows.Close()
+
+	var payments []PaymentWithBilling
+	for rows.Next() {
+		var p PaymentWithBilling
+		err := rows.Scan(
+			&p.ID, &p.BillingID, &p.Amount, &p.TransferDate, &p.ProofFilePath, &p.ProofFileName,
+			&p.ProofFileSize, &p.ProofMimeType, &p.Status, &p.RejectionReason, &p.ReviewedBy,
+			&p.ReviewedAt, &p.CreatedAt, &p.UpdatedAt,
+			&p.BillingType, &p.BillingAmount, &p.CandidateID, &p.CandidateName, &p.CandidateProdi,
+		)
+		if err != nil {
+			return nil, 0, fmt.Errorf("failed to scan payment: %w", err)
+		}
+		payments = append(payments, p)
+	}
+	return payments, total, nil
+}
+
+// ListPaymentsByBilling returns all payments for a billing
+func ListPaymentsByBilling(ctx context.Context, billingID string) ([]Payment, error) {
+	rows, err := pool.Query(ctx, `
+		SELECT id, billing_id, amount, transfer_date, proof_file_path, proof_file_name, proof_file_size,
+		       proof_mime_type, status, rejection_reason, reviewed_by, reviewed_at, created_at, updated_at
+		FROM payments
+		WHERE billing_id = $1
+		ORDER BY created_at DESC
+	`, billingID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list payments: %w", err)
+	}
+	defer rows.Close()
+
+	var payments []Payment
+	for rows.Next() {
+		var p Payment
+		err := rows.Scan(
+			&p.ID, &p.BillingID, &p.Amount, &p.TransferDate, &p.ProofFilePath, &p.ProofFileName, &p.ProofFileSize,
+			&p.ProofMimeType, &p.Status, &p.RejectionReason, &p.ReviewedBy, &p.ReviewedAt, &p.CreatedAt, &p.UpdatedAt,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan payment: %w", err)
+		}
+		payments = append(payments, p)
+	}
+	return payments, nil
+}
+
 // ApprovePayment approves a payment and updates billing status to paid
 func ApprovePayment(ctx context.Context, paymentID, reviewerID string) error {
 	tx, err := pool.Begin(ctx)

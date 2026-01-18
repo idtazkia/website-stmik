@@ -4,16 +4,18 @@ import (
 	"net/http"
 
 	"github.com/idtazkia/stmik-admission-api/auth"
+	"github.com/idtazkia/stmik-admission-api/integration"
 )
 
 // AdminHandler handles all admin routes
 type AdminHandler struct {
 	sessionMgr *auth.SessionManager
+	resend     *integration.ResendClient
 }
 
 // NewAdminHandler creates a new admin handler
-func NewAdminHandler(sessionMgr *auth.SessionManager) *AdminHandler {
-	return &AdminHandler{sessionMgr: sessionMgr}
+func NewAdminHandler(sessionMgr *auth.SessionManager, resend *integration.ResendClient) *AdminHandler {
+	return &AdminHandler{sessionMgr: sessionMgr, resend: resend}
 }
 
 // RegisterRoutes registers all admin routes to the mux

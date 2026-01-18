@@ -8,6 +8,8 @@ import (
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/idtazkia/stmik-admission-api/templates/email"
 )
 
 // ResendClient handles email sending via Resend API
@@ -53,31 +55,117 @@ func (c *ResendClient) SendOTP(to, otp string) error {
 		return fmt.Errorf("resend client not configured")
 	}
 
-	subject := "Kode Verifikasi Pendaftaran STMIK Tazkia"
-	html := fmt.Sprintf(`
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-</head>
-<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-    <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h2 style="color: #194189;">STMIK Tazkia</h2>
-        <p>Kode verifikasi email Anda adalah:</p>
-        <div style="background-color: #f5f5f5; padding: 20px; text-align: center; margin: 20px 0;">
-            <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #194189;">%s</span>
-        </div>
-        <p>Kode ini berlaku selama 15 menit.</p>
-        <p>Jika Anda tidak meminta kode ini, abaikan email ini.</p>
-        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-        <p style="font-size: 12px; color: #666;">
-            Email ini dikirim secara otomatis. Mohon tidak membalas email ini.
-        </p>
-    </div>
-</body>
-</html>
-`, otp)
+	html, err := email.RenderOTP(email.OTPData{OTP: otp})
+	if err != nil {
+		return fmt.Errorf("failed to render OTP email: %w", err)
+	}
 
+	return c.sendEmail(to, "Kode Verifikasi Pendaftaran STMIK Tazkia", html)
+}
+
+// PaymentConfirmationData holds data for payment confirmation email
+type PaymentConfirmationData struct {
+	CandidateName string
+	BillingType   string
+	Amount        string
+	TransferDate  string
+	ApprovedAt    string
+}
+
+// SendPaymentConfirmation sends a payment confirmation email
+func (c *ResendClient) SendPaymentConfirmation(to string, data PaymentConfirmationData) error {
+	if c == nil {
+		return fmt.Errorf("resend client not configured")
+	}
+
+	html, err := email.RenderPaymentConfirmed(email.PaymentConfirmedData{
+		CandidateName: data.CandidateName,
+		BillingType:   data.BillingType,
+		Amount:        data.Amount,
+		TransferDate:  data.TransferDate,
+		ApprovedAt:    data.ApprovedAt,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to render payment confirmation email: %w", err)
+	}
+
+	return c.sendEmail(to, "Pembayaran Anda Telah Dikonfirmasi - STMIK Tazkia", html)
+}
+
+// PaymentRejectionData holds data for payment rejection email
+type PaymentRejectionData struct {
+	CandidateName string
+	BillingType   string
+	Amount        string
+	TransferDate  string
+	Reason        string
+}
+
+// SendPaymentRejection sends a payment rejection notification email
+func (c *ResendClient) SendPaymentRejection(to string, data PaymentRejectionData) error {
+	if c == nil {
+		return fmt.Errorf("resend client not configured")
+	}
+
+	html, err := email.RenderPaymentRejected(email.PaymentRejectedData{
+		CandidateName: data.CandidateName,
+		BillingType:   data.BillingType,
+		Amount:        data.Amount,
+		TransferDate:  data.TransferDate,
+		Reason:        data.Reason,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to render payment rejection email: %w", err)
+	}
+
+	return c.sendEmail(to, "Pembayaran Memerlukan Perbaikan - STMIK Tazkia", html)
+}
+
+// DocumentStatusData holds data for document status email
+type DocumentStatusData struct {
+	CandidateName string
+	DocumentType  string
+	Status        string // "approved" or "rejected"
+	Reason        string // Only for rejected
+}
+
+// SendDocumentApproved sends a document approval notification email
+func (c *ResendClient) SendDocumentApproved(to string, data DocumentStatusData) error {
+	if c == nil {
+		return fmt.Errorf("resend client not configured")
+	}
+
+	html, err := email.RenderDocumentApproved(email.DocumentApprovedData{
+		CandidateName: data.CandidateName,
+		DocumentType:  data.DocumentType,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to render document approval email: %w", err)
+	}
+
+	return c.sendEmail(to, "Dokumen Anda Telah Diverifikasi - STMIK Tazkia", html)
+}
+
+// SendDocumentRejected sends a document rejection notification email
+func (c *ResendClient) SendDocumentRejected(to string, data DocumentStatusData) error {
+	if c == nil {
+		return fmt.Errorf("resend client not configured")
+	}
+
+	html, err := email.RenderDocumentRejected(email.DocumentRejectedData{
+		CandidateName: data.CandidateName,
+		DocumentType:  data.DocumentType,
+		Reason:        data.Reason,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to render document rejection email: %w", err)
+	}
+
+	return c.sendEmail(to, "Dokumen Memerlukan Perbaikan - STMIK Tazkia", html)
+}
+
+// sendEmail is a helper to send an email
+func (c *ResendClient) sendEmail(to, subject, html string) error {
 	reqBody := resendEmailRequest{
 		From:    c.From,
 		To:      []string{to},
@@ -115,6 +203,6 @@ func (c *ResendClient) SendOTP(to, otp string) error {
 		return fmt.Errorf("failed to parse response: %w", err)
 	}
 
-	log.Printf("Email OTP sent to %s (resend id: %s)", to, response.ID)
+	log.Printf("Email sent to %s (resend id: %s)", to, response.ID)
 	return nil
 }

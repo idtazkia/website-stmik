@@ -36,6 +36,7 @@ func (h *PortalHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.Handle("GET /portal/announcements", RequireCandidateAuth(h.sessionMgr, http.HandlerFunc(h.handleAnnouncements)))
 	mux.Handle("POST /portal/announcements/{id}/read", RequireCandidateAuth(h.sessionMgr, http.HandlerFunc(h.handleMarkAnnouncementRead)))
 	mux.Handle("GET /portal/referral", RequireCandidateAuth(h.sessionMgr, http.HandlerFunc(h.handleReferral)))
+	mux.Handle("GET /portal/verify-email", RequireCandidateAuth(h.sessionMgr, http.HandlerFunc(h.handleVerifyEmailPage)))
 }
 
 func (h *PortalHandler) handleDashboard(w http.ResponseWriter, r *http.Request) {
@@ -641,6 +642,33 @@ func (h *PortalHandler) handleReferral(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 	w.Write([]byte(`<html><body><h1>Referral - Coming Soon</h1></body></html>`))
 	_ = data
+}
+
+func (h *PortalHandler) handleVerifyEmailPage(w http.ResponseWriter, r *http.Request) {
+	claims := GetCandidateClaims(r.Context())
+	if claims == nil {
+		http.Redirect(w, r, "/login", http.StatusFound)
+		return
+	}
+
+	candidate, err := model.FindCandidateByID(r.Context(), claims.CandidateID)
+	if err != nil || candidate == nil {
+		http.Redirect(w, r, "/login", http.StatusFound)
+		return
+	}
+
+	if candidate.Email == nil || *candidate.Email == "" {
+		http.Redirect(w, r, "/portal", http.StatusFound)
+		return
+	}
+
+	data := NewPageData("Verifikasi Email")
+	verifyData := portal.VerifyEmailData{
+		Email:         *candidate.Email,
+		EmailVerified: candidate.EmailVerified,
+	}
+
+	portal.VerifyEmail(data, verifyData).Render(r.Context(), w)
 }
 
 // Helper functions
