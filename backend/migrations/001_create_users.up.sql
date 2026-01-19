@@ -1,9 +1,9 @@
 -- Staff users table (admin, supervisor, consultant, finance, academic)
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    email VARCHAR(255) NOT NULL UNIQUE,
-    name VARCHAR(255) NOT NULL,
-    google_id VARCHAR(255) UNIQUE,
+    email TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL,
+    google_id TEXT UNIQUE,
     role VARCHAR(20) NOT NULL CHECK (role IN ('admin', 'supervisor', 'consultant', 'finance', 'academic')),
     id_supervisor UUID REFERENCES users(id) ON DELETE SET NULL,
     is_active BOOLEAN DEFAULT true,

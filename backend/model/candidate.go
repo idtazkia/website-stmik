@@ -64,12 +64,22 @@ func CheckPassword(password, hash string) bool {
 // CreateCandidate creates a new candidate with email/phone and hashed password
 func CreateCandidate(ctx context.Context, email, phone, passwordHash string) (*Candidate, error) {
 	var candidate Candidate
-	var emailPtr, phonePtr *string
+	var emailEnc, phoneEnc *string
+
+	// Encrypt email and phone before storing
 	if email != "" {
-		emailPtr = &email
+		enc, err := encryptEmail(email)
+		if err != nil {
+			return nil, fmt.Errorf("failed to encrypt email: %w", err)
+		}
+		emailEnc = &enc
 	}
 	if phone != "" {
-		phonePtr = &phone
+		enc, err := encryptPhone(phone)
+		if err != nil {
+			return nil, fmt.Errorf("failed to encrypt phone: %w", err)
+		}
+		phoneEnc = &enc
 	}
 
 	err := pool.QueryRow(ctx, `
@@ -78,7 +88,7 @@ func CreateCandidate(ctx context.Context, email, phone, passwordHash string) (*C
 		RETURNING id, email, email_verified, phone, phone_verified, password_hash, name, address, city, province,
 		          high_school, graduation_year, id_prodi, id_campaign, id_referrer, id_referred_by_candidate,
 		          source_type, source_detail, id_assigned_consultant, status, id_lost_reason, lost_at, created_at, updated_at
-	`, emailPtr, phonePtr, passwordHash).Scan(
+	`, emailEnc, phoneEnc, passwordHash).Scan(
 		&candidate.ID, &candidate.Email, &candidate.EmailVerified, &candidate.Phone, &candidate.PhoneVerified,
 		&candidate.PasswordHash, &candidate.Name, &candidate.Address, &candidate.City, &candidate.Province,
 		&candidate.HighSchool, &candidate.GraduationYear, &candidate.ProdiID, &candidate.CampaignID,
@@ -89,6 +99,12 @@ func CreateCandidate(ctx context.Context, email, phone, passwordHash string) (*C
 	if err != nil {
 		return nil, fmt.Errorf("failed to create candidate: %w", err)
 	}
+
+	// Decrypt fields before returning
+	if err := decryptCandidateFields(&candidate); err != nil {
+		return nil, fmt.Errorf("failed to decrypt candidate: %w", err)
+	}
+
 	return &candidate, nil
 }
 
@@ -114,18 +130,30 @@ func FindCandidateByID(ctx context.Context, id string) (*Candidate, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to find candidate by id: %w", err)
 	}
+
+	// Decrypt fields
+	if err := decryptCandidateFields(&candidate); err != nil {
+		return nil, fmt.Errorf("failed to decrypt candidate: %w", err)
+	}
+
 	return &candidate, nil
 }
 
 // FindCandidateByEmail finds a candidate by email
 func FindCandidateByEmail(ctx context.Context, email string) (*Candidate, error) {
+	// Encrypt email for search (deterministic encryption allows equality match)
+	emailEnc, err := encryptEmail(email)
+	if err != nil {
+		return nil, fmt.Errorf("failed to encrypt email for search: %w", err)
+	}
+
 	var candidate Candidate
-	err := pool.QueryRow(ctx, `
+	err = pool.QueryRow(ctx, `
 		SELECT id, email, email_verified, phone, phone_verified, password_hash, name, address, city, province,
 		       high_school, graduation_year, id_prodi, id_campaign, id_referrer, id_referred_by_candidate,
 		       source_type, source_detail, id_assigned_consultant, status, id_lost_reason, lost_at, created_at, updated_at
 		FROM candidates WHERE email = $1
-	`, email).Scan(
+	`, emailEnc).Scan(
 		&candidate.ID, &candidate.Email, &candidate.EmailVerified, &candidate.Phone, &candidate.PhoneVerified,
 		&candidate.PasswordHash, &candidate.Name, &candidate.Address, &candidate.City, &candidate.Province,
 		&candidate.HighSchool, &candidate.GraduationYear, &candidate.ProdiID, &candidate.CampaignID,
@@ -139,18 +167,30 @@ func FindCandidateByEmail(ctx context.Context, email string) (*Candidate, error)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find candidate by email: %w", err)
 	}
+
+	// Decrypt fields
+	if err := decryptCandidateFields(&candidate); err != nil {
+		return nil, fmt.Errorf("failed to decrypt candidate: %w", err)
+	}
+
 	return &candidate, nil
 }
 
 // FindCandidateByPhone finds a candidate by phone
 func FindCandidateByPhone(ctx context.Context, phone string) (*Candidate, error) {
+	// Encrypt phone for search (deterministic encryption allows equality match)
+	phoneEnc, err := encryptPhone(phone)
+	if err != nil {
+		return nil, fmt.Errorf("failed to encrypt phone for search: %w", err)
+	}
+
 	var candidate Candidate
-	err := pool.QueryRow(ctx, `
+	err = pool.QueryRow(ctx, `
 		SELECT id, email, email_verified, phone, phone_verified, password_hash, name, address, city, province,
 		       high_school, graduation_year, id_prodi, id_campaign, id_referrer, id_referred_by_candidate,
 		       source_type, source_detail, id_assigned_consultant, status, id_lost_reason, lost_at, created_at, updated_at
 		FROM candidates WHERE phone = $1
-	`, phone).Scan(
+	`, phoneEnc).Scan(
 		&candidate.ID, &candidate.Email, &candidate.EmailVerified, &candidate.Phone, &candidate.PhoneVerified,
 		&candidate.PasswordHash, &candidate.Name, &candidate.Address, &candidate.City, &candidate.Province,
 		&candidate.HighSchool, &candidate.GraduationYear, &candidate.ProdiID, &candidate.CampaignID,
@@ -164,6 +204,12 @@ func FindCandidateByPhone(ctx context.Context, phone string) (*Candidate, error)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find candidate by phone: %w", err)
 	}
+
+	// Decrypt fields
+	if err := decryptCandidateFields(&candidate); err != nil {
+		return nil, fmt.Errorf("failed to decrypt candidate: %w", err)
+	}
+
 	return &candidate, nil
 }
 
@@ -194,11 +240,40 @@ func AuthenticateCandidate(ctx context.Context, identifier, password string) (*C
 
 // UpdateCandidatePersonalInfo updates personal information
 func UpdateCandidatePersonalInfo(ctx context.Context, id, name, address, city, province string) error {
-	_, err := pool.Exec(ctx, `
+	// Encrypt fields before storing
+	nameEnc, err := encryptName(name)
+	if err != nil {
+		return fmt.Errorf("failed to encrypt name: %w", err)
+	}
+
+	var addressEnc, cityEnc, provinceEnc *string
+	if address != "" {
+		enc, err := encryptNullableP(&address)
+		if err != nil {
+			return fmt.Errorf("failed to encrypt address: %w", err)
+		}
+		addressEnc = enc
+	}
+	if city != "" {
+		enc, err := encryptNullableP(&city)
+		if err != nil {
+			return fmt.Errorf("failed to encrypt city: %w", err)
+		}
+		cityEnc = enc
+	}
+	if province != "" {
+		enc, err := encryptNullableP(&province)
+		if err != nil {
+			return fmt.Errorf("failed to encrypt province: %w", err)
+		}
+		provinceEnc = enc
+	}
+
+	_, err = pool.Exec(ctx, `
 		UPDATE candidates
 		SET name = $2, address = $3, city = $4, province = $5, updated_at = NOW()
 		WHERE id = $1
-	`, id, name, address, city, province)
+	`, id, nameEnc, addressEnc, cityEnc, provinceEnc)
 	if err != nil {
 		return fmt.Errorf("failed to update personal info: %w", err)
 	}
@@ -211,11 +286,22 @@ func UpdateCandidateEducation(ctx context.Context, id, highSchool string, gradua
 	if prodiID != "" {
 		prodiPtr = &prodiID
 	}
+
+	// Encrypt high_school before storing
+	var highSchoolEnc *string
+	if highSchool != "" {
+		enc, err := encryptNullableP(&highSchool)
+		if err != nil {
+			return fmt.Errorf("failed to encrypt high_school: %w", err)
+		}
+		highSchoolEnc = enc
+	}
+
 	_, err := pool.Exec(ctx, `
 		UPDATE candidates
 		SET high_school = $2, graduation_year = $3, id_prodi = $4, updated_at = NOW()
 		WHERE id = $1
-	`, id, highSchool, graduationYear, prodiPtr)
+	`, id, highSchoolEnc, graduationYear, prodiPtr)
 	if err != nil {
 		return fmt.Errorf("failed to update education: %w", err)
 	}
@@ -378,6 +464,16 @@ func GetCandidateDetailData(ctx context.Context, id string) (*CandidateDetailDat
 	if err != nil {
 		return nil, fmt.Errorf("failed to get candidate detail data: %w", err)
 	}
+
+	// Decrypt candidate fields
+	if err := decryptCandidateFields(&data.Candidate); err != nil {
+		return nil, fmt.Errorf("failed to decrypt candidate: %w", err)
+	}
+
+	// Decrypt related encrypted fields (consultant name, referrer name)
+	data.ConsultantName, _ = decryptNullableP(data.ConsultantName)
+	data.ReferrerName, _ = decryptNullableP(data.ReferrerName)
+
 	return &data, nil
 }
 
@@ -408,6 +504,16 @@ func GetCandidateDashboardData(ctx context.Context, id string) (*CandidateDashbo
 	if err != nil {
 		return nil, fmt.Errorf("failed to get candidate dashboard data: %w", err)
 	}
+
+	// Decrypt candidate fields
+	if err := decryptCandidateFields(&data.Candidate); err != nil {
+		return nil, fmt.Errorf("failed to decrypt candidate: %w", err)
+	}
+
+	// Decrypt related encrypted fields (consultant name and email)
+	data.ConsultantName, _ = decryptNullableP(data.ConsultantName)
+	data.ConsultantEmail, _ = decryptNullableD(data.ConsultantEmail)
+
 	return &data, nil
 }
 
@@ -504,10 +610,19 @@ func ListCandidates(ctx context.Context, filters CandidateListFilters, visibilit
 	}
 
 	if filters.Search != "" {
-		search := "%" + filters.Search + "%"
-		whereClause += fmt.Sprintf(" AND (c.name ILIKE $%d OR c.email ILIKE $%d OR c.phone ILIKE $%d)", argNum, argNum, argNum)
-		args = append(args, search)
-		argNum++
+		// With encryption, we can only do exact match on deterministically encrypted fields (email, phone)
+		// Search by encrypting the search term and matching exactly
+		emailEnc, err := encryptEmail(filters.Search)
+		if err != nil {
+			return nil, fmt.Errorf("failed to encrypt search term: %w", err)
+		}
+		phoneEnc, err := encryptPhone(filters.Search)
+		if err != nil {
+			return nil, fmt.Errorf("failed to encrypt search term: %w", err)
+		}
+		whereClause += fmt.Sprintf(" AND (c.email = $%d OR c.phone = $%d)", argNum, argNum+1)
+		args = append(args, emailEnc, phoneEnc)
+		argNum += 2
 	}
 
 	// Count total
@@ -581,6 +696,13 @@ func ListCandidates(ctx context.Context, filters CandidateListFilters, visibilit
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan candidate: %w", err)
 		}
+
+		// Decrypt encrypted fields
+		c.Name, _ = decryptNullableP(c.Name)
+		c.Email, _ = decryptNullableD(c.Email)
+		c.Phone, _ = decryptNullableD(c.Phone)
+		c.ConsultantName, _ = decryptNullableP(c.ConsultantName)
+
 		candidates = append(candidates, c)
 	}
 
@@ -738,6 +860,14 @@ func ListConsultantsWithWorkload(ctx context.Context) ([]ConsultantWithWorkload,
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan consultant: %w", err)
 		}
+
+		// Decrypt encrypted fields
+		c.Name, _ = decryptName(c.Name)
+		if emailDec, err := decryptNullableD(&c.Email); err == nil && emailDec != nil {
+			c.Email = *emailDec
+		}
+		c.SupervisorName, _ = decryptNullableP(c.SupervisorName)
+
 		consultants = append(consultants, c)
 	}
 	return consultants, nil

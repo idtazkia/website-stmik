@@ -4,8 +4,8 @@ CREATE TABLE payments (
     id_billing UUID NOT NULL REFERENCES billings(id) ON DELETE CASCADE,
     amount INTEGER NOT NULL, -- amount paid in IDR
     transfer_date DATE NOT NULL,
-    proof_file_path VARCHAR(500) NOT NULL,
-    proof_file_name VARCHAR(255) NOT NULL,
+    proof_file_path TEXT NOT NULL,
+    proof_file_name TEXT NOT NULL,
     proof_file_size INTEGER NOT NULL,
     proof_mime_type VARCHAR(100) NOT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'pending', -- pending, approved, rejected

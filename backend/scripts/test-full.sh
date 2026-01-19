@@ -60,8 +60,8 @@ if [ -z "$CI" ]; then
         -e POSTGRES_PASSWORD='WHDnr908ovsvy1aIrBIhNSmFmiNVgbnGpewRqV+tBMQ=' \
         -e POSTGRES_DB=stmik_admission \
         -p 5432:5432 \
-        -v "$VOLUME_NAME":/var/lib/postgresql/data \
-        postgres:18 >/dev/null
+        -v "$VOLUME_NAME":/var/lib/postgresql \
+        postgres:18-alpine >/dev/null
 
     # Step 3: Wait for postgres
     echo -e "\n${YELLOW}[3/7] Waiting for PostgreSQL to be ready...${NC}"
@@ -92,6 +92,7 @@ npm run css:build
 
 # Step 6: Run migrations
 echo -e "\n${YELLOW}[6/7] Running migrations...${NC}"
+export ENCRYPTION_KEY="${ENCRYPTION_KEY:-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef}"
 go run ./cmd/migrate up
 
 # Step 7: Run E2E tests

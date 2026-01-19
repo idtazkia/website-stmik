@@ -16,6 +16,7 @@ import (
 	"github.com/idtazkia/stmik-admission-api/handler"
 	"github.com/idtazkia/stmik-admission-api/integration"
 	"github.com/idtazkia/stmik-admission-api/model"
+	"github.com/idtazkia/stmik-admission-api/pkg/crypto"
 	"github.com/idtazkia/stmik-admission-api/storage"
 	"github.com/idtazkia/stmik-admission-api/templates/pages"
 	"github.com/idtazkia/stmik-admission-api/version"
@@ -32,6 +33,12 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to load config: %v", err)
 	}
+
+	// Initialize encryption
+	if err := crypto.Init(cfg.Encryption.Key); err != nil {
+		log.Fatalf("failed to initialize encryption: %v", err)
+	}
+	log.Println("Encryption initialized")
 
 	// Initialize database connection
 	ctx := context.Background()

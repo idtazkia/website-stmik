@@ -7,14 +7,19 @@ import (
 )
 
 type Config struct {
-	Server   ServerConfig
-	Database DatabaseConfig
-	JWT      JWTConfig
-	Google   GoogleConfig
-	WhatsApp WhatsAppConfig
-	Resend   ResendConfig
-	Kafka    KafkaConfig
-	Upload   UploadConfig
+	Server     ServerConfig
+	Database   DatabaseConfig
+	JWT        JWTConfig
+	Google     GoogleConfig
+	WhatsApp   WhatsAppConfig
+	Resend     ResendConfig
+	Kafka      KafkaConfig
+	Upload     UploadConfig
+	Encryption EncryptionConfig
+}
+
+type EncryptionConfig struct {
+	Key string // 32-byte hex-encoded encryption key
 }
 
 // Note: CSRF protection uses Go 1.25's http.CrossOriginProtection
@@ -122,6 +127,9 @@ func Load() (*Config, error) {
 		Upload: UploadConfig{
 			Dir:       getEnv("UPLOAD_DIR", "./uploads"),
 			MaxSizeMB: maxUploadSize,
+		},
+		Encryption: EncryptionConfig{
+			Key: getEnvRequired("ENCRYPTION_KEY"),
 		},
 	}, nil
 }
