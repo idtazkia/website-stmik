@@ -31,32 +31,47 @@ type UserWithSupervisor struct {
 // CreateUser creates a new user
 func CreateUser(ctx context.Context, email, name, googleID, role string) (*User, error) {
 	var user User
-	var gid *string
-	if googleID != "" {
-		gid = &googleID
+
+	// Encrypt fields before storing
+	emailEnc, nameEnc, googleIDEnc, err := encryptUserFields(email, name, googleID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to encrypt user fields: %w", err)
 	}
 
-	err := pool.QueryRow(ctx, `
+	err = pool.QueryRow(ctx, `
 		INSERT INTO users (email, name, google_id, role)
 		VALUES ($1, $2, $3, $4)
 		RETURNING id, email, name, google_id, role, id_supervisor, is_active, last_login_at, created_at, updated_at
-	`, email, name, gid, role).Scan(
+	`, emailEnc, nameEnc, googleIDEnc, role).Scan(
 		&user.ID, &user.Email, &user.Name, &user.GoogleID, &user.Role,
 		&user.IDSupervisor, &user.IsActive, &user.LastLoginAt, &user.CreatedAt, &user.UpdatedAt,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
+
+	// Decrypt fields before returning
+	user.Email, user.Name, user.GoogleID, err = decryptUserFields(user.Email, user.Name, user.GoogleID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decrypt user: %w", err)
+	}
+
 	return &user, nil
 }
 
 // FindUserByEmail finds a user by email
 func FindUserByEmail(ctx context.Context, email string) (*User, error) {
+	// Encrypt email for search (deterministic encryption allows equality match)
+	emailEnc, err := encryptEmail(email)
+	if err != nil {
+		return nil, fmt.Errorf("failed to encrypt email for search: %w", err)
+	}
+
 	var user User
-	err := pool.QueryRow(ctx, `
+	err = pool.QueryRow(ctx, `
 		SELECT id, email, name, google_id, role, id_supervisor, is_active, last_login_at, created_at, updated_at
 		FROM users WHERE email = $1
-	`, email).Scan(
+	`, emailEnc).Scan(
 		&user.ID, &user.Email, &user.Name, &user.GoogleID, &user.Role,
 		&user.IDSupervisor, &user.IsActive, &user.LastLoginAt, &user.CreatedAt, &user.UpdatedAt,
 	)
@@ -66,16 +81,29 @@ func FindUserByEmail(ctx context.Context, email string) (*User, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to find user by email: %w", err)
 	}
+
+	// Decrypt fields
+	user.Email, user.Name, user.GoogleID, err = decryptUserFields(user.Email, user.Name, user.GoogleID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decrypt user: %w", err)
+	}
+
 	return &user, nil
 }
 
 // FindUserByGoogleID finds a user by Google ID
 func FindUserByGoogleID(ctx context.Context, googleID string) (*User, error) {
+	// Encrypt googleID for search (deterministic encryption allows equality match)
+	googleIDEnc, err := encryptEmail(googleID) // Using encryptEmail as it's deterministic
+	if err != nil {
+		return nil, fmt.Errorf("failed to encrypt google_id for search: %w", err)
+	}
+
 	var user User
-	err := pool.QueryRow(ctx, `
+	err = pool.QueryRow(ctx, `
 		SELECT id, email, name, google_id, role, id_supervisor, is_active, last_login_at, created_at, updated_at
 		FROM users WHERE google_id = $1
-	`, googleID).Scan(
+	`, googleIDEnc).Scan(
 		&user.ID, &user.Email, &user.Name, &user.GoogleID, &user.Role,
 		&user.IDSupervisor, &user.IsActive, &user.LastLoginAt, &user.CreatedAt, &user.UpdatedAt,
 	)
@@ -85,6 +113,13 @@ func FindUserByGoogleID(ctx context.Context, googleID string) (*User, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to find user by google_id: %w", err)
 	}
+
+	// Decrypt fields
+	user.Email, user.Name, user.GoogleID, err = decryptUserFields(user.Email, user.Name, user.GoogleID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decrypt user: %w", err)
+	}
+
 	return &user, nil
 }
 
@@ -104,6 +139,13 @@ func FindUserByID(ctx context.Context, id string) (*User, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to find user by id: %w", err)
 	}
+
+	// Decrypt fields
+	user.Email, user.Name, user.GoogleID, err = decryptUserFields(user.Email, user.Name, user.GoogleID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decrypt user: %w", err)
+	}
+
 	return &user, nil
 }
 
@@ -147,6 +189,11 @@ func ListUsers(ctx context.Context, role string, activeOnly bool) ([]UserWithSup
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan user: %w", err)
 		}
+
+		// Decrypt fields
+		u.Email, u.Name, u.GoogleID, _ = decryptUserFields(u.Email, u.Name, u.GoogleID)
+		u.SupervisorName, _ = decryptNullableP(u.SupervisorName)
+
 		users = append(users, u)
 	}
 	return users, nil
@@ -175,6 +222,10 @@ func ListSupervisors(ctx context.Context) ([]User, error) {
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan supervisor: %w", err)
 		}
+
+		// Decrypt fields
+		u.Email, u.Name, u.GoogleID, _ = decryptUserFields(u.Email, u.Name, u.GoogleID)
+
 		users = append(users, u)
 	}
 	return users, nil

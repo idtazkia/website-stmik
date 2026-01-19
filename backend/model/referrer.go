@@ -44,12 +44,20 @@ func GenerateReferralCode(name, referrerType string) string {
 
 // CreateReferrer creates a new referrer
 func CreateReferrer(ctx context.Context, name, referrerType string, institution, phone, email, code, bankName, bankAccount, accountHolder *string, commissionOverride *int64, payoutPreference string) (*Referrer, error) {
+	// Encrypt fields before storing
+	nameEnc, emailEnc, phoneEnc, bankNameEnc, bankAccountEnc, accountHolderEnc, institutionEnc, err := encryptReferrerFields(
+		name, email, phone, bankName, bankAccount, accountHolder, institution,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to encrypt referrer fields: %w", err)
+	}
+
 	var r Referrer
-	err := pool.QueryRow(ctx, `
+	err = pool.QueryRow(ctx, `
 		INSERT INTO referrers (name, type, institution, phone, email, code, bank_name, bank_account, account_holder, commission_override, payout_preference)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 		RETURNING id, name, type, institution, phone, email, code, bank_name, bank_account, account_holder, commission_override, payout_preference, is_active, created_at, updated_at
-	`, name, referrerType, institution, phone, email, code, bankName, bankAccount, accountHolder, commissionOverride, payoutPreference).Scan(
+	`, nameEnc, referrerType, institutionEnc, phoneEnc, emailEnc, code, bankNameEnc, bankAccountEnc, accountHolderEnc, commissionOverride, payoutPreference).Scan(
 		&r.ID, &r.Name, &r.Type, &r.Institution, &r.Phone, &r.Email, &r.Code,
 		&r.BankName, &r.BankAccount, &r.AccountHolder, &r.CommissionOverride,
 		&r.PayoutPreference, &r.IsActive, &r.CreatedAt, &r.UpdatedAt,
@@ -57,6 +65,15 @@ func CreateReferrer(ctx context.Context, name, referrerType string, institution,
 	if err != nil {
 		return nil, fmt.Errorf("failed to create referrer: %w", err)
 	}
+
+	// Decrypt fields before returning
+	r.Name, r.Email, r.Phone, r.BankName, r.BankAccount, r.AccountHolder, r.Institution, err = decryptReferrerFields(
+		r.Name, r.Email, r.Phone, r.BankName, r.BankAccount, r.AccountHolder, r.Institution,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decrypt referrer: %w", err)
+	}
+
 	return &r, nil
 }
 
@@ -78,6 +95,12 @@ func FindReferrerByID(ctx context.Context, id string) (*Referrer, error) {
 		}
 		return nil, fmt.Errorf("failed to find referrer: %w", err)
 	}
+
+	// Decrypt fields
+	r.Name, r.Email, r.Phone, r.BankName, r.BankAccount, r.AccountHolder, r.Institution, _ = decryptReferrerFields(
+		r.Name, r.Email, r.Phone, r.BankName, r.BankAccount, r.AccountHolder, r.Institution,
+	)
+
 	return &r, nil
 }
 
@@ -99,6 +122,12 @@ func FindReferrerByCode(ctx context.Context, code string) (*Referrer, error) {
 		}
 		return nil, fmt.Errorf("failed to find referrer by code: %w", err)
 	}
+
+	// Decrypt fields
+	r.Name, r.Email, r.Phone, r.BankName, r.BankAccount, r.AccountHolder, r.Institution, _ = decryptReferrerFields(
+		r.Name, r.Email, r.Phone, r.BankName, r.BankAccount, r.AccountHolder, r.Institution,
+	)
+
 	return &r, nil
 }
 
@@ -134,25 +163,33 @@ func ListReferrers(ctx context.Context, referrerType string) ([]Referrer, error)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan referrer: %w", err)
 		}
+
+		// Decrypt fields
+		r.Name, r.Email, r.Phone, r.BankName, r.BankAccount, r.AccountHolder, r.Institution, _ = decryptReferrerFields(
+			r.Name, r.Email, r.Phone, r.BankName, r.BankAccount, r.AccountHolder, r.Institution,
+		)
+
 		referrers = append(referrers, r)
 	}
 	return referrers, nil
 }
 
 // SearchReferrersByName searches referrers by name (case-insensitive)
+// Note: With encryption, name is probabilistically encrypted so ILIKE search is not possible.
+// We fetch all records and filter in memory.
 func SearchReferrersByName(ctx context.Context, name string) ([]Referrer, error) {
 	rows, err := pool.Query(ctx, `
 		SELECT id, name, type, institution, phone, email, code, bank_name, bank_account, account_holder,
 		       commission_override, payout_preference, is_active, created_at, updated_at
 		FROM referrers
-		WHERE name ILIKE $1
 		ORDER BY name
-	`, "%"+name+"%")
+	`)
 	if err != nil {
 		return nil, fmt.Errorf("failed to search referrers: %w", err)
 	}
 	defer rows.Close()
 
+	searchLower := strings.ToLower(name)
 	var referrers []Referrer
 	for rows.Next() {
 		var r Referrer
@@ -164,20 +201,37 @@ func SearchReferrersByName(ctx context.Context, name string) ([]Referrer, error)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan referrer: %w", err)
 		}
-		referrers = append(referrers, r)
+
+		// Decrypt fields
+		r.Name, r.Email, r.Phone, r.BankName, r.BankAccount, r.AccountHolder, r.Institution, _ = decryptReferrerFields(
+			r.Name, r.Email, r.Phone, r.BankName, r.BankAccount, r.AccountHolder, r.Institution,
+		)
+
+		// Filter in memory after decryption
+		if strings.Contains(strings.ToLower(r.Name), searchLower) {
+			referrers = append(referrers, r)
+		}
 	}
 	return referrers, nil
 }
 
 // UpdateReferrer updates a referrer
 func UpdateReferrer(ctx context.Context, id, name, referrerType string, institution, phone, email, code, bankName, bankAccount, accountHolder *string, commissionOverride *int64, payoutPreference string) error {
-	_, err := pool.Exec(ctx, `
+	// Encrypt fields before storing
+	nameEnc, emailEnc, phoneEnc, bankNameEnc, bankAccountEnc, accountHolderEnc, institutionEnc, err := encryptReferrerFields(
+		name, email, phone, bankName, bankAccount, accountHolder, institution,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to encrypt referrer fields: %w", err)
+	}
+
+	_, err = pool.Exec(ctx, `
 		UPDATE referrers
 		SET name = $1, type = $2, institution = $3, phone = $4, email = $5, code = $6,
 		    bank_name = $7, bank_account = $8, account_holder = $9, commission_override = $10,
 		    payout_preference = $11, updated_at = NOW()
 		WHERE id = $12
-	`, name, referrerType, institution, phone, email, code, bankName, bankAccount, accountHolder, commissionOverride, payoutPreference, id)
+	`, nameEnc, referrerType, institutionEnc, phoneEnc, emailEnc, code, bankNameEnc, bankAccountEnc, accountHolderEnc, commissionOverride, payoutPreference, id)
 	if err != nil {
 		return fmt.Errorf("failed to update referrer: %w", err)
 	}

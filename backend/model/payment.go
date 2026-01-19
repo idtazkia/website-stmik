@@ -121,8 +121,13 @@ func ListPaymentsForReview(ctx context.Context, filters PaymentReviewFilters) ([
 	}
 
 	if filters.Search != "" {
-		query += fmt.Sprintf(" AND c.name ILIKE $%d", argIndex)
-		args = append(args, "%"+filters.Search+"%")
+		// With encryption, search by encrypted email (deterministic) for exact match
+		emailEnc, err := encryptEmail(filters.Search)
+		if err != nil {
+			return nil, fmt.Errorf("failed to encrypt search term: %w", err)
+		}
+		query += fmt.Sprintf(" AND c.email = $%d", argIndex)
+		args = append(args, emailEnc)
 		argIndex++
 	}
 
@@ -146,6 +151,11 @@ func ListPaymentsForReview(ctx context.Context, filters PaymentReviewFilters) ([
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan payment: %w", err)
 		}
+
+		// Decrypt candidate name
+		decName, _ := decryptName(p.CandidateName)
+		p.CandidateName = decName
+
 		payments = append(payments, p)
 	}
 	return payments, nil
@@ -255,6 +265,11 @@ func ListPaymentsWithDetails(ctx context.Context, status string, page, pageSize 
 		if err != nil {
 			return nil, 0, fmt.Errorf("failed to scan payment: %w", err)
 		}
+
+		// Decrypt candidate name
+		decName, _ := decryptName(p.CandidateName)
+		p.CandidateName = decName
+
 		payments = append(payments, p)
 	}
 	return payments, total, nil

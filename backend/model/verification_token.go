@@ -55,29 +55,42 @@ func CreateVerificationToken(ctx context.Context, candidateID, tokenType string)
 		return "", err
 	}
 
+	// Encrypt token before storing (deterministic for search)
+	tokenEnc, err := encryptToken(otp)
+	if err != nil {
+		return "", fmt.Errorf("failed to encrypt token: %w", err)
+	}
+
 	expiresAt := time.Now().Add(TokenExpiry)
 
 	_, err = pool.Exec(ctx, `
 		INSERT INTO verification_tokens (id_candidate, token_type, token, expires_at)
 		VALUES ($1, $2, $3, $4)
-	`, candidateID, tokenType, otp, expiresAt)
+	`, candidateID, tokenType, tokenEnc, expiresAt)
 	if err != nil {
 		return "", fmt.Errorf("failed to create verification token: %w", err)
 	}
 
+	// Return the plaintext OTP (for sending to user)
 	return otp, nil
 }
 
 // VerifyToken verifies an OTP token and marks it as used
 func VerifyToken(ctx context.Context, candidateID, tokenType, token string) error {
+	// Encrypt token for search (deterministic encryption allows equality match)
+	tokenEnc, err := encryptToken(token)
+	if err != nil {
+		return fmt.Errorf("failed to encrypt token for search: %w", err)
+	}
+
 	var tokenID string
-	err := pool.QueryRow(ctx, `
+	err = pool.QueryRow(ctx, `
 		SELECT id FROM verification_tokens
 		WHERE id_candidate = $1 AND token_type = $2 AND token = $3
 		  AND expires_at > NOW() AND used_at IS NULL
 		ORDER BY created_at DESC
 		LIMIT 1
-	`, candidateID, tokenType, token).Scan(&tokenID)
+	`, candidateID, tokenType, tokenEnc).Scan(&tokenID)
 
 	if err == pgx.ErrNoRows {
 		return fmt.Errorf("invalid or expired token")
@@ -141,5 +154,9 @@ func GetLatestToken(ctx context.Context, candidateID, tokenType string) (*Verifi
 	if err != nil {
 		return nil, fmt.Errorf("failed to get latest token: %w", err)
 	}
+
+	// Decrypt token
+	token.Token, _ = decryptToken(token.Token)
+
 	return &token, nil
 }

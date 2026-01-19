@@ -251,8 +251,13 @@ func ListDocumentsForReview(ctx context.Context, filters DocumentReviewFilters) 
 	}
 
 	if filters.Search != "" {
-		query += fmt.Sprintf(" AND (c.name ILIKE $%d OR c.email ILIKE $%d)", argNum, argNum)
-		args = append(args, "%"+filters.Search+"%")
+		// With encryption, search by encrypted email (deterministic) for exact match
+		emailEnc, err := encryptEmail(filters.Search)
+		if err != nil {
+			return nil, fmt.Errorf("failed to encrypt search term: %w", err)
+		}
+		query += fmt.Sprintf(" AND c.email = $%d", argNum)
+		args = append(args, emailEnc)
 		argNum++
 	}
 
@@ -277,7 +282,11 @@ func ListDocumentsForReview(ctx context.Context, filters DocumentReviewFilters) 
 			return nil, fmt.Errorf("failed to scan document: %w", err)
 		}
 		if candidateName != nil {
-			d.CandidateName = *candidateName
+			// Decrypt candidate name
+			decName, _ := decryptNullableP(candidateName)
+			if decName != nil {
+				d.CandidateName = *decName
+			}
 		}
 		if prodiName != nil {
 			d.ProdiName = *prodiName
