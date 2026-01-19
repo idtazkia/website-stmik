@@ -389,3 +389,79 @@ func containsHelper(s, substr string) bool {
 	}
 	return false
 }
+
+// CommissionExportData contains data needed for CSV export
+type CommissionExportData struct {
+	ID             string
+	ReferrerName   string
+	ReferrerType   string
+	BankName       string
+	BankAccount    string
+	AccountHolder  string
+	Amount         int64
+	CandidateName  string
+	TriggerEvent   string
+	ApprovedAt     *time.Time
+}
+
+// ListCommissionsForExport returns approved commissions with bank details for CSV export
+func ListCommissionsForExport(ctx context.Context, status string) ([]CommissionExportData, error) {
+	rows, err := pool.Query(ctx, `
+		SELECT cl.id, r.name as referrer_name, r.type as referrer_type,
+		       r.bank_name, r.bank_account, r.account_holder,
+		       cl.amount, ca.name as candidate_name, cl.trigger_event, cl.approved_at
+		FROM commission_ledger cl
+		JOIN referrers r ON cl.id_referrer = r.id
+		LEFT JOIN candidates ca ON cl.id_candidate = ca.id
+		WHERE cl.status = $1
+		ORDER BY cl.approved_at ASC
+	`, status)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list commissions for export: %w", err)
+	}
+	defer rows.Close()
+
+	var commissions []CommissionExportData
+	for rows.Next() {
+		var c CommissionExportData
+		var bankName, bankAccount, accountHolder, candidateName *string
+		err := rows.Scan(
+			&c.ID, &c.ReferrerName, &c.ReferrerType,
+			&bankName, &bankAccount, &accountHolder,
+			&c.Amount, &candidateName, &c.TriggerEvent, &c.ApprovedAt,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan commission export: %w", err)
+		}
+
+		// Decrypt referrer fields using the proper decryption function
+		nameDec, _, _, bankNameDec, bankAccountDec, accountHolderDec, _, decryptErr := decryptReferrerFields(
+			c.ReferrerName, nil, nil, bankName, bankAccount, accountHolder, nil,
+		)
+		if decryptErr == nil {
+			c.ReferrerName = nameDec
+			if bankNameDec != nil {
+				c.BankName = *bankNameDec
+			}
+			if bankAccountDec != nil {
+				c.BankAccount = *bankAccountDec
+			}
+			if accountHolderDec != nil {
+				c.AccountHolder = *accountHolderDec
+			}
+		}
+
+		// Decrypt candidate name
+		if candidateName != nil {
+			decrypted, err := decryptName(*candidateName)
+			if err == nil {
+				c.CandidateName = decrypted
+			} else {
+				c.CandidateName = *candidateName
+			}
+		}
+
+		commissions = append(commissions, c)
+	}
+	return commissions, nil
+}

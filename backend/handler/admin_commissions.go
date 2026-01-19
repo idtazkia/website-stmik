@@ -234,6 +234,79 @@ func (h *AdminHandler) handleBatchMarkCommissionsPaid(w http.ResponseWriter, r *
 	w.WriteHeader(http.StatusOK)
 }
 
+func (h *AdminHandler) handleExportCommissions(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	claims := GetUserClaims(ctx)
+	if claims == nil {
+		http.Redirect(w, r, "/admin/login", http.StatusFound)
+		return
+	}
+
+	// Only admin and finance can export
+	if claims.Role != "admin" && claims.Role != "finance" {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
+	// Get status filter (default to approved for bank transfer)
+	status := r.URL.Query().Get("status")
+	if status == "" {
+		status = "approved"
+	}
+
+	// Fetch commissions with bank details
+	commissions, err := model.ListCommissionsForExport(ctx, status)
+	if err != nil {
+		log.Printf("Error listing commissions for export: %v", err)
+		http.Error(w, "Failed to export commissions", http.StatusInternalServerError)
+		return
+	}
+
+	// Set headers for CSV download
+	filename := fmt.Sprintf("commissions_%s_%s.csv", status, strings.ReplaceAll(strings.Split(r.Header.Get("Date"), " ")[0], "-", ""))
+	w.Header().Set("Content-Type", "text/csv; charset=utf-8")
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s", filename))
+
+	// Write BOM for Excel UTF-8 compatibility
+	w.Write([]byte{0xEF, 0xBB, 0xBF})
+
+	// Write CSV header
+	w.Write([]byte("No,Nama Referrer,Tipe,Nama Bank,No Rekening,Atas Nama,Jumlah,Kandidat,Trigger Event,Tanggal Approve\n"))
+
+	// Write data rows
+	for i, c := range commissions {
+		approvedAt := ""
+		if c.ApprovedAt != nil {
+			approvedAt = c.ApprovedAt.Format("2006-01-02")
+		}
+
+		row := fmt.Sprintf("%d,%s,%s,%s,%s,%s,%d,%s,%s,%s\n",
+			i+1,
+			escapeCSV(c.ReferrerName),
+			escapeCSV(c.ReferrerType),
+			escapeCSV(c.BankName),
+			escapeCSV(c.BankAccount),
+			escapeCSV(c.AccountHolder),
+			c.Amount,
+			escapeCSV(c.CandidateName),
+			escapeCSV(c.TriggerEvent),
+			approvedAt,
+		)
+		w.Write([]byte(row))
+	}
+
+	log.Printf("Exported %d commissions (status=%s) by %s", len(commissions), status, claims.UserID)
+}
+
+// escapeCSV escapes a string for CSV format
+func escapeCSV(s string) string {
+	if strings.ContainsAny(s, ",\"\n\r") {
+		return "\"" + strings.ReplaceAll(s, "\"", "\"\"") + "\""
+	}
+	return s
+}
+
 // formatCurrency formats amount as Indonesian Rupiah
 func formatCurrency(amount int64) string {
 	if amount == 0 {

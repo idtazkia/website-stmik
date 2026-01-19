@@ -1,0 +1,126 @@
+package admin
+
+// EnrollmentFormData contains data for the enrollment modal
+type EnrollmentFormData struct {
+	CandidateID          string
+	CandidateName        string
+	ProdiName            string
+	CanEnroll            bool
+	RegistrationFeePaid  bool
+	TuitionFirstPaid     bool
+	RequiredDocsApproved bool
+	MissingDocs          []string
+	UnpaidBillings       []string
+}
+
+templ EnrollmentModal(data EnrollmentFormData) {
+	<div id="modal-enrollment" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" data-testid="modal-enrollment">
+		<div class="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4">
+			<div class="px-6 py-4 border-b flex items-center justify-between">
+				<h3 class="font-semibold text-gray-900">Enrollment - { data.CandidateName }</h3>
+				<button onclick="document.getElementById('modal-enrollment').remove()" class="text-gray-400 hover:text-gray-600" data-testid="modal-close">✕</button>
+			</div>
+			<div class="p-6 space-y-4">
+				<div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+					<p class="text-sm text-blue-800">
+						<strong>Prodi:</strong> { data.ProdiName }
+					</p>
+				</div>
+
+				<!-- Enrollment Requirements Checklist -->
+				<div class="space-y-3">
+					<h4 class="font-medium text-gray-900">Persyaratan Enrollment</h4>
+
+					<!-- Registration Fee -->
+					<div class="flex items-center gap-3">
+						if data.RegistrationFeePaid {
+							<span class="text-green-600">✓</span>
+							<span class="text-gray-700">Biaya Pendaftaran Lunas</span>
+						} else {
+							<span class="text-red-600">✗</span>
+							<span class="text-red-700">Biaya Pendaftaran Belum Lunas</span>
+						}
+					</div>
+
+					<!-- Tuition Fee -->
+					<div class="flex items-center gap-3">
+						if data.TuitionFirstPaid {
+							<span class="text-green-600">✓</span>
+							<span class="text-gray-700">Biaya Kuliah (Minimal 1x Pembayaran) Lunas</span>
+						} else {
+							<span class="text-red-600">✗</span>
+							<span class="text-red-700">Biaya Kuliah Belum Dibayar</span>
+						}
+					</div>
+
+					<!-- Required Documents -->
+					<div class="flex items-start gap-3">
+						if data.RequiredDocsApproved {
+							<span class="text-green-600">✓</span>
+							<span class="text-gray-700">Dokumen Wajib (KTP, Foto) Disetujui</span>
+						} else {
+							<span class="text-red-600 mt-0.5">✗</span>
+							<div>
+								<span class="text-red-700">Dokumen Wajib Belum Lengkap:</span>
+								<ul class="list-disc list-inside text-sm text-red-600 mt-1">
+									for _, doc := range data.MissingDocs {
+										<li>{ doc }</li>
+									}
+								</ul>
+							</div>
+						}
+					</div>
+				</div>
+
+				if data.CanEnroll {
+					<div class="bg-green-50 border border-green-200 rounded-lg p-4">
+						<p class="text-sm text-green-800">
+							Semua persyaratan terpenuhi. Kandidat dapat di-enroll.
+						</p>
+						<p class="text-xs text-green-600 mt-1">
+							NIM dan Referral Code akan dibuat otomatis.
+						</p>
+					</div>
+				} else {
+					<div class="bg-red-50 border border-red-200 rounded-lg p-4">
+						<p class="text-sm text-red-800">
+							Persyaratan belum terpenuhi. Mohon lengkapi:
+						</p>
+						<ul class="list-disc list-inside text-sm text-red-600 mt-1">
+							for _, billing := range data.UnpaidBillings {
+								<li>{ billing }</li>
+							}
+							for _, doc := range data.MissingDocs {
+								<li>Dokumen: { doc }</li>
+							}
+						</ul>
+					</div>
+				}
+
+				<div class="flex gap-2 pt-4">
+					<button type="button" onclick="document.getElementById('modal-enrollment').remove()" class="flex-1 border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50" data-testid="btn-cancel">
+						Batal
+					</button>
+					if data.CanEnroll {
+						<button
+							hx-post={ "/admin/candidates/" + data.CandidateID + "/enroll" }
+							hx-swap="none"
+							class="flex-1 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
+							data-testid="btn-confirm-enrollment"
+						>
+							Konfirmasi Enrollment
+						</button>
+					} else {
+						<button
+							disabled
+							class="flex-1 bg-gray-400 text-white px-4 py-2 rounded-md cursor-not-allowed"
+							data-testid="btn-confirm-enrollment-disabled"
+						>
+							Persyaratan Belum Lengkap
+						</button>
+					}
+				</div>
+			</div>
+		</div>
+	</div>
+}

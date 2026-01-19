@@ -28,8 +28,8 @@ type Referrer struct {
 	UpdatedAt          time.Time `json:"updated_at"`
 }
 
-// GenerateReferralCode generates a unique referral code
-func GenerateReferralCode(name, referrerType string) string {
+// GenerateReferrerCode generates a unique referral code for external referrers
+func GenerateReferrerCode(name, referrerType string) string {
 	// Create prefix from first 2 letters of type and first letter of name
 	typePrefix := strings.ToUpper(referrerType[:2])
 	namePrefix := strings.ToUpper(string(name[0]))

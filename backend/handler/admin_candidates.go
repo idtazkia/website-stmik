@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/idtazkia/stmik-admission-api/model"
 	"github.com/idtazkia/stmik-admission-api/templates/admin"
@@ -480,6 +481,270 @@ func (h *AdminHandler) handleMarkLost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Printf("Candidate %s marked as lost by %s with reason %s", candidateID, claims.UserID, lostReasonID)
+
+	// Send HTMX redirect
+	w.Header().Set("HX-Redirect", "/admin/candidates/"+candidateID)
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *AdminHandler) handleGetCommitmentModal(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	candidateID := r.PathValue("id")
+
+	// Get candidate info
+	candidate, err := model.GetCandidateDetailData(ctx, candidateID)
+	if err != nil || candidate == nil {
+		http.Error(w, "Candidate not found", http.StatusNotFound)
+		return
+	}
+
+	// Only prospecting candidates can be committed
+	if candidate.Status != "prospecting" {
+		http.Error(w, "Only prospecting candidates can be committed", http.StatusBadRequest)
+		return
+	}
+
+	// Get current academic year (simple logic: year/year+1)
+	academicYear := getCurrentAcademicYear()
+
+	// Get tuition fee for candidate's prodi
+	tuitionAmount, err := model.GetTuitionFeeForCandidate(ctx, candidateID, academicYear)
+	if err != nil {
+		log.Printf("Error getting tuition fee: %v", err)
+	}
+
+	// Get dormitory fee (global)
+	dormAmount, err := model.GetDormitoryFee(ctx, academicYear)
+	if err != nil {
+		log.Printf("Error getting dormitory fee: %v", err)
+	}
+
+	candidateName := ""
+	if candidate.Name != nil {
+		candidateName = *candidate.Name
+	}
+	prodiName := ""
+	if candidate.ProdiName != nil {
+		prodiName = *candidate.ProdiName
+	}
+
+	data := admin.CommitmentFormData{
+		CandidateID:   candidateID,
+		CandidateName: candidateName,
+		ProdiName:     prodiName,
+		TuitionAmount: tuitionAmount,
+		DormAmount:    dormAmount,
+		AcademicYear:  academicYear,
+	}
+
+	admin.CommitmentModal(data).Render(ctx, w)
+}
+
+func (h *AdminHandler) handleCommitCandidate(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	candidateID := r.PathValue("id")
+
+	// Get current user
+	claims := GetUserClaims(ctx)
+	if claims == nil {
+		http.Redirect(w, r, "/admin/login", http.StatusFound)
+		return
+	}
+
+	// Get candidate to validate
+	candidate, err := model.GetCandidateDetailData(ctx, candidateID)
+	if err != nil || candidate == nil {
+		http.Error(w, "Candidate not found", http.StatusNotFound)
+		return
+	}
+
+	// Only prospecting candidates can be committed
+	if candidate.Status != "prospecting" {
+		http.Error(w, "Only prospecting candidates can be committed", http.StatusBadRequest)
+		return
+	}
+
+	academicYear := getCurrentAcademicYear()
+
+	// Parse form values
+	tuitionInstallments := 1 // Currently only 1 is supported
+	if instStr := r.FormValue("tuition_installments"); instStr != "" {
+		if inst, err := strconv.Atoi(instStr); err == nil {
+			tuitionInstallments = inst
+		}
+	}
+
+	includeDorm := r.FormValue("include_dorm") == "true"
+	dormInstallments := 1
+	if instStr := r.FormValue("dorm_installments"); instStr != "" {
+		if inst, err := strconv.Atoi(instStr); err == nil {
+			dormInstallments = inst
+		}
+	}
+
+	// Get tuition fee
+	tuitionAmount, err := model.GetTuitionFeeForCandidate(ctx, candidateID, academicYear)
+	if err != nil {
+		log.Printf("Error getting tuition fee: %v", err)
+		http.Error(w, "Failed to get tuition fee", http.StatusInternalServerError)
+		return
+	}
+
+	// Create tuition billing
+	if tuitionAmount > 0 {
+		_, err = model.CreateTuitionBilling(ctx, candidateID, tuitionAmount, academicYear, tuitionInstallments)
+		if err != nil {
+			log.Printf("Error creating tuition billing: %v", err)
+			http.Error(w, "Failed to create tuition billing", http.StatusInternalServerError)
+			return
+		}
+		log.Printf("Created tuition billing for candidate %s: %d", candidateID, tuitionAmount)
+	}
+
+	// Create dormitory billings if included
+	if includeDorm {
+		dormAmount, err := model.GetDormitoryFee(ctx, academicYear)
+		if err != nil {
+			log.Printf("Error getting dormitory fee: %v", err)
+		}
+		if dormAmount > 0 {
+			_, err = model.CreateDormitoryBillings(ctx, candidateID, dormAmount, academicYear, dormInstallments)
+			if err != nil {
+				log.Printf("Error creating dormitory billings: %v", err)
+				http.Error(w, "Failed to create dormitory billings", http.StatusInternalServerError)
+				return
+			}
+			log.Printf("Created dormitory billings for candidate %s: %d (%d installments)", candidateID, dormAmount, dormInstallments)
+		}
+	}
+
+	// Update candidate status to committed (this also triggers commission creation)
+	err = model.UpdateCandidateStatus(ctx, candidateID, "committed")
+	if err != nil {
+		log.Printf("Error updating candidate status: %v", err)
+		http.Error(w, "Failed to update candidate status", http.StatusInternalServerError)
+		return
+	}
+
+	// Log the action as an interaction
+	remarks := "Kandidat berkomitmen untuk mendaftar"
+	_, err = model.CreateInteraction(ctx, candidateID, claims.UserID, "system", nil, nil, remarks, nil, nil)
+	if err != nil {
+		log.Printf("Error logging commitment interaction: %v", err)
+	}
+
+	log.Printf("Candidate %s committed by %s", candidateID, claims.UserID)
+
+	// Send HTMX redirect
+	w.Header().Set("HX-Redirect", "/admin/candidates/"+candidateID)
+	w.WriteHeader(http.StatusOK)
+}
+
+// getCurrentAcademicYear returns the current academic year in format "2024/2025"
+func getCurrentAcademicYear() string {
+	now := time.Now()
+	year := now.Year()
+	month := now.Month()
+	// Academic year starts in August
+	if month < 8 {
+		year--
+	}
+	return strconv.Itoa(year) + "/" + strconv.Itoa(year+1)
+}
+
+func (h *AdminHandler) handleGetEnrollmentModal(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	candidateID := r.PathValue("id")
+
+	// Get candidate info
+	candidate, err := model.GetCandidateDetailData(ctx, candidateID)
+	if err != nil || candidate == nil {
+		http.Error(w, "Candidate not found", http.StatusNotFound)
+		return
+	}
+
+	// Only committed candidates can be enrolled
+	if candidate.Status != "committed" {
+		http.Error(w, "Only committed candidates can be enrolled", http.StatusBadRequest)
+		return
+	}
+
+	// Validate enrollment requirements
+	validation, err := model.ValidateEnrollment(ctx, candidateID)
+	if err != nil {
+		log.Printf("Error validating enrollment: %v", err)
+		http.Error(w, "Failed to validate enrollment", http.StatusInternalServerError)
+		return
+	}
+
+	candidateName := ""
+	if candidate.Name != nil {
+		candidateName = *candidate.Name
+	}
+	prodiName := ""
+	if candidate.ProdiName != nil {
+		prodiName = *candidate.ProdiName
+	}
+
+	data := admin.EnrollmentFormData{
+		CandidateID:          candidateID,
+		CandidateName:        candidateName,
+		ProdiName:            prodiName,
+		CanEnroll:            validation.CanEnroll,
+		RegistrationFeePaid:  validation.RegistrationFeePaid,
+		TuitionFirstPaid:     validation.TuitionFirstPaid,
+		RequiredDocsApproved: validation.RequiredDocsApproved,
+		MissingDocs:          validation.MissingDocs,
+		UnpaidBillings:       validation.UnpaidBillings,
+	}
+
+	admin.EnrollmentModal(data).Render(ctx, w)
+}
+
+func (h *AdminHandler) handleEnrollCandidate(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	candidateID := r.PathValue("id")
+
+	// Get current user
+	claims := GetUserClaims(ctx)
+	if claims == nil {
+		http.Redirect(w, r, "/admin/login", http.StatusFound)
+		return
+	}
+
+	// Get candidate to validate
+	candidate, err := model.GetCandidateDetailData(ctx, candidateID)
+	if err != nil || candidate == nil {
+		http.Error(w, "Candidate not found", http.StatusNotFound)
+		return
+	}
+
+	// Only committed candidates can be enrolled
+	if candidate.Status != "committed" {
+		http.Error(w, "Only committed candidates can be enrolled", http.StatusBadRequest)
+		return
+	}
+
+	// Enroll the candidate (this validates requirements, generates NIM, referral code, and updates status)
+	enrolledCandidate, err := model.EnrollCandidate(ctx, candidateID)
+	if err != nil {
+		log.Printf("Error enrolling candidate: %v", err)
+		http.Error(w, "Failed to enroll candidate: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Log the action as an interaction
+	var nim string
+	if enrolledCandidate.NIM != nil {
+		nim = *enrolledCandidate.NIM
+	}
+	remarks := "Kandidat berhasil di-enroll dengan NIM: " + nim
+	_, err = model.CreateInteraction(ctx, candidateID, claims.UserID, "system", nil, nil, remarks, nil, nil)
+	if err != nil {
+		log.Printf("Error logging enrollment interaction: %v", err)
+	}
+
+	log.Printf("Candidate %s enrolled by %s with NIM %s", candidateID, claims.UserID, nim)
 
 	// Send HTMX redirect
 	w.Header().Set("HX-Redirect", "/admin/candidates/"+candidateID)

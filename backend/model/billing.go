@@ -345,3 +345,88 @@ func GetBillingStats(ctx context.Context) (unpaid, pending, paid, cancelled int,
 	}
 	return
 }
+
+// CreateTuitionBilling creates tuition billing for a committed candidate
+// installments is the number of payment installments (currently only 1 is supported)
+func CreateTuitionBilling(ctx context.Context, candidateID string, amount int64, academicYear string, installments int) (*Billing, error) {
+	desc := fmt.Sprintf("Biaya Kuliah %s", academicYear)
+	// For now, single payment - due date is 30 days from now
+	dueDate := time.Now().AddDate(0, 0, 30)
+	return CreateBilling(ctx, candidateID, BillingTypeTuition, &desc, int(amount), &dueDate)
+}
+
+// CreateDormitoryBillings creates dormitory billings for a committed candidate
+// installments determines how many billing records to create (1, 2, or 10)
+func CreateDormitoryBillings(ctx context.Context, candidateID string, totalAmount int64, academicYear string, installments int) ([]*Billing, error) {
+	if installments <= 0 {
+		installments = 1
+	}
+	if installments > 10 {
+		installments = 10
+	}
+
+	amountPerInstallment := totalAmount / int64(installments)
+	remainder := totalAmount % int64(installments)
+
+	var billings []*Billing
+	for i := 1; i <= installments; i++ {
+		amount := amountPerInstallment
+		// Add remainder to last installment
+		if i == installments {
+			amount += remainder
+		}
+
+		desc := fmt.Sprintf("Biaya Asrama %s", academicYear)
+		if installments > 1 {
+			desc = fmt.Sprintf("Biaya Asrama %s - Cicilan %d/%d", academicYear, i, installments)
+		}
+
+		// Due date: first installment 30 days, subsequent installments 30 days apart
+		dueDate := time.Now().AddDate(0, 0, 30*i)
+
+		billing, err := CreateBilling(ctx, candidateID, BillingTypeDormitory, &desc, int(amount), &dueDate)
+		if err != nil {
+			return billings, fmt.Errorf("failed to create dormitory billing %d: %w", i, err)
+		}
+		billings = append(billings, billing)
+	}
+
+	return billings, nil
+}
+
+// GetTuitionFeeForCandidate gets the tuition fee amount for a candidate's prodi and academic year
+func GetTuitionFeeForCandidate(ctx context.Context, candidateID, academicYear string) (int64, error) {
+	var amount int64
+	err := pool.QueryRow(ctx, `
+		SELECT fs.amount
+		FROM fee_structures fs
+		JOIN fee_types ft ON ft.id = fs.id_fee_type
+		JOIN candidates c ON c.id_prodi = fs.id_prodi
+		WHERE c.id = $1 AND ft.code = 'tuition' AND fs.academic_year = $2 AND fs.is_active = true
+	`, candidateID, academicYear).Scan(&amount)
+	if err == pgx.ErrNoRows {
+		return 0, nil
+	}
+	if err != nil {
+		return 0, fmt.Errorf("failed to get tuition fee: %w", err)
+	}
+	return amount, nil
+}
+
+// GetDormitoryFee gets the dormitory fee amount for an academic year (global, not per-prodi)
+func GetDormitoryFee(ctx context.Context, academicYear string) (int64, error) {
+	var amount int64
+	err := pool.QueryRow(ctx, `
+		SELECT fs.amount
+		FROM fee_structures fs
+		JOIN fee_types ft ON ft.id = fs.id_fee_type
+		WHERE ft.code = 'dormitory' AND fs.id_prodi IS NULL AND fs.academic_year = $1 AND fs.is_active = true
+	`, academicYear).Scan(&amount)
+	if err == pgx.ErrNoRows {
+		return 0, nil
+	}
+	if err != nil {
+		return 0, fmt.Errorf("failed to get dormitory fee: %w", err)
+	}
+	return amount, nil
+}
