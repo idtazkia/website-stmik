@@ -142,6 +142,11 @@ func RequireSupervisorOrAdmin(next http.Handler) http.Handler {
 	return RequireRole([]string{"admin", "supervisor"}, next)
 }
 
+// RequireFinance is a shorthand for requiring finance role only
+func RequireFinance(next http.Handler) http.Handler {
+	return RequireRole([]string{"finance"}, next)
+}
+
 // RequireFinanceOrAdmin is a shorthand for requiring finance or admin role
 func RequireFinanceOrAdmin(next http.Handler) http.Handler {
 	return RequireRole([]string{"admin", "finance"}, next)

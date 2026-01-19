@@ -79,7 +79,7 @@ func (h *AdminHandler) handleUsersSettings(w http.ResponseWriter, r *http.Reques
 		slog.Error("failed to count users", "error", err)
 	}
 	stats := admin.UserStats{
-		Total:      counts["admin"] + counts["supervisor"] + counts["consultant"],
+		Total:      counts["admin"] + counts["supervisor"] + counts["consultant"] + counts["finance"] + counts["academic"],
 		Admin:      counts["admin"],
 		Supervisor: counts["supervisor"],
 		Consultant: counts["consultant"],

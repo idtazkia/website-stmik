@@ -1,17 +1,5 @@
--- Seed data for Phase 1
-
--- Test Users (for development/testing)
-INSERT INTO users (email, name, role, is_active) VALUES
-    ('admin@tazkia.ac.id', 'Admin User', 'admin', true),
-    ('supervisor@tazkia.ac.id', 'Supervisor User', 'supervisor', true),
-    ('consultant1@tazkia.ac.id', 'Consultant One', 'consultant', true),
-    ('consultant2@tazkia.ac.id', 'Consultant Two', 'consultant', true),
-    ('finance@tazkia.ac.id', 'Finance User', 'finance', true),
-    ('academic@tazkia.ac.id', 'Academic User', 'academic', true);
-
--- Assign supervisor to consultants
-UPDATE users SET id_supervisor = (SELECT id FROM users WHERE email = 'supervisor@tazkia.ac.id')
-WHERE role = 'consultant';
+-- Production seed data for Phase 1
+-- Note: Test users are created dynamically by the /test/login endpoint
 
 -- Fee Types
 INSERT INTO fee_types (name, code, is_recurring, installment_options) VALUES
