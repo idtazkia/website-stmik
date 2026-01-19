@@ -218,6 +218,20 @@ async function scrapeLinkedInProfile(url: string) {
   }
 }
 
+/**
+ * Validates that a URL is a proper LinkedIn profile URL.
+ * Uses URL parsing to prevent URL injection attacks.
+ */
+function isValidLinkedInUrl(urlString: string): boolean {
+  try {
+    const url = new URL(urlString);
+    // Only accept linkedin.com or www.linkedin.com as the hostname
+    return url.hostname === 'linkedin.com' || url.hostname === 'www.linkedin.com';
+  } catch {
+    return false;
+  }
+}
+
 // Main execution
 const args = process.argv.slice(2);
 
@@ -231,7 +245,7 @@ if (args.includes('--login')) {
       console.error('Login failed:', error);
       process.exit(1);
     });
-} else if (args.length > 0 && args[0].includes('linkedin.com')) {
+} else if (args.length > 0 && isValidLinkedInUrl(args[0])) {
   scrapeLinkedInProfile(args[0])
     .then(() => {
       console.log('\n=== Scraping completed ===');

@@ -26,8 +26,9 @@ type EncryptionConfig struct {
 // which is header-based (Sec-Fetch-Site, Origin) and doesn't require keys
 
 type ServerConfig struct {
-	Port string
-	Host string
+	Port         string
+	Host         string
+	SecureCookie bool // true for HTTPS production environments
 }
 
 type DatabaseConfig struct {
@@ -89,10 +90,13 @@ func Load() (*Config, error) {
 		return nil, fmt.Errorf("invalid MAX_UPLOAD_SIZE_MB: %w", err)
 	}
 
+	secureCookie := getEnv("SECURE_COOKIE", "false") == "true"
+
 	return &Config{
 		Server: ServerConfig{
-			Port: getEnv("SERVER_PORT", "8080"),
-			Host: getEnv("SERVER_HOST", "localhost"),
+			Port:         getEnv("SERVER_PORT", "8080"),
+			Host:         getEnv("SERVER_HOST", "localhost"),
+			SecureCookie: secureCookie,
 		},
 		Database: DatabaseConfig{
 			Host:     getEnvRequired("DATABASE_HOST"),
