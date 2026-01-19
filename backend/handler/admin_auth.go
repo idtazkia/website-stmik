@@ -94,10 +94,13 @@ func (h *AdminAuthHandler) handleGoogleCallback(w http.ResponseWriter, r *http.R
 
 	// Clear state cookie
 	http.SetCookie(w, &http.Cookie{
-		Name:   OAuthStateCookie,
-		Value:  "",
-		Path:   "/",
-		MaxAge: -1,
+		Name:     OAuthStateCookie,
+		Value:    "",
+		Path:     "/",
+		MaxAge:   -1,
+		HttpOnly: true,
+		Secure:   r.TLS != nil,
+		SameSite: http.SameSiteLaxMode,
 	})
 
 	// Check for error from Google

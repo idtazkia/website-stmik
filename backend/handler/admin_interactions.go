@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"html"
 	"log"
 	"net/http"
 	"time"
@@ -219,15 +220,19 @@ func (h *AdminHandler) handleAddSuggestion(w http.ResponseWriter, r *http.Reques
 	// Check if HTMX request
 	if r.Header.Get("HX-Request") == "true" {
 		// Return the suggestion section HTML
+		// Escape user input to prevent XSS
+		safeSuggestion := html.EscapeString(suggestion)
+		safeID := html.EscapeString(interactionID)
+
 		w.Header().Set("Content-Type", "text/html")
 		w.WriteHeader(http.StatusOK)
-		html := `<div class="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded" data-testid="interaction-suggestion">
+		htmlContent := `<div class="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded" data-testid="interaction-suggestion">
 			<p class="text-sm font-medium text-yellow-800">Saran Supervisor:</p>
-			<p class="text-sm text-yellow-700">` + suggestion + `</p>
-			<div id="suggestion-read-` + interactionID + `">
+			<p class="text-sm text-yellow-700">` + safeSuggestion + `</p>
+			<div id="suggestion-read-` + safeID + `">
 				<button
-					hx-post="/admin/interactions/` + interactionID + `/mark-read"
-					hx-target="#suggestion-read-` + interactionID + `"
+					hx-post="/admin/interactions/` + safeID + `/mark-read"
+					hx-target="#suggestion-read-` + safeID + `"
 					hx-swap="innerHTML"
 					class="text-xs text-yellow-800 font-medium hover:underline"
 					data-testid="btn-mark-read"
@@ -236,7 +241,7 @@ func (h *AdminHandler) handleAddSuggestion(w http.ResponseWriter, r *http.Reques
 				</button>
 			</div>
 		</div>`
-		w.Write([]byte(html))
+		w.Write([]byte(htmlContent))
 		return
 	}
 

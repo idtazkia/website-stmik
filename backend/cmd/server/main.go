@@ -58,7 +58,7 @@ func main() {
 	sessionMgr := auth.NewSessionManager(
 		cfg.JWT.Secret,
 		time.Duration(cfg.JWT.ExpirationHours)*time.Hour,
-		false, // secure=false for development
+		cfg.Server.SecureCookie,
 	)
 
 	// Initialize integration clients (optional - nil if not configured)
