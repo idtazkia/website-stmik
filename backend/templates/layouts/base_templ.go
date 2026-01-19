@@ -71,6 +71,11 @@ func canAccessSettings(role string) bool {
 	return role == "admin"
 }
 
+// isSupervisor returns true if the role is supervisor
+func isSupervisor(role string) bool {
+	return role == "supervisor"
+}
+
 // PageData contains common data for all pages
 // Note: CSRF protection uses Go 1.25's http.CrossOriginProtection (header-based)
 // No token fields needed - uses Sec-Fetch-Site and Origin headers
@@ -110,7 +115,7 @@ func Base(data PageData) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(data.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layouts/base.templ`, Line: 83, Col: 22}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layouts/base.templ`, Line: 88, Col: 22}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -180,7 +185,7 @@ func Portal(data PageData) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(data.Version)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layouts/base.templ`, Line: 116, Col: 132}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layouts/base.templ`, Line: 121, Col: 132}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -250,7 +255,7 @@ func Admin(data PageData) templ.Component {
 					var templ_7745c5c3_Var8 string
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.UnreadSuggestions))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layouts/base.templ`, Line: 140, Col: 162}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layouts/base.templ`, Line: 145, Col: 162}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {
@@ -261,113 +266,123 @@ func Admin(data PageData) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</a> <a href=\"/admin/candidates\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-candidates\"><span class=\"mr-2\">👥</span> Kandidat</a> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</a> ")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				if isSupervisor(data.UserRole) {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<a href=\"/admin/supervisor-dashboard\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-supervisor-dashboard\"><span class=\"mr-2\">👔</span> Dashboard Tim</a>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, " <a href=\"/admin/candidates\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-candidates\"><span class=\"mr-2\">👥</span> Kandidat</a> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
 			if canAccessAcademic(data.UserRole) {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<a href=\"/admin/documents\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-documents\"><span class=\"mr-2\">📄</span> Review Dokumen</a> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<a href=\"/admin/documents\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-documents\"><span class=\"mr-2\">📄</span> Review Dokumen</a> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
 			if canAccessMarketing(data.UserRole) {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<a href=\"/admin/announcements\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-announcements\"><span class=\"mr-2\">📣</span> Pengumuman</a> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<a href=\"/admin/announcements\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-announcements\"><span class=\"mr-2\">📣</span> Pengumuman</a> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
 			if canAccessFinance(data.UserRole) {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div class=\"px-4 py-2 text-primary-400 text-xs uppercase tracking-wider mt-4\">Keuangan</div><a href=\"/admin/finance/billings\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-billings\"><span class=\"mr-2\">🧾</span> Tagihan</a> <a href=\"/admin/finance/payments\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-payments\"><span class=\"mr-2\">💳</span> Verifikasi Pembayaran</a> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div class=\"px-4 py-2 text-primary-400 text-xs uppercase tracking-wider mt-4\">Keuangan</div><a href=\"/admin/finance/billings\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-billings\"><span class=\"mr-2\">🧾</span> Tagihan</a> <a href=\"/admin/finance/payments\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-payments\"><span class=\"mr-2\">💳</span> Verifikasi Pembayaran</a> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
 			if canAccessMarketing(data.UserRole) {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<div class=\"px-4 py-2 text-primary-400 text-xs uppercase tracking-wider mt-4\">Marketing</div><a href=\"/admin/campaigns\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-campaigns\"><span class=\"mr-2\">📢</span> Kampanye</a> <a href=\"/admin/referrers\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-referrers\"><span class=\"mr-2\">🤝</span> Referrer</a> <a href=\"/admin/referral-claims\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-claims\"><span class=\"mr-2\">🔍</span> Klaim Referral</a> <a href=\"/admin/commissions\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-commissions\"><span class=\"mr-2\">💰</span> Komisi</a> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div class=\"px-4 py-2 text-primary-400 text-xs uppercase tracking-wider mt-4\">Marketing</div><a href=\"/admin/campaigns\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-campaigns\"><span class=\"mr-2\">📢</span> Kampanye</a> <a href=\"/admin/referrers\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-referrers\"><span class=\"mr-2\">🤝</span> Referrer</a> <a href=\"/admin/referral-claims\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-claims\"><span class=\"mr-2\">🔍</span> Klaim Referral</a> <a href=\"/admin/commissions\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-commissions\"><span class=\"mr-2\">💰</span> Komisi</a> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
 			if canAccessReports(data.UserRole) {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div class=\"px-4 py-2 text-primary-400 text-xs uppercase tracking-wider mt-4\">Reports</div><a href=\"/admin/reports/funnel\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-funnel\"><span class=\"mr-2\">📈</span> Funnel</a> <a href=\"/admin/reports/consultants\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-consultants\"><span class=\"mr-2\">👤</span> Performa Konsultan</a> <a href=\"/admin/reports/campaigns\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-campaign-roi\"><span class=\"mr-2\">📊</span> ROI Kampanye</a> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<div class=\"px-4 py-2 text-primary-400 text-xs uppercase tracking-wider mt-4\">Reports</div><a href=\"/admin/reports/funnel\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-funnel\"><span class=\"mr-2\">📈</span> Funnel</a> <a href=\"/admin/reports/consultants\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-consultants\"><span class=\"mr-2\">👤</span> Performa Konsultan</a> <a href=\"/admin/reports/campaigns\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-campaign-roi\"><span class=\"mr-2\">📊</span> ROI Kampanye</a> <a href=\"/admin/reports/referrers\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-referrer-leaderboard\"><span class=\"mr-2\">🏆</span> Leaderboard Referrer</a> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
 			if canAccessSettings(data.UserRole) {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div class=\"px-4 py-2 text-primary-400 text-xs uppercase tracking-wider mt-4\">Settings</div><a href=\"/admin/settings/users\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-users\"><span class=\"mr-2\">👤</span> Users</a> <a href=\"/admin/settings/programs\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-programs\"><span class=\"mr-2\">🎓</span> Prodi</a> <a href=\"/admin/settings/fees\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-fees\"><span class=\"mr-2\">💵</span> Biaya</a> <a href=\"/admin/settings/rewards\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-rewards\"><span class=\"mr-2\">🎁</span> Reward</a> <a href=\"/admin/settings/categories\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-categories\"><span class=\"mr-2\">🏷️</span> Kategori</a>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<div class=\"px-4 py-2 text-primary-400 text-xs uppercase tracking-wider mt-4\">Settings</div><a href=\"/admin/settings/users\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-users\"><span class=\"mr-2\">👤</span> Users</a> <a href=\"/admin/settings/programs\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-programs\"><span class=\"mr-2\">🎓</span> Prodi</a> <a href=\"/admin/settings/fees\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-fees\"><span class=\"mr-2\">💵</span> Biaya</a> <a href=\"/admin/settings/rewards\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-rewards\"><span class=\"mr-2\">🎁</span> Reward</a> <a href=\"/admin/settings/categories\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-categories\"><span class=\"mr-2\">🏷️</span> Kategori</a>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</nav><div class=\"absolute bottom-0 w-64 p-4 border-t border-primary-800 bg-primary-900\"><div class=\"flex items-center gap-2 mb-2\"><span class=\"w-8 h-8 bg-primary-700 rounded-full flex items-center justify-center text-sm\" data-testid=\"user-avatar\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</nav><div class=\"absolute bottom-0 w-64 p-4 border-t border-primary-800 bg-primary-900\"><div class=\"flex items-center gap-2 mb-2\"><span class=\"w-8 h-8 bg-primary-700 rounded-full flex items-center justify-center text-sm\" data-testid=\"user-avatar\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(userInitials(data.UserName))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layouts/base.templ`, Line: 214, Col: 152}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layouts/base.templ`, Line: 227, Col: 152}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</span><div class=\"text-sm\"><p class=\"font-medium\" data-testid=\"user-name\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</span><div class=\"text-sm\"><p class=\"font-medium\" data-testid=\"user-name\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(data.UserName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layouts/base.templ`, Line: 216, Col: 69}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layouts/base.templ`, Line: 229, Col: 69}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</p><p class=\"text-primary-400 text-xs\" data-testid=\"user-role\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</p><p class=\"text-primary-400 text-xs\" data-testid=\"user-role\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(roleLabel(data.UserRole))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layouts/base.templ`, Line: 217, Col: 93}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layouts/base.templ`, Line: 230, Col: 93}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</p></div></div><form action=\"/admin/logout\" method=\"POST\" class=\"inline\"><button type=\"submit\" class=\"block text-sm hover:text-secondary-400\" data-testid=\"btn-logout\">Logout</button></form><span class=\"block mt-2 text-primary-400 font-mono text-xs\" title=\"Git commit hash for bug reports\" data-testid=\"version-info\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</p></div></div><form action=\"/admin/logout\" method=\"POST\" class=\"inline\"><button type=\"submit\" class=\"block text-sm hover:text-secondary-400\" data-testid=\"btn-logout\">Logout</button></form><span class=\"block mt-2 text-primary-400 font-mono text-xs\" title=\"Git commit hash for bug reports\" data-testid=\"version-info\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(data.Version)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layouts/base.templ`, Line: 223, Col: 146}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layouts/base.templ`, Line: 236, Col: 146}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</span></div></aside><!-- Main content --><div class=\"flex-1 flex flex-col min-w-0\"><header class=\"bg-white shadow-sm border-b px-6 py-4\" data-testid=\"admin-header\"><h1 class=\"text-xl font-semibold text-gray-800\" data-testid=\"page-title\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</span></div></aside><!-- Main content --><div class=\"flex-1 flex flex-col min-w-0\"><header class=\"bg-white shadow-sm border-b px-6 py-4\" data-testid=\"admin-header\"><h1 class=\"text-xl font-semibold text-gray-800\" data-testid=\"page-title\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(data.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layouts/base.templ`, Line: 229, Col: 90}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layouts/base.templ`, Line: 242, Col: 90}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</h1></header><main class=\"flex-1 p-6 bg-gray-50 overflow-auto\" data-testid=\"admin-main\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</h1></header><main class=\"flex-1 p-6 bg-gray-50 overflow-auto\" data-testid=\"admin-main\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -375,7 +390,7 @@ func Admin(data PageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</main></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</main></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -422,7 +437,7 @@ func Auth(data PageData) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<div class=\"min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-primary-50 to-secondary-50\" data-testid=\"auth-container\"><div class=\"w-full max-w-md\" data-testid=\"auth-form-container\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<div class=\"min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-primary-50 to-secondary-50\" data-testid=\"auth-container\"><div class=\"w-full max-w-md\" data-testid=\"auth-form-container\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -430,20 +445,20 @@ func Auth(data PageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</div><div class=\"mt-8 text-gray-400 font-mono text-xs\" title=\"Git commit hash for bug reports\" data-testid=\"version-info\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</div><div class=\"mt-8 text-gray-400 font-mono text-xs\" title=\"Git commit hash for bug reports\" data-testid=\"version-info\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var16 string
 			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(data.Version)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layouts/base.templ`, Line: 246, Col: 18}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layouts/base.templ`, Line: 259, Col: 18}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

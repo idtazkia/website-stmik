@@ -32,6 +32,9 @@ func (h *AdminHandler) RegisterRoutes(mux *http.ServeMux) {
 	// Consultant personal dashboard
 	mux.Handle("GET /admin/my-dashboard", protected(h.handleConsultantDashboardReal))
 
+	// Supervisor dashboard
+	mux.Handle("GET /admin/supervisor-dashboard", protected(h.handleSupervisorDashboard))
+
 	// Candidates
 	mux.Handle("GET /admin/candidates", protected(h.handleCandidates))
 	mux.Handle("GET /admin/candidates/{id}", protected(h.handleCandidateDetail))
@@ -72,6 +75,7 @@ func (h *AdminHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.Handle("GET /admin/reports/funnel", protected(h.handleFunnelReport))
 	mux.Handle("GET /admin/reports/consultants", protected(h.handleConsultantsReport))
 	mux.Handle("GET /admin/reports/campaigns", protected(h.handleCampaignsReport))
+	mux.Handle("GET /admin/reports/referrers", protected(h.handleReferrersReport))
 
 	// Settings - Users
 	mux.Handle("GET /admin/settings/users", protected(h.handleUsersSettings))

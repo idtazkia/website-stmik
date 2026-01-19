@@ -19,7 +19,7 @@ type FunnelConversion struct {
 
 templ ReportFunnel(data layouts.PageData, stages []FunnelStage, conversions []FunnelConversion) {
 	@layouts.Admin(data) {
-		<div class="space-y-6">
+		<div class="space-y-6" data-testid="funnel-report-page">
 			<!-- Header -->
 			<div class="flex items-center justify-between">
 				<div>
