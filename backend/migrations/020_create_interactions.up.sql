@@ -1,11 +1,11 @@
 -- Interactions table for logging candidate communications
 CREATE TABLE interactions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    candidate_id UUID NOT NULL REFERENCES candidates(id) ON DELETE CASCADE,
-    consultant_id UUID NOT NULL REFERENCES users(id),
+    id_candidate UUID NOT NULL REFERENCES candidates(id) ON DELETE CASCADE,
+    id_consultant UUID NOT NULL REFERENCES users(id),
     channel VARCHAR(50) NOT NULL, -- call, whatsapp, email, campus_visit, home_visit
-    category_id UUID REFERENCES interaction_categories(id),
-    obstacle_id UUID REFERENCES obstacles(id),
+    id_category UUID REFERENCES interaction_categories(id),
+    id_obstacle UUID REFERENCES obstacles(id),
     remarks TEXT NOT NULL,
     next_followup_date DATE,
     next_action TEXT,
@@ -15,8 +15,8 @@ CREATE TABLE interactions (
 );
 
 -- Indexes for common queries
-CREATE INDEX idx_interactions_candidate ON interactions(candidate_id);
-CREATE INDEX idx_interactions_consultant ON interactions(consultant_id);
+CREATE INDEX idx_interactions_id_candidate ON interactions(id_candidate);
+CREATE INDEX idx_interactions_id_consultant ON interactions(id_consultant);
 CREATE INDEX idx_interactions_created_at ON interactions(created_at DESC);
 CREATE INDEX idx_interactions_followup ON interactions(next_followup_date) WHERE next_followup_date IS NOT NULL;
 

@@ -26,7 +26,7 @@ const (
 // Billing represents a billing record for a candidate
 type Billing struct {
 	ID          string     `json:"id"`
-	CandidateID string     `json:"candidate_id"`
+	CandidateID string     `json:"id_candidate"`
 	BillingType string     `json:"billing_type"`
 	Description *string    `json:"description,omitempty"`
 	Amount      int        `json:"amount"` // in IDR
@@ -51,9 +51,9 @@ type BillingWithPayment struct {
 func CreateBilling(ctx context.Context, candidateID, billingType string, description *string, amount int, dueDate *time.Time) (*Billing, error) {
 	var b Billing
 	err := pool.QueryRow(ctx, `
-		INSERT INTO billings (candidate_id, billing_type, description, amount, due_date)
+		INSERT INTO billings (id_candidate, billing_type, description, amount, due_date)
 		VALUES ($1, $2, $3, $4, $5)
-		RETURNING id, candidate_id, billing_type, description, amount, due_date, status, paid_at, created_at, updated_at
+		RETURNING id, id_candidate, billing_type, description, amount, due_date, status, paid_at, created_at, updated_at
 	`, candidateID, billingType, description, amount, dueDate).Scan(
 		&b.ID, &b.CandidateID, &b.BillingType, &b.Description, &b.Amount,
 		&b.DueDate, &b.Status, &b.PaidAt, &b.CreatedAt, &b.UpdatedAt,
@@ -68,7 +68,7 @@ func CreateBilling(ctx context.Context, candidateID, billingType string, descrip
 func FindBillingByID(ctx context.Context, id string) (*Billing, error) {
 	var b Billing
 	err := pool.QueryRow(ctx, `
-		SELECT id, candidate_id, billing_type, description, amount, due_date, status, paid_at, created_at, updated_at
+		SELECT id, id_candidate, billing_type, description, amount, due_date, status, paid_at, created_at, updated_at
 		FROM billings
 		WHERE id = $1
 	`, id).Scan(
@@ -87,7 +87,7 @@ func FindBillingByID(ctx context.Context, id string) (*Billing, error) {
 // ListBillingsByCandidate returns all billings for a candidate with latest payment info
 func ListBillingsByCandidate(ctx context.Context, candidateID string) ([]BillingWithPayment, error) {
 	rows, err := pool.Query(ctx, `
-		SELECT b.id, b.candidate_id, b.billing_type, b.description, b.amount, b.due_date,
+		SELECT b.id, b.id_candidate, b.billing_type, b.description, b.amount, b.due_date,
 		       b.status, b.paid_at, b.created_at, b.updated_at,
 		       p.id as payment_id, p.amount as payment_amount, p.status as payment_status,
 		       p.proof_file_path, p.transfer_date
@@ -95,11 +95,11 @@ func ListBillingsByCandidate(ctx context.Context, candidateID string) ([]Billing
 		LEFT JOIN LATERAL (
 			SELECT id, amount, status, proof_file_path, transfer_date
 			FROM payments
-			WHERE billing_id = b.id
+			WHERE id_billing = b.id
 			ORDER BY created_at DESC
 			LIMIT 1
 		) p ON true
-		WHERE b.candidate_id = $1
+		WHERE b.id_candidate = $1
 		ORDER BY b.created_at
 	`, candidateID)
 	if err != nil {
@@ -131,7 +131,7 @@ func GetBillingSummary(ctx context.Context, candidateID string) (totalDue, total
 			COALESCE(SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END), 0) as total_paid,
 			COALESCE(SUM(CASE WHEN status = 'pending_verification' THEN amount ELSE 0 END), 0) as total_pending
 		FROM billings
-		WHERE candidate_id = $1
+		WHERE id_candidate = $1
 	`, candidateID).Scan(&totalDue, &totalPaid, &totalPending)
 	if err != nil {
 		err = fmt.Errorf("failed to get billing summary: %w", err)
@@ -216,8 +216,8 @@ func ListAllBillings(ctx context.Context, filters BillingFilters) ([]BillingWith
 	// Build query
 	baseQuery := `
 		FROM billings b
-		JOIN candidates c ON c.id = b.candidate_id
-		LEFT JOIN prodis p ON p.id = c.prodi_id
+		JOIN candidates c ON c.id = b.id_candidate
+		LEFT JOIN prodis p ON p.id = c.id_prodi
 		WHERE 1=1
 	`
 	args := []any{}
@@ -258,7 +258,7 @@ func ListAllBillings(ctx context.Context, filters BillingFilters) ([]BillingWith
 
 	// Get billings
 	selectQuery := `
-		SELECT b.id, b.candidate_id, b.billing_type, b.description, b.amount, b.due_date,
+		SELECT b.id, b.id_candidate, b.billing_type, b.description, b.amount, b.due_date,
 		       b.status, b.paid_at, b.created_at, b.updated_at,
 		       c.name, c.email, p.name as prodi_name
 	` + baseQuery + fmt.Sprintf(" ORDER BY b.created_at DESC LIMIT $%d OFFSET $%d", argCount+1, argCount+2)

@@ -12,15 +12,15 @@ CREATE TABLE candidates (
     province VARCHAR(100),
     high_school VARCHAR(255),
     graduation_year INT,
-    prodi_id UUID REFERENCES prodis(id),
-    campaign_id UUID REFERENCES campaigns(id),
-    referrer_id UUID REFERENCES referrers(id),
-    referred_by_candidate_id UUID REFERENCES candidates(id),
+    id_prodi UUID REFERENCES prodis(id),
+    id_campaign UUID REFERENCES campaigns(id),
+    id_referrer UUID REFERENCES referrers(id),
+    id_referred_by_candidate UUID REFERENCES candidates(id),
     source_type VARCHAR(50),
     source_detail TEXT,
-    assigned_consultant_id UUID REFERENCES users(id),
+    id_assigned_consultant UUID REFERENCES users(id),
     status VARCHAR(20) DEFAULT 'registered' CHECK (status IN ('registered', 'prospecting', 'committed', 'enrolled', 'lost')),
-    lost_reason_id UUID REFERENCES lost_reasons(id),
+    id_lost_reason UUID REFERENCES lost_reasons(id),
     lost_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -31,10 +31,10 @@ CREATE TABLE candidates (
 CREATE INDEX idx_candidates_email ON candidates(email) WHERE email IS NOT NULL;
 CREATE INDEX idx_candidates_phone ON candidates(phone) WHERE phone IS NOT NULL;
 CREATE INDEX idx_candidates_status ON candidates(status);
-CREATE INDEX idx_candidates_assigned ON candidates(assigned_consultant_id);
-CREATE INDEX idx_candidates_prodi ON candidates(prodi_id);
-CREATE INDEX idx_candidates_campaign ON candidates(campaign_id);
-CREATE INDEX idx_candidates_referrer ON candidates(referrer_id);
+CREATE INDEX idx_candidates_assigned ON candidates(id_assigned_consultant);
+CREATE INDEX idx_candidates_prodi ON candidates(id_prodi);
+CREATE INDEX idx_candidates_campaign ON candidates(id_campaign);
+CREATE INDEX idx_candidates_referrer ON candidates(id_referrer);
 
 -- Trigger for updated_at
 CREATE TRIGGER update_candidates_updated_at

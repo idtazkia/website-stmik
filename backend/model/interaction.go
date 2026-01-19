@@ -43,9 +43,9 @@ func CreateInteraction(ctx context.Context, candidateID, consultantID, channel s
 
 	var interaction Interaction
 	err = tx.QueryRow(ctx, `
-		INSERT INTO interactions (candidate_id, consultant_id, channel, category_id, obstacle_id, remarks, next_followup_date, next_action)
+		INSERT INTO interactions (id_candidate, id_consultant, channel, id_category, id_obstacle, remarks, next_followup_date, next_action)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-		RETURNING id, candidate_id, consultant_id, channel, category_id, obstacle_id, remarks, next_followup_date, next_action, supervisor_suggestion, suggestion_read_at, created_at
+		RETURNING id, id_candidate, id_consultant, channel, id_category, id_obstacle, remarks, next_followup_date, next_action, supervisor_suggestion, suggestion_read_at, created_at
 	`, candidateID, consultantID, channel, categoryID, obstacleID, remarks, nextFollowupDate, nextAction).Scan(
 		&interaction.ID, &interaction.CandidateID, &interaction.ConsultantID, &interaction.Channel,
 		&interaction.CategoryID, &interaction.ObstacleID, &interaction.Remarks,
@@ -75,7 +75,7 @@ func CreateInteraction(ctx context.Context, candidateID, consultantID, channel s
 func FindInteractionByID(ctx context.Context, id string) (*Interaction, error) {
 	var interaction Interaction
 	err := pool.QueryRow(ctx, `
-		SELECT id, candidate_id, consultant_id, channel, category_id, obstacle_id, remarks,
+		SELECT id, id_candidate, id_consultant, channel, id_category, id_obstacle, remarks,
 		       next_followup_date, next_action, supervisor_suggestion, suggestion_read_at, created_at
 		FROM interactions WHERE id = $1
 	`, id).Scan(
@@ -96,16 +96,16 @@ func FindInteractionByID(ctx context.Context, id string) (*Interaction, error) {
 // ListInteractionsByCandidate returns all interactions for a candidate with details
 func ListInteractionsByCandidate(ctx context.Context, candidateID string) ([]InteractionWithDetails, error) {
 	rows, err := pool.Query(ctx, `
-		SELECT i.id, i.candidate_id, i.consultant_id, i.channel, i.category_id, i.obstacle_id, i.remarks,
+		SELECT i.id, i.id_candidate, i.id_consultant, i.channel, i.id_category, i.id_obstacle, i.remarks,
 		       i.next_followup_date, i.next_action, i.supervisor_suggestion, i.suggestion_read_at, i.created_at,
 		       u.name as consultant_name,
 		       ic.name as category_name, ic.sentiment as category_sentiment,
 		       o.name as obstacle_name
 		FROM interactions i
-		LEFT JOIN users u ON u.id = i.consultant_id
-		LEFT JOIN interaction_categories ic ON ic.id = i.category_id
-		LEFT JOIN obstacles o ON o.id = i.obstacle_id
-		WHERE i.candidate_id = $1
+		LEFT JOIN users u ON u.id = i.id_consultant
+		LEFT JOIN interaction_categories ic ON ic.id = i.id_category
+		LEFT JOIN obstacles o ON o.id = i.id_obstacle
+		WHERE i.id_candidate = $1
 		ORDER BY i.created_at DESC
 	`, candidateID)
 	if err != nil {
@@ -135,16 +135,16 @@ func ListInteractionsByConsultant(ctx context.Context, consultantID string, limi
 		limit = 20
 	}
 	rows, err := pool.Query(ctx, `
-		SELECT i.id, i.candidate_id, i.consultant_id, i.channel, i.category_id, i.obstacle_id, i.remarks,
+		SELECT i.id, i.id_candidate, i.id_consultant, i.channel, i.id_category, i.id_obstacle, i.remarks,
 		       i.next_followup_date, i.next_action, i.supervisor_suggestion, i.suggestion_read_at, i.created_at,
 		       u.name as consultant_name,
 		       ic.name as category_name, ic.sentiment as category_sentiment,
 		       o.name as obstacle_name
 		FROM interactions i
-		LEFT JOIN users u ON u.id = i.consultant_id
-		LEFT JOIN interaction_categories ic ON ic.id = i.category_id
-		LEFT JOIN obstacles o ON o.id = i.obstacle_id
-		WHERE i.consultant_id = $1
+		LEFT JOIN users u ON u.id = i.id_consultant
+		LEFT JOIN interaction_categories ic ON ic.id = i.id_category
+		LEFT JOIN obstacles o ON o.id = i.id_obstacle
+		WHERE i.id_consultant = $1
 		ORDER BY i.created_at DESC
 		LIMIT $2 OFFSET $3
 	`, consultantID, limit, offset)
@@ -194,22 +194,22 @@ func MarkSuggestionRead(ctx context.Context, id string) error {
 // GetPendingFollowups returns candidates with overdue or upcoming followups
 func GetPendingFollowups(ctx context.Context, consultantID string, days int) ([]InteractionWithDetails, error) {
 	rows, err := pool.Query(ctx, `
-		SELECT DISTINCT ON (i.candidate_id)
-		       i.id, i.candidate_id, i.consultant_id, i.channel, i.category_id, i.obstacle_id, i.remarks,
+		SELECT DISTINCT ON (i.id_candidate)
+		       i.id, i.id_candidate, i.id_consultant, i.channel, i.id_category, i.id_obstacle, i.remarks,
 		       i.next_followup_date, i.next_action, i.supervisor_suggestion, i.suggestion_read_at, i.created_at,
 		       u.name as consultant_name,
 		       ic.name as category_name, ic.sentiment as category_sentiment,
 		       o.name as obstacle_name
 		FROM interactions i
-		LEFT JOIN users u ON u.id = i.consultant_id
-		LEFT JOIN interaction_categories ic ON ic.id = i.category_id
-		LEFT JOIN obstacles o ON o.id = i.obstacle_id
-		JOIN candidates c ON c.id = i.candidate_id
-		WHERE i.consultant_id = $1
+		LEFT JOIN users u ON u.id = i.id_consultant
+		LEFT JOIN interaction_categories ic ON ic.id = i.id_category
+		LEFT JOIN obstacles o ON o.id = i.id_obstacle
+		JOIN candidates c ON c.id = i.id_candidate
+		WHERE i.id_consultant = $1
 		  AND i.next_followup_date IS NOT NULL
 		  AND i.next_followup_date <= CURRENT_DATE + $2
 		  AND c.status NOT IN ('enrolled', 'lost')
-		ORDER BY i.candidate_id, i.created_at DESC
+		ORDER BY i.id_candidate, i.created_at DESC
 	`, consultantID, days)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get pending followups: %w", err)
@@ -237,7 +237,7 @@ func CountUnreadSuggestions(ctx context.Context, consultantID string) (int, erro
 	var count int
 	err := pool.QueryRow(ctx, `
 		SELECT COUNT(*) FROM interactions
-		WHERE consultant_id = $1
+		WHERE id_consultant = $1
 		  AND supervisor_suggestion IS NOT NULL
 		  AND suggestion_read_at IS NULL
 	`, consultantID).Scan(&count)
