@@ -41,6 +41,10 @@ func (h *AdminHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.Handle("GET /admin/reassign-modal", protected(h.handleGetConsultantsForReassign))
 	mux.Handle("GET /admin/candidates/{id}/lost-modal", protected(h.handleGetLostModal))
 	mux.Handle("POST /admin/candidates/{id}/lost", protected(h.handleMarkLost))
+	mux.Handle("GET /admin/candidates/{id}/commitment-modal", protected(h.handleGetCommitmentModal))
+	mux.Handle("POST /admin/candidates/{id}/commit", protected(h.handleCommitCandidate))
+	mux.Handle("GET /admin/candidates/{id}/enrollment-modal", protected(h.handleGetEnrollmentModal))
+	mux.Handle("POST /admin/candidates/{id}/enroll", protected(h.handleEnrollCandidate))
 
 	// Interactions - Supervisor Suggestions
 	mux.Handle("POST /admin/interactions/{id}/suggestion", protected(h.handleAddSuggestion))
@@ -55,7 +59,10 @@ func (h *AdminHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.Handle("GET /admin/campaigns", protected(h.handleCampaigns))
 	mux.Handle("GET /admin/referrers", protected(h.handleReferrers))
 	mux.Handle("GET /admin/referral-claims", protected(h.handleReferralClaims))
+	mux.Handle("POST /admin/referral-claims/link", protected(h.handleLinkReferralClaim))
+	mux.Handle("POST /admin/referral-claims/{id}/invalid", protected(h.handleInvalidReferralClaim))
 	mux.Handle("GET /admin/commissions", protected(h.handleCommissionsReal))
+	mux.Handle("GET /admin/commissions/export", protected(h.handleExportCommissions))
 	mux.Handle("POST /admin/commissions/{id}/approve", protected(h.handleApproveCommission))
 	mux.Handle("POST /admin/commissions/{id}/paid", protected(h.handleMarkCommissionPaid))
 	mux.Handle("POST /admin/commissions/batch-approve", protected(h.handleBatchApproveCommissions))

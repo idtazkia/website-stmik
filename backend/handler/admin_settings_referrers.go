@@ -133,7 +133,7 @@ func (h *AdminHandler) handleCreateReferrer(w http.ResponseWriter, r *http.Reque
 		code = &codeStr
 	} else {
 		// Generate referral code if not provided
-		generatedCode := model.GenerateReferralCode(name, referrerType)
+		generatedCode := model.GenerateReferrerCode(name, referrerType)
 		code = &generatedCode
 	}
 	if bankNameStr != "" {

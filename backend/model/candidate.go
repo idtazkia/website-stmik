@@ -32,6 +32,9 @@ type Candidate struct {
 	SourceDetail          *string    `json:"source_detail,omitempty"`
 	AssignedConsultantID  *string    `json:"id_assigned_consultant,omitempty"`
 	Status                string     `json:"status"`
+	NIM                   *string    `json:"nim,omitempty"`
+	ReferralCode          *string    `json:"referral_code,omitempty"`
+	EnrolledAt            *time.Time `json:"enrolled_at,omitempty"`
 	LostReasonID          *string    `json:"id_lost_reason,omitempty"`
 	LostAt                *time.Time `json:"lost_at,omitempty"`
 	CreatedAt             time.Time  `json:"created_at"`
@@ -114,14 +117,16 @@ func FindCandidateByID(ctx context.Context, id string) (*Candidate, error) {
 	err := pool.QueryRow(ctx, `
 		SELECT id, email, email_verified, phone, phone_verified, password_hash, name, address, city, province,
 		       high_school, graduation_year, id_prodi, id_campaign, id_referrer, id_referred_by_candidate,
-		       source_type, source_detail, id_assigned_consultant, status, id_lost_reason, lost_at, created_at, updated_at
+		       source_type, source_detail, id_assigned_consultant, status, nim, referral_code, enrolled_at,
+		       id_lost_reason, lost_at, created_at, updated_at
 		FROM candidates WHERE id = $1
 	`, id).Scan(
 		&candidate.ID, &candidate.Email, &candidate.EmailVerified, &candidate.Phone, &candidate.PhoneVerified,
 		&candidate.PasswordHash, &candidate.Name, &candidate.Address, &candidate.City, &candidate.Province,
 		&candidate.HighSchool, &candidate.GraduationYear, &candidate.ProdiID, &candidate.CampaignID,
 		&candidate.ReferrerID, &candidate.ReferredByCandidateID, &candidate.SourceType, &candidate.SourceDetail,
-		&candidate.AssignedConsultantID, &candidate.Status, &candidate.LostReasonID, &candidate.LostAt,
+		&candidate.AssignedConsultantID, &candidate.Status, &candidate.NIM, &candidate.ReferralCode, &candidate.EnrolledAt,
+		&candidate.LostReasonID, &candidate.LostAt,
 		&candidate.CreatedAt, &candidate.UpdatedAt,
 	)
 	if err == pgx.ErrNoRows {
@@ -909,5 +914,288 @@ func ReassignCandidate(ctx context.Context, candidateID, newConsultantID, reassi
 		slog.Error("failed to log reassignment interaction", "error", err)
 	}
 
+	return nil
+}
+
+// EnrollmentValidation contains the validation result for enrollment
+type EnrollmentValidation struct {
+	CanEnroll              bool
+	RegistrationFeePaid    bool
+	TuitionFirstPaid       bool
+	RequiredDocsApproved   bool
+	MissingDocs            []string
+	UnpaidBillings         []string
+}
+
+// ValidateEnrollment checks if a candidate can be enrolled
+func ValidateEnrollment(ctx context.Context, candidateID string) (*EnrollmentValidation, error) {
+	result := &EnrollmentValidation{
+		CanEnroll: true,
+	}
+
+	// Check registration fee
+	var regFeePaid bool
+	err := pool.QueryRow(ctx, `
+		SELECT EXISTS(
+			SELECT 1 FROM billings
+			WHERE id_candidate = $1 AND billing_type = 'registration' AND status = 'paid'
+		)
+	`, candidateID).Scan(&regFeePaid)
+	if err != nil {
+		return nil, fmt.Errorf("failed to check registration fee: %w", err)
+	}
+	result.RegistrationFeePaid = regFeePaid
+	if !regFeePaid {
+		result.CanEnroll = false
+		result.UnpaidBillings = append(result.UnpaidBillings, "Biaya Pendaftaran")
+	}
+
+	// Check tuition first payment (at least one tuition billing paid)
+	var tuitionPaid bool
+	err = pool.QueryRow(ctx, `
+		SELECT EXISTS(
+			SELECT 1 FROM billings
+			WHERE id_candidate = $1 AND billing_type = 'tuition' AND status = 'paid'
+		)
+	`, candidateID).Scan(&tuitionPaid)
+	if err != nil {
+		return nil, fmt.Errorf("failed to check tuition fee: %w", err)
+	}
+	result.TuitionFirstPaid = tuitionPaid
+	if !tuitionPaid {
+		result.CanEnroll = false
+		result.UnpaidBillings = append(result.UnpaidBillings, "Biaya Kuliah")
+	}
+
+	// Check required documents (KTP and Photo must be approved, Ijazah/Transcript can be deferred)
+	rows, err := pool.Query(ctx, `
+		SELECT dt.name, dt.code, d.status
+		FROM document_types dt
+		LEFT JOIN documents d ON d.id_document_type = dt.id AND d.id_candidate = $1
+		WHERE dt.is_required = true AND dt.is_active = true
+	`, candidateID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to check documents: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var name, code string
+		var status *string
+		if err := rows.Scan(&name, &code, &status); err != nil {
+			return nil, fmt.Errorf("failed to scan document: %w", err)
+		}
+
+		// KTP and Photo are strictly required
+		if code == "ktp" || code == "photo" {
+			if status == nil || *status != "approved" {
+				result.CanEnroll = false
+				result.MissingDocs = append(result.MissingDocs, name)
+			}
+		}
+	}
+
+	result.RequiredDocsApproved = len(result.MissingDocs) == 0
+
+	return result, nil
+}
+
+// GenerateNIM generates a unique NIM for a candidate
+// Format: YYYY + PRODI_CODE + SEQUENCE (e.g., 2026SI001)
+func GenerateNIM(ctx context.Context, candidateID string) (string, error) {
+	var nim string
+	err := pool.QueryRow(ctx, `
+		WITH candidate_prodi AS (
+			SELECT c.id, p.code as prodi_code
+			FROM candidates c
+			JOIN prodis p ON p.id = c.id_prodi
+			WHERE c.id = $1
+		),
+		year_seq AS (
+			SELECT
+				EXTRACT(YEAR FROM NOW())::TEXT as year_prefix,
+				cp.prodi_code,
+				COALESCE(
+					(SELECT MAX(CAST(RIGHT(nim, 3) AS INT))
+					 FROM candidates
+					 WHERE nim LIKE EXTRACT(YEAR FROM NOW())::TEXT || cp.prodi_code || '%'
+					), 0
+				) + 1 as seq
+			FROM candidate_prodi cp
+		)
+		SELECT year_prefix || prodi_code || LPAD(seq::TEXT, 3, '0')
+		FROM year_seq
+	`, candidateID).Scan(&nim)
+	if err != nil {
+		return "", fmt.Errorf("failed to generate NIM: %w", err)
+	}
+	return nim, nil
+}
+
+// GenerateReferralCode generates a unique referral code for MGM
+// Format: MGM-NIM (e.g., MGM-2026SI001)
+func GenerateReferralCode(nim string) string {
+	return "MGM-" + nim
+}
+
+// EnrollCandidate enrolls a candidate with NIM and referral code generation
+func EnrollCandidate(ctx context.Context, candidateID string) (*Candidate, error) {
+	// Validate enrollment requirements
+	validation, err := ValidateEnrollment(ctx, candidateID)
+	if err != nil {
+		return nil, err
+	}
+	if !validation.CanEnroll {
+		return nil, fmt.Errorf("enrollment validation failed")
+	}
+
+	// Generate NIM
+	nim, err := GenerateNIM(ctx, candidateID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Generate referral code
+	referralCode := GenerateReferralCode(nim)
+
+	// Update candidate with NIM, referral code, status, and enrolled_at
+	_, err = pool.Exec(ctx, `
+		UPDATE candidates
+		SET status = 'enrolled',
+			nim = $2,
+			referral_code = $3,
+			enrolled_at = NOW(),
+			updated_at = NOW()
+		WHERE id = $1
+	`, candidateID, nim, referralCode)
+	if err != nil {
+		return nil, fmt.Errorf("failed to enroll candidate: %w", err)
+	}
+
+	// Trigger commission creation for enrollment
+	if err := CreateCommissionForCandidate(ctx, candidateID, "enrollment"); err != nil {
+		slog.Error("failed to create enrollment commission", "error", err, "candidate_id", candidateID)
+	}
+
+	// Return updated candidate
+	return FindCandidateByID(ctx, candidateID)
+}
+
+// FindCandidateByReferralCode finds a candidate by their referral code
+func FindCandidateByReferralCode(ctx context.Context, code string) (*Candidate, error) {
+	var candidate Candidate
+	err := pool.QueryRow(ctx, `
+		SELECT id, email, email_verified, phone, phone_verified, password_hash, name, address, city, province,
+		       high_school, graduation_year, id_prodi, id_campaign, id_referrer, id_referred_by_candidate,
+		       source_type, source_detail, id_assigned_consultant, status, nim, referral_code, enrolled_at,
+		       id_lost_reason, lost_at, created_at, updated_at
+		FROM candidates WHERE referral_code = $1
+	`, code).Scan(
+		&candidate.ID, &candidate.Email, &candidate.EmailVerified, &candidate.Phone, &candidate.PhoneVerified,
+		&candidate.PasswordHash, &candidate.Name, &candidate.Address, &candidate.City, &candidate.Province,
+		&candidate.HighSchool, &candidate.GraduationYear, &candidate.ProdiID, &candidate.CampaignID,
+		&candidate.ReferrerID, &candidate.ReferredByCandidateID, &candidate.SourceType, &candidate.SourceDetail,
+		&candidate.AssignedConsultantID, &candidate.Status, &candidate.NIM, &candidate.ReferralCode, &candidate.EnrolledAt,
+		&candidate.LostReasonID, &candidate.LostAt,
+		&candidate.CreatedAt, &candidate.UpdatedAt,
+	)
+	if err == pgx.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to find candidate by referral code: %w", err)
+	}
+
+	// Decrypt fields
+	if err := decryptCandidateFields(&candidate); err != nil {
+		return nil, fmt.Errorf("failed to decrypt candidate: %w", err)
+	}
+
+	return &candidate, nil
+}
+
+// ReferralClaim represents an unverified referral claim
+type ReferralClaim struct {
+	CandidateID   string    `json:"candidate_id"`
+	CandidateName string    `json:"candidate_name"`
+	ProdiName     string    `json:"prodi_name"`
+	SourceType    string    `json:"source_type"`
+	SourceDetail  string    `json:"source_detail"`
+	Status        string    `json:"status"`
+	CreatedAt     time.Time `json:"created_at"`
+}
+
+// ListUnverifiedReferralClaims returns candidates with source_detail but no referrer linked
+func ListUnverifiedReferralClaims(ctx context.Context) ([]ReferralClaim, error) {
+	rows, err := pool.Query(ctx, `
+		SELECT c.id, c.name, COALESCE(p.name, '-') as prodi_name,
+		       COALESCE(c.source_type, 'unknown'), c.source_detail, c.status, c.created_at
+		FROM candidates c
+		LEFT JOIN prodis p ON p.id = c.id_prodi
+		WHERE c.source_detail IS NOT NULL
+		  AND c.source_detail != ''
+		  AND c.id_referrer IS NULL
+		  AND c.id_referred_by_candidate IS NULL
+		ORDER BY c.created_at DESC
+	`)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list unverified referral claims: %w", err)
+	}
+	defer rows.Close()
+
+	var claims []ReferralClaim
+	for rows.Next() {
+		var claim ReferralClaim
+		var name *string
+		err := rows.Scan(&claim.CandidateID, &name, &claim.ProdiName, &claim.SourceType, &claim.SourceDetail, &claim.Status, &claim.CreatedAt)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan referral claim: %w", err)
+		}
+		// Decrypt name
+		if name != nil {
+			decrypted, err := decryptName(*name)
+			if err == nil {
+				claim.CandidateName = decrypted
+			} else {
+				claim.CandidateName = *name
+			}
+		} else {
+			claim.CandidateName = "(Belum diisi)"
+		}
+		claims = append(claims, claim)
+	}
+	return claims, nil
+}
+
+// LinkCandidateToReferrer links a candidate to an external referrer
+func LinkCandidateToReferrer(ctx context.Context, candidateID, referrerID string) error {
+	_, err := pool.Exec(ctx, `
+		UPDATE candidates SET id_referrer = $2, updated_at = NOW() WHERE id = $1
+	`, candidateID, referrerID)
+	if err != nil {
+		return fmt.Errorf("failed to link candidate to referrer: %w", err)
+	}
+	return nil
+}
+
+// LinkCandidateToMGMReferrer links a candidate to another candidate (MGM referral)
+func LinkCandidateToMGMReferrer(ctx context.Context, candidateID, referrerCandidateID string) error {
+	_, err := pool.Exec(ctx, `
+		UPDATE candidates SET id_referred_by_candidate = $2, updated_at = NOW() WHERE id = $1
+	`, candidateID, referrerCandidateID)
+	if err != nil {
+		return fmt.Errorf("failed to link candidate to MGM referrer: %w", err)
+	}
+	return nil
+}
+
+// ClearReferralClaim clears the source_detail when claim is invalid
+func ClearReferralClaim(ctx context.Context, candidateID string) error {
+	_, err := pool.Exec(ctx, `
+		UPDATE candidates SET source_detail = NULL, source_type = NULL, updated_at = NOW() WHERE id = $1
+	`, candidateID)
+	if err != nil {
+		return fmt.Errorf("failed to clear referral claim: %w", err)
+	}
 	return nil
 }

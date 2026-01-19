@@ -748,16 +748,16 @@ Manual reassignment of candidates.
 
 ---
 
-## Feature 28: Referral Claim Verification
+## Feature 28: Referral Claim Verification ✅
 
 Link referral claims to referrers.
 
-- [x] `templates/admin/referral_claims.templ` - List unverified claims (UI mockup done)
-- [ ] `handler/admin.go` - GET /admin/referral-claims, POST link (wire to real data)
-- [ ] Show candidates with source_detail (referral claim) but no referrer_id
-- [ ] Search existing referrers by name/institution
-- [ ] Actions: link to existing referrer, create new referrer then link, mark as invalid
-- [ ] Test: Claim verification flow
+- [x] `templates/admin/referral_claims.templ` - List unverified claims
+- [x] `handler/admin.go` - GET /admin/referral-claims, POST link (wire to real data)
+- [x] Show candidates with source_detail (referral claim) but no referrer_id
+- [x] Search existing referrers by name/institution
+- [x] Actions: link to existing referrer, link to MGM referrer, mark as invalid
+- [x] Test: `e2e/referral-claims.spec.ts`
 
 ---
 
@@ -882,8 +882,8 @@ Approve and pay commissions.
 - [x] `handler/admin_commissions.go` - GET /admin/commissions, POST approve, POST mark-paid
 - [x] Filter by: status (referrer and date range pending)
 - [x] Batch approve, batch mark as paid
-- [ ] Export for bank transfer (pending)
-- [x] Test: Page loads correctly with data
+- [x] Export for bank transfer: `GET /admin/commissions/export?status=approved` (CSV download)
+- [x] Test: `e2e/commissions.spec.ts`
 
 ---
 

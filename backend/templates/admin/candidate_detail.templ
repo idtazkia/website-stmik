@@ -17,12 +17,24 @@ templ KandidatDetail(data layouts.PageData, c CandidateDetail, interactions []In
 						+ Log Interaksi
 					</button>
 					if c.Status == "prospecting" {
-						<button class="bg-yellow-600 text-white px-4 py-2 rounded-md text-sm hover:bg-yellow-700" data-testid="btn-commit">
+						<button
+							hx-get={ "/admin/candidates/" + c.ID + "/commitment-modal" }
+							hx-target="body"
+							hx-swap="beforeend"
+							class="bg-yellow-600 text-white px-4 py-2 rounded-md text-sm hover:bg-yellow-700"
+							data-testid="btn-commit"
+						>
 							Commit
 						</button>
 					}
 					if c.Status == "committed" {
-						<button class="bg-green-600 text-white px-4 py-2 rounded-md text-sm hover:bg-green-700" data-testid="btn-enroll">
+						<button
+							hx-get={ "/admin/candidates/" + c.ID + "/enrollment-modal" }
+							hx-target="body"
+							hx-swap="beforeend"
+							class="bg-green-600 text-white px-4 py-2 rounded-md text-sm hover:bg-green-700"
+							data-testid="btn-enroll"
+						>
 							Enroll
 						</button>
 					}
