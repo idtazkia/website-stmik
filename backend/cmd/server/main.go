@@ -135,24 +135,57 @@ func main() {
 	})
 
 	// Test login endpoint - for E2E testing only
-	// Creates a session as a real user from the database with the specified role
+	// Creates or retrieves a test user with the specified role and logs them in
 	mux.HandleFunc("GET /test/login/{role}", func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
 		role := r.PathValue("role")
 		if role != "admin" && role != "supervisor" && role != "consultant" && role != "finance" && role != "academic" {
 			http.Error(w, "Invalid role", http.StatusBadRequest)
 			return
 		}
 
-		// Look up a real user from the database with the specified role
-		users, err := model.ListUsers(r.Context(), role, true)
+		// Try to find existing user with this role
+		users, err := model.ListUsers(ctx, role, true)
+		var user model.User
 		if err != nil || len(users) == 0 {
-			log.Printf("No active %s user found in database for test login", role)
-			http.Error(w, "No user found with role: "+role, http.StatusNotFound)
-			return
+			// Create test user for this role
+			testEmail := fmt.Sprintf("test-%s@tazkia.ac.id", role)
+			testName := fmt.Sprintf("Test %s User", role)
+
+			// Check if test user already exists (might be inactive)
+			existingUser, err := model.FindUserByEmail(ctx, testEmail)
+			if err != nil {
+				log.Printf("Error finding test user: %v", err)
+				http.Error(w, "Failed to find test user", http.StatusInternalServerError)
+				return
+			}
+
+			if existingUser != nil {
+				user = *existingUser
+				log.Printf("Found existing test user: %s (%s)", user.Email, user.Role)
+			} else {
+				// Create new test user
+				newUser, err := model.CreateUser(ctx, testEmail, testName, "", role)
+				if err != nil {
+					log.Printf("Error creating test user: %v", err)
+					http.Error(w, "Failed to create test user", http.StatusInternalServerError)
+					return
+				}
+				user = *newUser
+				log.Printf("Created test user: %s (%s)", user.Email, user.Role)
+
+				// If consultant, assign to supervisor
+				if role == "consultant" {
+					supervisors, _ := model.ListUsers(ctx, "supervisor", true)
+					if len(supervisors) > 0 {
+						_ = model.UpdateUserSupervisor(ctx, user.ID, &supervisors[0].ID)
+					}
+				}
+			}
+		} else {
+			user = users[0].User
 		}
 
-		// Use the first user with this role
-		user := users[0]
 		token, err := sessionMgr.CreateToken(
 			user.ID,
 			user.Email,

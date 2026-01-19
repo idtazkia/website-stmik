@@ -224,9 +224,14 @@ func ListAllBillings(ctx context.Context, filters BillingFilters) ([]BillingWith
 	argCount := 0
 
 	if filters.Search != "" {
+		// With encryption, search by encrypted email (deterministic) for exact match
+		emailEnc, err := encryptEmail(filters.Search)
+		if err != nil {
+			return nil, 0, fmt.Errorf("failed to encrypt search term: %w", err)
+		}
 		argCount++
-		baseQuery += fmt.Sprintf(" AND (c.name ILIKE $%d OR c.email ILIKE $%d)", argCount, argCount)
-		args = append(args, "%"+filters.Search+"%")
+		baseQuery += fmt.Sprintf(" AND c.email = $%d", argCount)
+		args = append(args, emailEnc)
 	}
 	if filters.Status != "" {
 		argCount++
@@ -281,6 +286,13 @@ func ListAllBillings(ctx context.Context, filters BillingFilters) ([]BillingWith
 		if err != nil {
 			return nil, 0, fmt.Errorf("failed to scan billing: %w", err)
 		}
+
+		// Decrypt candidate fields
+		b.CandidateName, _ = decryptNullableP(b.CandidateName)
+		if emailDec, err := decryptNullableD(&b.CandidateEmail); err == nil && emailDec != nil {
+			b.CandidateEmail = *emailDec
+		}
+
 		billings = append(billings, b)
 	}
 	return billings, total, nil

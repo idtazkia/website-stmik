@@ -27,14 +27,14 @@ else
 fi
 
 # Step 1: Kill any running server
-echo -e "\n${YELLOW}[1/7] Stopping any running server...${NC}"
+echo -e "\n${YELLOW}[1/8] Stopping any running server...${NC}"
 pkill -f "go run ./cmd/server" 2>/dev/null || true
 pkill -f "bin/server" 2>/dev/null || true
 sleep 1
 
 # Step 2: Reset database (local only - CI uses services block)
 if [ -z "$CI" ]; then
-    echo -e "\n${YELLOW}[2/7] Resetting database...${NC}"
+    echo -e "\n${YELLOW}[2/8] Resetting database...${NC}"
     CONTAINER_NAME="stmik-postgres"
     VOLUME_NAME="stmiktazkiaacid_postgres_data"
 
@@ -64,7 +64,7 @@ if [ -z "$CI" ]; then
         postgres:18-alpine >/dev/null
 
     # Step 3: Wait for postgres
-    echo -e "\n${YELLOW}[3/7] Waiting for PostgreSQL to be ready...${NC}"
+    echo -e "\n${YELLOW}[3/8] Waiting for PostgreSQL to be ready...${NC}"
     MAX_RETRIES=30
     RETRY_COUNT=0
     until docker exec "$CONTAINER_NAME" pg_isready -U stmik -d stmik_admission >/dev/null 2>&1; do
@@ -78,25 +78,29 @@ if [ -z "$CI" ]; then
     done
     echo -e " ${GREEN}Ready${NC}"
 else
-    echo -e "\n${YELLOW}[2/7] Skipping DB reset (CI uses services block)${NC}"
-    echo -e "\n${YELLOW}[3/7] Skipping wait (CI handles health checks)${NC}"
+    echo -e "\n${YELLOW}[2/8] Skipping DB reset (CI uses services block)${NC}"
+    echo -e "\n${YELLOW}[3/8] Skipping wait (CI handles health checks)${NC}"
 fi
 
 # Step 4: Generate templ files
-echo -e "\n${YELLOW}[4/7] Generating templ files...${NC}"
+echo -e "\n${YELLOW}[4/8] Generating templ files...${NC}"
 $TEMPL_CMD generate
 
 # Step 5: Build CSS
-echo -e "\n${YELLOW}[5/7] Building CSS...${NC}"
+echo -e "\n${YELLOW}[5/8] Building CSS...${NC}"
 npm run css:build
 
 # Step 6: Run migrations
-echo -e "\n${YELLOW}[6/7] Running migrations...${NC}"
+echo -e "\n${YELLOW}[6/8] Running migrations...${NC}"
 export ENCRYPTION_KEY="${ENCRYPTION_KEY:-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef}"
 go run ./cmd/migrate up
 
-# Step 7: Run E2E tests
-echo -e "\n${YELLOW}[7/7] Running E2E tests...${NC}"
+# Step 7: Seed test users
+echo -e "\n${YELLOW}[7/8] Seeding test users...${NC}"
+go run ./cmd/seedtest
+
+# Step 8: Run E2E tests
+echo -e "\n${YELLOW}[8/8] Running E2E tests...${NC}"
 echo -e "${BLUE}----------------------------------------${NC}"
 npm run test:e2e
 
