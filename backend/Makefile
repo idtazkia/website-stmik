@@ -1,4 +1,4 @@
-.PHONY: build dev test test-e2e clean css templ
+.PHONY: build dev test test-e2e test-quick test-full clean css templ
 
 # Version info from git
 GIT_COMMIT := $(shell git rev-parse HEAD 2>/dev/null || echo "unknown")
@@ -29,6 +29,14 @@ test:
 # Run E2E tests (requires running server)
 test-e2e:
 	npm run test:e2e
+
+# Quick test: rebuild and run tests (no DB reset)
+test-quick:
+	./scripts/test-quick.sh
+
+# Full test suite: clean build, reset DB, run all tests
+test-full:
+	./scripts/test-full.sh
 
 # Generate templ files
 templ:

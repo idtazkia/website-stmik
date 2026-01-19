@@ -54,24 +54,13 @@ jobs:
       - name: Install templ
         run: go install github.com/a-h/templ/cmd/templ@latest
 
-      - name: Generate templ files
-        run: templ generate
-
       - name: Install npm dependencies
         run: npm ci
-
-      - name: Build CSS
-        run: npm run css:build
-
-      - name: Run migrations
-        env:
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/stmik_admission?sslmode=disable
-        run: go run ./cmd/migrate up
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
-      - name: Run E2E tests
+      - name: Run full test suite
         env:
           CI: true
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/stmik_admission?sslmode=disable
@@ -79,7 +68,7 @@ jobs:
           GOOGLE_CLIENT_ID: test-client-id
           GOOGLE_CLIENT_SECRET: test-client-secret
           STAFF_EMAIL_DOMAIN: tazkia.ac.id
-        run: npm run test:e2e
+        run: ./scripts/test-full.sh
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v6
