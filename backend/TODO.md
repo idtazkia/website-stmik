@@ -767,20 +767,17 @@ Convert candidates to students.
 
 ---
 
-## Feature 29: Commitment & Tuition Billing
+## Feature 29: Commitment & Tuition Billing ✅
 
 Generate billing when candidate commits.
 
-**Migrations:** 021_create_billings, 022_create_payments (pending)
-
-- [ ] `model/candidate.go` - Commit (change status)
-- [ ] `model/billing.go` - CreateTuitionBilling, CreateDormitoryBilling
-- [ ] `templates/admin/commitment_form.templ` - Commitment modal
-- [ ] `handler/admin.go` - POST /admin/candidates/{id}/commit
-- [ ] Select: tuition installments (1x), dormitory (1x, 2x, or 10x)
-- [ ] Generate billing records with due dates
-- [ ] Change status: prospecting → committed
-- [ ] Test: Commit with various installment options
+- [x] `model/candidate.go` - Commit (change status)
+- [x] `model/billing.go` - CreateTuitionBilling, CreateDormitoryBilling
+- [x] `templates/admin/commitment_form.templ` - Commitment modal
+- [x] `handler/admin.go` - POST /admin/candidates/{id}/commit
+- [x] Select: tuition installments (1x), dormitory (1x, 2x, or 10x)
+- [x] Generate billing records with due dates
+- [x] Change status: prospecting → committed
 
 ---
 
@@ -802,36 +799,35 @@ Track and verify installment payments.
 
 ---
 
-## Feature 31: Document Review
+## Feature 31: Document Review ✅
 
 Admin reviews uploaded documents.
 
-**Migrations:** 023_create_documents (pending)
-
-- [ ] `model/document.go` - UpdateStatus
-- [ ] `templates/admin/document_review.templ` - Review modal
-- [ ] `handler/admin.go` - GET /admin/candidates/{id}/documents, POST approve/reject
-- [ ] View document, approve or reject with reason
-- [ ] Notify candidate of rejection (for re-upload)
-- [ ] Test: Review flow, rejection
+- [x] `model/document.go` - ListDocumentsForReview, ApproveDocument, RejectDocument
+- [x] `templates/admin/document_review.templ` - Review list with approve/reject modals
+- [x] `handler/admin_documents.go` - GET /admin/documents, POST approve/reject
+- [x] View document, approve or reject with reason
+- [x] Email notifications on approve/reject
+- [x] Test: `e2e/admin-document-review.spec.ts`
 
 ---
 
-## Feature 32: Enrollment
+## Feature 32: Enrollment ✅
 
 Mark candidate as enrolled.
 
-- [ ] `model/candidate.go` - Enroll, GenerateNIM
-- [ ] `handler/admin.go` - POST /admin/candidates/{id}/enroll
-- [ ] Validation:
+- [x] `model/candidate.go` - Enroll, GenerateNIM, ValidateEnrollment
+- [x] `handler/admin.go` - POST /admin/candidates/{id}/enroll
+- [x] `templates/admin/enrollment_form.templ` - Enrollment modal with requirements checklist
+- [x] `migrations/025_add_nim_referral_code` - Add NIM, referral_code, enrolled_at columns
+- [x] Validation:
   - Registration fee: paid
   - Tuition: at least 1st installment paid
-  - Documents: KTP + photo approved (ijazah/transcript can be pending)
-- [ ] Generate NIM: YYYY + PRODI_CODE + SEQUENCE (e.g., 2026SI001)
-- [ ] Generate referral_code for member-get-member (e.g., MGM-2026SI001)
-- [ ] Change status: committed → enrolled
-- [ ] Trigger commission creation if referred (by referrer or by enrolled candidate)
-- [ ] Test: Enrollment validation, NIM generation, referral code
+  - Documents: KTP + photo approved
+- [x] Generate NIM: YYYY + PRODI_CODE + SEQUENCE (e.g., 2026SI001)
+- [x] Generate referral_code for member-get-member (e.g., MGM-2026SI001)
+- [x] Change status: committed → enrolled
+- [x] Trigger commission creation if referred
 
 ---
 

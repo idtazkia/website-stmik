@@ -1,8 +1,10 @@
 package handler
 
 import (
+	"fmt"
 	"log/slog"
 	"net/http"
+	"time"
 
 	"github.com/idtazkia/stmik-admission-api/mockdata"
 	"github.com/idtazkia/stmik-admission-api/model"
@@ -187,55 +189,264 @@ func (h *AdminHandler) handleCommissions(w http.ResponseWriter, r *http.Request)
 }
 
 func (h *AdminHandler) handleFunnelReport(w http.ResponseWriter, r *http.Request) {
-	data := NewPageDataWithUser(r.Context(), "Laporan Funnel")
+	ctx := r.Context()
+	data := NewPageDataWithUser(ctx, "Laporan Funnel")
+
+	// Get funnel stats from database
+	funnelStats, err := model.GetFunnelStats(ctx)
+	if err != nil {
+		slog.Error("Failed to get funnel stats", "error", err)
+		http.Error(w, "Failed to load funnel data", http.StatusInternalServerError)
+		return
+	}
+
+	// Calculate total for percentages (registered + prospecting + committed + enrolled)
+	// We don't count lost as part of the funnel
+	total := funnelStats.Registered + funnelStats.Prospecting + funnelStats.Committed + funnelStats.Enrolled
+	if total == 0 {
+		total = 1 // Avoid division by zero
+	}
+
+	// Build funnel stages
 	stages := []admin.FunnelStage{
-		{Name: "Registered", Count: "97", Percentage: "100", Color: "bg-gray-500"},
-		{Name: "Prospecting", Count: "80", Percentage: "82", Color: "bg-blue-500"},
-		{Name: "Committed", Count: "55", Percentage: "57", Color: "bg-yellow-500"},
-		{Name: "Enrolled", Count: "40", Percentage: "41", Color: "bg-green-500"},
+		{
+			Name:       "Registered",
+			Count:      fmt.Sprintf("%d", funnelStats.Registered),
+			Percentage: "100",
+			Color:      "bg-gray-500",
+		},
+		{
+			Name:       "Prospecting",
+			Count:      fmt.Sprintf("%d", funnelStats.Prospecting),
+			Percentage: fmt.Sprintf("%d", calcPercentage(funnelStats.Prospecting, funnelStats.Registered)),
+			Color:      "bg-blue-500",
+		},
+		{
+			Name:       "Committed",
+			Count:      fmt.Sprintf("%d", funnelStats.Committed),
+			Percentage: fmt.Sprintf("%d", calcPercentage(funnelStats.Committed, funnelStats.Registered)),
+			Color:      "bg-yellow-500",
+		},
+		{
+			Name:       "Enrolled",
+			Count:      fmt.Sprintf("%d", funnelStats.Enrolled),
+			Percentage: fmt.Sprintf("%d", calcPercentage(funnelStats.Enrolled, funnelStats.Registered)),
+			Color:      "bg-green-500",
+		},
 	}
+
+	// Build conversion rates
+	regToProsp := calcConversionRate(funnelStats.Prospecting+funnelStats.Committed+funnelStats.Enrolled, funnelStats.Registered+funnelStats.Prospecting+funnelStats.Committed+funnelStats.Enrolled)
+	prospToCommit := calcConversionRate(funnelStats.Committed+funnelStats.Enrolled, funnelStats.Prospecting+funnelStats.Committed+funnelStats.Enrolled)
+	commitToEnroll := calcConversionRate(funnelStats.Enrolled, funnelStats.Committed+funnelStats.Enrolled)
+
 	conversions := []admin.FunnelConversion{
-		{From: "Registered", To: "Prospecting", Rate: "82.5%", Change: "+5%", IsPositive: true},
-		{From: "Prospecting", To: "Committed", Rate: "68.8%", Change: "+2%", IsPositive: true},
-		{From: "Committed", To: "Enrolled", Rate: "72.7%", Change: "-3%", IsPositive: false},
+		{From: "Registered", To: "Prospecting", Rate: fmt.Sprintf("%.1f%%", regToProsp), Change: "-", IsPositive: true},
+		{From: "Prospecting", To: "Committed", Rate: fmt.Sprintf("%.1f%%", prospToCommit), Change: "-", IsPositive: true},
+		{From: "Committed", To: "Enrolled", Rate: fmt.Sprintf("%.1f%%", commitToEnroll), Change: "-", IsPositive: true},
 	}
-	admin.ReportFunnel(data, stages, conversions).Render(r.Context(), w)
+
+	admin.ReportFunnel(data, stages, conversions).Render(ctx, w)
+}
+
+func calcPercentage(part, total int) int {
+	if total == 0 {
+		return 0
+	}
+	return int(float64(part) / float64(total) * 100)
+}
+
+func calcConversionRate(converted, total int) float64 {
+	if total == 0 {
+		return 0
+	}
+	return float64(converted) / float64(total) * 100
 }
 
 func (h *AdminHandler) handleConsultantsReport(w http.ResponseWriter, r *http.Request) {
-	data := NewPageDataWithUser(r.Context(), "Kinerja Konsultan")
+	ctx := r.Context()
+	data := NewPageDataWithUser(ctx, "Kinerja Konsultan")
+
+	// Get consultant performance from database
+	performanceData, err := model.GetConsultantPerformance(ctx, nil, nil)
+	if err != nil {
+		slog.Error("Failed to get consultant performance", "error", err)
+		http.Error(w, "Failed to load consultant data", http.StatusInternalServerError)
+		return
+	}
+
+	// Convert to template items
+	consultants := make([]admin.ConsultantPerformance, len(performanceData))
+	var totalLeads, totalInteractions, totalCommits, totalEnrollments int
+
+	for i, cp := range performanceData {
+		conversionRate := float64(0)
+		if cp.TotalLeads > 0 {
+			conversionRate = float64(cp.Enrollments) / float64(cp.TotalLeads) * 100
+		}
+
+		interactionsPerCandidate := float64(0)
+		if cp.TotalLeads > 0 {
+			interactionsPerCandidate = float64(cp.Interactions) / float64(cp.TotalLeads)
+		}
+
+		consultants[i] = admin.ConsultantPerformance{
+			Rank:                     fmt.Sprintf("%d", i+1),
+			Name:                     cp.ConsultantName,
+			Email:                    cp.ConsultantEmail,
+			SupervisorName:           cp.SupervisorName,
+			Leads:                    fmt.Sprintf("%d", cp.TotalLeads),
+			Interactions:             fmt.Sprintf("%d", cp.Interactions),
+			Commits:                  fmt.Sprintf("%d", cp.Commits),
+			Enrollments:              fmt.Sprintf("%d", cp.Enrollments),
+			ConversionRate:           conversionRate,
+			ConversionRateStr:        fmt.Sprintf("%.1f", conversionRate),
+			AvgDaysToCommit:          fmt.Sprintf("%.0f", cp.AvgDaysToCommit),
+			InteractionsPerCandidate: fmt.Sprintf("%.1f", interactionsPerCandidate),
+		}
+
+		totalLeads += cp.TotalLeads
+		totalInteractions += cp.Interactions
+		totalCommits += cp.Commits
+		totalEnrollments += cp.Enrollments
+	}
+
 	filter := admin.ReportFilter{
-		Period:    "this_month",
-		StartDate: "2026-01-01",
-		EndDate:   "2026-01-31",
+		Period:    "all_time",
+		StartDate: "",
+		EndDate:   "",
 	}
-	consultants := []admin.ConsultantPerformance{
-		{Rank: "1", Name: "Siti Rahayu", Email: "siti@kampus.edu", SupervisorName: "Dr. Ahmad", Leads: "45", Interactions: "120", Commits: "25", Enrollments: "12", ConversionRate: 26.7, ConversionRateStr: "26.7", AvgDaysToCommit: "14", InteractionsPerCandidate: "2.7"},
-		{Rank: "2", Name: "Ahmad Fauzi", Email: "ahmad@kampus.edu", SupervisorName: "Dr. Ahmad", Leads: "38", Interactions: "95", Commits: "18", Enrollments: "10", ConversionRate: 26.3, ConversionRateStr: "26.3", AvgDaysToCommit: "12", InteractionsPerCandidate: "2.5"},
-		{Rank: "3", Name: "Dewi Lestari", Email: "dewi@kampus.edu", SupervisorName: "Dr. Budi", Leads: "52", Interactions: "140", Commits: "22", Enrollments: "15", ConversionRate: 28.8, ConversionRateStr: "28.8", AvgDaysToCommit: "10", InteractionsPerCandidate: "2.7"},
-	}
+
 	summary := admin.ReportSummary{
-		TotalLeads:        "135",
-		TotalInteractions: "355",
-		TotalCommits:      "65",
-		TotalEnrollments:  "37",
+		TotalLeads:        fmt.Sprintf("%d", totalLeads),
+		TotalInteractions: fmt.Sprintf("%d", totalInteractions),
+		TotalCommits:      fmt.Sprintf("%d", totalCommits),
+		TotalEnrollments:  fmt.Sprintf("%d", totalEnrollments),
 	}
-	admin.ConsultantReport(data, filter, consultants, summary).Render(r.Context(), w)
+
+	admin.ConsultantReport(data, filter, consultants, summary).Render(ctx, w)
 }
 
 func (h *AdminHandler) handleCampaignsReport(w http.ResponseWriter, r *http.Request) {
-	data := NewPageDataWithUser(r.Context(), "ROI Kampanye")
-	campaigns := []admin.CampaignReportItem{
-		{Name: "Promo Early Bird", Type: "promo", Channel: "all", Leads: "45", Prospecting: "38", Committed: "25", Enrolled: "12", Conversion: "26.7%", Cost: "Rp 0", CostPerLead: "Rp 0"},
-		{Name: "Education Expo Jakarta", Type: "event", Channel: "expo", Leads: "38", Prospecting: "30", Committed: "18", Enrolled: "10", Conversion: "26.3%", Cost: "Rp 15.000.000", CostPerLead: "Rp 394.737"},
-		{Name: "Instagram Ads Q1", Type: "ads", Channel: "instagram", Leads: "52", Prospecting: "35", Committed: "15", Enrolled: "8", Conversion: "15.4%", Cost: "Rp 8.000.000", CostPerLead: "Rp 153.846"},
-		{Name: "Kunjungan Sekolah Q1", Type: "event", Channel: "school_visit", Leads: "28", Prospecting: "24", Committed: "18", Enrolled: "12", Conversion: "42.9%", Cost: "Rp 5.000.000", CostPerLead: "Rp 178.571"},
+	ctx := r.Context()
+	data := NewPageDataWithUser(ctx, "ROI Kampanye")
+
+	// Get campaign stats from database
+	campaignStats, err := model.GetCampaignStats(ctx)
+	if err != nil {
+		slog.Error("Failed to get campaign stats", "error", err)
+		http.Error(w, "Failed to load campaign data", http.StatusInternalServerError)
+		return
 	}
+
+	// Convert to template items
+	campaigns := make([]admin.CampaignReportItem, len(campaignStats))
+	var totalLeads, totalEnrolled int
+	var bestCampaign string
+	var bestConversion float64
+
+	for i, cs := range campaignStats {
+		totalCandidates := cs.Registered + cs.Prospecting + cs.Committed + cs.Enrolled
+		conversion := float64(0)
+		if totalCandidates > 0 {
+			conversion = float64(cs.Enrolled) / float64(totalCandidates) * 100
+		}
+
+		campaigns[i] = admin.CampaignReportItem{
+			Name:        cs.CampaignName,
+			Type:        cs.CampaignType,
+			Channel:     cs.Channel,
+			Leads:       fmt.Sprintf("%d", totalCandidates),
+			Prospecting: fmt.Sprintf("%d", cs.Prospecting),
+			Committed:   fmt.Sprintf("%d", cs.Committed),
+			Enrolled:    fmt.Sprintf("%d", cs.Enrolled),
+			Conversion:  fmt.Sprintf("%.1f%%", conversion),
+			Cost:        "-",        // Cost data not tracked in campaigns table
+			CostPerLead: "-",        // Cost data not tracked
+		}
+
+		totalLeads += totalCandidates
+		totalEnrolled += cs.Enrolled
+
+		if conversion > bestConversion && totalCandidates > 0 {
+			bestConversion = conversion
+			bestCampaign = cs.CampaignName
+		}
+	}
+
+	avgConversion := float64(0)
+	if totalLeads > 0 {
+		avgConversion = float64(totalEnrolled) / float64(totalLeads) * 100
+	}
+
 	summary := admin.CampaignReportSummary{
-		TotalLeads: "163", TotalEnrolled: "42", AvgConversion: "25.8%",
-		TotalCost: "Rp 28.000.000", AvgCostPerLead: "Rp 171.779", BestCampaign: "Kunjungan Sekolah",
+		TotalLeads:     fmt.Sprintf("%d", totalLeads),
+		TotalEnrolled:  fmt.Sprintf("%d", totalEnrolled),
+		AvgConversion:  fmt.Sprintf("%.1f%%", avgConversion),
+		TotalCost:      "-",
+		AvgCostPerLead: "-",
+		BestCampaign:   bestCampaign,
 	}
-	admin.ReportCampaigns(data, campaigns, summary).Render(r.Context(), w)
+
+	admin.ReportCampaigns(data, campaigns, summary).Render(ctx, w)
+}
+
+func (h *AdminHandler) handleReferrersReport(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	data := NewPageDataWithUser(ctx, "Leaderboard Referrer")
+
+	// Get referrer stats from database
+	referrerStats, err := model.GetReferrerStats(ctx)
+	if err != nil {
+		slog.Error("Failed to get referrer stats", "error", err)
+		http.Error(w, "Failed to load referrer data", http.StatusInternalServerError)
+		return
+	}
+
+	// Convert to template items
+	referrers := make([]admin.ReferrerReportItem, len(referrerStats))
+	var totalReferrals, totalEnrolled int
+	var totalCommission int64
+	var bestReferrer string
+	var bestEnrolled int
+
+	for i, rs := range referrerStats {
+		conversion := float64(0)
+		if rs.TotalReferrals > 0 {
+			conversion = float64(rs.Enrolled) / float64(rs.TotalReferrals) * 100
+		}
+
+		referrers[i] = admin.ReferrerReportItem{
+			Rank:           fmt.Sprintf("%d", i+1),
+			Name:           rs.ReferrerName,
+			Type:           rs.ReferrerType,
+			Institution:    rs.Institution,
+			TotalReferrals: fmt.Sprintf("%d", rs.TotalReferrals),
+			Enrolled:       fmt.Sprintf("%d", rs.Enrolled),
+			Pending:        fmt.Sprintf("%d", rs.Pending),
+			Conversion:     fmt.Sprintf("%.1f%%", conversion),
+			CommissionPaid: formatRupiah(rs.CommissionPaid),
+		}
+
+		totalReferrals += rs.TotalReferrals
+		totalEnrolled += rs.Enrolled
+		totalCommission += rs.CommissionPaid
+
+		if rs.Enrolled > bestEnrolled {
+			bestEnrolled = rs.Enrolled
+			bestReferrer = rs.ReferrerName
+		}
+	}
+
+	summary := admin.ReferrerReportSummary{
+		TotalReferrers:  fmt.Sprintf("%d", len(referrerStats)),
+		TotalReferrals:  fmt.Sprintf("%d", totalReferrals),
+		TotalEnrolled:   fmt.Sprintf("%d", totalEnrolled),
+		TotalCommission: formatRupiah(totalCommission),
+		BestReferrer:    bestReferrer,
+	}
+
+	admin.ReportReferrers(data, referrers, summary).Render(ctx, w)
 }
 
 func (h *AdminHandler) handleConsultantDashboard(w http.ResponseWriter, r *http.Request) {
@@ -271,6 +482,91 @@ func (h *AdminHandler) handleConsultantDashboard(w http.ResponseWriter, r *http.
 	}
 
 	admin.ConsultantDashboard(data, stats, overdueList, todayTasks, suggestions).Render(r.Context(), w)
+}
+
+func (h *AdminHandler) handleSupervisorDashboard(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	claims := GetUserClaims(ctx)
+	if claims == nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	data := NewPageDataWithUser(ctx, "Dashboard Supervisor")
+
+	// Get supervisor dashboard stats
+	dashStats, err := model.GetSupervisorDashboardStats(ctx, claims.UserID)
+	if err != nil {
+		slog.Error("Failed to get supervisor dashboard stats", "error", err)
+		http.Error(w, "Failed to load dashboard data", http.StatusInternalServerError)
+		return
+	}
+
+	// Get team consultants
+	teamConsultantsData, err := model.GetTeamConsultants(ctx, claims.UserID)
+	if err != nil {
+		slog.Error("Failed to get team consultants", "error", err)
+		http.Error(w, "Failed to load team data", http.StatusInternalServerError)
+		return
+	}
+
+	// Get stuck candidates (limit to 10)
+	stuckData, err := model.GetStuckCandidatesForTeam(ctx, claims.UserID, 10)
+	if err != nil {
+		slog.Error("Failed to get stuck candidates", "error", err)
+		http.Error(w, "Failed to load stuck candidates", http.StatusInternalServerError)
+		return
+	}
+
+	// Convert to template types
+	stats := admin.SupervisorDashboardStats{
+		SupervisorName:   claims.Name,
+		TodayDate:        formatDateIndonesian(time.Now()),
+		TeamMemberCount:  fmt.Sprintf("%d", len(teamConsultantsData)),
+		TeamRegistered:   fmt.Sprintf("%d", dashStats.TeamRegistered),
+		TeamProspecting:  fmt.Sprintf("%d", dashStats.TeamProspecting),
+		TeamCommitted:    fmt.Sprintf("%d", dashStats.TeamCommitted),
+		TeamEnrolled:     fmt.Sprintf("%d", dashStats.TeamEnrolled),
+		TeamLost:         fmt.Sprintf("%d", dashStats.TeamLost),
+		StuckCandidates:  fmt.Sprintf("%d", dashStats.StuckCandidates),
+		TodayFollowups:   fmt.Sprintf("%d", dashStats.TodayFollowups),
+		MonthlyNewLeads:  fmt.Sprintf("%d", dashStats.MonthlyNewLeads),
+		MonthlyEnrolled:  fmt.Sprintf("%d", dashStats.MonthlyEnrolled),
+	}
+
+	teamConsultants := make([]admin.TeamConsultantItem, len(teamConsultantsData))
+	for i, tc := range teamConsultantsData {
+		teamConsultants[i] = admin.TeamConsultantItem{
+			ID:             tc.ConsultantID,
+			Name:           tc.ConsultantName,
+			ActiveLeads:    fmt.Sprintf("%d", tc.ActiveLeads),
+			TodayTasks:     fmt.Sprintf("%d", tc.TodayTasks),
+			Overdue:        fmt.Sprintf("%d", tc.Overdue),
+			MonthlyCommits: fmt.Sprintf("%d", tc.MonthlyCommits),
+		}
+	}
+
+	stuckCandidates := make([]admin.StuckCandidateItem, len(stuckData))
+	for i, sc := range stuckData {
+		stuckCandidates[i] = admin.StuckCandidateItem{
+			CandidateID:    sc.CandidateID,
+			CandidateName:  sc.CandidateName,
+			ProdiName:      sc.ProdiName,
+			Status:         sc.Status,
+			ConsultantName: sc.ConsultantName,
+			DaysStuck:      fmt.Sprintf("%d", sc.DaysStuck),
+		}
+	}
+
+	admin.SupervisorDashboard(data, stats, teamConsultants, stuckCandidates).Render(ctx, w)
+}
+
+func formatDateIndonesian(t time.Time) string {
+	months := []string{
+		"", "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+		"Juli", "Agustus", "September", "Oktober", "November", "Desember",
+	}
+	return fmt.Sprintf("%d %s %d", t.Day(), months[t.Month()], t.Year())
 }
 
 // handleDocumentReview moved to admin_documents.go with real implementation
