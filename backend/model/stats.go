@@ -68,7 +68,7 @@ func GetConsultantStats(ctx context.Context, consultantID string) (*ConsultantSt
 			COUNT(*) FILTER (WHERE status = 'enrolled') as enrolled,
 			COUNT(*) FILTER (WHERE status = 'lost') as lost
 		FROM candidates
-		WHERE assigned_consultant_id = $1
+		WHERE id_assigned_consultant = $1
 	`, consultantID).Scan(
 		&stats.TotalCandidates, &stats.Prospecting, &stats.Committed,
 		&stats.Enrolled, &stats.Lost,
@@ -84,9 +84,9 @@ func GetConsultantStats(ctx context.Context, consultantID string) (*ConsultantSt
 		LEFT JOIN LATERAL (
 			SELECT MAX(created_at) as last_contact
 			FROM interactions
-			WHERE candidate_id = c.id
+			WHERE id_candidate = c.id
 		) li ON true
-		WHERE c.assigned_consultant_id = $1
+		WHERE c.id_assigned_consultant = $1
 		  AND c.status NOT IN ('enrolled', 'lost')
 		  AND (li.last_contact IS NULL OR li.last_contact < NOW() - INTERVAL '7 days')
 	`, consultantID).Scan(&stats.OverdueCount)
@@ -96,16 +96,16 @@ func GetConsultantStats(ctx context.Context, consultantID string) (*ConsultantSt
 
 	// Get today's tasks (follow-ups scheduled for today)
 	err = pool.QueryRow(ctx, `
-		SELECT COUNT(DISTINCT i.candidate_id)
+		SELECT COUNT(DISTINCT i.id_candidate)
 		FROM interactions i
-		JOIN candidates c ON i.candidate_id = c.id
-		WHERE c.assigned_consultant_id = $1
+		JOIN candidates c ON i.id_candidate = c.id
+		WHERE c.id_assigned_consultant = $1
 		  AND c.status NOT IN ('enrolled', 'lost')
 		  AND i.next_followup_date IS NOT NULL
 		  AND DATE(i.next_followup_date) = CURRENT_DATE
 		  AND i.id = (
 			SELECT id FROM interactions
-			WHERE candidate_id = i.candidate_id
+			WHERE id_candidate = i.id_candidate
 			ORDER BY created_at DESC
 			LIMIT 1
 		  )
@@ -118,8 +118,8 @@ func GetConsultantStats(ctx context.Context, consultantID string) (*ConsultantSt
 	err = pool.QueryRow(ctx, `
 		SELECT COUNT(*)
 		FROM interactions i
-		JOIN candidates c ON i.candidate_id = c.id
-		WHERE c.assigned_consultant_id = $1
+		JOIN candidates c ON i.id_candidate = c.id
+		WHERE c.id_assigned_consultant = $1
 		  AND i.supervisor_suggestion IS NOT NULL
 		  AND i.suggestion_read_at IS NULL
 	`, consultantID).Scan(&stats.UnreadSuggestions)
@@ -135,7 +135,7 @@ func GetConsultantStats(ctx context.Context, consultantID string) (*ConsultantSt
 	err = pool.QueryRow(ctx, `
 		SELECT COUNT(*)
 		FROM candidates
-		WHERE assigned_consultant_id = $1
+		WHERE id_assigned_consultant = $1
 		  AND created_at >= $2
 	`, consultantID, startOfMonth).Scan(&stats.MonthlyNewLeads)
 	if err != nil {
@@ -146,7 +146,7 @@ func GetConsultantStats(ctx context.Context, consultantID string) (*ConsultantSt
 	err = pool.QueryRow(ctx, `
 		SELECT COUNT(*)
 		FROM interactions
-		WHERE consultant_id = $1
+		WHERE id_consultant = $1
 		  AND created_at >= $2
 	`, consultantID, startOfMonth).Scan(&stats.MonthlyInteractions)
 	if err != nil {
@@ -158,7 +158,7 @@ func GetConsultantStats(ctx context.Context, consultantID string) (*ConsultantSt
 	err = pool.QueryRow(ctx, `
 		SELECT COUNT(*)
 		FROM candidates
-		WHERE assigned_consultant_id = $1
+		WHERE id_assigned_consultant = $1
 		  AND status IN ('committed', 'enrolled')
 		  AND updated_at >= $2
 	`, consultantID, startOfMonth).Scan(&stats.MonthlyCommits)
@@ -170,7 +170,7 @@ func GetConsultantStats(ctx context.Context, consultantID string) (*ConsultantSt
 	err = pool.QueryRow(ctx, `
 		SELECT COUNT(*)
 		FROM candidates
-		WHERE assigned_consultant_id = $1
+		WHERE id_assigned_consultant = $1
 		  AND status = 'enrolled'
 		  AND updated_at >= $2
 	`, consultantID, startOfMonth).Scan(&stats.MonthlyEnrollments)
@@ -188,13 +188,13 @@ func GetOverdueCandidates(ctx context.Context, consultantID string, limit int) (
 		       COALESCE(li.last_contact, c.created_at) as last_contact,
 		       EXTRACT(DAY FROM NOW() - COALESCE(li.last_contact, c.created_at))::int as days_overdue
 		FROM candidates c
-		LEFT JOIN prodis p ON c.prodi_id = p.id
+		LEFT JOIN prodis p ON c.id_prodi = p.id
 		LEFT JOIN LATERAL (
 			SELECT MAX(created_at) as last_contact
 			FROM interactions
-			WHERE candidate_id = c.id
+			WHERE id_candidate = c.id
 		) li ON true
-		WHERE c.assigned_consultant_id = $1
+		WHERE c.id_assigned_consultant = $1
 		  AND c.status NOT IN ('enrolled', 'lost')
 		  AND (li.last_contact IS NULL OR li.last_contact < NOW() - INTERVAL '7 days')
 		ORDER BY li.last_contact ASC NULLS FIRST
@@ -233,9 +233,9 @@ func GetTodayTasks(ctx context.Context, consultantID string, limit int) ([]Today
 	rows, err := pool.Query(ctx, `
 		SELECT DISTINCT ON (c.id) c.id, c.name, c.phone, p.name as prodi_name, c.status, i.next_followup_date
 		FROM candidates c
-		JOIN interactions i ON i.candidate_id = c.id
-		LEFT JOIN prodis p ON c.prodi_id = p.id
-		WHERE c.assigned_consultant_id = $1
+		JOIN interactions i ON i.id_candidate = c.id
+		LEFT JOIN prodis p ON c.id_prodi = p.id
+		WHERE c.id_assigned_consultant = $1
 		  AND c.status NOT IN ('enrolled', 'lost')
 		  AND i.next_followup_date IS NOT NULL
 		  AND DATE(i.next_followup_date) = CURRENT_DATE
@@ -273,12 +273,12 @@ func GetTodayTasks(ctx context.Context, consultantID string, limit int) ([]Today
 // GetUnreadSuggestions returns unread supervisor suggestions for a consultant
 func GetUnreadSuggestions(ctx context.Context, consultantID string, limit int) ([]UnreadSuggestion, error) {
 	rows, err := pool.Query(ctx, `
-		SELECT i.id, i.candidate_id, c.name as candidate_name, i.supervisor_suggestion,
+		SELECT i.id, i.id_candidate, c.name as candidate_name, i.supervisor_suggestion,
 		       u.id as supervisor_id, u.name as supervisor_name, i.created_at
 		FROM interactions i
-		JOIN candidates c ON i.candidate_id = c.id
-		LEFT JOIN users u ON i.consultant_id != $1 AND i.supervisor_suggestion IS NOT NULL
-		WHERE c.assigned_consultant_id = $1
+		JOIN candidates c ON i.id_candidate = c.id
+		LEFT JOIN users u ON i.id_consultant != $1 AND i.supervisor_suggestion IS NOT NULL
+		WHERE c.id_assigned_consultant = $1
 		  AND i.supervisor_suggestion IS NOT NULL
 		  AND i.suggestion_read_at IS NULL
 		ORDER BY i.created_at DESC

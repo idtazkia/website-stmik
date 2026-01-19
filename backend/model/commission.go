@@ -9,15 +9,15 @@ import (
 // Commission represents a commission entry in the ledger
 type Commission struct {
 	ID           string     `json:"id"`
-	ReferrerID   string     `json:"referrer_id"`
-	CandidateID  string     `json:"candidate_id"`
+	ReferrerID   string     `json:"id_referrer"`
+	CandidateID  string     `json:"id_candidate"`
 	TriggerEvent string     `json:"trigger_event"`
 	Amount       int64      `json:"amount"`
 	Status       string     `json:"status"`
 	ApprovedAt   *time.Time `json:"approved_at,omitempty"`
-	ApprovedBy   *string    `json:"approved_by,omitempty"`
+	ApprovedBy   *string    `json:"id_approved_by,omitempty"`
 	PaidAt       *time.Time `json:"paid_at,omitempty"`
-	PaidBy       *string    `json:"paid_by,omitempty"`
+	PaidBy       *string    `json:"id_paid_by,omitempty"`
 	Notes        *string    `json:"notes,omitempty"`
 	CreatedAt    time.Time  `json:"created_at"`
 	UpdatedAt    time.Time  `json:"updated_at"`
@@ -30,8 +30,8 @@ type CommissionWithDetails struct {
 	ReferrerType   string  `json:"referrer_type"`
 	CandidateName  *string `json:"candidate_name,omitempty"`
 	CandidateEmail *string `json:"candidate_email,omitempty"`
-	ApprovedByName *string `json:"approved_by_name,omitempty"`
-	PaidByName     *string `json:"paid_by_name,omitempty"`
+	ApprovedByName *string `json:"id_approved_by_name,omitempty"`
+	PaidByName     *string `json:"id_paid_by_name,omitempty"`
 }
 
 // CommissionFilters for listing commissions
@@ -91,9 +91,9 @@ func GetCommissionAmount(ctx context.Context, referrerID string, triggerEvent st
 func CreateCommission(ctx context.Context, referrerID, candidateID, triggerEvent string, amount int64) (*Commission, error) {
 	var c Commission
 	err := pool.QueryRow(ctx, `
-		INSERT INTO commission_ledger (referrer_id, candidate_id, trigger_event, amount)
+		INSERT INTO commission_ledger (id_referrer, id_candidate, trigger_event, amount)
 		VALUES ($1, $2, $3, $4)
-		RETURNING id, referrer_id, candidate_id, trigger_event, amount, status, approved_at, approved_by, paid_at, paid_by, notes, created_at, updated_at
+		RETURNING id, id_referrer, id_candidate, trigger_event, amount, status, approved_at, id_approved_by, paid_at, id_paid_by, notes, created_at, updated_at
 	`, referrerID, candidateID, triggerEvent, amount).Scan(
 		&c.ID, &c.ReferrerID, &c.CandidateID, &c.TriggerEvent, &c.Amount, &c.Status,
 		&c.ApprovedAt, &c.ApprovedBy, &c.PaidAt, &c.PaidBy, &c.Notes, &c.CreatedAt, &c.UpdatedAt,
@@ -108,7 +108,7 @@ func CreateCommission(ctx context.Context, referrerID, candidateID, triggerEvent
 func CreateCommissionForCandidate(ctx context.Context, candidateID, triggerEvent string) error {
 	// Get candidate's referrer
 	var referrerID *string
-	err := pool.QueryRow(ctx, `SELECT referrer_id FROM candidates WHERE id = $1`, candidateID).Scan(&referrerID)
+	err := pool.QueryRow(ctx, `SELECT id_referrer FROM candidates WHERE id = $1`, candidateID).Scan(&referrerID)
 	if err != nil {
 		return fmt.Errorf("failed to get candidate: %w", err)
 	}
@@ -144,16 +144,16 @@ func CreateCommissionForCandidate(ctx context.Context, candidateID, triggerEvent
 func FindCommissionByID(ctx context.Context, id string) (*CommissionWithDetails, error) {
 	var c CommissionWithDetails
 	err := pool.QueryRow(ctx, `
-		SELECT cl.id, cl.referrer_id, cl.candidate_id, cl.trigger_event, cl.amount, cl.status,
-		       cl.approved_at, cl.approved_by, cl.paid_at, cl.paid_by, cl.notes, cl.created_at, cl.updated_at,
+		SELECT cl.id, cl.id_referrer, cl.id_candidate, cl.trigger_event, cl.amount, cl.status,
+		       cl.approved_at, cl.id_approved_by, cl.paid_at, cl.id_paid_by, cl.notes, cl.created_at, cl.updated_at,
 		       r.name as referrer_name, r.type as referrer_type,
 		       ca.name as candidate_name, ca.email as candidate_email,
-		       u1.name as approved_by_name, u2.name as paid_by_name
+		       u1.name as id_approved_by_name, u2.name as id_paid_by_name
 		FROM commission_ledger cl
-		JOIN referrers r ON cl.referrer_id = r.id
-		LEFT JOIN candidates ca ON cl.candidate_id = ca.id
-		LEFT JOIN users u1 ON cl.approved_by = u1.id
-		LEFT JOIN users u2 ON cl.paid_by = u2.id
+		JOIN referrers r ON cl.id_referrer = r.id
+		LEFT JOIN candidates ca ON cl.id_candidate = ca.id
+		LEFT JOIN users u1 ON cl.id_approved_by = u1.id
+		LEFT JOIN users u2 ON cl.id_paid_by = u2.id
 		WHERE cl.id = $1
 	`, id).Scan(
 		&c.ID, &c.ReferrerID, &c.CandidateID, &c.TriggerEvent, &c.Amount, &c.Status,
@@ -175,17 +175,17 @@ func ListCommissions(ctx context.Context, filters CommissionFilters) ([]Commissi
 	// Build query
 	baseQuery := `
 		FROM commission_ledger cl
-		JOIN referrers r ON cl.referrer_id = r.id
-		LEFT JOIN candidates ca ON cl.candidate_id = ca.id
-		LEFT JOIN users u1 ON cl.approved_by = u1.id
-		LEFT JOIN users u2 ON cl.paid_by = u2.id
+		JOIN referrers r ON cl.id_referrer = r.id
+		LEFT JOIN candidates ca ON cl.id_candidate = ca.id
+		LEFT JOIN users u1 ON cl.id_approved_by = u1.id
+		LEFT JOIN users u2 ON cl.id_paid_by = u2.id
 		WHERE 1=1
 	`
 	args := []interface{}{}
 	argIdx := 1
 
 	if filters.ReferrerID != "" {
-		baseQuery += fmt.Sprintf(" AND cl.referrer_id = $%d", argIdx)
+		baseQuery += fmt.Sprintf(" AND cl.id_referrer = $%d", argIdx)
 		args = append(args, filters.ReferrerID)
 		argIdx++
 	}
@@ -217,11 +217,11 @@ func ListCommissions(ctx context.Context, filters CommissionFilters) ([]Commissi
 
 	// Get commissions
 	query := `
-		SELECT cl.id, cl.referrer_id, cl.candidate_id, cl.trigger_event, cl.amount, cl.status,
-		       cl.approved_at, cl.approved_by, cl.paid_at, cl.paid_by, cl.notes, cl.created_at, cl.updated_at,
+		SELECT cl.id, cl.id_referrer, cl.id_candidate, cl.trigger_event, cl.amount, cl.status,
+		       cl.approved_at, cl.id_approved_by, cl.paid_at, cl.id_paid_by, cl.notes, cl.created_at, cl.updated_at,
 		       r.name as referrer_name, r.type as referrer_type,
 		       ca.name as candidate_name, ca.email as candidate_email,
-		       u1.name as approved_by_name, u2.name as paid_by_name
+		       u1.name as id_approved_by_name, u2.name as id_paid_by_name
 	` + baseQuery + " ORDER BY cl.created_at DESC"
 
 	if filters.Limit > 0 {
@@ -271,7 +271,7 @@ func ListCommissionsByReferrer(ctx context.Context, referrerID string) ([]Commis
 func ApproveCommission(ctx context.Context, id, approvedBy string) error {
 	result, err := pool.Exec(ctx, `
 		UPDATE commission_ledger
-		SET status = 'approved', approved_at = NOW(), approved_by = $1, updated_at = NOW()
+		SET status = 'approved', approved_at = NOW(), id_approved_by = $1, updated_at = NOW()
 		WHERE id = $2 AND status = 'pending'
 	`, approvedBy, id)
 	if err != nil {
@@ -287,7 +287,7 @@ func ApproveCommission(ctx context.Context, id, approvedBy string) error {
 func MarkCommissionPaid(ctx context.Context, id, paidBy string, notes *string) error {
 	result, err := pool.Exec(ctx, `
 		UPDATE commission_ledger
-		SET status = 'paid', paid_at = NOW(), paid_by = $1, notes = COALESCE($2, notes), updated_at = NOW()
+		SET status = 'paid', paid_at = NOW(), id_paid_by = $1, notes = COALESCE($2, notes), updated_at = NOW()
 		WHERE id = $3 AND status = 'approved'
 	`, paidBy, notes, id)
 	if err != nil {
@@ -323,7 +323,7 @@ func BatchApproveCommissions(ctx context.Context, ids []string, approvedBy strin
 
 	result, err := pool.Exec(ctx, `
 		UPDATE commission_ledger
-		SET status = 'approved', approved_at = NOW(), approved_by = $1, updated_at = NOW()
+		SET status = 'approved', approved_at = NOW(), id_approved_by = $1, updated_at = NOW()
 		WHERE id = ANY($2) AND status = 'pending'
 	`, approvedBy, ids)
 	if err != nil {
@@ -340,7 +340,7 @@ func BatchMarkCommissionsPaid(ctx context.Context, ids []string, paidBy string, 
 
 	result, err := pool.Exec(ctx, `
 		UPDATE commission_ledger
-		SET status = 'paid', paid_at = NOW(), paid_by = $1, notes = COALESCE($2, notes), updated_at = NOW()
+		SET status = 'paid', paid_at = NOW(), id_paid_by = $1, notes = COALESCE($2, notes), updated_at = NOW()
 		WHERE id = ANY($3) AND status = 'approved'
 	`, paidBy, notes, ids)
 	if err != nil {

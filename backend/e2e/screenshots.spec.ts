@@ -661,7 +661,7 @@ test.describe('User Manual Screenshots - Candidate Management', () => {
 test.describe('User Manual Screenshots - AC (Academic Consultant) Features', () => {
   test.beforeEach(async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
-    await page.goto('/test/login/admin');
+    await page.goto('/test/login/consultant');
     await page.waitForURL(/\/admin\/?$/);
   });
 
@@ -715,20 +715,24 @@ test.describe('User Manual Screenshots - AC (Academic Consultant) Features', () 
   // AC Dashboard - Supervisor Suggestions
   test('40e - AC Dashboard Supervisor Suggestions', async ({ page }) => {
     await page.goto('/admin/my-dashboard');
-    await expect(page.getByTestId('supervisor-suggestions-section')).toBeVisible();
+    const section = page.getByTestId('supervisor-suggestions-section');
+    await expect(section).toBeVisible();
+    await section.scrollIntoViewIfNeeded();
     await page.screenshot({
       path: `${SCREENSHOT_DIR}/40e-ac-dashboard-suggestions.png`,
-      clip: await page.getByTestId('supervisor-suggestions-section').boundingBox() || undefined
+      fullPage: true
     });
   });
 
   // AC Dashboard - Monthly Performance
   test('40f - AC Dashboard Monthly Performance', async ({ page }) => {
     await page.goto('/admin/my-dashboard');
-    await expect(page.getByTestId('monthly-performance-section')).toBeVisible();
+    const section = page.getByTestId('monthly-performance-section');
+    await expect(section).toBeVisible();
+    await section.scrollIntoViewIfNeeded();
     await page.screenshot({
       path: `${SCREENSHOT_DIR}/40f-ac-dashboard-monthly-performance.png`,
-      clip: await page.getByTestId('monthly-performance-section').boundingBox() || undefined
+      fullPage: true
     });
   });
 

@@ -3,26 +3,26 @@
 
 CREATE TABLE commission_ledger (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    referrer_id UUID NOT NULL REFERENCES referrers(id),
-    candidate_id UUID NOT NULL REFERENCES candidates(id),
+    id_referrer UUID NOT NULL REFERENCES referrers(id),
+    id_candidate UUID NOT NULL REFERENCES candidates(id),
     trigger_event VARCHAR(20) NOT NULL CHECK (trigger_event IN ('registration', 'commitment', 'enrollment')),
     amount BIGINT NOT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'paid', 'cancelled')),
     approved_at TIMESTAMPTZ,
-    approved_by UUID REFERENCES users(id),
+    id_approved_by UUID REFERENCES users(id),
     paid_at TIMESTAMPTZ,
-    paid_by UUID REFERENCES users(id),
+    id_paid_by UUID REFERENCES users(id),
     notes TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    UNIQUE(referrer_id, candidate_id, trigger_event)
+    UNIQUE(id_referrer, id_candidate, trigger_event)
 );
 
 -- Index for referrer lookup
-CREATE INDEX idx_commission_ledger_referrer ON commission_ledger(referrer_id);
+CREATE INDEX idx_commission_ledger_referrer ON commission_ledger(id_referrer);
 
 -- Index for candidate lookup
-CREATE INDEX idx_commission_ledger_candidate ON commission_ledger(candidate_id);
+CREATE INDEX idx_commission_ledger_candidate ON commission_ledger(id_candidate);
 
 -- Index for status filtering
 CREATE INDEX idx_commission_ledger_status ON commission_ledger(status);

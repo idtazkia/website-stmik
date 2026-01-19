@@ -14,7 +14,7 @@ type Announcement struct {
 	Title         string     `json:"title"`
 	Content       string     `json:"content"`
 	TargetStatus  *string    `json:"target_status,omitempty"`
-	TargetProdiID *string    `json:"target_prodi_id,omitempty"`
+	TargetProdiID *string    `json:"id_target_prodi,omitempty"`
 	IsPublished   bool       `json:"is_published"`
 	PublishedAt   *time.Time `json:"published_at,omitempty"`
 	CreatedBy     *string    `json:"created_by,omitempty"`
@@ -44,9 +44,9 @@ type AnnouncementForCandidate struct {
 func CreateAnnouncement(ctx context.Context, title, content string, targetStatus, targetProdiID, createdBy *string) (*Announcement, error) {
 	var ann Announcement
 	err := pool.QueryRow(ctx, `
-		INSERT INTO announcements (title, content, target_status, target_prodi_id, created_by)
+		INSERT INTO announcements (title, content, target_status, id_target_prodi, id_created_by)
 		VALUES ($1, $2, $3, $4, $5)
-		RETURNING id, title, content, target_status, target_prodi_id, is_published, published_at, created_by, created_at, updated_at
+		RETURNING id, title, content, target_status, id_target_prodi, is_published, published_at, id_created_by, created_at, updated_at
 	`, title, content, targetStatus, targetProdiID, createdBy).Scan(
 		&ann.ID, &ann.Title, &ann.Content, &ann.TargetStatus, &ann.TargetProdiID,
 		&ann.IsPublished, &ann.PublishedAt, &ann.CreatedBy, &ann.CreatedAt, &ann.UpdatedAt,
@@ -61,7 +61,7 @@ func CreateAnnouncement(ctx context.Context, title, content string, targetStatus
 func FindAnnouncementByID(ctx context.Context, id string) (*Announcement, error) {
 	var ann Announcement
 	err := pool.QueryRow(ctx, `
-		SELECT id, title, content, target_status, target_prodi_id, is_published, published_at, created_by, created_at, updated_at
+		SELECT id, title, content, target_status, id_target_prodi, is_published, published_at, id_created_by, created_at, updated_at
 		FROM announcements WHERE id = $1
 	`, id).Scan(
 		&ann.ID, &ann.Title, &ann.Content, &ann.TargetStatus, &ann.TargetProdiID,
@@ -79,12 +79,12 @@ func FindAnnouncementByID(ctx context.Context, id string) (*Announcement, error)
 // ListAnnouncements lists all announcements for admin
 func ListAnnouncements(ctx context.Context) ([]AnnouncementWithDetails, error) {
 	rows, err := pool.Query(ctx, `
-		SELECT a.id, a.title, a.content, a.target_status, a.target_prodi_id, a.is_published, a.published_at, a.created_by, a.created_at, a.updated_at,
+		SELECT a.id, a.title, a.content, a.target_status, a.id_target_prodi, a.is_published, a.published_at, a.id_created_by, a.created_at, a.updated_at,
 		       p.name as target_prodi_name, u.name as created_by_name,
-		       (SELECT COUNT(*) FROM announcement_reads ar WHERE ar.announcement_id = a.id) as read_count
+		       (SELECT COUNT(*) FROM announcement_reads ar WHERE ar.id_announcement = a.id) as read_count
 		FROM announcements a
-		LEFT JOIN prodis p ON p.id = a.target_prodi_id
-		LEFT JOIN users u ON u.id = a.created_by
+		LEFT JOIN prodis p ON p.id = a.id_target_prodi
+		LEFT JOIN users u ON u.id = a.id_created_by
 		ORDER BY a.created_at DESC
 	`)
 	if err != nil {
@@ -114,10 +114,10 @@ func ListAnnouncementsForCandidate(ctx context.Context, candidateID, status stri
 		SELECT a.id, a.title, a.content, a.published_at,
 		       ar.read_at IS NOT NULL as is_read, ar.read_at
 		FROM announcements a
-		LEFT JOIN announcement_reads ar ON ar.announcement_id = a.id AND ar.candidate_id = $1
+		LEFT JOIN announcement_reads ar ON ar.id_announcement = a.id AND ar.id_candidate = $1
 		WHERE a.is_published = true
 		  AND (a.target_status IS NULL OR a.target_status = $2)
-		  AND (a.target_prodi_id IS NULL OR a.target_prodi_id = $3)
+		  AND (a.id_target_prodi IS NULL OR a.id_target_prodi = $3)
 		ORDER BY a.published_at DESC
 	`, candidateID, status, prodiID)
 	if err != nil {
@@ -145,8 +145,8 @@ func CountUnreadAnnouncementsForCandidate(ctx context.Context, candidateID, stat
 		FROM announcements a
 		WHERE a.is_published = true
 		  AND (a.target_status IS NULL OR a.target_status = $2)
-		  AND (a.target_prodi_id IS NULL OR a.target_prodi_id = $3)
-		  AND NOT EXISTS (SELECT 1 FROM announcement_reads ar WHERE ar.announcement_id = a.id AND ar.candidate_id = $1)
+		  AND (a.id_target_prodi IS NULL OR a.id_target_prodi = $3)
+		  AND NOT EXISTS (SELECT 1 FROM announcement_reads ar WHERE ar.id_announcement = a.id AND ar.id_candidate = $1)
 	`, candidateID, status, prodiID).Scan(&count)
 	if err != nil {
 		return 0, fmt.Errorf("failed to count unread announcements: %w", err)
@@ -158,7 +158,7 @@ func CountUnreadAnnouncementsForCandidate(ctx context.Context, candidateID, stat
 func UpdateAnnouncement(ctx context.Context, id, title, content string, targetStatus, targetProdiID *string) error {
 	_, err := pool.Exec(ctx, `
 		UPDATE announcements
-		SET title = $2, content = $3, target_status = $4, target_prodi_id = $5, updated_at = NOW()
+		SET title = $2, content = $3, target_status = $4, id_target_prodi = $5, updated_at = NOW()
 		WHERE id = $1
 	`, id, title, content, targetStatus, targetProdiID)
 	if err != nil {
@@ -205,9 +205,9 @@ func DeleteAnnouncement(ctx context.Context, id string) error {
 // MarkAnnouncementRead marks an announcement as read by a candidate
 func MarkAnnouncementRead(ctx context.Context, announcementID, candidateID string) error {
 	_, err := pool.Exec(ctx, `
-		INSERT INTO announcement_reads (announcement_id, candidate_id)
+		INSERT INTO announcement_reads (id_announcement, id_candidate)
 		VALUES ($1, $2)
-		ON CONFLICT (announcement_id, candidate_id) DO NOTHING
+		ON CONFLICT (id_announcement, id_candidate) DO NOTHING
 	`, announcementID, candidateID)
 	if err != nil {
 		return fmt.Errorf("failed to mark announcement as read: %w", err)

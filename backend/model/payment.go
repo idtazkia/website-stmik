@@ -18,7 +18,7 @@ const (
 // Payment represents a payment proof record
 type Payment struct {
 	ID              string     `json:"id"`
-	BillingID       string     `json:"billing_id"`
+	BillingID       string     `json:"id_billing"`
 	Amount          int        `json:"amount"`
 	TransferDate    time.Time  `json:"transfer_date"`
 	ProofFilePath   string     `json:"proof_file_path"`
@@ -27,7 +27,7 @@ type Payment struct {
 	ProofMimeType   string     `json:"proof_mime_type"`
 	Status          string     `json:"status"`
 	RejectionReason *string    `json:"rejection_reason,omitempty"`
-	ReviewedBy      *string    `json:"reviewed_by,omitempty"`
+	ReviewedBy      *string    `json:"id_reviewed_by,omitempty"`
 	ReviewedAt      *time.Time `json:"reviewed_at,omitempty"`
 	CreatedAt       time.Time  `json:"created_at"`
 	UpdatedAt       time.Time  `json:"updated_at"`
@@ -47,10 +47,10 @@ type PaymentWithBilling struct {
 func CreatePayment(ctx context.Context, billingID string, amount int, transferDate time.Time, proofFilePath, proofFileName string, proofFileSize int, proofMimeType string) (*Payment, error) {
 	var p Payment
 	err := pool.QueryRow(ctx, `
-		INSERT INTO payments (billing_id, amount, transfer_date, proof_file_path, proof_file_name, proof_file_size, proof_mime_type)
+		INSERT INTO payments (id_billing, amount, transfer_date, proof_file_path, proof_file_name, proof_file_size, proof_mime_type)
 		VALUES ($1, $2, $3, $4, $5, $6, $7)
-		RETURNING id, billing_id, amount, transfer_date, proof_file_path, proof_file_name, proof_file_size,
-		          proof_mime_type, status, rejection_reason, reviewed_by, reviewed_at, created_at, updated_at
+		RETURNING id, id_billing, amount, transfer_date, proof_file_path, proof_file_name, proof_file_size,
+		          proof_mime_type, status, rejection_reason, id_reviewed_by, reviewed_at, created_at, updated_at
 	`, billingID, amount, transferDate, proofFilePath, proofFileName, proofFileSize, proofMimeType).Scan(
 		&p.ID, &p.BillingID, &p.Amount, &p.TransferDate, &p.ProofFilePath, &p.ProofFileName, &p.ProofFileSize,
 		&p.ProofMimeType, &p.Status, &p.RejectionReason, &p.ReviewedBy, &p.ReviewedAt, &p.CreatedAt, &p.UpdatedAt,
@@ -74,8 +74,8 @@ func CreatePayment(ctx context.Context, billingID string, amount int, transferDa
 func FindPaymentByID(ctx context.Context, id string) (*Payment, error) {
 	var p Payment
 	err := pool.QueryRow(ctx, `
-		SELECT id, billing_id, amount, transfer_date, proof_file_path, proof_file_name, proof_file_size,
-		       proof_mime_type, status, rejection_reason, reviewed_by, reviewed_at, created_at, updated_at
+		SELECT id, id_billing, amount, transfer_date, proof_file_path, proof_file_name, proof_file_size,
+		       proof_mime_type, status, rejection_reason, id_reviewed_by, reviewed_at, created_at, updated_at
 		FROM payments
 		WHERE id = $1
 	`, id).Scan(
@@ -100,15 +100,15 @@ type PaymentReviewFilters struct {
 // ListPaymentsForReview returns payments for admin review
 func ListPaymentsForReview(ctx context.Context, filters PaymentReviewFilters) ([]PaymentWithBilling, error) {
 	query := `
-		SELECT p.id, p.billing_id, p.amount, p.transfer_date, p.proof_file_path, p.proof_file_name,
-		       p.proof_file_size, p.proof_mime_type, p.status, p.rejection_reason, p.reviewed_by,
+		SELECT p.id, p.id_billing, p.amount, p.transfer_date, p.proof_file_path, p.proof_file_name,
+		       p.proof_file_size, p.proof_mime_type, p.status, p.rejection_reason, p.id_reviewed_by,
 		       p.reviewed_at, p.created_at, p.updated_at,
 		       b.billing_type, b.amount as billing_amount, c.id as candidate_id, c.name as candidate_name,
 		       pr.name as candidate_prodi
 		FROM payments p
-		JOIN billings b ON b.id = p.billing_id
-		JOIN candidates c ON c.id = b.candidate_id
-		LEFT JOIN prodis pr ON pr.id = c.prodi_id
+		JOIN billings b ON b.id = p.id_billing
+		JOIN candidates c ON c.id = b.id_candidate
+		LEFT JOIN prodis pr ON pr.id = c.id_prodi
 		WHERE 1=1
 	`
 	args := []interface{}{}
@@ -196,9 +196,9 @@ func ListPaymentsWithDetails(ctx context.Context, status string, page, pageSize 
 	// Build query
 	baseQuery := `
 		FROM payments p
-		JOIN billings b ON b.id = p.billing_id
-		JOIN candidates c ON c.id = b.candidate_id
-		LEFT JOIN prodis pr ON pr.id = c.prodi_id
+		JOIN billings b ON b.id = p.id_billing
+		JOIN candidates c ON c.id = b.id_candidate
+		LEFT JOIN prodis pr ON pr.id = c.id_prodi
 		WHERE 1=1
 	`
 	args := []any{}
@@ -229,8 +229,8 @@ func ListPaymentsWithDetails(ctx context.Context, status string, page, pageSize 
 
 	// Get payments
 	selectQuery := `
-		SELECT p.id, p.billing_id, p.amount, p.transfer_date, p.proof_file_path, p.proof_file_name,
-		       p.proof_file_size, p.proof_mime_type, p.status, p.rejection_reason, p.reviewed_by,
+		SELECT p.id, p.id_billing, p.amount, p.transfer_date, p.proof_file_path, p.proof_file_name,
+		       p.proof_file_size, p.proof_mime_type, p.status, p.rejection_reason, p.id_reviewed_by,
 		       p.reviewed_at, p.created_at, p.updated_at,
 		       b.billing_type, b.amount as billing_amount, c.id as candidate_id, c.name as candidate_name,
 		       pr.name as candidate_prodi
@@ -263,10 +263,10 @@ func ListPaymentsWithDetails(ctx context.Context, status string, page, pageSize 
 // ListPaymentsByBilling returns all payments for a billing
 func ListPaymentsByBilling(ctx context.Context, billingID string) ([]Payment, error) {
 	rows, err := pool.Query(ctx, `
-		SELECT id, billing_id, amount, transfer_date, proof_file_path, proof_file_name, proof_file_size,
-		       proof_mime_type, status, rejection_reason, reviewed_by, reviewed_at, created_at, updated_at
+		SELECT id, id_billing, amount, transfer_date, proof_file_path, proof_file_name, proof_file_size,
+		       proof_mime_type, status, rejection_reason, id_reviewed_by, reviewed_at, created_at, updated_at
 		FROM payments
-		WHERE billing_id = $1
+		WHERE id_billing = $1
 		ORDER BY created_at DESC
 	`, billingID)
 	if err != nil {
@@ -301,9 +301,9 @@ func ApprovePayment(ctx context.Context, paymentID, reviewerID string) error {
 	var billingID string
 	err = tx.QueryRow(ctx, `
 		UPDATE payments
-		SET status = 'approved', reviewed_by = $2, reviewed_at = NOW(), updated_at = NOW()
+		SET status = 'approved', id_reviewed_by = $2, reviewed_at = NOW(), updated_at = NOW()
 		WHERE id = $1
-		RETURNING billing_id
+		RETURNING id_billing
 	`, paymentID, reviewerID).Scan(&billingID)
 	if err != nil {
 		return fmt.Errorf("failed to approve payment: %w", err)
@@ -334,9 +334,9 @@ func RejectPayment(ctx context.Context, paymentID, reviewerID, reason string) er
 	var billingID string
 	err = tx.QueryRow(ctx, `
 		UPDATE payments
-		SET status = 'rejected', rejection_reason = $3, reviewed_by = $2, reviewed_at = NOW(), updated_at = NOW()
+		SET status = 'rejected', rejection_reason = $3, id_reviewed_by = $2, reviewed_at = NOW(), updated_at = NOW()
 		WHERE id = $1
-		RETURNING billing_id
+		RETURNING id_billing
 	`, paymentID, reviewerID, reason).Scan(&billingID)
 	if err != nil {
 		return fmt.Errorf("failed to reject payment: %w", err)

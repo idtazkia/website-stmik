@@ -30,9 +30,9 @@ type Candidate struct {
 	ReferredByCandidateID *string    `json:"referred_by_candidate_id,omitempty"`
 	SourceType            *string    `json:"source_type,omitempty"`
 	SourceDetail          *string    `json:"source_detail,omitempty"`
-	AssignedConsultantID  *string    `json:"assigned_consultant_id,omitempty"`
+	AssignedConsultantID  *string    `json:"id_assigned_consultant,omitempty"`
 	Status                string     `json:"status"`
-	LostReasonID          *string    `json:"lost_reason_id,omitempty"`
+	LostReasonID          *string    `json:"id_lost_reason,omitempty"`
 	LostAt                *time.Time `json:"lost_at,omitempty"`
 	CreatedAt             time.Time  `json:"created_at"`
 	UpdatedAt             time.Time  `json:"updated_at"`
@@ -76,8 +76,8 @@ func CreateCandidate(ctx context.Context, email, phone, passwordHash string) (*C
 		INSERT INTO candidates (email, phone, password_hash)
 		VALUES ($1, $2, $3)
 		RETURNING id, email, email_verified, phone, phone_verified, password_hash, name, address, city, province,
-		          high_school, graduation_year, prodi_id, campaign_id, referrer_id, referred_by_candidate_id,
-		          source_type, source_detail, assigned_consultant_id, status, lost_reason_id, lost_at, created_at, updated_at
+		          high_school, graduation_year, id_prodi, id_campaign, id_referrer, id_referred_by_candidate,
+		          source_type, source_detail, id_assigned_consultant, status, id_lost_reason, lost_at, created_at, updated_at
 	`, emailPtr, phonePtr, passwordHash).Scan(
 		&candidate.ID, &candidate.Email, &candidate.EmailVerified, &candidate.Phone, &candidate.PhoneVerified,
 		&candidate.PasswordHash, &candidate.Name, &candidate.Address, &candidate.City, &candidate.Province,
@@ -97,8 +97,8 @@ func FindCandidateByID(ctx context.Context, id string) (*Candidate, error) {
 	var candidate Candidate
 	err := pool.QueryRow(ctx, `
 		SELECT id, email, email_verified, phone, phone_verified, password_hash, name, address, city, province,
-		       high_school, graduation_year, prodi_id, campaign_id, referrer_id, referred_by_candidate_id,
-		       source_type, source_detail, assigned_consultant_id, status, lost_reason_id, lost_at, created_at, updated_at
+		       high_school, graduation_year, id_prodi, id_campaign, id_referrer, id_referred_by_candidate,
+		       source_type, source_detail, id_assigned_consultant, status, id_lost_reason, lost_at, created_at, updated_at
 		FROM candidates WHERE id = $1
 	`, id).Scan(
 		&candidate.ID, &candidate.Email, &candidate.EmailVerified, &candidate.Phone, &candidate.PhoneVerified,
@@ -122,8 +122,8 @@ func FindCandidateByEmail(ctx context.Context, email string) (*Candidate, error)
 	var candidate Candidate
 	err := pool.QueryRow(ctx, `
 		SELECT id, email, email_verified, phone, phone_verified, password_hash, name, address, city, province,
-		       high_school, graduation_year, prodi_id, campaign_id, referrer_id, referred_by_candidate_id,
-		       source_type, source_detail, assigned_consultant_id, status, lost_reason_id, lost_at, created_at, updated_at
+		       high_school, graduation_year, id_prodi, id_campaign, id_referrer, id_referred_by_candidate,
+		       source_type, source_detail, id_assigned_consultant, status, id_lost_reason, lost_at, created_at, updated_at
 		FROM candidates WHERE email = $1
 	`, email).Scan(
 		&candidate.ID, &candidate.Email, &candidate.EmailVerified, &candidate.Phone, &candidate.PhoneVerified,
@@ -147,8 +147,8 @@ func FindCandidateByPhone(ctx context.Context, phone string) (*Candidate, error)
 	var candidate Candidate
 	err := pool.QueryRow(ctx, `
 		SELECT id, email, email_verified, phone, phone_verified, password_hash, name, address, city, province,
-		       high_school, graduation_year, prodi_id, campaign_id, referrer_id, referred_by_candidate_id,
-		       source_type, source_detail, assigned_consultant_id, status, lost_reason_id, lost_at, created_at, updated_at
+		       high_school, graduation_year, id_prodi, id_campaign, id_referrer, id_referred_by_candidate,
+		       source_type, source_detail, id_assigned_consultant, status, id_lost_reason, lost_at, created_at, updated_at
 		FROM candidates WHERE phone = $1
 	`, phone).Scan(
 		&candidate.ID, &candidate.Email, &candidate.EmailVerified, &candidate.Phone, &candidate.PhoneVerified,
@@ -213,7 +213,7 @@ func UpdateCandidateEducation(ctx context.Context, id, highSchool string, gradua
 	}
 	_, err := pool.Exec(ctx, `
 		UPDATE candidates
-		SET high_school = $2, graduation_year = $3, prodi_id = $4, updated_at = NOW()
+		SET high_school = $2, graduation_year = $3, id_prodi = $4, updated_at = NOW()
 		WHERE id = $1
 	`, id, highSchool, graduationYear, prodiPtr)
 	if err != nil {
@@ -241,7 +241,7 @@ func UpdateCandidateSourceTracking(ctx context.Context, id, sourceType, sourceDe
 
 	_, err := pool.Exec(ctx, `
 		UPDATE candidates
-		SET source_type = $2, source_detail = $3, campaign_id = $4, referrer_id = $5, referred_by_candidate_id = $6, updated_at = NOW()
+		SET source_type = $2, source_detail = $3, id_campaign = $4, id_referrer = $5, id_referred_by_candidate = $6, updated_at = NOW()
 		WHERE id = $1
 	`, id, sourceType, sourceDetailPtr, campaignPtr, referrerPtr, referredByPtr)
 	if err != nil {
@@ -275,7 +275,7 @@ func SetCandidatePhoneVerified(ctx context.Context, id string) error {
 // AssignCandidateConsultant assigns a consultant to a candidate
 func AssignCandidateConsultant(ctx context.Context, id, consultantID string) error {
 	_, err := pool.Exec(ctx, `
-		UPDATE candidates SET assigned_consultant_id = $2, updated_at = NOW() WHERE id = $1
+		UPDATE candidates SET id_assigned_consultant = $2, updated_at = NOW() WHERE id = $1
 	`, id, consultantID)
 	if err != nil {
 		return fmt.Errorf("failed to assign consultant: %w", err)
@@ -318,7 +318,7 @@ func UpdateCandidateStatus(ctx context.Context, id, status string) error {
 // MarkCandidateLost marks a candidate as lost with reason
 func MarkCandidateLost(ctx context.Context, id, lostReasonID string) error {
 	_, err := pool.Exec(ctx, `
-		UPDATE candidates SET status = 'lost', lost_reason_id = $2, lost_at = NOW(), updated_at = NOW() WHERE id = $1
+		UPDATE candidates SET status = 'lost', id_lost_reason = $2, lost_at = NOW(), updated_at = NOW() WHERE id = $1
 	`, id, lostReasonID)
 	if err != nil {
 		return fmt.Errorf("failed to mark candidate as lost: %w", err)
@@ -349,19 +349,19 @@ func GetCandidateDetailData(ctx context.Context, id string) (*CandidateDetailDat
 	var data CandidateDetailData
 	err := pool.QueryRow(ctx, `
 		SELECT c.id, c.email, c.email_verified, c.phone, c.phone_verified, c.password_hash, c.name, c.address, c.city, c.province,
-		       c.high_school, c.graduation_year, c.prodi_id, c.campaign_id, c.referrer_id, c.referred_by_candidate_id,
-		       c.source_type, c.source_detail, c.assigned_consultant_id, c.status, c.lost_reason_id, c.lost_at, c.created_at, c.updated_at,
+		       c.high_school, c.graduation_year, c.id_prodi, c.id_campaign, c.id_referrer, c.id_referred_by_candidate,
+		       c.source_type, c.source_detail, c.id_assigned_consultant, c.status, c.id_lost_reason, c.lost_at, c.created_at, c.updated_at,
 		       p.name as prodi_name,
 		       u.name as consultant_name,
 		       camp.name as campaign_name,
 		       ref.name as referrer_name,
 		       lr.name as lost_reason_name
 		FROM candidates c
-		LEFT JOIN prodis p ON p.id = c.prodi_id
-		LEFT JOIN users u ON u.id = c.assigned_consultant_id
-		LEFT JOIN campaigns camp ON camp.id = c.campaign_id
-		LEFT JOIN referrers ref ON ref.id = c.referrer_id
-		LEFT JOIN lost_reasons lr ON lr.id = c.lost_reason_id
+		LEFT JOIN prodis p ON p.id = c.id_prodi
+		LEFT JOIN users u ON u.id = c.id_assigned_consultant
+		LEFT JOIN campaigns camp ON camp.id = c.id_campaign
+		LEFT JOIN referrers ref ON ref.id = c.id_referrer
+		LEFT JOIN lost_reasons lr ON lr.id = c.id_lost_reason
 		WHERE c.id = $1
 	`, id).Scan(
 		&data.ID, &data.Email, &data.EmailVerified, &data.Phone, &data.PhoneVerified,
@@ -386,12 +386,12 @@ func GetCandidateDashboardData(ctx context.Context, id string) (*CandidateDashbo
 	var data CandidateDashboardData
 	err := pool.QueryRow(ctx, `
 		SELECT c.id, c.email, c.email_verified, c.phone, c.phone_verified, c.password_hash, c.name, c.address, c.city, c.province,
-		       c.high_school, c.graduation_year, c.prodi_id, c.campaign_id, c.referrer_id, c.referred_by_candidate_id,
-		       c.source_type, c.source_detail, c.assigned_consultant_id, c.status, c.lost_reason_id, c.lost_at, c.created_at, c.updated_at,
+		       c.high_school, c.graduation_year, c.id_prodi, c.id_campaign, c.id_referrer, c.id_referred_by_candidate,
+		       c.source_type, c.source_detail, c.id_assigned_consultant, c.status, c.id_lost_reason, c.lost_at, c.created_at, c.updated_at,
 		       p.name as prodi_name, u.name as consultant_name, u.email as consultant_email
 		FROM candidates c
-		LEFT JOIN prodis p ON p.id = c.prodi_id
-		LEFT JOIN users u ON u.id = c.assigned_consultant_id
+		LEFT JOIN prodis p ON p.id = c.id_prodi
+		LEFT JOIN users u ON u.id = c.id_assigned_consultant
 		WHERE c.id = $1
 	`, id).Scan(
 		&data.ID, &data.Email, &data.EmailVerified, &data.Phone, &data.PhoneVerified,
@@ -461,12 +461,12 @@ func ListCandidates(ctx context.Context, filters CandidateListFilters, visibilit
 	// Role-based visibility
 	if visibilityConsultantID != nil && *visibilityConsultantID != "" {
 		// Consultant sees only their candidates
-		whereClause += fmt.Sprintf(" AND c.assigned_consultant_id = $%d", argNum)
+		whereClause += fmt.Sprintf(" AND c.id_assigned_consultant = $%d", argNum)
 		args = append(args, *visibilityConsultantID)
 		argNum++
 	} else if visibilitySupervisorID != nil && *visibilitySupervisorID != "" {
 		// Supervisor sees their team's candidates
-		whereClause += fmt.Sprintf(" AND c.assigned_consultant_id IN (SELECT id FROM users WHERE id_supervisor = $%d OR id = $%d)", argNum, argNum+1)
+		whereClause += fmt.Sprintf(" AND c.id_assigned_consultant IN (SELECT id FROM users WHERE id_supervisor = $%d OR id = $%d)", argNum, argNum+1)
 		args = append(args, *visibilitySupervisorID, *visibilitySupervisorID)
 		argNum += 2
 	}
@@ -480,19 +480,19 @@ func ListCandidates(ctx context.Context, filters CandidateListFilters, visibilit
 	}
 
 	if filters.ConsultantID != "" {
-		whereClause += fmt.Sprintf(" AND c.assigned_consultant_id = $%d", argNum)
+		whereClause += fmt.Sprintf(" AND c.id_assigned_consultant = $%d", argNum)
 		args = append(args, filters.ConsultantID)
 		argNum++
 	}
 
 	if filters.ProdiID != "" {
-		whereClause += fmt.Sprintf(" AND c.prodi_id = $%d", argNum)
+		whereClause += fmt.Sprintf(" AND c.id_prodi = $%d", argNum)
 		args = append(args, filters.ProdiID)
 		argNum++
 	}
 
 	if filters.CampaignID != "" {
-		whereClause += fmt.Sprintf(" AND c.campaign_id = $%d", argNum)
+		whereClause += fmt.Sprintf(" AND c.id_campaign = $%d", argNum)
 		args = append(args, filters.CampaignID)
 		argNum++
 	}
@@ -557,9 +557,9 @@ func ListCandidates(ctx context.Context, filters CandidateListFilters, visibilit
 		SELECT c.id, c.name, c.email, c.phone, c.status, c.source_type, c.created_at,
 		       p.name as prodi_name, u.name as consultant_name, camp.name as campaign_name
 		FROM candidates c
-		LEFT JOIN prodis p ON p.id = c.prodi_id
-		LEFT JOIN users u ON u.id = c.assigned_consultant_id
-		LEFT JOIN campaigns camp ON camp.id = c.campaign_id
+		LEFT JOIN prodis p ON p.id = c.id_prodi
+		LEFT JOIN users u ON u.id = c.id_assigned_consultant
+		LEFT JOIN campaigns camp ON camp.id = c.id_campaign
 		%s
 		ORDER BY %s
 		LIMIT %d OFFSET %d
@@ -612,11 +612,11 @@ func GetCandidateStatusStats(ctx context.Context, visibilityConsultantID, visibi
 
 	// Role-based visibility
 	if visibilityConsultantID != nil && *visibilityConsultantID != "" {
-		whereClause += fmt.Sprintf(" AND assigned_consultant_id = $%d", argNum)
+		whereClause += fmt.Sprintf(" AND id_assigned_consultant = $%d", argNum)
 		args = append(args, *visibilityConsultantID)
 		argNum++
 	} else if visibilitySupervisorID != nil && *visibilitySupervisorID != "" {
-		whereClause += fmt.Sprintf(" AND assigned_consultant_id IN (SELECT id FROM users WHERE id_supervisor = $%d OR id = $%d)", argNum, argNum+1)
+		whereClause += fmt.Sprintf(" AND id_assigned_consultant IN (SELECT id FROM users WHERE id_supervisor = $%d OR id = $%d)", argNum, argNum+1)
 		args = append(args, *visibilitySupervisorID, *visibilitySupervisorID)
 		argNum += 2
 	}
@@ -663,7 +663,7 @@ func GetNextConsultantForAssignment(ctx context.Context) (*string, error) {
 			SELECT u.id FROM users u
 			WHERE u.role = 'consultant' AND u.is_active = true
 			ORDER BY (
-				SELECT MAX(c.created_at) FROM candidates c WHERE c.assigned_consultant_id = u.id
+				SELECT MAX(c.created_at) FROM candidates c WHERE c.id_assigned_consultant = u.id
 			) NULLS FIRST, u.created_at
 			LIMIT 1
 		`).Scan(&consultantID)
@@ -672,7 +672,7 @@ func GetNextConsultantForAssignment(ctx context.Context) (*string, error) {
 		// Get the consultant with the fewest active candidates
 		err = pool.QueryRow(ctx, `
 			SELECT u.id FROM users u
-			LEFT JOIN candidates c ON c.assigned_consultant_id = u.id AND c.status NOT IN ('enrolled', 'lost')
+			LEFT JOIN candidates c ON c.id_assigned_consultant = u.id AND c.status NOT IN ('enrolled', 'lost')
 			WHERE u.role = 'consultant' AND u.is_active = true
 			GROUP BY u.id
 			ORDER BY COUNT(c.id), u.created_at
@@ -685,7 +685,7 @@ func GetNextConsultantForAssignment(ctx context.Context) (*string, error) {
 			SELECT u.id FROM users u
 			WHERE u.role = 'consultant' AND u.is_active = true
 			ORDER BY (
-				SELECT MAX(c.created_at) FROM candidates c WHERE c.assigned_consultant_id = u.id
+				SELECT MAX(c.created_at) FROM candidates c WHERE c.id_assigned_consultant = u.id
 			) NULLS FIRST, u.created_at
 			LIMIT 1
 		`).Scan(&consultantID)
@@ -721,7 +721,7 @@ func ListConsultantsWithWorkload(ctx context.Context) ([]ConsultantWithWorkload,
 			COUNT(c.id) as total_count
 		FROM users u
 		LEFT JOIN users s ON s.id = u.id_supervisor
-		LEFT JOIN candidates c ON c.assigned_consultant_id = u.id
+		LEFT JOIN candidates c ON c.id_assigned_consultant = u.id
 		WHERE u.role = 'consultant' AND u.is_active = true
 		GROUP BY u.id, u.name, u.email, u.id_supervisor, s.name
 		ORDER BY u.name
@@ -747,14 +747,14 @@ func ListConsultantsWithWorkload(ctx context.Context) ([]ConsultantWithWorkload,
 func ReassignCandidate(ctx context.Context, candidateID, newConsultantID, reassignedBy string) error {
 	// Get current consultant for logging
 	var oldConsultantID *string
-	err := pool.QueryRow(ctx, `SELECT assigned_consultant_id FROM candidates WHERE id = $1`, candidateID).Scan(&oldConsultantID)
+	err := pool.QueryRow(ctx, `SELECT id_assigned_consultant FROM candidates WHERE id = $1`, candidateID).Scan(&oldConsultantID)
 	if err != nil {
 		return fmt.Errorf("failed to get current consultant: %w", err)
 	}
 
 	// Update assignment
 	_, err = pool.Exec(ctx, `
-		UPDATE candidates SET assigned_consultant_id = $2, updated_at = NOW() WHERE id = $1
+		UPDATE candidates SET id_assigned_consultant = $2, updated_at = NOW() WHERE id = $1
 	`, candidateID, newConsultantID)
 	if err != nil {
 		return fmt.Errorf("failed to reassign candidate: %w", err)
@@ -771,7 +771,7 @@ func ReassignCandidate(ctx context.Context, candidateID, newConsultantID, reassi
 	}
 
 	_, err = pool.Exec(ctx, `
-		INSERT INTO interactions (candidate_id, consultant_id, channel, remarks)
+		INSERT INTO interactions (id_candidate, id_consultant, channel, remarks)
 		VALUES ($1, $2, 'system', $3)
 	`, candidateID, reassignedBy, remarks)
 	if err != nil {

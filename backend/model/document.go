@@ -11,15 +11,15 @@ import (
 // Document represents an uploaded document
 type Document struct {
 	ID              string     `json:"id"`
-	CandidateID     string     `json:"candidate_id"`
-	DocumentTypeID  string     `json:"document_type_id"`
+	CandidateID     string     `json:"id_candidate"`
+	DocumentTypeID  string     `json:"id_document_type"`
 	FileName        string     `json:"file_name"`
 	FilePath        string     `json:"file_path"`
 	FileSize        int        `json:"file_size"`
 	MimeType        string     `json:"mime_type"`
 	Status          string     `json:"status"` // pending, approved, rejected
 	RejectionReason *string    `json:"rejection_reason,omitempty"`
-	ReviewedBy      *string    `json:"reviewed_by,omitempty"`
+	ReviewedBy      *string    `json:"id_reviewed_by,omitempty"`
 	ReviewedAt      *time.Time `json:"reviewed_at,omitempty"`
 	IsDeferred      bool       `json:"is_deferred"`
 	DeferredReason  *string    `json:"deferred_reason,omitempty"`
@@ -41,22 +41,22 @@ type DocumentWithType struct {
 func CreateDocument(ctx context.Context, candidateID, documentTypeID, fileName, filePath string, fileSize int, mimeType string) (*Document, error) {
 	var doc Document
 	err := pool.QueryRow(ctx, `
-		INSERT INTO documents (candidate_id, document_type_id, file_name, file_path, file_size, mime_type, status)
+		INSERT INTO documents (id_candidate, id_document_type, file_name, file_path, file_size, mime_type, status)
 		VALUES ($1, $2, $3, $4, $5, $6, 'pending')
-		ON CONFLICT (candidate_id, document_type_id) DO UPDATE SET
+		ON CONFLICT (id_candidate, id_document_type) DO UPDATE SET
 			file_name = EXCLUDED.file_name,
 			file_path = EXCLUDED.file_path,
 			file_size = EXCLUDED.file_size,
 			mime_type = EXCLUDED.mime_type,
 			status = 'pending',
 			rejection_reason = NULL,
-			reviewed_by = NULL,
+			id_reviewed_by = NULL,
 			reviewed_at = NULL,
 			is_deferred = false,
 			deferred_reason = NULL,
 			updated_at = NOW()
-		RETURNING id, candidate_id, document_type_id, file_name, file_path, file_size, mime_type,
-		          status, rejection_reason, reviewed_by, reviewed_at, is_deferred, deferred_reason,
+		RETURNING id, id_candidate, id_document_type, file_name, file_path, file_size, mime_type,
+		          status, rejection_reason, id_reviewed_by, reviewed_at, is_deferred, deferred_reason,
 		          created_at, updated_at
 	`, candidateID, documentTypeID, fileName, filePath, fileSize, mimeType).Scan(
 		&doc.ID, &doc.CandidateID, &doc.DocumentTypeID, &doc.FileName, &doc.FilePath,
@@ -72,13 +72,13 @@ func CreateDocument(ctx context.Context, candidateID, documentTypeID, fileName, 
 // ListDocumentsByCandidate returns all documents for a candidate
 func ListDocumentsByCandidate(ctx context.Context, candidateID string) ([]DocumentWithType, error) {
 	rows, err := pool.Query(ctx, `
-		SELECT d.id, d.candidate_id, d.document_type_id, d.file_name, d.file_path, d.file_size,
-		       d.mime_type, d.status, d.rejection_reason, d.reviewed_by, d.reviewed_at,
+		SELECT d.id, d.id_candidate, d.id_document_type, d.file_name, d.file_path, d.file_size,
+		       d.mime_type, d.status, d.rejection_reason, d.id_reviewed_by, d.reviewed_at,
 		       d.is_deferred, d.deferred_reason, d.created_at, d.updated_at,
 		       dt.name, dt.code, dt.description, dt.is_required, dt.can_defer
 		FROM documents d
-		JOIN document_types dt ON dt.id = d.document_type_id
-		WHERE d.candidate_id = $1
+		JOIN document_types dt ON dt.id = d.id_document_type
+		WHERE d.id_candidate = $1
 		ORDER BY dt.display_order
 	`, candidateID)
 	if err != nil {
@@ -107,12 +107,12 @@ func ListDocumentsByCandidate(ctx context.Context, candidateID string) ([]Docume
 func FindDocumentByID(ctx context.Context, id string) (*DocumentWithType, error) {
 	var d DocumentWithType
 	err := pool.QueryRow(ctx, `
-		SELECT d.id, d.candidate_id, d.document_type_id, d.file_name, d.file_path, d.file_size,
-		       d.mime_type, d.status, d.rejection_reason, d.reviewed_by, d.reviewed_at,
+		SELECT d.id, d.id_candidate, d.id_document_type, d.file_name, d.file_path, d.file_size,
+		       d.mime_type, d.status, d.rejection_reason, d.id_reviewed_by, d.reviewed_at,
 		       d.is_deferred, d.deferred_reason, d.created_at, d.updated_at,
 		       dt.name, dt.code, dt.description, dt.is_required, dt.can_defer
 		FROM documents d
-		JOIN document_types dt ON dt.id = d.document_type_id
+		JOIN document_types dt ON dt.id = d.id_document_type
 		WHERE d.id = $1
 	`, id).Scan(
 		&d.ID, &d.CandidateID, &d.DocumentTypeID, &d.FileName, &d.FilePath, &d.FileSize,
@@ -133,7 +133,7 @@ func FindDocumentByID(ctx context.Context, id string) (*DocumentWithType, error)
 func ApproveDocument(ctx context.Context, documentID, reviewerID string) error {
 	_, err := pool.Exec(ctx, `
 		UPDATE documents
-		SET status = 'approved', reviewed_by = $2, reviewed_at = NOW(), updated_at = NOW()
+		SET status = 'approved', id_reviewed_by = $2, reviewed_at = NOW(), updated_at = NOW()
 		WHERE id = $1
 	`, documentID, reviewerID)
 	if err != nil {
@@ -146,7 +146,7 @@ func ApproveDocument(ctx context.Context, documentID, reviewerID string) error {
 func RejectDocument(ctx context.Context, documentID, reviewerID, reason string) error {
 	_, err := pool.Exec(ctx, `
 		UPDATE documents
-		SET status = 'rejected', rejection_reason = $2, reviewed_by = $3, reviewed_at = NOW(), updated_at = NOW()
+		SET status = 'rejected', rejection_reason = $2, id_reviewed_by = $3, reviewed_at = NOW(), updated_at = NOW()
 		WHERE id = $1
 	`, documentID, reason, reviewerID)
 	if err != nil {
@@ -158,9 +158,9 @@ func RejectDocument(ctx context.Context, documentID, reviewerID, reason string) 
 // DeferDocument marks a document as deferred
 func DeferDocument(ctx context.Context, candidateID, documentTypeID, reason string) error {
 	_, err := pool.Exec(ctx, `
-		INSERT INTO documents (candidate_id, document_type_id, file_name, file_path, file_size, mime_type, status, is_deferred, deferred_reason)
+		INSERT INTO documents (id_candidate, id_document_type, file_name, file_path, file_size, mime_type, status, is_deferred, deferred_reason)
 		VALUES ($1, $2, '', '', 0, '', 'pending', true, $3)
-		ON CONFLICT (candidate_id, document_type_id) DO UPDATE SET
+		ON CONFLICT (id_candidate, id_document_type) DO UPDATE SET
 			is_deferred = true,
 			deferred_reason = $3,
 			updated_at = NOW()
@@ -187,8 +187,8 @@ func GetDocumentStats(ctx context.Context, candidateID string) (uploaded, approv
 			COUNT(*) FILTER (WHERE status IN ('pending', 'approved') OR is_deferred = true) as uploaded,
 			COUNT(*) FILTER (WHERE status = 'approved') as approved
 		FROM documents d
-		JOIN document_types dt ON dt.id = d.document_type_id
-		WHERE d.candidate_id = $1 AND dt.is_required = true
+		JOIN document_types dt ON dt.id = d.id_document_type
+		WHERE d.id_candidate = $1 AND dt.is_required = true
 	`, candidateID).Scan(&uploaded, &approved)
 	if err != nil {
 		return 0, 0, 0, fmt.Errorf("failed to count documents: %w", err)
@@ -226,13 +226,13 @@ type DocumentForReview struct {
 // ListDocumentsForReview returns documents for admin review with filters
 func ListDocumentsForReview(ctx context.Context, filters DocumentReviewFilters) ([]DocumentForReview, error) {
 	query := `
-		SELECT d.id, d.candidate_id, c.name, p.name, dt.code, dt.name,
+		SELECT d.id, d.id_candidate, c.name, p.name, dt.code, dt.name,
 		       d.file_name, d.file_path, d.file_size, d.mime_type,
-		       d.status, d.rejection_reason, d.reviewed_by, d.reviewed_at, d.created_at
+		       d.status, d.rejection_reason, d.id_reviewed_by, d.reviewed_at, d.created_at
 		FROM documents d
-		JOIN document_types dt ON dt.id = d.document_type_id
-		JOIN candidates c ON c.id = d.candidate_id
-		LEFT JOIN prodis p ON p.id = c.prodi_id
+		JOIN document_types dt ON dt.id = d.id_document_type
+		JOIN candidates c ON c.id = d.id_candidate
+		LEFT JOIN prodis p ON p.id = c.id_prodi
 		WHERE d.file_name != '' AND d.is_deferred = false
 	`
 	args := []interface{}{}

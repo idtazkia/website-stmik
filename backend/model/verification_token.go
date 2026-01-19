@@ -13,7 +13,7 @@ import (
 // VerificationToken represents an OTP token for email/phone verification
 type VerificationToken struct {
 	ID          string     `json:"id"`
-	CandidateID string     `json:"candidate_id"`
+	CandidateID string     `json:"id_candidate"`
 	TokenType   string     `json:"token_type"` // 'email' or 'phone'
 	Token       string     `json:"token"`
 	ExpiresAt   time.Time  `json:"expires_at"`
@@ -58,7 +58,7 @@ func CreateVerificationToken(ctx context.Context, candidateID, tokenType string)
 	expiresAt := time.Now().Add(TokenExpiry)
 
 	_, err = pool.Exec(ctx, `
-		INSERT INTO verification_tokens (candidate_id, token_type, token, expires_at)
+		INSERT INTO verification_tokens (id_candidate, token_type, token, expires_at)
 		VALUES ($1, $2, $3, $4)
 	`, candidateID, tokenType, otp, expiresAt)
 	if err != nil {
@@ -73,7 +73,7 @@ func VerifyToken(ctx context.Context, candidateID, tokenType, token string) erro
 	var tokenID string
 	err := pool.QueryRow(ctx, `
 		SELECT id FROM verification_tokens
-		WHERE candidate_id = $1 AND token_type = $2 AND token = $3
+		WHERE id_candidate = $1 AND token_type = $2 AND token = $3
 		  AND expires_at > NOW() AND used_at IS NULL
 		ORDER BY created_at DESC
 		LIMIT 1
@@ -102,7 +102,7 @@ func InvalidatePendingTokens(ctx context.Context, candidateID, tokenType string)
 	_, err := pool.Exec(ctx, `
 		UPDATE verification_tokens
 		SET used_at = NOW()
-		WHERE candidate_id = $1 AND token_type = $2 AND used_at IS NULL
+		WHERE id_candidate = $1 AND token_type = $2 AND used_at IS NULL
 	`, candidateID, tokenType)
 	if err != nil {
 		return fmt.Errorf("failed to invalidate pending tokens: %w", err)
@@ -126,9 +126,9 @@ func CleanupExpiredTokens(ctx context.Context) (int64, error) {
 func GetLatestToken(ctx context.Context, candidateID, tokenType string) (*VerificationToken, error) {
 	var token VerificationToken
 	err := pool.QueryRow(ctx, `
-		SELECT id, candidate_id, token_type, token, expires_at, used_at, created_at
+		SELECT id, id_candidate, token_type, token, expires_at, used_at, created_at
 		FROM verification_tokens
-		WHERE candidate_id = $1 AND token_type = $2 AND used_at IS NULL
+		WHERE id_candidate = $1 AND token_type = $2 AND used_at IS NULL
 		ORDER BY created_at DESC
 		LIMIT 1
 	`, candidateID, tokenType).Scan(

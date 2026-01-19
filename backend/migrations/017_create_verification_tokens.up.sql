@@ -1,7 +1,7 @@
 -- Verification tokens for email/phone OTP
 CREATE TABLE verification_tokens (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    candidate_id UUID NOT NULL REFERENCES candidates(id) ON DELETE CASCADE,
+    id_candidate UUID NOT NULL REFERENCES candidates(id) ON DELETE CASCADE,
     token_type VARCHAR(20) NOT NULL CHECK (token_type IN ('email', 'phone')),
     token VARCHAR(6) NOT NULL,
     expires_at TIMESTAMPTZ NOT NULL,
@@ -9,5 +9,5 @@ CREATE TABLE verification_tokens (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_verification_tokens_candidate ON verification_tokens(candidate_id);
+CREATE INDEX idx_verification_tokens_candidate ON verification_tokens(id_candidate);
 CREATE INDEX idx_verification_tokens_expires ON verification_tokens(expires_at) WHERE used_at IS NULL;
