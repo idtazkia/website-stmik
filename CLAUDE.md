@@ -63,8 +63,25 @@ website-stmik/
 │   │       └── en/common.json       # English translations
 │   ├── astro.config.mjs             # Astro configuration
 │   └── TODO.md                       # Frontend implementation tasks
-├── backend/                           # Go API [Deferred to Phase 2]
-│   └── TODO.md                       # Backend implementation plan
+├── backend/                           # Go API
+│   ├── cmd/                          # Application entry points
+│   │   ├── server/                   # Main server
+│   │   ├── migrate/                  # Database migrations
+│   │   ├── seedtest/                 # Test data seeder
+│   │   └── testrunner/               # Test orchestrator
+│   ├── internal/                     # Private application code
+│   │   ├── auth/                     # Session management
+│   │   ├── config/                   # Configuration
+│   │   ├── handler/                  # HTTP handlers
+│   │   ├── model/                    # Data models + queries
+│   │   └── storage/                  # File storage
+│   ├── web/                          # Web assets
+│   │   ├── static/                   # CSS, JS
+│   │   └── templates/                # Templ files
+│   ├── test/                         # Test files
+│   │   ├── e2e/                      # Playwright E2E tests
+│   │   └── testutil/                 # Test utilities
+│   └── migrations/                   # SQL migration files
 ├── docs/
 │   ├── ARCHITECTURE.md               # Technical design details
 │   └── DEPLOYMENT.md                 # Deployment guide
@@ -93,21 +110,31 @@ npm run format                # Format with Prettier
 npm run format:check          # Check formatting
 ```
 
-### Backend Commands (when backend is added)
+### Backend Commands
 
 ```bash
 cd backend
 
+# Install dependencies
+make deps                     # Go, npm, and templ
+
 # Development
-go run ./cmd/server           # Run server
+make dev                      # Run development server
+make templ                    # Generate templates
+make css                      # Build CSS
+
+# Database
 go run ./cmd/migrate up       # Run migrations
 go run ./cmd/migrate down     # Rollback migration
 
-# Build
-go build -o campus-api ./cmd/server
+# Testing (uses testcontainers - like mvn clean test)
+make clean-test               # Full test suite with testcontainers
+make test                     # Run unit tests only
+make test-e2e                 # Run E2E tests (requires running server)
 
-# Generate templates
-templ generate
+# Build
+make build                    # Build for current platform
+make build-linux              # Build for Linux deployment
 ```
 
 ## Tech Stack
@@ -117,9 +144,12 @@ templ generate
 | **Frontend** | Astro 5.x + Tailwind CSS 4.x | Static site generation, component islands |
 | **Styling** | Tailwind CSS + custom design system | Brand colors: primary (blue #194189), secondary (orange #EE7B1D) |
 | **i18n** | Custom implementation | See frontend/src/utils/i18n.ts |
-| **Backend** | Go (Golang) | [Planned] REST API, runs on VPS |
-| **Database** | PostgreSQL 18 | [Planned] Local on VPS, <1ms latency |
-| **Reverse Proxy** | Nginx + Let's Encrypt | [Planned] SSL termination, rate limiting |
+| **Backend** | Go 1.25+ | REST API + HTMX, runs on VPS |
+| **Templates** | Templ | Type-safe, compiled HTML templates |
+| **Interactivity** | HTMX + Alpine.js CSP | Server-driven UI, CSP-compliant |
+| **Database** | PostgreSQL 18 + pgx/v5 | Local on VPS, <1ms latency |
+| **Testing** | Testcontainers + Playwright | Automated E2E with real PostgreSQL |
+| **Reverse Proxy** | Nginx + Let's Encrypt | SSL termination, rate limiting |
 | **Deployment** | Cloudflare Pages + VPS | Frontend auto-deploy, backend via GitHub Actions |
 
 ## Internationalization (i18n)
@@ -325,7 +355,8 @@ Content collections are configured in `frontend/src/content/config.ts`. Use them
 
 ## Notes
 
-- The project currently uses only frontend dependencies. Backend (Go) will be added in Phase 2.
+- Backend follows standard Go project layout with `internal/`, `web/`, `test/` directories.
+- Testing uses testcontainers for PostgreSQL - run `make clean-test` (like `mvn clean test`).
 - The project uses a custom i18n implementation (no external dependencies).
 - Frontend deployment uses Cloudflare Pages auto-deploy (triggered on git push to GitHub).
 - Backend deployment uses GitHub Actions to deploy Go binary to VPS.
