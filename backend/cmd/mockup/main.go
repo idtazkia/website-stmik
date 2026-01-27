@@ -13,11 +13,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/idtazkia/stmik-admission-api/auth"
-	"github.com/idtazkia/stmik-admission-api/handler"
-	"github.com/idtazkia/stmik-admission-api/storage"
-	"github.com/idtazkia/stmik-admission-api/templates/pages"
-	"github.com/idtazkia/stmik-admission-api/version"
+	"github.com/idtazkia/stmik-admission-api/internal/auth"
+	"github.com/idtazkia/stmik-admission-api/internal/handler"
+	"github.com/idtazkia/stmik-admission-api/internal/storage"
+	"github.com/idtazkia/stmik-admission-api/web/templates/pages"
+	"github.com/idtazkia/stmik-admission-api/internal/version"
 )
 
 func main() {

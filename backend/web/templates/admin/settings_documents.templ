@@ -1,0 +1,390 @@
+package admin
+
+import (
+	"fmt"
+	"strings"
+	"github.com/idtazkia/stmik-admission-api/web/templates/layouts"
+)
+
+type DocumentTypeItem struct {
+	ID            string
+	Name          string
+	Code          string
+	Description   string
+	IsRequired    bool
+	CanDefer      bool
+	MaxFileSizeMB int
+	Extensions    string
+	DisplayOrder  int
+	IsActive      bool
+}
+
+templ SettingsDocuments(data layouts.PageData, documentTypes []DocumentTypeItem) {
+	@layouts.Admin(data) {
+		<div class="space-y-6" data-testid="settings-documents-page">
+			<!-- Header -->
+			<div class="flex items-center justify-between">
+				<div>
+					<h2 class="text-lg font-semibold text-gray-900">Jenis Dokumen</h2>
+					<p class="text-sm text-gray-500">Kelola jenis dokumen yang harus diunggah kandidat</p>
+				</div>
+				<button
+					data-testid="add-document-type-button"
+					class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 flex items-center gap-2"
+					onclick="document.getElementById('add-document-type-modal').showModal()"
+				>
+					<span>+</span> Tambah Jenis Dokumen
+				</button>
+			</div>
+
+			<!-- Document Types List -->
+			<div class="bg-white rounded-lg border" data-testid="document-types-section">
+				<div class="p-4 border-b">
+					<h3 class="font-semibold text-gray-900">Daftar Jenis Dokumen</h3>
+				</div>
+				<div class="overflow-x-auto">
+					<table class="w-full" data-testid="document-types-table">
+						<thead>
+							<tr class="border-b bg-gray-50">
+								<th class="px-4 py-3 text-left text-sm font-medium text-gray-500">Nama</th>
+								<th class="px-4 py-3 text-left text-sm font-medium text-gray-500">Kode</th>
+								<th class="px-4 py-3 text-center text-sm font-medium text-gray-500">Wajib</th>
+								<th class="px-4 py-3 text-center text-sm font-medium text-gray-500">Bisa Ditunda</th>
+								<th class="px-4 py-3 text-center text-sm font-medium text-gray-500">Maks. Ukuran</th>
+								<th class="px-4 py-3 text-center text-sm font-medium text-gray-500">Status</th>
+								<th class="px-4 py-3 text-center text-sm font-medium text-gray-500">Aksi</th>
+							</tr>
+						</thead>
+						<tbody class="divide-y" id="document-types-list" data-testid="document-types-list">
+							for _, dt := range documentTypes {
+								@DocumentTypeRowOnly(dt)
+							}
+							if len(documentTypes) == 0 {
+								<tr>
+									<td colspan="7" class="px-4 py-8 text-center text-gray-500">
+										Belum ada jenis dokumen
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<!-- Container for dynamically added edit modals (for HTMX OOB swaps) -->
+			<div id="document-type-modals">
+				for _, dt := range documentTypes {
+					@DocumentTypeEditModal(dt)
+				}
+			</div>
+
+			<!-- Add Document Type Modal -->
+			<dialog id="add-document-type-modal" class="rounded-lg p-0 backdrop:bg-black/50" data-testid="add-document-type-modal">
+				<div class="p-6 w-[500px]">
+					<h3 class="text-lg font-semibold mb-4">Tambah Jenis Dokumen</h3>
+					<form
+						hx-post="/admin/settings/document-types"
+						hx-target="#document-types-list"
+						hx-swap="beforeend"
+						hx-on::after-request="if(event.detail.successful) this.closest('dialog').close()"
+					>
+						<div class="space-y-4">
+							<div class="grid grid-cols-2 gap-4">
+								<div>
+									<label class="block text-sm font-medium text-gray-700 mb-1">Nama</label>
+									<input
+										type="text"
+										name="name"
+										data-testid="input-doctype-name"
+										class="w-full border rounded-lg px-3 py-2"
+										placeholder="KTP/Kartu Identitas"
+										required
+									/>
+								</div>
+								<div>
+									<label class="block text-sm font-medium text-gray-700 mb-1">Kode</label>
+									<input
+										type="text"
+										name="code"
+										data-testid="input-doctype-code"
+										class="w-full border rounded-lg px-3 py-2"
+										placeholder="ktp"
+										required
+									/>
+								</div>
+							</div>
+							<div>
+								<label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
+								<textarea
+									name="description"
+									data-testid="input-doctype-description"
+									class="w-full border rounded-lg px-3 py-2"
+									rows="2"
+									placeholder="Deskripsi dokumen"
+								></textarea>
+							</div>
+							<div class="grid grid-cols-2 gap-4">
+								<div>
+									<label class="block text-sm font-medium text-gray-700 mb-1">Maks. Ukuran File (MB)</label>
+									<input
+										type="number"
+										name="max_file_size_mb"
+										data-testid="input-doctype-maxsize"
+										class="w-full border rounded-lg px-3 py-2"
+										value="5"
+										min="1"
+										max="50"
+										required
+									/>
+								</div>
+								<div>
+									<label class="block text-sm font-medium text-gray-700 mb-1">Urutan</label>
+									<input
+										type="number"
+										name="display_order"
+										data-testid="input-doctype-order"
+										class="w-full border rounded-lg px-3 py-2"
+										value="0"
+										min="0"
+									/>
+								</div>
+							</div>
+							<div class="flex gap-6">
+								<label class="flex items-center gap-2">
+									<input
+										type="checkbox"
+										name="is_required"
+										data-testid="input-doctype-required"
+										class="rounded border-gray-300"
+										checked
+									/>
+									<span class="text-sm text-gray-700">Wajib diunggah</span>
+								</label>
+								<label class="flex items-center gap-2">
+									<input
+										type="checkbox"
+										name="can_defer"
+										data-testid="input-doctype-defer"
+										class="rounded border-gray-300"
+									/>
+									<span class="text-sm text-gray-700">Bisa ditunda</span>
+								</label>
+							</div>
+						</div>
+						<div class="flex justify-end gap-3 mt-6">
+							<button type="button" onclick="this.closest('dialog').close()" class="px-4 py-2 text-gray-600 hover:text-gray-800">
+								Batal
+							</button>
+							<button type="submit" data-testid="submit-add-doctype" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+								Simpan
+							</button>
+						</div>
+					</form>
+				</div>
+			</dialog>
+		</div>
+	}
+}
+
+// DocumentTypeRow renders a row with edit modal using OOB swap (for HTMX create response)
+templ DocumentTypeRow(dt DocumentTypeItem) {
+	@DocumentTypeRowOnly(dt)
+	@DocumentTypeEditModalOOB(dt)
+}
+
+// DocumentTypeRowOnly renders just the table row (for HTMX partial updates)
+templ DocumentTypeRowOnly(dt DocumentTypeItem) {
+	<tr data-testid={ "doctype-row-" + dt.ID } id={ "doctype-row-" + dt.ID }>
+		<td class="px-4 py-3">
+			<div>
+				<span class="font-medium" data-testid={ "doctype-name-" + dt.ID }>{ dt.Name }</span>
+				if dt.Description != "" {
+					<p class="text-xs text-gray-500 mt-1">{ truncateDescription(dt.Description) }</p>
+				}
+			</div>
+		</td>
+		<td class="px-4 py-3">
+			<code class="text-sm bg-gray-100 px-2 py-1 rounded" data-testid={ "doctype-code-" + dt.ID }>{ dt.Code }</code>
+		</td>
+		<td class="px-4 py-3 text-center" data-testid={ "doctype-required-" + dt.ID }>
+			if dt.IsRequired {
+				<span class="text-green-600">Ya</span>
+			} else {
+				<span class="text-gray-400">Tidak</span>
+			}
+		</td>
+		<td class="px-4 py-3 text-center" data-testid={ "doctype-defer-" + dt.ID }>
+			if dt.CanDefer {
+				<span class="text-blue-600">Ya</span>
+			} else {
+				<span class="text-gray-400">Tidak</span>
+			}
+		</td>
+		<td class="px-4 py-3 text-center" data-testid={ "doctype-maxsize-" + dt.ID }>
+			{ fmt.Sprintf("%d MB", dt.MaxFileSizeMB) }
+		</td>
+		<td class="px-4 py-3 text-center">
+			<form
+				hx-post={ "/admin/settings/document-types/" + dt.ID + "/toggle-active" }
+				hx-target={ "#doctype-row-" + dt.ID }
+				hx-swap="outerHTML"
+			>
+				<button
+					type="submit"
+					data-testid={ "doctype-status-toggle-" + dt.ID }
+					if dt.IsActive {
+						class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs cursor-pointer hover:bg-green-200"
+					} else {
+						class="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs cursor-pointer hover:bg-gray-200"
+					}
+				>
+					if dt.IsActive {
+						Aktif
+					} else {
+						Nonaktif
+					}
+				</button>
+			</form>
+		</td>
+		<td class="px-4 py-3 text-center">
+			<button
+				type="button"
+				data-testid={ "doctype-edit-" + dt.ID }
+				class="text-primary-600 text-sm hover:text-primary-800"
+				onclick={ openEditModal(dt.ID) }
+			>
+				Edit
+			</button>
+		</td>
+	</tr>
+}
+
+script openEditModal(id string) {
+	document.getElementById('edit-doctype-modal-' + id).showModal();
+}
+
+// DocumentTypeEditModalOOB renders the edit modal with OOB swap attribute (for HTMX create response)
+templ DocumentTypeEditModalOOB(dt DocumentTypeItem) {
+	<dialog id={ "edit-doctype-modal-" + dt.ID } hx-swap-oob="beforeend:#document-type-modals" class="rounded-lg p-0 backdrop:bg-black/50" data-testid={ "edit-doctype-modal-" + dt.ID }>
+		@documentTypeEditModalContent(dt)
+	</dialog>
+}
+
+// DocumentTypeEditModal renders the edit modal without OOB (for initial page load)
+templ DocumentTypeEditModal(dt DocumentTypeItem) {
+	<dialog id={ "edit-doctype-modal-" + dt.ID } class="rounded-lg p-0 backdrop:bg-black/50" data-testid={ "edit-doctype-modal-" + dt.ID }>
+		@documentTypeEditModalContent(dt)
+	</dialog>
+}
+
+// documentTypeEditModalContent renders the inner content of the edit modal (shared between OOB and regular versions)
+templ documentTypeEditModalContent(dt DocumentTypeItem) {
+	<div class="p-6 w-[500px]">
+		<h3 class="text-lg font-semibold mb-4">Edit Jenis Dokumen</h3>
+		<form
+			hx-post={ "/admin/settings/document-types/" + dt.ID }
+			hx-target={ "#doctype-row-" + dt.ID }
+			hx-swap="outerHTML"
+			hx-on::after-request="if(event.detail.successful) this.closest('dialog').close()"
+		>
+			<div class="space-y-4">
+				<div class="grid grid-cols-2 gap-4">
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">Nama</label>
+						<input
+							type="text"
+							name="name"
+							data-testid={ "edit-doctype-name-" + dt.ID }
+							class="w-full border rounded-lg px-3 py-2"
+							value={ dt.Name }
+							required
+						/>
+					</div>
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">Kode</label>
+						<input
+							type="text"
+							name="code"
+							data-testid={ "edit-doctype-code-" + dt.ID }
+							class="w-full border rounded-lg px-3 py-2"
+							value={ dt.Code }
+							required
+						/>
+					</div>
+				</div>
+				<div>
+					<label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
+					<textarea
+						name="description"
+						data-testid={ "edit-doctype-description-" + dt.ID }
+						class="w-full border rounded-lg px-3 py-2"
+						rows="2"
+					>{ dt.Description }</textarea>
+				</div>
+				<div class="grid grid-cols-2 gap-4">
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">Maks. Ukuran File (MB)</label>
+						<input
+							type="number"
+							name="max_file_size_mb"
+							data-testid={ "edit-doctype-maxsize-" + dt.ID }
+							class="w-full border rounded-lg px-3 py-2"
+							value={ fmt.Sprintf("%d", dt.MaxFileSizeMB) }
+							min="1"
+							max="50"
+							required
+						/>
+					</div>
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">Urutan</label>
+						<input
+							type="number"
+							name="display_order"
+							data-testid={ "edit-doctype-order-" + dt.ID }
+							class="w-full border rounded-lg px-3 py-2"
+							value={ fmt.Sprintf("%d", dt.DisplayOrder) }
+							min="0"
+						/>
+					</div>
+				</div>
+				<div class="flex gap-6">
+					<label class="flex items-center gap-2">
+						<input
+							type="checkbox"
+							name="is_required"
+							data-testid={ "edit-doctype-required-" + dt.ID }
+							class="rounded border-gray-300"
+							checked?={ dt.IsRequired }
+						/>
+						<span class="text-sm text-gray-700">Wajib diunggah</span>
+					</label>
+					<label class="flex items-center gap-2">
+						<input
+							type="checkbox"
+							name="can_defer"
+							data-testid={ "edit-doctype-defer-" + dt.ID }
+							class="rounded border-gray-300"
+							checked?={ dt.CanDefer }
+						/>
+						<span class="text-sm text-gray-700">Bisa ditunda</span>
+					</label>
+				</div>
+			</div>
+			<div class="flex justify-end gap-3 mt-6">
+				<button type="button" onclick="this.closest('dialog').close()" class="px-4 py-2 text-gray-600 hover:text-gray-800">
+					Batal
+				</button>
+				<button type="submit" data-testid={ "submit-edit-doctype-" + dt.ID } class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+					Simpan
+				</button>
+			</div>
+		</form>
+	</div>
+}
+
+func truncateDescription(s string) string {
+	if len(s) > 60 {
+		return strings.TrimSpace(s[:57]) + "..."
+	}
+	return s
+}

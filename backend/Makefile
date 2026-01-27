@@ -6,9 +6,9 @@ GIT_BRANCH := $(shell git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unkno
 BUILD_TIME := $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 # Build flags
-LDFLAGS := -X github.com/idtazkia/stmik-admission-api/version.GitCommit=$(GIT_COMMIT) \
-           -X github.com/idtazkia/stmik-admission-api/version.GitBranch=$(GIT_BRANCH) \
-           -X github.com/idtazkia/stmik-admission-api/version.BuildTime=$(BUILD_TIME)
+LDFLAGS := -X github.com/idtazkia/stmik-admission-api/internal/version.GitCommit=$(GIT_COMMIT) \
+           -X github.com/idtazkia/stmik-admission-api/internal/version.GitBranch=$(GIT_BRANCH) \
+           -X github.com/idtazkia/stmik-admission-api/internal/version.BuildTime=$(BUILD_TIME)
 
 # Build the server binary
 build: templ css

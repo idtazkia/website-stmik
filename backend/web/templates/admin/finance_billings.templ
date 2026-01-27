@@ -1,0 +1,190 @@
+package admin
+
+import (
+	"fmt"
+	"github.com/idtazkia/stmik-admission-api/internal/model"
+	"github.com/idtazkia/stmik-admission-api/web/templates/layouts"
+)
+
+type BillingListData struct {
+	Billings    []model.BillingWithCandidate
+	Total       int
+	Page        int
+	PageSize    int
+	Search      string
+	Status      string
+	BillingType string
+	Stats       BillingStats
+}
+
+type BillingStats struct {
+	Unpaid    int
+	Pending   int
+	Paid      int
+	Cancelled int
+}
+
+templ FinanceBillings(pageData layouts.PageData, data BillingListData) {
+	@layouts.Admin(pageData) {
+		<div class="space-y-6" data-testid="finance-billings-page">
+			<!-- Stats Cards -->
+			<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+				<div class="bg-white rounded-lg shadow p-4">
+					<p class="text-sm text-gray-500">Belum Dibayar</p>
+					<p class="text-2xl font-bold text-red-600" data-testid="stat-unpaid">{ fmt.Sprintf("%d", data.Stats.Unpaid) }</p>
+				</div>
+				<div class="bg-white rounded-lg shadow p-4">
+					<p class="text-sm text-gray-500">Menunggu Verifikasi</p>
+					<p class="text-2xl font-bold text-yellow-600" data-testid="stat-pending">{ fmt.Sprintf("%d", data.Stats.Pending) }</p>
+				</div>
+				<div class="bg-white rounded-lg shadow p-4">
+					<p class="text-sm text-gray-500">Lunas</p>
+					<p class="text-2xl font-bold text-green-600" data-testid="stat-paid">{ fmt.Sprintf("%d", data.Stats.Paid) }</p>
+				</div>
+				<div class="bg-white rounded-lg shadow p-4">
+					<p class="text-sm text-gray-500">Dibatalkan</p>
+					<p class="text-2xl font-bold text-gray-600" data-testid="stat-cancelled">{ fmt.Sprintf("%d", data.Stats.Cancelled) }</p>
+				</div>
+			</div>
+			<!-- Filters and Actions -->
+			<div class="bg-white rounded-lg shadow p-4">
+				<div class="flex flex-wrap items-center gap-4">
+					<form method="GET" class="flex flex-wrap items-center gap-4 flex-1">
+						<input
+							type="text"
+							name="search"
+							value={ data.Search }
+							placeholder="Cari nama atau email..."
+							class="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+							data-testid="input-search"
+						/>
+						<select name="status" class="px-3 py-2 border rounded-lg" data-testid="select-status">
+							<option value="">Semua Status</option>
+							<option value="unpaid" selected?={ data.Status == "unpaid" }>Belum Dibayar</option>
+							<option value="pending_verification" selected?={ data.Status == "pending_verification" }>Menunggu Verifikasi</option>
+							<option value="paid" selected?={ data.Status == "paid" }>Lunas</option>
+							<option value="cancelled" selected?={ data.Status == "cancelled" }>Dibatalkan</option>
+						</select>
+						<select name="type" class="px-3 py-2 border rounded-lg" data-testid="select-type">
+							<option value="">Semua Jenis</option>
+							<option value="registration" selected?={ data.BillingType == "registration" }>Biaya Pendaftaran</option>
+							<option value="tuition" selected?={ data.BillingType == "tuition" }>Biaya Kuliah</option>
+							<option value="dormitory" selected?={ data.BillingType == "dormitory" }>Biaya Asrama</option>
+						</select>
+						<button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700" data-testid="btn-filter">
+							Filter
+						</button>
+					</form>
+					<a
+						href="/admin/finance/billings/create"
+						class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+						data-testid="btn-create-billing"
+					>
+						+ Buat Tagihan
+					</a>
+				</div>
+			</div>
+			<!-- Billings Table -->
+			<div class="bg-white rounded-lg shadow overflow-hidden">
+				<table class="min-w-full divide-y divide-gray-200" data-testid="billings-table">
+					<thead class="bg-gray-50">
+						<tr>
+							<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kandidat</th>
+							<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Jenis</th>
+							<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Jumlah</th>
+							<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Jatuh Tempo</th>
+							<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+							<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
+						</tr>
+					</thead>
+					<tbody class="bg-white divide-y divide-gray-200">
+						if len(data.Billings) == 0 {
+							<tr>
+								<td colspan="6" class="px-6 py-8 text-center text-gray-500">
+									Tidak ada tagihan
+								</td>
+							</tr>
+						}
+						for _, b := range data.Billings {
+							<tr data-testid={ "billing-row-" + b.ID }>
+								<td class="px-6 py-4">
+									<div class="text-sm font-medium text-gray-900">
+										if b.CandidateName != nil {
+											{ *b.CandidateName }
+										} else {
+											-
+										}
+									</div>
+									<div class="text-sm text-gray-500">{ b.CandidateEmail }</div>
+									if b.ProdiName != nil {
+										<div class="text-xs text-gray-400">{ *b.ProdiName }</div>
+									}
+								</td>
+								<td class="px-6 py-4 text-sm text-gray-900">
+									{ model.BillingTypeLabel(b.BillingType) }
+								</td>
+								<td class="px-6 py-4 text-sm font-medium text-gray-900">
+									{ formatAmount(int64(b.Amount)) }
+								</td>
+								<td class="px-6 py-4 text-sm text-gray-500">
+									if b.DueDate != nil {
+										{ b.DueDate.Format("02 Jan 2006") }
+									} else {
+										-
+									}
+								</td>
+								<td class="px-6 py-4">
+									@billingStatusBadge(b.Status)
+								</td>
+								<td class="px-6 py-4 text-sm">
+									<a href={ templ.SafeURL("/admin/finance/billings/" + b.ID) } class="text-primary-600 hover:underline" data-testid={ "view-billing-" + b.ID }>
+										Detail
+									</a>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+				<!-- Pagination -->
+				if data.Total > data.PageSize {
+					<div class="px-6 py-4 border-t flex items-center justify-between">
+						<p class="text-sm text-gray-500">
+							Menampilkan { fmt.Sprintf("%d", (data.Page-1)*data.PageSize+1) } - { fmt.Sprintf("%d", min((data.Page)*data.PageSize, data.Total)) } dari { fmt.Sprintf("%d", data.Total) }
+						</p>
+						<div class="flex gap-2">
+							if data.Page > 1 {
+								<a
+									href={ templ.SafeURL(fmt.Sprintf("/admin/finance/billings?page=%d&search=%s&status=%s&type=%s", data.Page-1, data.Search, data.Status, data.BillingType)) }
+									class="px-3 py-1 border rounded hover:bg-gray-50"
+								>
+									Sebelumnya
+								</a>
+							}
+							if data.Page*data.PageSize < data.Total {
+								<a
+									href={ templ.SafeURL(fmt.Sprintf("/admin/finance/billings?page=%d&search=%s&status=%s&type=%s", data.Page+1, data.Search, data.Status, data.BillingType)) }
+									class="px-3 py-1 border rounded hover:bg-gray-50"
+								>
+									Selanjutnya
+								</a>
+							}
+						</div>
+					</div>
+				}
+			</div>
+		</div>
+	}
+}
+
+templ billingStatusBadge(status string) {
+	switch status {
+		case "unpaid":
+			<span class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">Belum Dibayar</span>
+		case "pending_verification":
+			<span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">Menunggu Verifikasi</span>
+		case "paid":
+			<span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Lunas</span>
+		case "cancelled":
+			<span class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">Dibatalkan</span>
+	}
+}

@@ -1,0 +1,102 @@
+package admin
+
+import "github.com/idtazkia/stmik-admission-api/web/templates/layouts"
+
+type AssignmentAlgorithmItem struct {
+	ID          string
+	Name        string
+	Code        string
+	Description string
+	IsActive    bool
+}
+
+templ SettingsAssignment(data layouts.PageData, algorithms []AssignmentAlgorithmItem) {
+	@layouts.Admin(data) {
+		<div class="space-y-6" data-testid="settings-assignment-page">
+			<!-- Header -->
+			<div>
+				<h2 class="text-lg font-semibold text-gray-900">Algoritma Penugasan</h2>
+				<p class="text-sm text-gray-500">Pilih algoritma untuk menugaskan kandidat baru ke konsultan</p>
+			</div>
+
+			<!-- Algorithm List -->
+			<div class="bg-white rounded-lg border" data-testid="algorithms-section">
+				<div class="p-4 border-b">
+					<h3 class="font-semibold text-gray-900">Pilih Algoritma Aktif</h3>
+					<p class="text-sm text-gray-500 mt-1">Hanya satu algoritma yang dapat aktif pada satu waktu</p>
+				</div>
+				<div class="p-4 space-y-4" data-testid="algorithms-list" id="algorithms-list">
+					for _, alg := range algorithms {
+						@AlgorithmCard(alg)
+					}
+				</div>
+			</div>
+
+			<!-- Info Box -->
+			<div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+				<h4 class="font-medium text-blue-900 mb-2">Tentang Algoritma Penugasan</h4>
+				<div class="text-sm text-blue-800 space-y-2">
+					<p><strong>Round Robin:</strong> Kandidat ditugaskan ke konsultan secara berurutan, bergantian antar semua konsultan aktif.</p>
+					<p><strong>Load Balanced:</strong> Kandidat ditugaskan ke konsultan dengan jumlah kandidat aktif paling sedikit.</p>
+					<p><strong>Performance Weighted:</strong> Konsultan dengan tingkat konversi lebih tinggi mendapat lebih banyak kandidat.</p>
+					<p><strong>Activity Based:</strong> Konsultan dengan aktivitas interaksi terbaru mendapat prioritas penugasan.</p>
+				</div>
+			</div>
+		</div>
+	}
+}
+
+templ AlgorithmCard(alg AssignmentAlgorithmItem) {
+	<div
+		data-testid={ "algorithm-card-" + alg.ID }
+		class={
+			"p-4 rounded-lg border-2 transition-colors",
+			templ.KV("border-primary-500 bg-primary-50", alg.IsActive),
+			templ.KV("border-gray-200 bg-white hover:border-gray-300", !alg.IsActive),
+		}
+	>
+		<div class="flex items-start justify-between">
+			<div class="flex items-start gap-3">
+				<div class="mt-1">
+					if alg.IsActive {
+						<div class="w-5 h-5 rounded-full bg-primary-600 flex items-center justify-center">
+							<svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+								<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+							</svg>
+						</div>
+					} else {
+						<div class="w-5 h-5 rounded-full border-2 border-gray-300"></div>
+					}
+				</div>
+				<div>
+					<h4 data-testid={ "algorithm-name-" + alg.ID } class="font-medium text-gray-900">{ alg.Name }</h4>
+					<p data-testid={ "algorithm-code-" + alg.ID } class="text-xs text-gray-500 mt-0.5">{ alg.Code }</p>
+					<p data-testid={ "algorithm-description-" + alg.ID } class="text-sm text-gray-600 mt-1">{ alg.Description }</p>
+				</div>
+			</div>
+			<div class="flex items-center gap-2">
+				if alg.IsActive {
+					<span data-testid={ "algorithm-status-" + alg.ID } class="px-2 py-1 bg-primary-100 text-primary-700 text-xs rounded-full font-medium">
+						Aktif
+					</span>
+				} else {
+					<button
+						data-testid={ "algorithm-activate-" + alg.ID }
+						class="px-3 py-1 bg-primary-600 text-white rounded text-sm hover:bg-primary-700"
+						hx-post={ "/admin/settings/assignment/" + alg.ID + "/activate" }
+						hx-target="#algorithms-list"
+						hx-swap="innerHTML"
+					>
+						Aktifkan
+					</button>
+				}
+			</div>
+		</div>
+	</div>
+}
+
+templ AlgorithmList(algorithms []AssignmentAlgorithmItem) {
+	for _, alg := range algorithms {
+		@AlgorithmCard(alg)
+	}
+}

@@ -1,0 +1,25 @@
+package pages
+
+import "github.com/idtazkia/stmik-admission-api/web/templates/layouts"
+
+templ TestPortal(data layouts.PageData) {
+	@layouts.Portal(data) {
+		<div data-testid="test-content">
+			<h1 class="text-2xl font-bold mb-4" data-testid="page-heading">Test Portal Page</h1>
+			<p data-testid="test-message">This is a test page for Playwright.</p>
+
+			<form action="/test/submit" method="POST" class="mt-4" data-testid="test-form">
+				<input type="text" name="test_input" placeholder="Test input" class="border p-2" data-testid="test-input"/>
+				<button type="submit" class="bg-primary-600 text-white px-4 py-2 ml-2" data-testid="test-submit">Submit</button>
+			</form>
+		</div>
+	}
+}
+
+templ TestAdmin(data layouts.PageData) {
+	@layouts.Admin(data) {
+		<div data-testid="test-content">
+			<p data-testid="test-message">Admin test page for Playwright.</p>
+		</div>
+	}
+}

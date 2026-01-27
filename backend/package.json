@@ -2,8 +2,8 @@
   "name": "stmik-admission-backend",
   "private": true,
   "scripts": {
-    "css:build": "npx @tailwindcss/cli -i ./static/css/input.css -o ./static/css/output.css --minify",
-    "css:watch": "npx @tailwindcss/cli -i ./static/css/input.css -o ./static/css/output.css --watch",
+    "css:build": "npx @tailwindcss/cli -i ./web/static/css/input.css -o ./web/static/css/output.css --minify",
+    "css:watch": "npx @tailwindcss/cli -i ./web/static/css/input.css -o ./web/static/css/output.css --watch",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"
   },

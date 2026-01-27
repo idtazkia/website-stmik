@@ -1,0 +1,404 @@
+package admin
+
+import "github.com/idtazkia/stmik-admission-api/web/templates/layouts"
+
+type CategoryItem struct {
+	ID        string
+	Name      string
+	Type      string
+	Sentiment string
+	Count     string
+	IsActive  bool
+}
+
+type ObstacleItem struct {
+	ID       string
+	Name     string
+	Count    string
+	IsActive bool
+}
+
+templ SettingsCategories(data layouts.PageData, categories []CategoryItem, obstacles []ObstacleItem) {
+	@layouts.Admin(data) {
+		<div class="space-y-6" data-testid="settings-categories-page">
+			<!-- Header -->
+			<div>
+				<h2 class="text-lg font-semibold text-gray-900">Kategori & Hambatan</h2>
+				<p class="text-sm text-gray-500">Kelola kategori interaksi dan daftar hambatan kandidat</p>
+			</div>
+
+			<div class="grid grid-cols-2 gap-6">
+				<!-- Interaction Categories -->
+				<div class="bg-white rounded-lg border" data-testid="categories-section">
+					<div class="p-4 border-b flex items-center justify-between">
+						<h3 class="font-semibold text-gray-900">Kategori Interaksi</h3>
+						<button
+							data-testid="add-category-button"
+							class="px-3 py-1 bg-primary-600 text-white rounded text-sm hover:bg-primary-700"
+							onclick="document.getElementById('add-category-modal').showModal()"
+						>
+							+ Tambah
+						</button>
+					</div>
+					<div class="p-4 space-y-3" data-testid="categories-list" id="categories-list">
+						for _, cat := range categories {
+							@CategoryCard(cat)
+						}
+					</div>
+				</div>
+
+				<!-- Obstacles -->
+				<div class="bg-white rounded-lg border" data-testid="obstacles-section">
+					<div class="p-4 border-b flex items-center justify-between">
+						<h3 class="font-semibold text-gray-900">Daftar Hambatan</h3>
+						<button
+							data-testid="add-obstacle-button"
+							class="px-3 py-1 bg-primary-600 text-white rounded text-sm hover:bg-primary-700"
+							onclick="document.getElementById('add-obstacle-modal').showModal()"
+						>
+							+ Tambah
+						</button>
+					</div>
+					<div class="p-4 space-y-3" data-testid="obstacles-list" id="obstacles-list">
+						for _, obs := range obstacles {
+							@ObstacleCard(obs)
+						}
+					</div>
+				</div>
+			</div>
+
+			<!-- Add Category Modal -->
+			<dialog id="add-category-modal" class="rounded-lg p-0 backdrop:bg-black/50" data-testid="add-category-modal">
+				<div class="p-6 w-96">
+					<h3 class="text-lg font-semibold mb-4">Tambah Kategori</h3>
+					<form
+						hx-post="/admin/settings/categories"
+						hx-target="#categories-list"
+						hx-swap="beforeend"
+						hx-on::after-request="if(event.detail.successful) this.closest('dialog').close()"
+					>
+						<div class="space-y-4">
+							<div>
+								<label class="block text-sm font-medium text-gray-700 mb-1">Nama</label>
+								<input
+									type="text"
+									name="name"
+									data-testid="input-category-name"
+									class="w-full border rounded-lg px-3 py-2"
+									placeholder="Nama kategori"
+									required
+								/>
+							</div>
+							<div>
+								<label class="block text-sm font-medium text-gray-700 mb-1">Sentimen</label>
+								<select name="sentiment" data-testid="input-category-sentiment" class="w-full border rounded-lg px-3 py-2" required>
+									<option value="positive">Positif</option>
+									<option value="neutral">Netral</option>
+									<option value="negative">Negatif</option>
+								</select>
+							</div>
+						</div>
+						<div class="flex justify-end gap-3 mt-6">
+							<button type="button" onclick="this.closest('dialog').close()" class="px-4 py-2 text-gray-600 hover:text-gray-800">
+								Batal
+							</button>
+							<button type="submit" data-testid="submit-add-category" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+								Simpan
+							</button>
+						</div>
+					</form>
+				</div>
+			</dialog>
+
+			<!-- Add Obstacle Modal -->
+			<dialog id="add-obstacle-modal" class="rounded-lg p-0 backdrop:bg-black/50" data-testid="add-obstacle-modal">
+				<div class="p-6 w-96">
+					<h3 class="text-lg font-semibold mb-4">Tambah Hambatan</h3>
+					<form
+						hx-post="/admin/settings/obstacles"
+						hx-target="#obstacles-list"
+						hx-swap="beforeend"
+						hx-on::after-request="if(event.detail.successful) this.closest('dialog').close()"
+					>
+						<div class="space-y-4">
+							<div>
+								<label class="block text-sm font-medium text-gray-700 mb-1">Nama</label>
+								<input
+									type="text"
+									name="name"
+									data-testid="input-obstacle-name"
+									class="w-full border rounded-lg px-3 py-2"
+									placeholder="Nama hambatan"
+									required
+								/>
+							</div>
+						</div>
+						<div class="flex justify-end gap-3 mt-6">
+							<button type="button" onclick="this.closest('dialog').close()" class="px-4 py-2 text-gray-600 hover:text-gray-800">
+								Batal
+							</button>
+							<button type="submit" data-testid="submit-add-obstacle" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+								Simpan
+							</button>
+						</div>
+					</form>
+				</div>
+			</dialog>
+
+			<!-- Analytics Summary -->
+			<div class="bg-white rounded-lg border">
+				<div class="p-4 border-b">
+					<h3 class="font-semibold text-gray-900">Analisis Hambatan (30 hari terakhir)</h3>
+				</div>
+				<div class="p-4">
+					<div class="space-y-3">
+						<div>
+							<div class="flex justify-between text-sm mb-1">
+								<span>Biaya terlalu mahal</span>
+								<span class="font-medium">45%</span>
+							</div>
+							<div class="h-2 bg-gray-100 rounded-full">
+								<div class="h-2 bg-red-500 rounded-full" style="width: 45%"></div>
+							</div>
+						</div>
+						<div>
+							<div class="flex justify-between text-sm mb-1">
+								<span>Orang tua belum setuju</span>
+								<span class="font-medium">25%</span>
+							</div>
+							<div class="h-2 bg-gray-100 rounded-full">
+								<div class="h-2 bg-secondary-500 rounded-full" style="width: 25%"></div>
+							</div>
+						</div>
+						<div>
+							<div class="flex justify-between text-sm mb-1">
+								<span>Lokasi jauh</span>
+								<span class="font-medium">15%</span>
+							</div>
+							<div class="h-2 bg-gray-100 rounded-full">
+								<div class="h-2 bg-yellow-500 rounded-full" style="width: 15%"></div>
+							</div>
+						</div>
+						<div>
+							<div class="flex justify-between text-sm mb-1">
+								<span>Memilih kampus lain</span>
+								<span class="font-medium">10%</span>
+							</div>
+							<div class="h-2 bg-gray-100 rounded-full">
+								<div class="h-2 bg-blue-500 rounded-full" style="width: 10%"></div>
+							</div>
+						</div>
+						<div>
+							<div class="flex justify-between text-sm mb-1">
+								<span>Waktu belum tepat</span>
+								<span class="font-medium">5%</span>
+							</div>
+							<div class="h-2 bg-gray-100 rounded-full">
+								<div class="h-2 bg-gray-500 rounded-full" style="width: 5%"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+}
+
+templ CategoryCard(cat CategoryItem) {
+	<div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg" data-testid={ "category-item-" + cat.ID } id={ "category-item-" + cat.ID }>
+		<div class="flex items-center gap-3">
+			if cat.Sentiment == "positive" {
+				<span class="text-2xl" data-testid={ "category-icon-" + cat.ID }>😊</span>
+			} else if cat.Sentiment == "neutral" {
+				<span class="text-2xl" data-testid={ "category-icon-" + cat.ID }>🤔</span>
+			} else {
+				<span class="text-2xl" data-testid={ "category-icon-" + cat.ID }>😟</span>
+			}
+			<div>
+				<p class="font-medium text-gray-900" data-testid={ "category-name-" + cat.ID }>{ cat.Name }</p>
+				<p class="text-xs text-gray-500" data-testid={ "category-sentiment-" + cat.ID }>
+					if cat.Sentiment == "positive" {
+						Positif
+					} else if cat.Sentiment == "neutral" {
+						Netral
+					} else {
+						Negatif
+					}
+				</p>
+			</div>
+		</div>
+		<div class="flex items-center gap-3">
+			<span class="text-sm text-gray-500" data-testid={ "category-count-" + cat.ID }>{ cat.Count } interaksi</span>
+			<form
+				hx-post={ "/admin/settings/categories/" + cat.ID + "/toggle-active" }
+				hx-target={ "#category-item-" + cat.ID }
+				hx-swap="outerHTML"
+			>
+				<button
+					type="submit"
+					data-testid={ "category-status-toggle-" + cat.ID }
+					if cat.IsActive {
+						class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs cursor-pointer hover:bg-green-200"
+					} else {
+						class="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs cursor-pointer hover:bg-gray-200"
+					}
+				>
+					if cat.IsActive {
+						Aktif
+					} else {
+						Nonaktif
+					}
+				</button>
+			</form>
+			<button
+				type="button"
+				data-testid={ "category-edit-" + cat.ID }
+				data-modal-id={ "edit-category-modal-" + cat.ID }
+				class="text-primary-600 hover:text-primary-800 text-sm edit-category-btn"
+			>
+				Edit
+			</button>
+		</div>
+		<!-- Edit Category Modal -->
+		<dialog id={ "edit-category-modal-" + cat.ID } class="rounded-lg p-0 backdrop:bg-black/50" data-testid={ "edit-category-modal-" + cat.ID }>
+			<div class="p-6 w-96">
+				<h3 class="text-lg font-semibold mb-4">Edit Kategori</h3>
+				<form
+					hx-post={ "/admin/settings/categories/" + cat.ID }
+					hx-target={ "#category-item-" + cat.ID }
+					hx-swap="outerHTML"
+					hx-on::after-request="if(event.detail.successful) this.closest('dialog').close()"
+				>
+					<div class="space-y-4">
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-1">Nama</label>
+							<input
+								type="text"
+								name="name"
+								data-testid={ "edit-category-name-" + cat.ID }
+								class="w-full border rounded-lg px-3 py-2"
+								value={ cat.Name }
+								required
+							/>
+						</div>
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-1">Sentimen</label>
+							<select name="sentiment" data-testid={ "edit-category-sentiment-" + cat.ID } class="w-full border rounded-lg px-3 py-2" required>
+								<option value="positive" selected?={ cat.Sentiment == "positive" }>Positif</option>
+								<option value="neutral" selected?={ cat.Sentiment == "neutral" }>Netral</option>
+								<option value="negative" selected?={ cat.Sentiment == "negative" }>Negatif</option>
+							</select>
+						</div>
+					</div>
+					<div class="flex justify-end gap-3 mt-6">
+						<button type="button" onclick="this.closest('dialog').close()" class="px-4 py-2 text-gray-600 hover:text-gray-800">
+							Batal
+						</button>
+						<button type="submit" data-testid={ "submit-edit-category-" + cat.ID } class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+							Simpan
+						</button>
+					</div>
+				</form>
+			</div>
+		</dialog>
+	</div>
+	<script>
+		document.addEventListener('click', function(e) {
+			if (e.target.classList.contains('edit-category-btn')) {
+				var modalId = e.target.getAttribute('data-modal-id');
+				if (modalId) {
+					document.getElementById(modalId).showModal();
+				}
+			}
+		});
+	</script>
+}
+
+templ ObstacleCard(obs ObstacleItem) {
+	<div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg" data-testid={ "obstacle-item-" + obs.ID } id={ "obstacle-item-" + obs.ID }>
+		<div class="flex items-center gap-3">
+			<span class="w-8 h-8 bg-red-100 text-red-600 rounded flex items-center justify-center">
+				<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+				</svg>
+			</span>
+			<p class="font-medium text-gray-900" data-testid={ "obstacle-name-" + obs.ID }>{ obs.Name }</p>
+		</div>
+		<div class="flex items-center gap-3">
+			<span class="text-sm text-gray-500" data-testid={ "obstacle-count-" + obs.ID }>{ obs.Count }x dilaporkan</span>
+			<form
+				hx-post={ "/admin/settings/obstacles/" + obs.ID + "/toggle-active" }
+				hx-target={ "#obstacle-item-" + obs.ID }
+				hx-swap="outerHTML"
+			>
+				<button
+					type="submit"
+					data-testid={ "obstacle-status-toggle-" + obs.ID }
+					if obs.IsActive {
+						class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs cursor-pointer hover:bg-green-200"
+					} else {
+						class="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs cursor-pointer hover:bg-gray-200"
+					}
+				>
+					if obs.IsActive {
+						Aktif
+					} else {
+						Nonaktif
+					}
+				</button>
+			</form>
+			<button
+				type="button"
+				data-testid={ "obstacle-edit-" + obs.ID }
+				data-modal-id={ "edit-obstacle-modal-" + obs.ID }
+				class="text-primary-600 hover:text-primary-800 text-sm edit-obstacle-btn"
+			>
+				Edit
+			</button>
+		</div>
+		<!-- Edit Obstacle Modal -->
+		<dialog id={ "edit-obstacle-modal-" + obs.ID } class="rounded-lg p-0 backdrop:bg-black/50" data-testid={ "edit-obstacle-modal-" + obs.ID }>
+			<div class="p-6 w-96">
+				<h3 class="text-lg font-semibold mb-4">Edit Hambatan</h3>
+				<form
+					hx-post={ "/admin/settings/obstacles/" + obs.ID }
+					hx-target={ "#obstacle-item-" + obs.ID }
+					hx-swap="outerHTML"
+					hx-on::after-request="if(event.detail.successful) this.closest('dialog').close()"
+				>
+					<div class="space-y-4">
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-1">Nama</label>
+							<input
+								type="text"
+								name="name"
+								data-testid={ "edit-obstacle-name-" + obs.ID }
+								class="w-full border rounded-lg px-3 py-2"
+								value={ obs.Name }
+								required
+							/>
+						</div>
+					</div>
+					<div class="flex justify-end gap-3 mt-6">
+						<button type="button" onclick="this.closest('dialog').close()" class="px-4 py-2 text-gray-600 hover:text-gray-800">
+							Batal
+						</button>
+						<button type="submit" data-testid={ "submit-edit-obstacle-" + obs.ID } class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+							Simpan
+						</button>
+					</div>
+				</form>
+			</div>
+		</dialog>
+	</div>
+	<script>
+		document.addEventListener('click', function(e) {
+			if (e.target.classList.contains('edit-obstacle-btn')) {
+				var modalId = e.target.getAttribute('data-modal-id');
+				if (modalId) {
+					document.getElementById(modalId).showModal();
+				}
+			}
+		});
+	</script>
+}

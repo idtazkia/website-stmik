@@ -1,10 +1,10 @@
 import { defineConfig, devices } from '@playwright/test';
 
 // Playwright config for mockup screenshots
-// Run with: npx playwright test --config=playwright.mockup.config.ts e2e/screenshots.spec.ts
+// Run with: npx playwright test --config=playwright.mockup.config.ts test/e2e/screenshots.spec.ts
 
 export default defineConfig({
-  testDir: './e2e',
+  testDir: './test/e2e',
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: 0,

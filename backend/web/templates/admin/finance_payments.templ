@@ -1,0 +1,257 @@
+package admin
+
+import (
+	"fmt"
+	"github.com/idtazkia/stmik-admission-api/web/templates/layouts"
+	"time"
+)
+
+type PaymentListData struct {
+	Payments []PaymentWithDetails
+	Total    int
+	Page     int
+	PageSize int
+	Status   string
+	Stats    PaymentStats
+}
+
+type PaymentWithDetails struct {
+	ID             string
+	BillingID      string
+	BillingType    string
+	BillingAmount  int
+	CandidateID    string
+	CandidateName  string
+	CandidateEmail string
+	Amount         int
+	TransferDate   *time.Time
+	ProofURL       string
+	Status         string
+	RejectedNote   *string
+	ReviewedBy     *string
+	ReviewedAt     *time.Time
+	CreatedAt      time.Time
+}
+
+type PaymentStats struct {
+	Pending  int
+	Approved int
+	Rejected int
+}
+
+templ FinancePayments(pageData layouts.PageData, data PaymentListData) {
+	@layouts.Admin(pageData) {
+		<div class="space-y-6" data-testid="finance-payments-page">
+			<!-- Stats Cards -->
+			<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+				<div class="bg-white rounded-lg shadow p-4">
+					<p class="text-sm text-gray-500">Menunggu Verifikasi</p>
+					<p class="text-2xl font-bold text-yellow-600" data-testid="stat-pending">{ fmt.Sprintf("%d", data.Stats.Pending) }</p>
+				</div>
+				<div class="bg-white rounded-lg shadow p-4">
+					<p class="text-sm text-gray-500">Disetujui</p>
+					<p class="text-2xl font-bold text-green-600" data-testid="stat-approved">{ fmt.Sprintf("%d", data.Stats.Approved) }</p>
+				</div>
+				<div class="bg-white rounded-lg shadow p-4">
+					<p class="text-sm text-gray-500">Ditolak</p>
+					<p class="text-2xl font-bold text-red-600" data-testid="stat-rejected">{ fmt.Sprintf("%d", data.Stats.Rejected) }</p>
+				</div>
+			</div>
+			<!-- Filters -->
+			<div class="bg-white rounded-lg shadow p-4">
+				<form method="GET" class="flex items-center gap-4">
+					<select name="status" class="px-3 py-2 border rounded-lg" data-testid="select-status">
+						<option value="">Semua Status</option>
+						<option value="pending" selected?={ data.Status == "pending" }>Menunggu Verifikasi</option>
+						<option value="approved" selected?={ data.Status == "approved" }>Disetujui</option>
+						<option value="rejected" selected?={ data.Status == "rejected" }>Ditolak</option>
+					</select>
+					<button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700" data-testid="btn-filter">
+						Filter
+					</button>
+				</form>
+			</div>
+			<!-- Payments List -->
+			<div class="space-y-4">
+				if len(data.Payments) == 0 {
+					<div class="bg-white rounded-lg shadow p-8 text-center text-gray-500">
+						Tidak ada pembayaran
+					</div>
+				}
+				for _, p := range data.Payments {
+					<div class="bg-white rounded-lg shadow" data-testid={ "payment-card-" + p.ID }>
+						<div class="p-6">
+							<div class="flex flex-col md:flex-row md:items-start gap-6">
+								<!-- Candidate & Billing Info -->
+								<div class="flex-1">
+									<h3 class="font-semibold text-lg" data-testid={ "payment-candidate-" + p.ID }>{ p.CandidateName }</h3>
+									<p class="text-sm text-gray-500">{ p.CandidateEmail }</p>
+									<div class="mt-3 space-y-1">
+										<p class="text-sm">
+											<span class="text-gray-500">Jenis Tagihan:</span>
+											<span class="font-medium">{ billingTypeLabel(p.BillingType) }</span>
+										</p>
+										<p class="text-sm">
+											<span class="text-gray-500">Jumlah Tagihan:</span>
+											<span class="font-medium">{ formatAmount(int64(p.BillingAmount)) }</span>
+										</p>
+										<p class="text-sm">
+											<span class="text-gray-500">Jumlah Dibayar:</span>
+											<span class="font-bold text-primary-600">{ formatAmount(int64(p.Amount)) }</span>
+										</p>
+										<p class="text-sm">
+											<span class="text-gray-500">Tanggal Transfer:</span>
+											<span class="font-medium">
+												if p.TransferDate != nil {
+													{ p.TransferDate.Format("02 Jan 2006") }
+												} else {
+													-
+												}
+											</span>
+										</p>
+									</div>
+								</div>
+								<!-- Proof Image -->
+								<div class="w-full md:w-64 flex-shrink-0">
+									if p.ProofURL != "" {
+										<a href={ templ.SafeURL(p.ProofURL) } target="_blank" class="block">
+											<img
+												src={ p.ProofURL }
+												alt="Bukti Pembayaran"
+												class="w-full h-48 object-cover rounded-lg border hover:opacity-90"
+												data-testid={ "payment-proof-" + p.ID }
+											/>
+										</a>
+										<p class="text-xs text-center text-gray-400 mt-1">Klik untuk memperbesar</p>
+									} else {
+										<div class="w-full h-48 bg-gray-100 rounded-lg border flex items-center justify-center text-gray-400">
+											Tidak ada bukti
+										</div>
+									}
+								</div>
+							</div>
+							<!-- Status & Actions -->
+							<div class="mt-4 pt-4 border-t flex items-center justify-between">
+								<div class="flex items-center gap-4">
+									@paymentStatusBadge(p.Status)
+									<span class="text-xs text-gray-400">Upload: { p.CreatedAt.Format("02 Jan 2006 15:04") }</span>
+									if p.ReviewedBy != nil {
+										<span class="text-xs text-gray-400">
+											Reviewed oleh { *p.ReviewedBy }
+											if p.ReviewedAt != nil {
+												{ p.ReviewedAt.Format("02 Jan 2006 15:04") }
+											}
+										</span>
+									}
+								</div>
+								if p.Status == "pending" {
+									<div class="flex items-center gap-2">
+										<button
+											hx-post={ "/admin/finance/payments/" + p.ID + "/approve" }
+											hx-target={ "#payment-card-" + p.ID }
+											hx-swap="outerHTML"
+											class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm"
+											data-testid={ "btn-approve-" + p.ID }
+										>
+											Setujui
+										</button>
+										<div x-data="{ showReject: false }">
+											<button
+												@click="showReject = true"
+												class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm"
+												data-testid={ "btn-reject-" + p.ID }
+											>
+												Tolak
+											</button>
+											<!-- Reject Modal -->
+											<div x-show="showReject" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+												<div class="bg-white rounded-lg p-6 w-96 max-w-full mx-4" @click.outside="showReject = false">
+													<h3 class="font-semibold text-lg mb-4">Alasan Penolakan</h3>
+													<form
+														hx-post={ "/admin/finance/payments/" + p.ID + "/reject" }
+														hx-target={ "#payment-card-" + p.ID }
+														hx-swap="outerHTML"
+														@htmx:after-request="showReject = false"
+													>
+														<textarea
+															name="reason"
+															rows="3"
+															class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 mb-4"
+															placeholder="Masukkan alasan penolakan..."
+															data-testid={ "input-reject-reason-" + p.ID }
+															required
+														></textarea>
+														<div class="flex justify-end gap-2">
+															<button
+																type="button"
+																@click="showReject = false"
+																class="px-4 py-2 border rounded-lg hover:bg-gray-50"
+															>
+																Batal
+															</button>
+															<button
+																type="submit"
+																class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+																data-testid={ "btn-confirm-reject-" + p.ID }
+															>
+																Tolak Pembayaran
+															</button>
+														</div>
+													</form>
+												</div>
+											</div>
+										</div>
+									</div>
+								}
+							</div>
+							if p.RejectedNote != nil && *p.RejectedNote != "" {
+								<div class="mt-3 p-3 bg-red-50 rounded-lg text-sm text-red-700">
+									<strong>Alasan Penolakan:</strong> { *p.RejectedNote }
+								</div>
+							}
+						</div>
+					</div>
+				}
+			</div>
+			<!-- Pagination -->
+			if data.Total > data.PageSize {
+				<div class="bg-white rounded-lg shadow px-6 py-4 flex items-center justify-between">
+					<p class="text-sm text-gray-500">
+						Menampilkan { fmt.Sprintf("%d", (data.Page-1)*data.PageSize+1) } - { fmt.Sprintf("%d", min((data.Page)*data.PageSize, data.Total)) } dari { fmt.Sprintf("%d", data.Total) }
+					</p>
+					<div class="flex gap-2">
+						if data.Page > 1 {
+							<a
+								href={ templ.SafeURL(fmt.Sprintf("/admin/finance/payments?page=%d&status=%s", data.Page-1, data.Status)) }
+								class="px-3 py-1 border rounded hover:bg-gray-50"
+							>
+								Sebelumnya
+							</a>
+						}
+						if data.Page*data.PageSize < data.Total {
+							<a
+								href={ templ.SafeURL(fmt.Sprintf("/admin/finance/payments?page=%d&status=%s", data.Page+1, data.Status)) }
+								class="px-3 py-1 border rounded hover:bg-gray-50"
+							>
+								Selanjutnya
+							</a>
+						}
+					</div>
+				</div>
+			}
+		</div>
+	}
+}
+
+func billingTypeLabel(t string) string {
+	switch t {
+	case "registration":
+		return "Biaya Pendaftaran"
+	case "tuition":
+		return "Biaya Kuliah"
+	case "dormitory":
+		return "Biaya Asrama"
+	default:
+		return t
+	}
+}
