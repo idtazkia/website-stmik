@@ -197,6 +197,7 @@ func seedTestData(ctx context.Context, dbHost, dbPort string) error {
 		"DATABASE_PASSWORD=test",
 		"DATABASE_NAME=test_db",
 		"DATABASE_SSL_MODE=disable",
+		"JWT_SECRET=test-secret-key-for-testing-only",
 		"ENCRYPTION_KEY=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
 	)
 	cmd.Stdout = os.Stdout
