@@ -8,9 +8,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/idtazkia/stmik-admission-api/config"
-	"github.com/idtazkia/stmik-admission-api/model"
-	"github.com/idtazkia/stmik-admission-api/pkg/crypto"
+	"github.com/idtazkia/stmik-admission-api/internal/config"
+	"github.com/idtazkia/stmik-admission-api/internal/model"
+	"github.com/idtazkia/stmik-admission-api/internal/pkg/crypto"
 	"github.com/joho/godotenv"
 )
 

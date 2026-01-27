@@ -1,0 +1,469 @@
+package admin
+
+import (
+	"fmt"
+	"github.com/idtazkia/stmik-admission-api/web/templates/layouts"
+)
+
+type CandidateListItem struct {
+	ID             string
+	Name           string
+	Email          string
+	Phone          string
+	Status         string
+	StatusLabel    string
+	ProdiName      string
+	ConsultantName string
+	CampaignName   string
+	SourceType     string
+	SourceLabel    string
+	CreatedAt      string
+}
+
+type CandidateListStats struct {
+	Total       int
+	Registered  int
+	Prospecting int
+	Committed   int
+	Enrolled    int
+	Lost        int
+}
+
+type CandidateFilters struct {
+	Status       string
+	ConsultantID string
+	ProdiID      string
+	CampaignID   string
+	SourceType   string
+	Search       string
+}
+
+type FilterOption struct {
+	Value string
+	Label string
+}
+
+type CandidateListData struct {
+	Candidates   []CandidateListItem
+	Stats        CandidateListStats
+	Filters      CandidateFilters
+	Total        int
+	Limit        int
+	Offset       int
+	Consultants  []FilterOption
+	Prodis       []FilterOption
+	Campaigns    []FilterOption
+}
+
+var statusOptions = []FilterOption{
+	{"", "Semua Status"},
+	{"registered", "Terdaftar"},
+	{"prospecting", "Dalam Proses"},
+	{"committed", "Berkomitmen"},
+	{"enrolled", "Diterima"},
+	{"lost", "Tidak Lanjut"},
+}
+
+var defaultSourceTypes = []FilterOption{
+	{"", "Semua Sumber"},
+	{"instagram", "Instagram"},
+	{"google", "Google"},
+	{"tiktok", "TikTok"},
+	{"youtube", "YouTube"},
+	{"expo", "Expo/Pameran"},
+	{"school_visit", "Kunjungan Sekolah"},
+	{"friend_family", "Teman/Keluarga"},
+	{"teacher_alumni", "Guru/Alumni"},
+	{"walkin", "Datang Langsung"},
+	{"other", "Lainnya"},
+}
+
+templ Candidates(data layouts.PageData, listData CandidateListData) {
+	@layouts.Admin(data) {
+		<div class="space-y-6" data-testid="candidates-page">
+			<!-- Header -->
+			<div class="flex items-center justify-between">
+				<div>
+					<h2 class="text-lg font-semibold text-gray-900">Daftar Kandidat</h2>
+					<p class="text-sm text-gray-500">Kelola calon mahasiswa yang terdaftar</p>
+				</div>
+			</div>
+
+			<!-- Stats -->
+			<div class="grid grid-cols-6 gap-4" data-testid="candidate-stats">
+				<div class="bg-white rounded-lg border p-4">
+					<p class="text-sm text-gray-500">Total</p>
+					<p class="text-2xl font-bold text-gray-900" data-testid="stat-total">{ fmt.Sprintf("%d", listData.Stats.Total) }</p>
+				</div>
+				<div class="bg-white rounded-lg border p-4">
+					<p class="text-sm text-gray-500">Terdaftar</p>
+					<p class="text-2xl font-bold text-blue-600" data-testid="stat-registered">{ fmt.Sprintf("%d", listData.Stats.Registered) }</p>
+				</div>
+				<div class="bg-white rounded-lg border p-4">
+					<p class="text-sm text-gray-500">Dalam Proses</p>
+					<p class="text-2xl font-bold text-yellow-600" data-testid="stat-prospecting">{ fmt.Sprintf("%d", listData.Stats.Prospecting) }</p>
+				</div>
+				<div class="bg-white rounded-lg border p-4">
+					<p class="text-sm text-gray-500">Berkomitmen</p>
+					<p class="text-2xl font-bold text-purple-600" data-testid="stat-committed">{ fmt.Sprintf("%d", listData.Stats.Committed) }</p>
+				</div>
+				<div class="bg-white rounded-lg border p-4">
+					<p class="text-sm text-gray-500">Diterima</p>
+					<p class="text-2xl font-bold text-green-600" data-testid="stat-enrolled">{ fmt.Sprintf("%d", listData.Stats.Enrolled) }</p>
+				</div>
+				<div class="bg-white rounded-lg border p-4">
+					<p class="text-sm text-gray-500">Tidak Lanjut</p>
+					<p class="text-2xl font-bold text-red-600" data-testid="stat-lost">{ fmt.Sprintf("%d", listData.Stats.Lost) }</p>
+				</div>
+			</div>
+
+			<!-- Filters -->
+			<div class="bg-white rounded-lg border p-4" data-testid="filters-section">
+				<form
+					hx-get="/admin/candidates"
+					hx-target="#candidates-table-body"
+					hx-swap="innerHTML"
+					hx-trigger="change, input delay:500ms from:#search-input"
+					hx-push-url="true"
+					class="grid grid-cols-6 gap-4"
+				>
+					<div>
+						<label class="block text-xs font-medium text-gray-500 mb-1">Status</label>
+						<select name="status" data-testid="filter-status" class="w-full px-3 py-2 border rounded-lg text-sm">
+							for _, opt := range statusOptions {
+								<option value={ opt.Value } selected?={ opt.Value == listData.Filters.Status }>{ opt.Label }</option>
+							}
+						</select>
+					</div>
+					<div>
+						<label class="block text-xs font-medium text-gray-500 mb-1">Konsultan</label>
+						<select name="consultant_id" data-testid="filter-consultant" class="w-full px-3 py-2 border rounded-lg text-sm">
+							<option value="">Semua Konsultan</option>
+							for _, opt := range listData.Consultants {
+								<option value={ opt.Value } selected?={ opt.Value == listData.Filters.ConsultantID }>{ opt.Label }</option>
+							}
+						</select>
+					</div>
+					<div>
+						<label class="block text-xs font-medium text-gray-500 mb-1">Prodi</label>
+						<select name="prodi_id" data-testid="filter-prodi" class="w-full px-3 py-2 border rounded-lg text-sm">
+							<option value="">Semua Prodi</option>
+							for _, opt := range listData.Prodis {
+								<option value={ opt.Value } selected?={ opt.Value == listData.Filters.ProdiID }>{ opt.Label }</option>
+							}
+						</select>
+					</div>
+					<div>
+						<label class="block text-xs font-medium text-gray-500 mb-1">Kampanye</label>
+						<select name="campaign_id" data-testid="filter-campaign" class="w-full px-3 py-2 border rounded-lg text-sm">
+							<option value="">Semua Kampanye</option>
+							for _, opt := range listData.Campaigns {
+								<option value={ opt.Value } selected?={ opt.Value == listData.Filters.CampaignID }>{ opt.Label }</option>
+							}
+						</select>
+					</div>
+					<div>
+						<label class="block text-xs font-medium text-gray-500 mb-1">Sumber</label>
+						<select name="source_type" data-testid="filter-source" class="w-full px-3 py-2 border rounded-lg text-sm">
+							for _, opt := range defaultSourceTypes {
+								<option value={ opt.Value } selected?={ opt.Value == listData.Filters.SourceType }>{ opt.Label }</option>
+							}
+						</select>
+					</div>
+					<div>
+						<label class="block text-xs font-medium text-gray-500 mb-1">Cari</label>
+						<input
+							type="text"
+							name="search"
+							id="search-input"
+							value={ listData.Filters.Search }
+							placeholder="Nama, email, telepon..."
+							data-testid="filter-search"
+							class="w-full px-3 py-2 border rounded-lg text-sm"
+						/>
+					</div>
+				</form>
+			</div>
+
+			<!-- Table -->
+			<div class="bg-white rounded-lg border overflow-hidden" data-testid="candidates-table">
+				<table class="w-full">
+					<thead class="bg-gray-50 border-b">
+						<tr>
+							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kandidat</th>
+							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Prodi</th>
+							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Konsultan</th>
+							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sumber</th>
+							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Terdaftar</th>
+							<th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Aksi</th>
+						</tr>
+					</thead>
+					<tbody id="candidates-table-body" class="divide-y" data-testid="candidates-list">
+						@CandidatesTableBody(listData.Candidates, listData.Total, listData.Limit, listData.Offset)
+					</tbody>
+				</table>
+			</div>
+
+			<!-- Pagination -->
+			if listData.Total > listData.Limit {
+				@CandidatesPagination(listData.Total, listData.Limit, listData.Offset, listData.Filters)
+			}
+		</div>
+	}
+}
+
+templ CandidatesTableBody(candidates []CandidateListItem, total, limit, offset int) {
+	if len(candidates) == 0 {
+		<tr data-testid="empty-candidates-row">
+			<td colspan="7" class="px-4 py-8 text-center text-gray-500" data-testid="empty-candidates-message">
+				Tidak ada kandidat yang ditemukan.
+			</td>
+		</tr>
+	} else {
+		for _, c := range candidates {
+			@CandidateRow(c)
+		}
+	}
+}
+
+templ CandidateRow(c CandidateListItem) {
+	<tr data-testid={ "candidate-row-" + c.ID } class="hover:bg-gray-50">
+		<td class="px-4 py-3">
+			<div class="flex items-center gap-3">
+				<div class="w-10 h-10 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center text-sm font-medium">
+					if c.Name != "" {
+						{ string(c.Name[0]) }
+					} else {
+						?
+					}
+				</div>
+				<div>
+					<a href={ templ.SafeURL("/admin/candidates/" + c.ID) } class="font-medium text-gray-900 hover:text-primary-600" data-testid="candidate-name">
+						if c.Name != "" {
+							{ c.Name }
+						} else {
+							<span class="text-gray-400">Belum diisi</span>
+						}
+					</a>
+					<div class="text-sm text-gray-500">
+						if c.Email != "" {
+							{ c.Email }
+						} else if c.Phone != "" {
+							{ c.Phone }
+						}
+					</div>
+				</div>
+			</div>
+		</td>
+		<td class="px-4 py-3">
+			if c.ProdiName != "" {
+				<span class="text-sm text-gray-600">{ c.ProdiName }</span>
+			} else {
+				<span class="text-sm text-gray-400">-</span>
+			}
+		</td>
+		<td class="px-4 py-3">
+			<span class={ "inline-flex items-center px-2 py-1 rounded-full text-xs font-medium",
+				templ.KV("bg-blue-100 text-blue-800", c.Status == "registered"),
+				templ.KV("bg-yellow-100 text-yellow-800", c.Status == "prospecting"),
+				templ.KV("bg-purple-100 text-purple-800", c.Status == "committed"),
+				templ.KV("bg-green-100 text-green-800", c.Status == "enrolled"),
+				templ.KV("bg-red-100 text-red-800", c.Status == "lost") } data-testid="candidate-status">
+				{ c.StatusLabel }
+			</span>
+		</td>
+		<td class="px-4 py-3">
+			if c.ConsultantName != "" {
+				<span class="text-sm text-gray-600">{ c.ConsultantName }</span>
+			} else {
+				<span class="text-sm text-gray-400">Belum ditugaskan</span>
+			}
+		</td>
+		<td class="px-4 py-3">
+			if c.SourceLabel != "" {
+				<span class="text-sm text-gray-600">{ c.SourceLabel }</span>
+			} else {
+				<span class="text-sm text-gray-400">-</span>
+			}
+		</td>
+		<td class="px-4 py-3">
+			<span class="text-sm text-gray-600">{ c.CreatedAt }</span>
+		</td>
+		<td class="px-4 py-3 text-center">
+			<a
+				href={ templ.SafeURL("/admin/candidates/" + c.ID) }
+				class="text-primary-600 hover:text-primary-800 text-sm"
+				data-testid={ "view-candidate-" + c.ID }
+			>
+				Detail
+			</a>
+		</td>
+	</tr>
+}
+
+templ CandidatesPagination(total, limit, offset int, filters CandidateFilters) {
+	<div class="bg-white rounded-lg border px-4 py-3 flex items-center justify-between" data-testid="pagination">
+		<div class="text-sm text-gray-500">
+			Menampilkan { fmt.Sprintf("%d", offset+1) } - { fmt.Sprintf("%d", minInt(offset+limit, total)) } dari { fmt.Sprintf("%d", total) } kandidat
+		</div>
+		<div class="flex gap-2">
+			if offset > 0 {
+				<button
+					hx-get={ buildPaginationURL(filters, limit, offset-limit) }
+					hx-target="#candidates-table-body"
+					hx-swap="innerHTML"
+					hx-push-url="true"
+					class="px-3 py-1 border rounded text-sm hover:bg-gray-50"
+					data-testid="prev-page"
+				>
+					Sebelumnya
+				</button>
+			}
+			if offset+limit < total {
+				<button
+					hx-get={ buildPaginationURL(filters, limit, offset+limit) }
+					hx-target="#candidates-table-body"
+					hx-swap="innerHTML"
+					hx-push-url="true"
+					class="px-3 py-1 border rounded text-sm hover:bg-gray-50"
+					data-testid="next-page"
+				>
+					Selanjutnya
+				</button>
+			}
+		</div>
+	</div>
+}
+
+func buildPaginationURL(filters CandidateFilters, limit, offset int) string {
+	url := fmt.Sprintf("/admin/candidates?limit=%d&offset=%d", limit, offset)
+	if filters.Status != "" {
+		url += "&status=" + filters.Status
+	}
+	if filters.ConsultantID != "" {
+		url += "&consultant_id=" + filters.ConsultantID
+	}
+	if filters.ProdiID != "" {
+		url += "&prodi_id=" + filters.ProdiID
+	}
+	if filters.CampaignID != "" {
+		url += "&campaign_id=" + filters.CampaignID
+	}
+	if filters.SourceType != "" {
+		url += "&source_type=" + filters.SourceType
+	}
+	if filters.Search != "" {
+		url += "&search=" + filters.Search
+	}
+	return url
+}
+
+func minInt(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func getSourceLabel(sourceType string) string {
+	switch sourceType {
+	case "instagram":
+		return "Instagram"
+	case "google":
+		return "Google"
+	case "tiktok":
+		return "TikTok"
+	case "youtube":
+		return "YouTube"
+	case "expo":
+		return "Expo/Pameran"
+	case "school_visit":
+		return "Kunjungan Sekolah"
+	case "friend_family":
+		return "Teman/Keluarga"
+	case "teacher_alumni":
+		return "Guru/Alumni"
+	case "walkin":
+		return "Datang Langsung"
+	case "other":
+		return "Lainnya"
+	default:
+		return sourceType
+	}
+}
+
+// ConsultantWorkloadItem for reassignment modal
+type ConsultantWorkloadItem struct {
+	ID          string
+	Name        string
+	Email       string
+	ActiveCount int
+	TotalCount  int
+}
+
+// ReassignModal renders the modal for reassigning a candidate to a different consultant
+templ ReassignModal(candidateID string, currentConsultantID string, consultants []ConsultantWorkloadItem) {
+	<div id="reassign-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" data-testid="reassign-modal">
+		<div class="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4">
+			<div class="px-6 py-4 border-b flex items-center justify-between">
+				<h3 class="font-semibold text-gray-900" data-testid="modal-title">Reassign Kandidat</h3>
+				<button onclick="document.getElementById('reassign-modal').remove()" class="text-gray-400 hover:text-gray-600" data-testid="modal-close">✕</button>
+			</div>
+			<form action={ templ.SafeURL("/admin/candidates/" + candidateID + "/reassign") } method="POST" class="p-6 space-y-4" data-testid="form-reassign">
+				<p class="text-sm text-gray-600">Pilih konsultan baru untuk kandidat ini:</p>
+				<div class="max-h-80 overflow-y-auto space-y-2" data-testid="consultant-list">
+					for _, c := range consultants {
+						<label class={ "flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-gray-50",
+							templ.KV("border-primary-500 bg-primary-50", c.ID == currentConsultantID) } data-testid={ "consultant-option-" + c.ID }>
+							<div class="flex items-center gap-3">
+								<input
+									type="radio"
+									name="consultant_id"
+									value={ c.ID }
+									checked?={ c.ID == currentConsultantID }
+									class="text-primary-600"
+									data-testid={ "radio-" + c.ID }
+								/>
+								<div>
+									<p class="font-medium text-gray-900">{ c.Name }</p>
+									<p class="text-sm text-gray-500">{ c.Email }</p>
+								</div>
+							</div>
+							<div class="text-right">
+								<p class="text-sm font-medium text-gray-900">{ fmt.Sprintf("%d", c.ActiveCount) } aktif</p>
+								<p class="text-xs text-gray-500">{ fmt.Sprintf("%d", c.TotalCount) } total</p>
+							</div>
+						</label>
+					}
+				</div>
+				<div class="flex gap-2 pt-4">
+					<button type="button" onclick="document.getElementById('reassign-modal').remove()" class="flex-1 border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50" data-testid="btn-cancel">
+						Batal
+					</button>
+					<button type="submit" class="flex-1 bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700" data-testid="btn-submit">
+						Reassign
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+}
+
+// StatusBadge renders a status badge for candidates
+templ StatusBadge(status string) {
+	switch status {
+		case "registered":
+			<span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">Terdaftar</span>
+		case "prospecting":
+			<span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">Dalam Proses</span>
+		case "committed":
+			<span class="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800">Berkomitmen</span>
+		case "enrolled":
+			<span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Diterima</span>
+		case "lost":
+			<span class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">Tidak Lanjut</span>
+		default:
+			<span class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">{ status }</span>
+	}
+}
