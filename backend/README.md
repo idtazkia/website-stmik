@@ -254,44 +254,43 @@ Track marketing campaign effectiveness via UTM parameters:
 ```
 backend/
 ├── cmd/
-│   ├── server/main.go           # Entry point
-│   └── migrate/main.go          # Migration CLI
-├── handler/                      # HTTP handlers
-│   ├── router.go                # Routes + middleware
-│   ├── auth.go                  # Login, OAuth, logout
-│   ├── api.go                   # JSON API (lead capture)
-│   ├── portal.go                # Registrant portal pages
-│   └── admin.go                 # Staff dashboard + settings
-├── model/                        # Data structs + DB queries
-│   ├── db.go                    # Connection pool
-│   ├── user.go
-│   ├── prospect.go
-│   ├── application.go
-│   ├── document.go
-│   └── lookup.go                # Programs, tracks, intakes, etc.
-├── migrations/                   # SQL files
-├── templates/                    # Templ files (split as needed)
-├── static/                       # CSS, JS
-├── config.go
-├── auth.go                       # JWT + bcrypt
-├── kafka.go                      # Payment consumer
-├── whatsapp.go                   # WA client
-├── go.mod
-└── .env.example
+│   ├── server/          # Main application entry point
+│   ├── migrate/         # Database migration CLI
+│   ├── seedtest/        # Test data seeder
+│   ├── mockup/          # Screenshot generator
+│   └── testrunner/      # Test orchestrator (like mvn clean test)
+├── internal/            # Private application code
+│   ├── auth/            # Session management, Google OAuth
+│   ├── config/          # Configuration loading
+│   ├── handler/         # HTTP handlers (admin, portal, public)
+│   ├── integration/     # External services (Resend, WhatsApp)
+│   ├── model/           # Data models + database queries
+│   ├── mockdata/        # Mock data generators
+│   ├── pkg/crypto/      # Encryption utilities
+│   ├── storage/         # File storage abstraction
+│   └── version/         # Build version info
+├── web/                 # Web assets
+│   ├── static/          # CSS, JS (Tailwind, HTMX, Alpine)
+│   └── templates/       # Templ files (admin, portal, email)
+├── test/                # Test files
+│   ├── e2e/             # Playwright E2E tests
+│   └── testutil/        # Test utilities (testcontainers)
+├── migrations/          # SQL migration files
+├── Makefile             # Build commands
+└── go.mod
 ```
 
 **Design decisions:**
 
-- No `internal/` - not a library, single executable, no external importers
+- Standard Go layout with `internal/` for private packages
 - No `repository/` layer - model handles its own queries
 - No `services/` layer - handlers call models, extract only when reused
-- Top-level files for small concerns (config, auth, integrations)
-- Split into packages only when files grow large
+- `web/` for all frontend assets (templates, static files)
+- `test/` for all test-related code (e2e, utilities)
 
 **References:**
 - [Official Go module layout](https://go.dev/doc/modules/layout)
-- [Alex Edwards: 11 tips for structuring Go projects](https://www.alexedwards.net/blog/11-tips-for-structuring-your-go-projects)
-- [Rost Glukhov: Go Project Structure](https://www.glukhov.org/post/2025/12/go-project-structure/)
+- [Standard Go Project Layout](https://github.com/golang-standards/project-layout)
 
 ## Routes
 
@@ -519,23 +518,41 @@ document.addEventListener('alpine:init', () => {
 ## Development
 
 ```bash
-# Install dependencies
-go mod download
-go install github.com/a-h/templ/cmd/templ@latest
+# Install all dependencies (Go, npm, templ)
+make deps
 
-# Setup database
-createdb campus
-go run ./cmd/migrate up
+# Run development server
+make dev
 
 # Generate templates
-templ generate
+make templ
 
-# Run server
-go run ./cmd/server
-
-# With hot reload
-air
+# Build CSS
+make css
 ```
+
+## Testing
+
+```bash
+# Full test suite (like mvn clean test)
+# - Cleans generated files
+# - Starts PostgreSQL testcontainer
+# - Runs migrations
+# - Seeds test data
+# - Runs unit tests and E2E tests
+make clean-test
+
+# Run unit tests only
+make test
+
+# Run E2E tests only (requires running server)
+make test-e2e
+
+# Clean build artifacts
+make clean
+```
+
+The `make clean-test` command uses [testcontainers](https://testcontainers.com/) to automatically manage a PostgreSQL container, similar to how Maven's `clean test` works in Java projects.
 
 ## Deployment
 
@@ -551,10 +568,11 @@ ssh user@vps sudo systemctl restart campus-api
 ## Dependencies
 
 ```
-github.com/jackc/pgx/v5           # PostgreSQL
-github.com/golang-jwt/jwt/v5       # JWT
-golang.org/x/crypto                # bcrypt
-github.com/a-h/templ               # Templates
-github.com/golang-migrate/migrate  # Migrations
-github.com/segmentio/kafka-go      # Kafka
+github.com/jackc/pgx/v5              # PostgreSQL driver
+github.com/golang-jwt/jwt/v5         # JWT tokens
+golang.org/x/crypto                  # bcrypt password hashing
+github.com/a-h/templ                 # Type-safe templates
+github.com/golang-migrate/migrate    # Database migrations
+github.com/segmentio/kafka-go        # Kafka integration
+github.com/testcontainers/testcontainers-go  # Test containers
 ```
