@@ -1,4 +1,4 @@
-.PHONY: build dev test test-e2e test-quick test-full clean css templ
+.PHONY: build dev test test-e2e clean clean-test css templ
 
 # Version info from git
 GIT_COMMIT := $(shell git rev-parse HEAD 2>/dev/null || echo "unknown")
@@ -30,13 +30,10 @@ test:
 test-e2e:
 	npm run test:e2e
 
-# Quick test: rebuild and run tests (no DB reset)
-test-quick:
-	./scripts/test-quick.sh
-
-# Full test suite: clean build, reset DB, run all tests
-test-full:
-	./scripts/test-full.sh
+# Full test suite using testcontainers (like mvn clean test)
+# Starts fresh PostgreSQL container, runs migrations, seeds data, runs all tests
+clean-test: clean templ css
+	go run ./cmd/testrunner
 
 # Generate templ files
 templ:
@@ -50,11 +47,13 @@ css:
 css-watch:
 	npm run css:watch
 
-# Clean build artifacts
+# Clean build artifacts and generated files
 clean:
 	rm -rf bin/
 	rm -rf playwright-report/
 	rm -rf test-results/
+	rm -f web/static/css/output.css
+	find web/templates -name "*_templ.go" -delete
 
 # Install dependencies
 deps:
