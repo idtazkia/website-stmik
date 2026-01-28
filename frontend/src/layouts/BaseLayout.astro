@@ -9,10 +9,9 @@ interface Props {
   image?: string;
 }
 
-// SITE UNDER CONSTRUCTION: Block search engines by default
-// Set noIndex = true to block indexing (current behavior while under construction)
-// When ready to launch, change default to false or remove this comment
-const { title, description, noIndex = true, image } = Astro.props;
+// Search engine indexing enabled
+// Set noIndex = true on specific pages to block indexing if needed
+const { title, description, noIndex = false, image } = Astro.props;
 
 const siteName = 'STMIK Tazkia';
 const defaultDescription = 'Menjadi perguruan tinggi yang unggul dalam bidang teknologi informasi yang mencetak lulusan berkompeten dan berkarakter mulia';
