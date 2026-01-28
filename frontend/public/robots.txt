@@ -1,15 +1,9 @@
-# SITE UNDER CONSTRUCTION - DO NOT INDEX
-# This robots.txt blocks all search engines while site is being developed
-# Remove this block when ready to launch
-
+# STMIK Tazkia - robots.txt
 User-agent: *
-Disallow: /
+Allow: /
+Disallow: /dashboard
+Disallow: /apply
+Disallow: /applications
+Disallow: /admin
 
-# NOTE: When ready to launch, replace above with:
-# User-agent: *
-# Allow: /
-# Disallow: /dashboard
-# Disallow: /apply
-# Disallow: /applications
-# Disallow: /admin
-# Sitemap: https://stmik.tazkia.ac.id/sitemap-index.xml
+Sitemap: https://stmik.tazkia.ac.id/sitemap-index.xml
