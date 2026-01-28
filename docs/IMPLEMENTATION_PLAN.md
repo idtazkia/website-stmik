@@ -158,6 +158,62 @@
 - [ ] Kuliah Sambil Kerja di Bogor: Tips dan Rekomendasi
 - [ ] Komunitas IT di Bogor yang Wajib Diikuti
 
+#### News Topics (Regular Updates)
+
+**Academic Events:**
+- [ ] Pembukaan Pendaftaran Mahasiswa Baru Gelombang [X]
+- [ ] Wisuda STMIK Tazkia Angkatan [X]
+- [ ] Seminar Nasional Teknologi Informasi
+- [ ] Workshop Industry Partnership dengan [Mitra]
+- [ ] Kunjungan Industri ke [Perusahaan]
+
+**Student Achievements:**
+- [ ] Mahasiswa STMIK Tazkia Juara Kompetisi [X]
+- [ ] Tim STMIK Tazkia Raih Penghargaan di Hackathon
+- [ ] Karya Mahasiswa Digunakan oleh [Klien Industri]
+- [ ] Alumni STMIK Tazkia Sukses di [Perusahaan]
+
+**Partnerships & MoU:**
+- [ ] STMIK Tazkia Jalin Kerjasama dengan [Perusahaan Tech]
+- [ ] MoU dengan [Universitas/Institusi]
+- [ ] Program Magang di [Perusahaan Mitra]
+- [ ] Sertifikasi [Vendor] untuk Mahasiswa STMIK Tazkia
+
+**Campus Updates:**
+- [ ] Fasilitas Baru di Kampus STMIK Tazkia
+- [ ] Kurikulum Baru Berbasis Industri 4.0
+- [ ] Akreditasi Program Studi [X]
+- [ ] Dosen STMIK Tazkia Raih [Penghargaan/Sertifikasi]
+
+#### Partner Site Articles (Backlink Strategy)
+
+> Articles to be published on partner websites with backlinks to stmik.tazkia.ac.id
+
+**For Tech Media (Techinasia, Dailysocial, etc):**
+- [ ] Bagaimana Kampus Menyiapkan Talenta untuk Industri Halal Tech
+- [ ] Project-Based Learning: Model Pendidikan IT Masa Depan
+- [ ] Kolaborasi Kampus-Industri dalam Mencetak Developer Siap Kerja
+
+**For Education Portals (Rencanamu, Quipper, Youthmanual):**
+- [ ] Mengenal Jurusan Sistem Informasi: Prospek dan Peluang
+- [ ] 5 Alasan Memilih Kuliah IT di Bogor
+- [ ] Kampus dengan Kurikulum Berbasis Proyek Nyata
+
+**For Business/Halal Industry Media:**
+- [ ] Peran Teknologi Informasi dalam Ekosistem Industri Halal
+- [ ] Digital Transformation untuk UMKM Halal
+- [ ] Kebutuhan Talenta IT di Industri Keuangan Syariah
+
+**For Local Bogor Media:**
+- [ ] STMIK Tazkia: Kampus IT Unggulan di Kota Bogor
+- [ ] Kontribusi STMIK Tazkia untuk Pengembangan SDM Bogor
+- [ ] Kerjasama STMIK Tazkia dengan Pelaku Usaha Lokal Bogor
+
+**For Tazkia Group Sites (tazkia.ac.id, STEI Tazkia):**
+- [ ] Sinergi Pendidikan Ekonomi Islam dan Teknologi Informasi
+- [ ] Program Double Degree STEI Tazkia - STMIK Tazkia
+- [ ] Kolaborasi Riset Fintech Syariah
+
 ### 2.8 SEO Enhancements (Done)
 - [x] JSON-LD structured data (Organization, EducationalOrganization)
 - [x] Course schema on program pages
