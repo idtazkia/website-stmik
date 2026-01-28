@@ -13,7 +13,8 @@
 | SEO Articles | 21 | 0 | Not Started |
 | News Topics | 16 | 0 | Not Started |
 | Partner Articles | 15 | 0 | Not Started |
-| **Total** | **52** | **0** | - |
+| Social Media Content | 40+ | 0 | Not Started |
+| **Total** | **92+** | **0** | - |
 
 ---
 
@@ -183,9 +184,197 @@
 
 ---
 
+## Social Media Content Plan
+
+> All social posts should include link to website (bio link, swipe up, description)
+
+### Platform Strategy
+
+| Platform | Target Audience | Post Frequency | Content Focus |
+|----------|-----------------|----------------|---------------|
+| Instagram | Prospective students (17-22) | 4-5x/week | Visual campus life, reels, stories |
+| TikTok | Gen Z (16-22) | 3-4x/week | Trending content, behind-the-scenes |
+| YouTube | Students, parents, professionals | 2-4x/month | Long-form educational content |
+| Facebook | Parents, alumni, professionals | 3-4x/week | News, events, formal announcements |
+| LinkedIn | Professionals, industry partners | 2-3x/week | Achievements, partnerships, thought leadership |
+
+### Instagram Content
+
+**Content Pillars:**
+
+| Pillar | Post Type | Frequency | Example Topics |
+|--------|-----------|-----------|----------------|
+| Campus Life | Photo/Carousel | 2x/week | Fasilitas, suasana kuliah, kantin, perpustakaan |
+| Student Stories | Reels/Stories | 1x/week | Mahasiswa cerita pengalaman, tips kuliah |
+| Events | Stories/Post | Per event | Seminar, workshop, wisuda, ospek |
+| Tips & Education | Carousel | 1x/week | Tips coding, career advice, study tips |
+| Behind the Scenes | Reels | 1x/week | Dosen mengajar, lab komputer, project mahasiswa |
+
+**Content Ideas:**
+
+| # | Content | Type | Status | Posted |
+|---|---------|------|--------|--------|
+| 1 | Tur kampus STMIK Tazkia | Reel | [ ] | - |
+| 2 | Sehari jadi mahasiswa IT | Reel | [ ] | - |
+| 3 | 5 alasan kuliah di STMIK Tazkia | Carousel | [ ] | - |
+| 4 | Fasilitas lab komputer | Photo | [ ] | - |
+| 5 | Tips lolos tes masuk kampus | Carousel | [ ] | - |
+| 6 | Cerita alumni sukses | Reel | [ ] | - |
+| 7 | Project mahasiswa keren | Carousel | [ ] | - |
+| 8 | Dosen favorit STMIK Tazkia | Reel | [ ] | - |
+| 9 | Biaya kuliah vs fasilitas | Carousel | [ ] | - |
+| 10 | Q&A pendaftaran | Stories | [ ] | - |
+
+### TikTok Content
+
+**Content Pillars:**
+
+| Pillar | Style | Frequency | Notes |
+|--------|-------|-----------|-------|
+| Edutainment | Trending sounds + tips | 2x/week | Coding tips, tech trends |
+| Campus Vibes | POV, day-in-life | 1x/week | Relatable student content |
+| Memes/Trends | Trending formats | 1x/week | Adapt trends to campus context |
+| Behind Scenes | Raw, authentic | 1x/week | Dosen, staff, mahasiswa |
+
+**Content Ideas:**
+
+| # | Content | Trend/Sound | Status | Posted |
+|---|---------|-------------|--------|--------|
+| 1 | POV: Masuk kelas coding pertama kali | Trending sound | [ ] | - |
+| 2 | Ekspektasi vs realita kuliah IT | Split screen | [ ] | - |
+| 3 | Things you learn in SI vs TI | Comparison | [ ] | - |
+| 4 | Dosen IT be like... | Comedy | [ ] | - |
+| 5 | Coding all night starter pack | Trending | [ ] | - |
+| 6 | Glow up: Semester 1 vs Semester 8 | Transition | [ ] | - |
+| 7 | Red flags kampus IT (kami bukan ini) | Trending | [ ] | - |
+| 8 | Mahasiswa IT mencari bug | Relatable | [ ] | - |
+| 9 | Apa yang dipelajari di jurusan SI? | Educational | [ ] | - |
+| 10 | Campus tour tapi aesthetic | Cinematic | [ ] | - |
+
+### YouTube Content
+
+**Content Types:**
+
+| Type | Length | Frequency | Purpose |
+|------|--------|-----------|---------|
+| Campus Tour | 5-10 min | 1x/year | Showcase facilities |
+| Program Explainer | 8-15 min | Per program | Explain curriculum |
+| Student Testimonials | 3-5 min | Monthly | Social proof |
+| Webinar/Seminar | 30-60 min | Per event | Thought leadership |
+| Tutorial/Tips | 10-20 min | 2x/month | SEO traffic |
+| Shorts | <60 sec | 2x/week | Repurpose TikTok/Reels |
+
+**Content Ideas:**
+
+| # | Title | Type | Duration | Status | Published |
+|---|-------|------|----------|--------|-----------|
+| 1 | Campus Tour STMIK Tazkia 2026 | Tour | 8 min | [ ] | - |
+| 2 | Mengenal Jurusan Sistem Informasi | Explainer | 12 min | [ ] | - |
+| 3 | Mengenal Jurusan Teknik Informatika | Explainer | 12 min | [ ] | - |
+| 4 | Testimoni Alumni - Bekerja di [Perusahaan] | Testimonial | 5 min | [ ] | - |
+| 5 | Project-Based Learning di STMIK Tazkia | Documentary | 10 min | [ ] | - |
+| 6 | Tips Memilih Jurusan IT yang Tepat | Tips | 8 min | [ ] | - |
+| 7 | Belajar Programming untuk Pemula | Tutorial | 15 min | [ ] | - |
+| 8 | Prospek Kerja Lulusan IT 2026 | Educational | 10 min | [ ] | - |
+| 9 | Webinar: Career in Tech | Webinar | 45 min | [ ] | - |
+| 10 | Q&A Pendaftaran Mahasiswa Baru | Q&A | 20 min | [ ] | - |
+
+### Facebook Content
+
+**Content Strategy:**
+
+| Content Type | Frequency | Target Audience |
+|--------------|-----------|-----------------|
+| News & Announcements | Per event | Parents, alumni |
+| Event Invitations | Per event | All |
+| Article Shares | 2x/week | Traffic to website |
+| Photo Albums | Per event | Engagement |
+| Live Videos | Monthly | Q&A, events |
+
+**Content Ideas:**
+
+| # | Content | Type | Status | Posted |
+|---|---------|------|--------|--------|
+| 1 | Pengumuman pendaftaran gelombang baru | Announcement | [ ] | - |
+| 2 | Album foto wisuda | Photo Album | [ ] | - |
+| 3 | Share artikel: Prospek kerja IT | Link | [ ] | - |
+| 4 | Event: Seminar nasional | Event | [ ] | - |
+| 5 | Live Q&A dengan dosen | Live | [ ] | - |
+| 6 | Testimoni orang tua mahasiswa | Post | [ ] | - |
+| 7 | Pengumuman kerjasama dengan [mitra] | Announcement | [ ] | - |
+| 8 | Throwback: Kegiatan mahasiswa | Photo | [ ] | - |
+| 9 | Tips untuk orang tua: Memilih kampus IT | Article | [ ] | - |
+| 10 | Alumni spotlight | Post | [ ] | - |
+
+### LinkedIn Content
+
+**Content Strategy:**
+
+| Content Type | Frequency | Purpose |
+|--------------|-----------|---------|
+| Thought Leadership | 1x/week | Industry insights from faculty |
+| Partnership Announcements | Per event | B2B credibility |
+| Student/Alumni Achievements | 1x/week | Social proof |
+| Job/Internship Posts | As available | Career services |
+| Article Republish | 1x/week | Drive traffic |
+
+**Content Ideas:**
+
+| # | Content | Type | Status | Posted |
+|---|---------|------|--------|--------|
+| 1 | Bagaimana STMIK Tazkia Menyiapkan Talenta untuk Industri Halal Tech | Article | [ ] | - |
+| 2 | Announcement: MoU dengan [Perusahaan Tech] | Post | [ ] | - |
+| 3 | Alumni kami sekarang bekerja di [Perusahaan] | Achievement | [ ] | - |
+| 4 | Lowongan magang di mitra industri | Job Post | [ ] | - |
+| 5 | Insight: Tren Teknologi 2026 dari Perspektif Akademisi | Article | [ ] | - |
+| 6 | Project mahasiswa digunakan oleh [Klien] | Case Study | [ ] | - |
+| 7 | Dosen kami meraih sertifikasi [X] | Achievement | [ ] | - |
+| 8 | Kolaborasi riset dengan [Institusi] | Announcement | [ ] | - |
+| 9 | Tips membangun karir di bidang IT | Carousel | [ ] | - |
+| 10 | Webinar invitation: [Topic] | Event | [ ] | - |
+
+### Social Media Calendar Template
+
+| Day | Instagram | TikTok | Facebook | LinkedIn | YouTube |
+|-----|-----------|--------|----------|----------|---------|
+| Mon | Tips carousel | - | Article share | Thought leadership | - |
+| Tue | Campus life | Edutainment | - | - | Short |
+| Wed | Stories Q&A | Trending | News/Event | Achievement | - |
+| Thu | Student story | Behind scenes | - | Partnership | Short |
+| Fri | Reels | Campus vibes | Photo | - | - |
+| Sat | - | Meme/trend | - | - | Long-form |
+| Sun | Recap/preview | - | - | - | - |
+
+### Social Media Guidelines
+
+**Hashtags (Instagram/TikTok):**
+```
+#STMIKTazkia #KuliahIT #KampusBogor #MahasiswaIT
+#SistemInformasi #TeknikInformatika #KuliahDiBogor
+#CodingLife #TechStudent #ITCareer #HalalTech
+```
+
+**Tone of Voice:**
+- Instagram: Friendly, inspirational, visual-first
+- TikTok: Fun, trendy, relatable, authentic
+- YouTube: Professional, educational, helpful
+- Facebook: Formal, informative, community-focused
+- LinkedIn: Professional, insightful, achievement-oriented
+
+**Link Strategy:**
+- Instagram: Link in bio → linktree with key pages
+- TikTok: Link in bio → registration page
+- YouTube: Description links to relevant articles
+- Facebook: Direct links to articles
+- LinkedIn: Direct links with UTM tracking
+
+---
+
 ## Notes
 
 - Prioritize articles with highest search volume keywords
 - Coordinate news releases with marketing calendar
 - Track backlink status monthly
+- Coordinate social media posts with article publishing
+- Repurpose content across platforms (article → carousel → reel → short)
 - Update this document as content is completed
