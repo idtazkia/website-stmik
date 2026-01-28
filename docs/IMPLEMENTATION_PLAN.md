@@ -123,6 +123,41 @@
 - [ ] Categories/tags
 - [ ] Related posts
 
+#### Content Strategy - Article Topics for SEO
+
+**Target Keywords:** kuliah IT Bogor, kampus informatika Bogor, jurusan sistem informasi, teknik informatika terbaik
+
+**Program & Career Articles:**
+- [ ] Prospek Kerja Lulusan Sistem Informasi 2026
+- [ ] Perbedaan Sistem Informasi vs Teknik Informatika: Mana yang Cocok?
+- [ ] 10 Skill yang Harus Dikuasai Mahasiswa IT
+- [ ] Gaji Fresh Graduate IT di Indonesia
+- [ ] Peluang Karir di Bidang Data Science dan AI
+
+**Industry Trends:**
+- [ ] Tren Teknologi 2026 yang Wajib Dipelajari Mahasiswa
+- [ ] Peluang Karir di Industri Halal Tech
+- [ ] Cybersecurity: Profesi Masa Depan dengan Permintaan Tinggi
+- [ ] Machine Learning untuk Pemula: Panduan Lengkap
+- [ ] Cloud Computing dan Peluang Sertifikasi
+
+**Student Life & Campus:**
+- [ ] Kehidupan Mahasiswa di STMIK Tazkia
+- [ ] Fasilitas Kampus STMIK Tazkia Bogor
+- [ ] Project-Based Learning: Belajar Sambil Praktek Langsung
+- [ ] Testimoni Alumni STMIK Tazkia
+
+**Admissions & Guides:**
+- [ ] Panduan Lengkap Pendaftaran STMIK Tazkia
+- [ ] Biaya Kuliah IT di Bogor: Perbandingan Kampus
+- [ ] Tips Memilih Jurusan IT yang Tepat
+- [ ] Beasiswa Kuliah IT untuk Mahasiswa Berprestasi
+
+**Local SEO (Bogor):**
+- [ ] Kampus IT Terbaik di Bogor
+- [ ] Kuliah Sambil Kerja di Bogor: Tips dan Rekomendasi
+- [ ] Komunitas IT di Bogor yang Wajib Diikuti
+
 ### 2.8 SEO Enhancements (Done)
 - [x] JSON-LD structured data (Organization, EducationalOrganization)
 - [x] Course schema on program pages
