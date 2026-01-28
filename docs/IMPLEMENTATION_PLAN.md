@@ -123,96 +123,15 @@
 - [ ] Categories/tags
 - [ ] Related posts
 
-#### Content Strategy - Article Topics for SEO
+#### Content Strategy
 
-**Target Keywords:** kuliah IT Bogor, kampus informatika Bogor, jurusan sistem informasi, teknik informatika terbaik
+> See **[docs/CONTENT-PLAN.md](./CONTENT-PLAN.md)** for detailed content tracking
 
-**Program & Career Articles:**
-- [ ] Prospek Kerja Lulusan Sistem Informasi 2026
-- [ ] Perbedaan Sistem Informasi vs Teknik Informatika: Mana yang Cocok?
-- [ ] 10 Skill yang Harus Dikuasai Mahasiswa IT
-- [ ] Gaji Fresh Graduate IT di Indonesia
-- [ ] Peluang Karir di Bidang Data Science dan AI
-
-**Industry Trends:**
-- [ ] Tren Teknologi 2026 yang Wajib Dipelajari Mahasiswa
-- [ ] Peluang Karir di Industri Halal Tech
-- [ ] Cybersecurity: Profesi Masa Depan dengan Permintaan Tinggi
-- [ ] Machine Learning untuk Pemula: Panduan Lengkap
-- [ ] Cloud Computing dan Peluang Sertifikasi
-
-**Student Life & Campus:**
-- [ ] Kehidupan Mahasiswa di STMIK Tazkia
-- [ ] Fasilitas Kampus STMIK Tazkia Bogor
-- [ ] Project-Based Learning: Belajar Sambil Praktek Langsung
-- [ ] Testimoni Alumni STMIK Tazkia
-
-**Admissions & Guides:**
-- [ ] Panduan Lengkap Pendaftaran STMIK Tazkia
-- [ ] Biaya Kuliah IT di Bogor: Perbandingan Kampus
-- [ ] Tips Memilih Jurusan IT yang Tepat
-- [ ] Beasiswa Kuliah IT untuk Mahasiswa Berprestasi
-
-**Local SEO (Bogor):**
-- [ ] Kampus IT Terbaik di Bogor
-- [ ] Kuliah Sambil Kerja di Bogor: Tips dan Rekomendasi
-- [ ] Komunitas IT di Bogor yang Wajib Diikuti
-
-#### News Topics (Regular Updates)
-
-**Academic Events:**
-- [ ] Pembukaan Pendaftaran Mahasiswa Baru Gelombang [X]
-- [ ] Wisuda STMIK Tazkia Angkatan [X]
-- [ ] Seminar Nasional Teknologi Informasi
-- [ ] Workshop Industry Partnership dengan [Mitra]
-- [ ] Kunjungan Industri ke [Perusahaan]
-
-**Student Achievements:**
-- [ ] Mahasiswa STMIK Tazkia Juara Kompetisi [X]
-- [ ] Tim STMIK Tazkia Raih Penghargaan di Hackathon
-- [ ] Karya Mahasiswa Digunakan oleh [Klien Industri]
-- [ ] Alumni STMIK Tazkia Sukses di [Perusahaan]
-
-**Partnerships & MoU:**
-- [ ] STMIK Tazkia Jalin Kerjasama dengan [Perusahaan Tech]
-- [ ] MoU dengan [Universitas/Institusi]
-- [ ] Program Magang di [Perusahaan Mitra]
-- [ ] Sertifikasi [Vendor] untuk Mahasiswa STMIK Tazkia
-
-**Campus Updates:**
-- [ ] Fasilitas Baru di Kampus STMIK Tazkia
-- [ ] Kurikulum Baru Berbasis Industri 4.0
-- [ ] Akreditasi Program Studi [X]
-- [ ] Dosen STMIK Tazkia Raih [Penghargaan/Sertifikasi]
-
-#### Partner Site Articles (Backlink Strategy)
-
-> Articles to be published on partner websites with backlinks to stmik.tazkia.ac.id
-
-**For Tech Media (Techinasia, Dailysocial, etc):**
-- [ ] Bagaimana Kampus Menyiapkan Talenta untuk Industri Halal Tech
-- [ ] Project-Based Learning: Model Pendidikan IT Masa Depan
-- [ ] Kolaborasi Kampus-Industri dalam Mencetak Developer Siap Kerja
-
-**For Education Portals (Rencanamu, Quipper, Youthmanual):**
-- [ ] Mengenal Jurusan Sistem Informasi: Prospek dan Peluang
-- [ ] 5 Alasan Memilih Kuliah IT di Bogor
-- [ ] Kampus dengan Kurikulum Berbasis Proyek Nyata
-
-**For Business/Halal Industry Media:**
-- [ ] Peran Teknologi Informasi dalam Ekosistem Industri Halal
-- [ ] Digital Transformation untuk UMKM Halal
-- [ ] Kebutuhan Talenta IT di Industri Keuangan Syariah
-
-**For Local Bogor Media:**
-- [ ] STMIK Tazkia: Kampus IT Unggulan di Kota Bogor
-- [ ] Kontribusi STMIK Tazkia untuk Pengembangan SDM Bogor
-- [ ] Kerjasama STMIK Tazkia dengan Pelaku Usaha Lokal Bogor
-
-**For Tazkia Group Sites (tazkia.ac.id, STEI Tazkia):**
-- [ ] Sinergi Pendidikan Ekonomi Islam dan Teknologi Informasi
-- [ ] Program Double Degree STEI Tazkia - STMIK Tazkia
-- [ ] Kolaborasi Riset Fintech Syariah
+| Category | Items | Purpose |
+|----------|-------|---------|
+| SEO Articles | 21 | On-site evergreen content |
+| News Topics | 16 | Regular campus updates |
+| Partner Articles | 15 | Backlink building |
 
 ### 2.8 SEO Enhancements (Done)
 - [x] JSON-LD structured data (Organization, EducationalOrganization)
