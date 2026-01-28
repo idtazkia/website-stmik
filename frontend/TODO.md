@@ -96,12 +96,18 @@
 - [ ] Focus indicators
 
 ### SEO Enhancements
-- [ ] Add structured data (JSON-LD)
-  - [ ] Organization schema
-  - [ ] EducationalOrganization schema
-  - [ ] Course schema for programs
-- [ ] Optimize meta descriptions per page
-- [ ] Add breadcrumb navigation
+- [x] Add structured data (JSON-LD)
+  - [x] Organization schema
+  - [x] EducationalOrganization schema
+  - [x] Course schema for programs
+- [x] Optimize meta descriptions per page
+- [x] Add breadcrumb navigation
+- [x] Technical SEO meta tags
+  - [x] Canonical URL (`<link rel="canonical">`)
+  - [x] Open Graph image (`og:image`, `og:url`)
+  - [x] Twitter card image (`twitter:image`)
+  - [x] Per-page dynamic hreflang (id, en, x-default)
+  - [x] Default OG image (1200x630px)
 - [ ] Improve internal linking
 
 ---

@@ -2,7 +2,7 @@
 
 **Live Site:** https://stmik.tazkia.ac.id/
 
-**Last Updated:** 2026-01-15
+**Last Updated:** 2026-01-28
 
 ---
 
@@ -128,6 +128,13 @@
 - [x] Course schema on program pages
 - [x] Breadcrumb navigation component
 - [x] Meta descriptions per page
+- [x] Canonical URL (`<link rel="canonical">`)
+- [x] Open Graph image (`og:image`, `og:image:width`, `og:image:height`)
+- [x] Open Graph URL (`og:url`)
+- [x] Twitter card image (`twitter:image`)
+- [x] Per-page dynamic hreflang (id, en, x-default)
+- [x] Default OG image created (1200x630px with branding)
+- [x] BaseLayout `image` prop for custom OG images per page
 - [ ] Internal linking optimization
 
 ### 2.9 Performance & Accessibility (Partial)
