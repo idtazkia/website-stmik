@@ -2,7 +2,7 @@
 
 **Live Site:** https://stmik.tazkia.ac.id/
 
-**Last Updated:** 2026-01-28
+**Last Updated:** 2026-01-28 (SEO launch complete)
 
 ---
 
@@ -135,14 +135,19 @@
 - [x] Per-page dynamic hreflang (id, en, x-default)
 - [x] Default OG image created (1200x630px with branding)
 - [x] BaseLayout `image` prop for custom OG images per page
+- [x] Search engine indexing enabled (noIndex default changed to false)
+- [x] robots.txt updated to allow crawling with sitemap reference
 - [ ] Internal linking optimization
+- [ ] Submit sitemap to Google Search Console
 
 ### 2.9 Performance & Accessibility (Partial)
 - [ ] Astro Image component optimization
 - [x] Lazy loading for images
+- [x] Explicit image dimensions (width/height attributes for CLS)
 - [x] ARIA labels on interactive elements
 - [x] Keyboard navigation (dropdown menus, mobile menu)
 - [x] Color contrast verified (WCAG AA)
+- [x] Cloudflare WAF skip rule for stmik.tazkia.ac.id (performance optimization)
 
 ---
 
@@ -372,8 +377,10 @@ Phase 1 (Infrastructure) ─┬─► Phase 2 (Frontend) ─► Phase 5 (Testing
 - [x] Admissions page live (ID + EN)
 - [ ] News/Blog system (ID + EN)
 - [x] Mobile responsive
-- [ ] Page load <2s verified
-- [ ] Lighthouse score 90+ verified
+- [x] SEO score 100 (Lighthouse)
+- [x] Accessibility score 96 (Lighthouse)
+- [ ] Performance score 90+ (blocked by Cloudflare challenge script ~50)
+- [x] Search engine indexing enabled
 
 ### Full System (Phase 3-6)
 - [ ] 3,000 leads, 300 registrations per cycle (10% conversion)
