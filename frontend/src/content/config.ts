@@ -50,4 +50,16 @@ const lecturers = defineCollection({
   }),
 });
 
-export const collections = { programs, about, admissions, lecturers };
+const news = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(),
+    date: z.date(),
+    author: z.string().optional(),
+    excerpt: z.string(),
+    images: z.array(z.string()).optional(),
+    tags: z.array(z.string()).optional(),
+  }),
+});
+
+export const collections = { programs, about, admissions, lecturers, news };

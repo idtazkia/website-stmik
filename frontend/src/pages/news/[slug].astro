@@ -1,0 +1,85 @@
+---
+import { getCollection } from 'astro:content';
+import type { GetStaticPaths } from 'astro';
+import MarketingLayout from '../../layouts/MarketingLayout.astro';
+import Container from '../../components/Container.astro';
+import Section from '../../components/Section.astro';
+import Card from '../../components/Card.astro';
+import { getLocaleFromUrl, t, localizePath } from '../../utils/i18n';
+
+export const getStaticPaths = (async () => {
+  const news = await getCollection('news');
+  return news.map((article) => ({
+    params: { slug: article.slug },
+    props: { article },
+  }));
+}) satisfies GetStaticPaths;
+
+const { article } = Astro.props;
+const { Content } = await article.render();
+
+const locale = getLocaleFromUrl(Astro.url);
+const translate = (key: string) => t(locale, key);
+
+const formattedDate = article.data.date.toLocaleDateString('id-ID', {
+  weekday: 'long',
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+
+<MarketingLayout
+  title={article.data.title}
+  description={article.data.excerpt}
+>
+  <!-- Header -->
+  <Section background="gradient" class="pt-32 pb-12">
+    <Container>
+      <div class="max-w-4xl mx-auto">
+        <a href={localizePath(locale, '/news')} class="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 mb-6">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+          Kembali ke Berita
+        </a>
+        <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          {article.data.title}
+        </h1>
+        <div class="flex flex-wrap items-center gap-4 text-gray-600">
+          <time datetime={article.data.date.toISOString()}>
+            {formattedDate}
+          </time>
+          {article.data.author && (
+            <>
+              <span>•</span>
+              <span>{article.data.author}</span>
+            </>
+          )}
+        </div>
+        {article.data.tags && (
+          <div class="flex flex-wrap gap-2 mt-4">
+            {article.data.tags.map((tag) => (
+              <span class="px-3 py-1 text-sm bg-white/80 text-primary-700 rounded-full">
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+    </Container>
+  </Section>
+
+  <!-- Content -->
+  <Section background="white">
+    <Container>
+      <div class="max-w-4xl mx-auto">
+        <Card>
+          <article class="prose prose-lg max-w-none prose-img:rounded-lg prose-img:shadow-md">
+            <Content />
+          </article>
+        </Card>
+      </div>
+    </Container>
+  </Section>
+</MarketingLayout>
