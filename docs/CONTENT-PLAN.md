@@ -11,10 +11,10 @@
 | Category | Total | Completed | Status |
 |----------|-------|-----------|--------|
 | SEO Articles | 21 | 0 | Not Started |
-| News Topics | 16 | 0 | Not Started |
+| News Topics | 16 | 2 | In Progress |
 | Partner Articles | 15 | 0 | Not Started |
 | Social Media Content | 40+ | 0 | Not Started |
-| **Total** | **92+** | **0** | - |
+| **Total** | **92+** | **2** | - |
 
 ---
 
@@ -78,13 +78,14 @@
 
 ### Academic Events
 
-| # | Title Template | Status | Published | Notes |
+| # | Title | Status | Published | Notes |
 |---|----------------|--------|-----------|-------|
-| 1 | Pembukaan Pendaftaran Mahasiswa Baru Gelombang [X] | [ ] | - | Per intake period |
-| 2 | Wisuda STMIK Tazkia Angkatan [X] | [ ] | - | Per graduation |
-| 3 | Seminar Nasional Teknologi Informasi | [ ] | - | Per event |
-| 4 | Workshop Industry Partnership dengan [Mitra] | [ ] | - | Per workshop |
-| 5 | Kunjungan Industri ke [Perusahaan] | [ ] | - | Per visit |
+| 1 | Kuliah Perdana 2025: Character Wins The Future | [x] Published | 2025-02-10 | Kuliah perdana mahasiswa baru |
+| 2 | Pembukaan Pendaftaran Mahasiswa Baru Gelombang [X] | [ ] | - | Per intake period |
+| 3 | Wisuda STMIK Tazkia Angkatan [X] | [ ] | - | Per graduation |
+| 4 | Seminar Nasional Teknologi Informasi | [ ] | - | Per event |
+| 5 | Workshop Industry Partnership dengan [Mitra] | [ ] | - | Per workshop |
+| 6 | Kunjungan Industri ke [Perusahaan] | [ ] | - | Per visit |
 
 ### Student Achievements
 
@@ -97,12 +98,13 @@
 
 ### Partnerships & MoU
 
-| # | Title Template | Status | Published | Notes |
+| # | Title | Status | Published | Notes |
 |---|----------------|--------|-----------|-------|
-| 1 | STMIK Tazkia Jalin Kerjasama dengan [Perusahaan Tech] | [ ] | - | Per partnership |
-| 2 | MoU dengan [Universitas/Institusi] | [ ] | - | Per MoU |
-| 3 | Program Magang di [Perusahaan Mitra] | [ ] | - | Per program |
-| 4 | Sertifikasi [Vendor] untuk Mahasiswa STMIK Tazkia | [ ] | - | Per certification |
+| 1 | Kerjasama STMIK Tazkia dan Baitul Mal Tazkia untuk Program Pemberdayaan Masyarakat | [x] Published | 2025-02-04 | Kunjungan BMTZ |
+| 2 | STMIK Tazkia Jalin Kerjasama dengan [Perusahaan Tech] | [ ] | - | Per partnership |
+| 3 | MoU dengan [Universitas/Institusi] | [ ] | - | Per MoU |
+| 4 | Program Magang di [Perusahaan Mitra] | [ ] | - | Per program |
+| 5 | Sertifikasi [Vendor] untuk Mahasiswa STMIK Tazkia | [ ] | - | Per certification |
 
 ### Campus Updates
 

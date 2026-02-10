@@ -1,0 +1,79 @@
+---
+import { getCollection } from 'astro:content';
+import MarketingLayout from '../../../layouts/MarketingLayout.astro';
+import Container from '../../../components/Container.astro';
+import Section from '../../../components/Section.astro';
+import Card from '../../../components/Card.astro';
+import { getLocaleFromUrl, t } from '../../../utils/i18n';
+
+const locale = getLocaleFromUrl(Astro.url);
+const translate = (key: string) => t(locale, key);
+
+const allNews = await getCollection('news');
+const news = allNews.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+---
+
+<MarketingLayout title="News" description="Latest news and updates from STMIK Tazkia">
+  <!-- Hero Section -->
+  <Section background="gradient" class="pt-32 pb-20">
+    <Container>
+      <div class="max-w-3xl mx-auto text-center">
+        <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+          News
+        </h1>
+        <p class="text-xl text-gray-600">
+          Latest news and updates from STMIK Tazkia
+        </p>
+      </div>
+    </Container>
+  </Section>
+
+  <!-- News Grid -->
+  <Section background="white">
+    <Container>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {news.map((article) => (
+          <a href={`/en/news/${article.slug}`} class="group">
+            <Card hover={true} class="h-full">
+              {article.data.images && article.data.images[0] && (
+                <img
+                  src={article.data.images[0]}
+                  alt={article.data.title}
+                  class="w-full h-48 object-cover rounded-lg mb-4"
+                  loading="lazy"
+                />
+              )}
+              <div>
+                <time
+                  datetime={article.data.date.toISOString()}
+                  class="text-sm text-gray-500"
+                >
+                  {article.data.date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </time>
+                <h3 class="text-xl font-bold text-gray-900 mt-2 mb-3 group-hover:text-primary-600 transition-colors">
+                  {article.data.title}
+                </h3>
+                <p class="text-gray-600 line-clamp-3">
+                  {article.data.excerpt}
+                </p>
+                {article.data.tags && (
+                  <div class="flex flex-wrap gap-2 mt-4">
+                    {article.data.tags.slice(0, 3).map((tag) => (
+                      <span class="px-2 py-1 text-xs bg-primary-50 text-primary-700 rounded">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </Card>
+          </a>
+        ))}
+      </div>
+    </Container>
+  </Section>
+</MarketingLayout>
