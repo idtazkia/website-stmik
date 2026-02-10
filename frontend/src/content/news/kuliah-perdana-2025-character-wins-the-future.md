@@ -4,13 +4,13 @@ date: 2025-02-10
 author: Tim Humas STMIK Tazkia
 excerpt: STMIK Tazkia menggelar Kuliah Perdana dengan tema "Character Wins The Future" menghadirkan narasumber lintas disiplin untuk membekali mahasiswa dengan karakter dan etika di era Artificial Intelligence.
 images:
+  - /images/news/DSC_8108.JPG
   - /images/news/DSC_8095.JPG
   - /images/news/DSC_8079.JPG
   - /images/news/DSC_8066.JPG
   - /images/news/DSC_8102.JPG
   - /images/news/DSC_8112.JPG
   - /images/news/DSC_8113.JPG
-  - /images/news/DSC_8108.JPG
 tags:
   - kuliah-perdana
   - karakter
@@ -21,7 +21,7 @@ tags:
 
 STMIK Tazkia menyelenggarakan Kuliah Perdana tahun akademik 2025 dengan tema **"Character Wins The Future: Membangun Karakter dan Etika di Era Dominasi Artificial Intelligence"**. Kegiatan yang dihadiri oleh mahasiswa baru dan seluruh civitas akademika ini menghadirkan lima narasumber utama dari berbagai latar belakang keahlian.
 
-![Kuliah Perdana STMIK Tazkia 2025](/images/news/DSC_8095.JPG)
+![Kuliah Perdana STMIK Tazkia 2025](/images/news/DSC_8108.JPG)
 
 ## Narasumber Lintas Disiplin Ilmu
 
@@ -43,11 +43,13 @@ Beliau juga menekankan pentingnya kemampuan adaptasi teknologi bagi generasi mud
 
 ### 3. Ricky Setiadi, S.Kom., M.Kom - Ketua Senat STMIK Tazkia
 
-Mewakili perspektif akademik dengan pengalaman mendalam di bidang keamanan siber, Ricky Setiadi membahas bagaimana perkembangan [Artificial Intelligence](/programs/computer-engineering) dan teknologi modern mengubah landscape dunia kerja. Dengan latar belakang sebagai praktisi di [Cyber Security Nasional](/programs/computer-engineering), beliau menekankan bahwa lulusan [Sistem Informasi](/programs/information-systems) dan [Teknik Informatika](/programs/computer-engineering) tidak hanya harus menguasai teknis, tetapi juga memiliki etika profesional yang kuat.
+Mewakili perspektif akademik dengan pengalaman mendalam di bidang keamanan siber, [Ricky Setiadi](/lecturers/ricky-setiadi) membahas bagaimana perkembangan [Artificial Intelligence](/programs/computer-engineering) dan teknologi modern mengubah landscape dunia kerja. Dengan latar belakang sebagai praktisi di [Cyber Security Nasional](/programs/computer-engineering) dan berbagai sertifikasi internasional, beliau menekankan bahwa lulusan [Sistem Informasi](/programs/information-systems) dan [Teknik Informatika](/programs/computer-engineering) tidak hanya harus menguasai teknis, tetapi juga memiliki etika profesional yang kuat.
 
 "Pengalaman saya di Cyber Security Nasional mengajarkan satu hal penting: teknologi keamanan secanggih apapun akan sia-sia jika penggunanya tidak memiliki integritas dan etika. Seorang ahli cyber security dengan karakter mulia akan menggunakan keahliannya untuk melindungi, bukan merusak. Mahasiswa STMIK Tazkia dibekali dengan [project-based learning](/about) yang tidak hanya mengasah kemampuan teknis, tetapi juga membangun karakter melalui kolaborasi nyata dengan mitra industri," jelas Ricky Setiadi.
 
 Beliau menambahkan bahwa tantangan terbesar di era AI bukan hanya pada aspek teknis, tetapi juga pada aspek etika dalam pengambilan keputusan terkait penggunaan teknologi.
+
+**Connect:** [LinkedIn](https://www.linkedin.com/in/rickysetiadi/) | [Profil Dosen](/lecturers/ricky-setiadi)
 
 ### 4. H. Iwan - Ketua Baitul Maal Tazkia
 
