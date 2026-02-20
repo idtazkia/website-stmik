@@ -39,6 +39,7 @@ Setiap kelompok bekerja dengan klien nyata, menganalisis kebutuhan, merancang si
 | **Klien** | STMIK Tazkia |
 | **URL** | [sapa.tazkia.ac.id](https://sapa.tazkia.ac.id) |
 | **Tech Stack** | Node.js, React, MySQL, Qdrant (vector DB), Redis |
+| **GitHub** | [Code](https://github.com/IchsanJunaedi/Sapa-Tazkia) · [Docs](https://github.com/IchsanJunaedi/sapa-tazkia-documents) |
 
 ![Presentasi Sapa Tazkia](/images/news/DSC_8124.jpg)
 
@@ -67,6 +68,7 @@ Fitur utama:
 | **Klien** | Ketua RW/RT |
 | **URL** | [rtrw.demo.tazkia.ac.id](https://rtrw.demo.tazkia.ac.id) |
 | **Tech Stack** | Express.js, Flutter, PostgreSQL, Docker |
+| **GitHub** | [Code](https://github.com/azmttqi/Aplikasi-Manajemen-RT-RW) · [Docs](https://github.com/azmttqi/Project-Manajemen-RT-RW-Document) |
 
 ![Presentasi Lingkar Warga](/images/news/DSC_8130.jpg)
 
@@ -94,6 +96,7 @@ Fitur utama:
 | **Klien** | STMIK Tazkia |
 | **URL** | [ibadah.demo.tazkia.ac.id](https://ibadah.demo.tazkia.ac.id) |
 | **Tech Stack** | Express.js, MongoDB Atlas, React, Chart.js |
+| **GitHub** | [Code](https://github.com/runaisyah1337/ProjectWebsite_Mutabaah-Mahasiswa) · [Docs](https://github.com/PatoyUhuy/Mutaba-ah_Mahasiswa_Docs) |
 
 ![Presentasi Aplikasi Mutaba'ah](/images/news/DSC_8136.jpg)
 
@@ -123,6 +126,7 @@ Fitur utama:
 | **Klien** | Yayasan Sahabat Qur'an |
 | **URL** | [akademik.sahabatquran.com](https://akademik.sahabatquran.com) |
 | **Tech Stack** | HTML, Tailwind CSS, JavaScript, PostgreSQL, Docker |
+| **GitHub** | [Code](https://github.com/nisa262006/Manajemen_YSQ) · [Docs](https://github.com/rizkasugiarto/ysq-project-documents) |
 
 ![Presentasi Manajemen YSQ](/images/news/DSC_8132.jpg)
 
@@ -153,6 +157,7 @@ Fitur utama:
 | **Klien** | Melvina Lubis |
 | **URL** | [dev.minibank.tazkia.ac.id](https://dev.minibank.tazkia.ac.id) |
 | **Tech Stack** | Spring Boot, Thymeleaf, PostgreSQL |
+| **GitHub** | [Code](https://github.com/nflFauzan/project-minibank) · [Docs](https://github.com/MuhammadAkmalSyarif/minibank-docs) |
 
 ![Presentasi MiniBank](/images/news/DSC_8139.jpg)
 
