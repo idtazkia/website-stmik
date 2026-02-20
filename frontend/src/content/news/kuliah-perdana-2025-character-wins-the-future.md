@@ -10,7 +10,6 @@ images:
   - /images/news/DSC_8102.jpg
   - /images/news/DSC_8112.jpg
   - /images/news/DSC_8118.jpg
-  - /images/news/DSC_8124.jpg
 tags:
   - kuliah-perdana
   - karakter
@@ -114,8 +113,6 @@ Sesi kuliah perdana ditutup dengan diskusi interaktif antara mahasiswa dan naras
 - Cara mengembangkan karakter selama masa kuliah
 - Peluang karir di bidang [Cyber Security](/programs/computer-engineering) dan AI untuk lulusan STMIK Tazkia
 - Peran etika dalam pengembangan sistem informasi
-
-![Antusiasme mahasiswa mengikuti kuliah perdana](/images/news/DSC_8124.jpg)
 
 ## Bergabung dengan STMIK Tazkia
 
