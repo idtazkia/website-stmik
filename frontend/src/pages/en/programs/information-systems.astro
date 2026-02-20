@@ -10,88 +10,83 @@ const locale = getLocaleFromUrl(Astro.url);
 const translate = (key: string) => t(locale, key);
 const localPath = (path: string) => localizePath(locale, path);
 
-// Curriculum data from mata-kuliah-sistem-informasi.pdf (updated)
+// Curriculum data - 2026 curriculum based on IS2020 (ACM/AIS) and KKNI Level 6
+// University-wide courses (Ketazkiaan, Bahasa, Pancasila, Agama, etc.) excluded from display
 const semesters = [
   {
     semester: 1,
     courses: [
-      { code: 'MKN.101', name: translate('programs.si.courses.indonesian'), sks: 2, category: 'mkwu' },
-      { code: 'UTZ.101', name: translate('programs.si.courses.ketazkian'), sks: 2, category: 'campus' },
-      { code: 'SIFTIK.101', name: translate('programs.si.courses.basic_math'), sks: 2, category: 'core' },
-      { code: 'SIFTIK.102', name: translate('programs.si.courses.discrete_math'), sks: 3, category: 'core' },
-      { code: 'SIFTIK.103', name: translate('programs.si.courses.basic_programming'), sks: 3, category: 'core' },
-      { code: 'SIFTIK.104', name: translate('programs.si.courses.intro_it'), sks: 2, category: 'core' },
-      { code: 'SIFTIK.105', name: translate('programs.si.courses.computer_arch'), sks: 3, category: 'core' },
-      { code: 'UTZ.202', name: translate('programs.si.courses.fiqh_muamalah'), sks: 3, category: 'campus' },
+      { code: 'MISI.101', name: translate('programs.si.courses.business_logic_programming'), sks: 3, category: 'core' },
+      { code: 'MISI.102', name: translate('programs.si.courses.org_info_systems'), sks: 3, category: 'core' },
+      { code: 'MISI.103', name: translate('programs.si.courses.it_infrastructure'), sks: 3, category: 'core' },
+      { code: 'MKST.101', name: translate('programs.si.courses.basic_math'), sks: 2, category: 'core' },
+      { code: 'MKST.102', name: translate('programs.si.courses.discrete_math'), sks: 3, category: 'core' },
     ]
   },
   {
     semester: 2,
     courses: [
-      { code: 'UTZ.303', name: translate('programs.si.courses.islamic_economy'), sks: 3, category: 'campus' },
-      { code: 'SIFTIK.206', name: translate('programs.si.courses.statistics'), sks: 3, category: 'core' },
-      { code: 'SIFTIK.207', name: translate('programs.si.courses.data_structures'), sks: 3, category: 'core' },
-      { code: 'SIFTIK.208', name: translate('programs.si.courses.operating_systems'), sks: 3, category: 'core' },
-      { code: 'SIFTIK.209', name: translate('programs.si.courses.linear_algebra'), sks: 3, category: 'core' },
-      { code: 'MKN.202', name: translate('programs.si.courses.english'), sks: 2, category: 'mkwu' },
-      { code: 'SITTIK.417', name: translate('programs.si.courses.networking_cloud'), sks: 3, category: 'core' },
+      { code: 'MISI.201', name: translate('programs.si.courses.data_info_management'), sks: 3, category: 'core' },
+      { code: 'MISI.202', name: translate('programs.si.courses.os_drone_gis'), sks: 3, category: 'core' },
+      { code: 'MISI.203', name: translate('programs.si.courses.integration_deployment'), sks: 3, category: 'core' },
+      { code: 'MKST.201', name: translate('programs.si.courses.statistics'), sks: 3, category: 'core' },
+      { code: 'MKST.202', name: translate('programs.si.courses.linear_algebra'), sks: 3, category: 'core' },
     ]
   },
   {
     semester: 3,
     courses: [
-      { code: 'SIFTIK.312', name: translate('programs.si.courses.database'), sks: 3, category: 'core' },
-      { code: 'SIFTIK.311', name: translate('programs.si.courses.system_analysis'), sks: 4, category: 'core' },
-      { code: 'SIF.402', name: translate('programs.si.courses.enterprise_systems'), sks: 3, category: 'core' },
-      { code: 'SIFTIK.414', name: translate('programs.si.courses.web_development'), sks: 3, category: 'project' },
-      { code: 'SIF.403', name: translate('programs.si.courses.project_management'), sks: 4, category: 'core' },
-      { code: 'SIF.313', name: translate('programs.si.courses.hci'), sks: 3, category: 'core' },
-      { code: 'MKN.303', name: translate('programs.si.courses.pancasila_citizenship'), sks: 2, category: 'mkwu' },
+      { code: 'MISI.301', name: translate('programs.si.courses.system_analysis'), sks: 3, category: 'core' },
+      { code: 'MISI.302', name: translate('programs.si.courses.integrated_db_management'), sks: 3, category: 'core' },
+      { code: 'MISI.303', name: translate('programs.si.courses.business_process_management'), sks: 3, category: 'core' },
+      { code: 'MISI.304', name: translate('programs.si.courses.oop'), sks: 3, category: 'core' },
+      { code: 'MISI.305', name: translate('programs.si.courses.web_info_systems'), sks: 3, category: 'project' },
+      { code: 'MISI.306', name: translate('programs.si.courses.hci'), sks: 3, category: 'core' },
     ]
   },
   {
     semester: 4,
     courses: [
-      { code: 'SIF.314', name: translate('programs.si.courses.data_mining'), sks: 4, category: 'core' },
-      { code: 'SIF.401', name: translate('programs.si.courses.business_process'), sks: 4, category: 'core' },
-      { code: 'SIFTIK.415', name: translate('programs.si.courses.information_security'), sks: 4, category: 'core' },
-      { code: 'SIFTIK.313', name: translate('programs.si.courses.machine_learning'), sks: 3, category: 'core' },
-      { code: 'SIFTIK.724', name: translate('programs.si.courses.professional_ethics'), sks: 3, category: 'core' },
-      { code: 'MKN.404', name: translate('programs.si.courses.religion'), sks: 2, category: 'mkwu' },
-      { code: 'SIF.502', name: translate('programs.si.courses.entrepreneurship'), sks: 3, category: 'core' },
+      { code: 'MISI.401', name: translate('programs.si.courses.business_intelligence'), sks: 3, category: 'core' },
+      { code: 'MISI.402', name: translate('programs.si.courses.software_qa'), sks: 3, category: 'core' },
+      { code: 'MISI.403', name: translate('programs.si.courses.ux_design'), sks: 3, category: 'core' },
+      { code: 'MISI.404', name: translate('programs.si.courses.business_info_security'), sks: 3, category: 'core' },
+      { code: 'MISI.405', name: translate('programs.si.courses.enterprise_systems'), sks: 3, category: 'core' },
+      { code: 'MISI.406', name: translate('programs.si.courses.research_methods'), sks: 3, category: 'core' },
     ]
   },
   {
     semester: 5,
     courses: [
-      { code: 'SIF.501', name: translate('programs.si.courses.it_governance'), sks: 4, category: 'core' },
-      { code: 'SIF.503', name: translate('programs.si.courses.business_intelligence'), sks: 4, category: 'core' },
-      { code: 'SIF.504', name: translate('programs.si.courses.elective') + ' 1', sks: 4, category: 'elective' },
-      { code: 'SIF.505', name: translate('programs.si.courses.elective') + ' 2', sks: 4, category: 'elective' },
-      { code: 'SIF.506', name: translate('programs.si.courses.elective') + ' 3', sks: 4, category: 'elective' },
+      { code: 'MISI.501', name: translate('programs.si.courses.business_project_management'), sks: 3, category: 'core' },
+      { code: 'MISI.502', name: translate('programs.si.courses.applied_ai'), sks: 3, category: 'core' },
+      { code: 'MISI.503', name: translate('programs.si.courses.system_integration_cloud'), sks: 3, category: 'core' },
+      { code: 'MISI.504', name: translate('programs.si.courses.data_architecture'), sks: 3, category: 'core' },
+      { code: 'MISI.505', name: translate('programs.si.courses.software_architecture_design'), sks: 3, category: 'core' },
+      { code: 'MISI.506', name: translate('programs.si.courses.mobile_iot'), sks: 3, category: 'core' },
     ]
   },
   {
     semester: 6,
     courses: [
-      { code: '-', name: translate('programs.si.courses.internship_mbkm'), sks: 12, category: 'mbkm' },
-      { code: '-', name: translate('programs.si.courses.elective') + ' 4', sks: 4, category: 'elective' },
-      { code: '-', name: translate('programs.si.courses.elective') + ' 5', sks: 4, category: 'elective' },
+      { code: 'MISI.601', name: translate('programs.si.courses.enterprise_data_arch'), sks: 3, category: 'core' },
+      { code: 'MISI.602', name: translate('programs.si.courses.cyber_security_ops'), sks: 3, category: 'core' },
+      { code: 'MISI.603', name: translate('programs.si.courses.professional_ethics'), sks: 2, category: 'core' },
+      { code: 'MPSI.601', name: translate('programs.si.courses.elective') + ' 1', sks: 3, category: 'elective' },
+      { code: 'MPSI.602', name: translate('programs.si.courses.elective') + ' 2', sks: 3, category: 'elective' },
     ]
   },
   {
     semester: 7,
     courses: [
-      { code: 'SIFTIK.723', name: translate('programs.si.courses.thesis_proposal'), sks: 2, category: 'final' },
-      { code: 'SIFTIK.416', name: translate('programs.si.courses.research_methods'), sks: 3, category: 'core' },
-      { code: '-', name: translate('programs.si.courses.elective_cross') + ' 6', sks: 4, category: 'elective' },
-      { code: '-', name: translate('programs.si.courses.elective_cross') + ' 7', sks: 4, category: 'elective' },
+      { code: 'MISI.701', name: translate('programs.si.courses.internship_mbkm'), sks: 12, category: 'mbkm' },
+      { code: 'MISI.702', name: translate('programs.si.courses.thesis_proposal'), sks: 2, category: 'final' },
     ]
   },
   {
     semester: 8,
     courses: [
-      { code: 'SIFTIK.822', name: translate('programs.si.courses.thesis'), sks: 6, category: 'final' },
+      { code: 'MISI.801', name: translate('programs.si.courses.thesis'), sks: 4, category: 'final' },
     ]
   }
 ];
@@ -111,15 +106,15 @@ const specializations = [
     icon: 'clipboard'
   },
   {
-    id: 'machine-learning',
-    name: translate('programs.si.specializations.ml.name'),
-    description: translate('programs.si.specializations.ml.description'),
+    id: 'ai-intelligent-systems',
+    name: translate('programs.si.specializations.ai.name'),
+    description: translate('programs.si.specializations.ai.description'),
     courses: [
-      translate('programs.si.specializations.ml.course_1'),
-      translate('programs.si.specializations.ml.course_2'),
-      translate('programs.si.specializations.ml.course_3'),
-      translate('programs.si.specializations.ml.course_4'),
-      translate('programs.si.specializations.ml.course_5'),
+      translate('programs.si.specializations.ai.course_1'),
+      translate('programs.si.specializations.ai.course_2'),
+      translate('programs.si.specializations.ai.course_3'),
+      translate('programs.si.specializations.ai.course_4'),
+      translate('programs.si.specializations.ai.course_5'),
     ],
     icon: 'brain'
   },
@@ -146,24 +141,22 @@ const specializations = [
       translate('programs.si.specializations.bis.course_3'),
       translate('programs.si.specializations.bis.course_4'),
       translate('programs.si.specializations.bis.course_5'),
+      translate('programs.si.specializations.bis.course_6'),
     ],
     icon: 'building'
   }
 ];
 
 const careerPaths = [
-  { title: translate('programs.si.careers.pm'), description: translate('programs.si.careers.pm_desc') },
-  { title: translate('programs.si.careers.data_analyst'), description: translate('programs.si.careers.data_analyst_desc') },
-  { title: translate('programs.si.careers.ml_engineer'), description: translate('programs.si.careers.ml_engineer_desc') },
-  { title: translate('programs.si.careers.business_analyst'), description: translate('programs.si.careers.business_analyst_desc') },
-  { title: translate('programs.si.careers.bi_specialist'), description: translate('programs.si.careers.bi_specialist_desc') },
-  { title: translate('programs.si.careers.is_consultant'), description: translate('programs.si.careers.is_consultant_desc') },
-  { title: translate('programs.si.careers.dba'), description: translate('programs.si.careers.dba_desc') },
-  { title: translate('programs.si.careers.technopreneur'), description: translate('programs.si.careers.technopreneur_desc') },
+  { title: translate('programs.si.careers.systems_analyst'), description: translate('programs.si.careers.systems_analyst_desc') },
+  { title: translate('programs.si.careers.software_quality'), description: translate('programs.si.careers.software_quality_desc') },
+  { title: translate('programs.si.careers.data_professional'), description: translate('programs.si.careers.data_professional_desc') },
+  { title: translate('programs.si.careers.enterprise_professional'), description: translate('programs.si.careers.enterprise_professional_desc') },
+  { title: translate('programs.si.careers.it_project_manager'), description: translate('programs.si.careers.it_project_manager_desc') },
 ];
 
-const totalSKS = 144;
-const duration = '3.5 - 4';
+const totalSKS = 147;
+const duration = '4';
 
 // Breadcrumb items
 const breadcrumbItems = [
@@ -414,14 +407,6 @@ const courseSchema = {
         <!-- Legend -->
         <div class="flex flex-wrap justify-center gap-6 mt-8 text-sm">
           <div class="flex items-center gap-2">
-            <span class="w-3 h-3 bg-gray-400 rounded"></span>
-            <span class="text-gray-600">MKWU</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="w-3 h-3 bg-purple-500 rounded"></span>
-            <span class="text-gray-600">Campus</span>
-          </div>
-          <div class="flex items-center gap-2">
             <span class="w-3 h-3 bg-gray-700 rounded"></span>
             <span class="text-gray-600">{translate('programs.si.legend_core')}</span>
           </div>
@@ -436,6 +421,10 @@ const courseSchema = {
           <div class="flex items-center gap-2">
             <span class="w-3 h-3 bg-green-500 rounded"></span>
             <span class="text-gray-600">MBKM</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 bg-primary-700 rounded"></span>
+            <span class="text-gray-600">{translate('programs.si.legend_final')}</span>
           </div>
         </div>
       </div>
