@@ -4,6 +4,7 @@ date: 2026-02-10
 author: Tim Humas STMIK Tazkia
 excerpt: STMIK Tazkia menggelar Kuliah Perdana dengan tema "Character Wins The Future" menghadirkan narasumber lintas disiplin untuk membekali mahasiswa dengan karakter dan etika di era Artificial Intelligence.
 images:
+  - /images/news/DSC_8101.jpg
   - /images/news/DSC_8108.jpg
   - /images/news/DSC_8079.jpg
   - /images/news/DSC_8066.jpg
@@ -31,6 +32,8 @@ Kuliah perdana ini menghadirkan lima pembicara yang mewakili perspektif pemerint
 Membuka sesi materi, Dr. Adityawarman Adil menekankan pentingnya pembangunan karakter bagi generasi muda di tengah perkembangan teknologi yang sangat pesat. Sebagai Ketua DPRD Kota Bogor, beliau memberikan perspektif tentang bagaimana karakter dan integritas menjadi fondasi utama dalam membangun karir dan kontribusi nyata bagi masyarakat.
 
 "Penguasaan teknologi saja tidak cukup. Di era digital dan Artificial Intelligence, karakter dan etika menjadi pembeda utama yang akan menentukan kesuksesan seseorang," tegas Dr. Adityawarman.
+
+![Dr. Adityawarman Adil - Ketua DPRD Kota Bogor](/images/news/DSC_8101.jpg)
 
 ### 2. Nihrawati AS - CEO RADAR BOGOR
 
