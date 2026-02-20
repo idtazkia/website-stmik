@@ -1,6 +1,6 @@
 ---
-title: "Kuliah Perdana STMIK Tazkia 2025: Character Wins The Future - Membangun Karakter di Era AI"
-date: 2025-02-10
+title: "Kuliah Perdana STMIK Tazkia 2026: Character Wins The Future - Membangun Karakter di Era AI"
+date: 2026-02-10
 author: Tim Humas STMIK Tazkia
 excerpt: STMIK Tazkia menggelar Kuliah Perdana dengan tema "Character Wins The Future" menghadirkan narasumber lintas disiplin untuk membekali mahasiswa dengan karakter dan etika di era Artificial Intelligence.
 images:
@@ -9,6 +9,7 @@ images:
   - /images/news/DSC_8066.jpg
   - /images/news/DSC_8102.jpg
   - /images/news/DSC_8112.jpg
+  - /images/news/DSC_8118.jpg
   - /images/news/DSC_8124.jpg
 tags:
   - kuliah-perdana
@@ -18,7 +19,7 @@ tags:
   - mahasiswa-baru
 ---
 
-STMIK Tazkia menyelenggarakan Kuliah Perdana tahun akademik 2025 dengan tema **"Character Wins The Future: Membangun Karakter dan Etika di Era Dominasi Artificial Intelligence"**. Kegiatan yang dihadiri oleh mahasiswa baru dan seluruh civitas akademika ini menghadirkan lima narasumber utama dari berbagai latar belakang keahlian.
+STMIK Tazkia menyelenggarakan Kuliah Perdana tahun akademik 2026 dengan tema **"Character Wins The Future: Membangun Karakter dan Etika di Era Dominasi Artificial Intelligence"**. Kegiatan yang dihadiri oleh mahasiswa baru dan seluruh civitas akademika ini menghadirkan lima narasumber utama dari berbagai latar belakang keahlian.
 
 ![Kuliah Perdana STMIK Tazkia 2025](/images/news/DSC_8108.jpg)
 
@@ -40,7 +41,7 @@ Nihrawati AS membawa perspektif dari dunia media dan komunikasi. Sebagai CEO RAD
 
 Beliau juga menekankan pentingnya kemampuan adaptasi teknologi bagi generasi muda tanpa kehilangan nilai-nilai dasar karakter.
 
-![Narasumber Kuliah Perdana](/images/news/DSC_8066.jpg)
+![Nihrawati AS - CEO RADAR BOGOR](/images/news/DSC_8112.jpg)
 
 ### 3. Ricky Setiadi, S.Kom., M.Kom - Ketua Senat STMIK Tazkia
 
@@ -52,13 +53,15 @@ Beliau menambahkan bahwa tantangan terbesar di era AI bukan hanya pada aspek tek
 
 **Connect:** [LinkedIn](https://www.linkedin.com/in/rickysetiadi/) | [Profil Dosen](/lecturers/ricky-setiadi)
 
-![Diskusi dengan mahasiswa](/images/news/DSC_8102.jpg)
+![Ricky Setiadi - Ketua Senat STMIK Tazkia](/images/news/DSC_8118.jpg)
 
 ### 4. H. Iwan - Ketua Baitul Maal Tazkia
 
 H. Iwan menyampaikan materi dengan perspektif nilai-nilai keislaman dalam membangun karakter. Sebagai pemimpin lembaga zakat, beliau berbagi pengalaman tentang bagaimana integritas dan kejujuran menjadi kunci dalam pengelolaan amanah umat.
 
 "Dalam ekosistem [industri halal](/about), karakter mulia bukan hanya nilai tambah, tetapi syarat mutlak. Teknologi tanpa karakter dapat disalahgunakan, namun teknologi yang dipadukan dengan nilai-nilai luhur akan memberikan manfaat nyata bagi masyarakat," ujar H. Iwan.
+
+![H. Iwan - Ketua Baitul Maal Tazkia](/images/news/DSC_8066.jpg)
 
 ### 5. Syarifuddin Kusin - Direktur MASJID TAZKIA SENTUL
 
@@ -89,7 +92,7 @@ Sebagai kampus IT di Bogor, STMIK Tazkia memposisikan diri secara unik dengan me
 - **Kolaborasi Industri** - Karakter profesional dibentuk melalui interaksi langsung dengan mitra kerja
 - **Ekosistem Tazkia** - Mahasiswa terhubung dengan berbagai lembaga di bawah Tazkia Group
 
-![Diskusi antara narasumber dan mahasiswa](/images/news/DSC_8112.jpg)
+![Diskusi antara narasumber dan mahasiswa](/images/news/DSC_8102.jpg)
 
 ## Pesan untuk Mahasiswa Baru
 
@@ -116,7 +119,7 @@ Sesi kuliah perdana ditutup dengan diskusi interaktif antara mahasiswa dan naras
 
 ## Bergabung dengan STMIK Tazkia
 
-Kuliah perdana ini menjadi pembuka perjalanan akademik mahasiswa angkatan 2025. Bagi calon mahasiswa yang tertarik kuliah IT dengan pendekatan holistik yang mengembangkan kompetensi teknis sekaligus karakter mulia, STMIK Tazkia membuka pendaftaran mahasiswa baru.
+Kuliah perdana ini menjadi pembuka perjalanan akademik mahasiswa angkatan 2026. Bagi calon mahasiswa yang tertarik kuliah IT dengan pendekatan holistik yang mengembangkan kompetensi teknis sekaligus karakter mulia, STMIK Tazkia membuka pendaftaran mahasiswa baru.
 
 Program studi yang tersedia:
 - [S1 Sistem Informasi](/programs/information-systems) - Fokus pada Project Management, Machine Learning, Data Analytics, dan Business Information System
