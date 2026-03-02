@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: stmik-postgres
+    environment:
+      POSTGRES_USER: stmik
+      POSTGRES_PASSWORD: stmik_dev_password
+      POSTGRES_DB: stmik_admission
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U stmik -d stmik_admission"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:

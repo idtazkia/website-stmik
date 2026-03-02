@@ -515,6 +515,272 @@ document.addEventListener('alpine:init', () => {
 
 - [Alpine.js CSP Documentation](https://alpinejs.dev/advanced/csp)
 
+## Local Installation for Manual Testing
+
+### Prerequisites
+
+- **Go 1.25+** - [Download Go](https://go.dev/dl/)
+- **Docker & Docker Compose** - [Install Docker Desktop](https://www.docker.com/products/docker-desktop/) (recommended for database)
+- **Node.js 20+** - [Download Node.js](https://nodejs.org/)
+- **Make** - Usually pre-installed on macOS/Linux
+
+**Alternative:** Install PostgreSQL 18 locally instead of using Docker (see Step 2, Option B).
+
+### Step 1: Install Dependencies
+
+```bash
+# Install Go modules, npm packages, and templ CLI
+make deps
+```
+
+### Step 2: Setup PostgreSQL Database
+
+#### Option A: Using Docker Compose (Recommended)
+
+```bash
+# Start PostgreSQL container
+docker compose up -d
+
+# Check container is running
+docker compose ps
+
+# View logs (optional)
+docker compose logs -f postgres
+
+# Test connection (requires psql client)
+psql -U stmik -d stmik_admission -h localhost
+
+# Stop container (when done)
+docker compose down
+
+# Stop and remove data volume (reset database)
+docker compose down -v
+```
+
+**Benefits:**
+- No PostgreSQL installation required
+- Isolated environment
+- Easy to reset database
+- Consistent across all developers
+
+#### Option B: Using Local PostgreSQL
+
+```bash
+# Start PostgreSQL service
+# macOS (Homebrew):
+brew services start postgresql@18
+
+# Linux (systemd):
+sudo systemctl start postgresql
+
+# Create database and user
+psql postgres -c "CREATE USER stmik WITH PASSWORD 'stmik_dev_password';"
+psql postgres -c "CREATE DATABASE stmik_admission OWNER stmik;"
+psql postgres -c "GRANT ALL PRIVILEGES ON DATABASE stmik_admission TO stmik;"
+
+# Test connection
+psql -U stmik -d stmik_admission -h localhost
+```
+
+### Step 3: Configure Environment
+
+```bash
+# Copy example environment file
+cp .env.example .env
+
+# Edit .env with your settings
+# Required:
+# - DATABASE_HOST, DATABASE_PORT, DATABASE_USER, DATABASE_PASSWORD, DATABASE_NAME
+# - JWT_SECRET (generate a random 32+ character string)
+# - ENCRYPTION_KEY (generate with: openssl rand -hex 32)
+#
+# Optional for local testing:
+# - Google OAuth (can skip for basic testing)
+# - Resend, WhatsApp, Kafka (optional integrations)
+```
+
+**Generate required secrets:**
+
+```bash
+# Generate JWT secret (32+ characters)
+openssl rand -base64 32
+
+# Generate encryption key (32-byte hex)
+openssl rand -hex 32
+```
+
+### Step 4: Run Database Migrations
+
+```bash
+# Apply all migrations
+go run ./cmd/migrate up
+
+# Verify tables created
+psql -U stmik -d stmik_admission -c "\dt"
+```
+
+### Step 5: Seed Test Data (Optional)
+
+```bash
+# Seed test data for manual testing
+go run ./cmd/seedtest
+
+# This creates:
+# - Test users for each role (admin, supervisor, consultant, finance, academic)
+# - Test candidates
+# - Sample applications and documents
+```
+
+### Step 6: Generate Templates and CSS
+
+```bash
+# Generate Templ templates
+make templ
+
+# Build Tailwind CSS
+make css
+```
+
+### Step 7: Run Development Server
+
+```bash
+# Start server
+make dev
+
+# Server will start at http://localhost:8080
+```
+
+### Step 8: Access the Application
+
+**Public Endpoints:**
+- Health Check: http://localhost:8080/health
+- Portal Login: http://localhost:8080/portal/login
+- Portal Register: http://localhost:8080/portal/register
+
+**Test Endpoints (Development Only):**
+- Test Admin: http://localhost:8080/test/admin
+- Test Portal: http://localhost:8080/test/portal
+- Auto-login as Admin: http://localhost:8080/test/login/admin
+- Auto-login as Candidate: http://localhost:8080/test/login/candidate
+
+**Admin Panel:**
+- Admin Login: http://localhost:8080/admin/login
+- Admin Dashboard: http://localhost:8080/admin
+
+### Quick Start (All Commands)
+
+```bash
+# From backend directory
+make deps
+docker compose up -d
+cp .env.example .env
+# Edit .env and set required values (JWT_SECRET, ENCRYPTION_KEY)
+go run ./cmd/migrate up
+go run ./cmd/seedtest  # Optional
+make dev
+```
+
+### Troubleshooting
+
+**Docker Compose issues:**
+```bash
+# Check if container is running
+docker compose ps
+
+# View container logs
+docker compose logs postgres
+
+# Restart container
+docker compose restart
+
+# Reset database completely
+docker compose down -v
+docker compose up -d
+```
+
+**Database connection error:**
+```bash
+# Check PostgreSQL is running
+docker compose ps
+
+# Or if using local PostgreSQL
+psql -U stmik -d stmik_admission -h localhost
+
+# Verify .env has correct database credentials
+cat .env | grep DATABASE
+```
+
+**Port 8080 already in use:**
+```bash
+# Find process using port
+lsof -i :8080
+
+# Kill process
+kill -9 <PID>
+
+# Or change port in .env
+SERVER_PORT=8081
+```
+
+**Templates not loading:**
+```bash
+# Regenerate templates
+make templ
+
+# Check generated files
+ls -la web/templates/*_templ.go
+```
+
+**CSS not loading:**
+```bash
+# Rebuild CSS
+make css
+
+# Check output
+ls -la web/static/css/output.css
+```
+
+### Development Workflow
+
+```bash
+# Start database (terminal 1)
+docker compose up -d
+
+# Watch for template changes (terminal 2)
+watch make templ
+
+# Watch for CSS changes (terminal 3)
+make css-watch
+
+# Run server (terminal 4)
+make dev
+
+# When done, stop database
+docker compose down
+```
+
+### Common Docker Compose Commands
+
+```bash
+# Start database in background
+docker compose up -d
+
+# View database logs
+docker compose logs -f postgres
+
+# Stop database
+docker compose down
+
+# Stop and remove data (reset)
+docker compose down -v
+
+# Check database status
+docker compose ps
+
+# Connect to database CLI
+docker compose exec postgres psql -U stmik -d stmik_admission
+```
+
 ## Development
 
 ```bash
