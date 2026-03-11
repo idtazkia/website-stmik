@@ -12,6 +12,10 @@ paths = [
     '''_test\.go$''',
     '''test.*\.go$''',
     '''scripts/test.*\.sh$''',
+    '''cmd/testrunner/''',
+    '''cmd/usermanual/''',
+    '''cmd/seedtest/''',
+    '''cmd/seedmanual/''',
 ]
 regexes = [
     # Placeholder test encryption key (not a real secret)
@@ -22,4 +26,5 @@ commits = [
     '''18a3793efa9b4ad5412d0b5133698fceb3322169''',
     '''efc063f6165c2496749d2dcdfb7a319e8c7dfc1c''',
     '''3205c70dbacd490e5f0b8ff943174e8e56256938''',
+    '''3ebc33a8cb3f74b8e3d4db8f8694748550ae62e3''',
 ]
