@@ -22,8 +22,9 @@ playwright-report/
 test-results/
 .playwright/
 
-# User manual screenshots (generated in CI)
-docs/screenshots/*.png
+# User manual generated output
+docs/user-manual/output/
+docs/user-manual/screenshots/
 
 # IDE
 .idea/

@@ -1,4 +1,4 @@
-.PHONY: build dev test test-e2e clean clean-test css templ
+.PHONY: build dev test test-e2e clean clean-test css templ user-manual screenshots
 
 # Version info from git
 GIT_COMMIT := $(shell git rev-parse HEAD 2>/dev/null || echo "unknown")
@@ -67,6 +67,15 @@ migrate-up:
 
 migrate-down:
 	go run ./cmd/migrate down
+
+# Full user manual pipeline: testcontainers → seed → server → screenshots → HTML
+# Equivalent to Spring Boot integration test: starts everything, captures, shuts down
+user-manual: templ css
+	go run ./cmd/usermanual
+
+# Generate HTML only from existing markdown + screenshots (no infra)
+user-manual-html:
+	go run ./cmd/usermanual --generate
 
 # Show version info
 version:
