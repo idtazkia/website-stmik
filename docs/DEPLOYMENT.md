@@ -1,5 +1,45 @@
 # Campus Website - Deployment Guide
 
+## Production Environment
+
+| Component | Value |
+|-----------|-------|
+| **Backend URL** | https://spmb.stmik.tazkia.ac.id |
+| **Frontend URL** | https://stmik.tazkia.ac.id (Cloudflare Pages) |
+| **VPS** | 103.150.226.183 (Ubuntu 24.04, 4GB RAM) |
+| **SSH** | `endymuhardin@spmb.stmik.tazkia.ac.id` |
+| **App directory** | `/opt/stmik-admission/` |
+| **App port** | 10002 (behind Nginx + SSL) |
+| **Database** | PostgreSQL 18, db `stmik_admission` |
+| **Systemd service** | `stmik-admission` |
+| **SSL** | Let's Encrypt via Certbot (auto-renews) |
+
+### Quick Deploy
+
+```bash
+# Deploy from local machine (builds, uploads, migrates, restarts)
+./deploy/deploy.sh
+```
+
+### Production Secrets
+
+Production environment variables are stored locally in `deploy/.env.production` (gitignored).
+This file is uploaded to `/opt/stmik-admission/.env` on every deploy.
+
+### Server Setup (One-Time)
+
+```bash
+# Provisions PostgreSQL, Nginx, systemd, SSL certificate
+./deploy/setup-server.sh
+```
+
+### CI/CD (GitHub Actions)
+
+`.github/workflows/deploy-backend.yml` runs tests then deploys on push to `main` when `backend/**` changes.
+Requires GitHub secrets: `VPS_SSH_KEY`, `VPS_USER`.
+
+---
+
 ## Table of Contents
 - [Prerequisites](#prerequisites)
 - [Initial Setup](#initial-setup)

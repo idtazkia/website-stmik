@@ -74,6 +74,11 @@ func main() {
 
 	mux := http.NewServeMux()
 
+	// Root redirect to registration
+	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/register", http.StatusFound)
+	})
+
 	// Health check endpoint
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")

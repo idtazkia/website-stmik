@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/idtazkia/stmik-admission-api/internal/mockdata"
 	"github.com/idtazkia/stmik-admission-api/internal/model"
 	"github.com/idtazkia/stmik-admission-api/web/templates/admin"
 )
@@ -14,33 +13,33 @@ import (
 // Mockup handlers - these use mock data and will be replaced with real implementations
 
 func (h *AdminHandler) handleDashboard(w http.ResponseWriter, r *http.Request) {
-	data := NewPageDataWithUser(r.Context(), "Dashboard")
-	stats := mockdata.GetAdminStats()
-	dashboardStats := admin.DashboardStats{
-		TotalCandidates:  stats.TotalCandidates,
-		RegisteredCount:  stats.RegisteredCount,
-		ProspectingCount: stats.ProspectingCount,
-		CommittedCount:   stats.CommittedCount,
-		EnrolledCount:    stats.EnrolledCount,
-		LostCount:        stats.LostCount,
-		OverdueFollowups: stats.OverdueFollowups,
-		TodayFollowups:   stats.TodayFollowups,
-		ThisMonthLeads:   stats.ThisMonthLeads,
+	ctx := r.Context()
+	data := NewPageDataWithUser(ctx, "Dashboard")
+
+	stats, err := model.GetCandidateStatusStats(ctx, nil, nil)
+	if err != nil {
+		slog.Error("Failed to get dashboard stats", "error", err)
+		http.Error(w, "Failed to load dashboard", http.StatusInternalServerError)
+		return
 	}
-	admin.Dashboard(data, dashboardStats).Render(r.Context(), w)
+
+	dashboardStats := admin.DashboardStats{
+		TotalCandidates:  fmt.Sprintf("%d", stats.Total),
+		RegisteredCount:  fmt.Sprintf("%d", stats.Registered),
+		ProspectingCount: fmt.Sprintf("%d", stats.Prospecting),
+		CommittedCount:   fmt.Sprintf("%d", stats.Committed),
+		EnrolledCount:    fmt.Sprintf("%d", stats.Enrolled),
+		LostCount:        fmt.Sprintf("%d", stats.Lost),
+		OverdueFollowups: "0",
+		TodayFollowups:   "0",
+		ThisMonthLeads:   "0",
+	}
+	admin.Dashboard(data, dashboardStats).Render(ctx, w)
 }
 
 func (h *AdminHandler) handleCampaigns(w http.ResponseWriter, r *http.Request) {
-	data := NewPageDataWithUser(r.Context(), "Kampanye")
-	// Temporary: redirect to settings campaigns page
-	campaigns := []admin.CampaignItem{
-		{ID: "1", Name: "Promo Early Bird", Type: "promo", Channel: "instagram", StartDate: "2026-01-01", EndDate: "2026-02-28", FeeOverrideStr: "Gratis", IsActive: true},
-		{ID: "2", Name: "Education Expo Jakarta", Type: "event", Channel: "expo", StartDate: "2026-01-15", EndDate: "2026-01-17", IsActive: true},
-		{ID: "3", Name: "Instagram Ads Q1", Type: "ads", Channel: "instagram", StartDate: "2026-01-01", EndDate: "2026-03-31", IsActive: true},
-		{ID: "4", Name: "Kunjungan Sekolah Q1", Type: "event", Channel: "school_visit", StartDate: "2026-01-06", EndDate: "2026-03-31", IsActive: true},
-		{ID: "5", Name: "Google Ads Q4 2025", Type: "ads", Channel: "google", StartDate: "2025-10-01", EndDate: "2025-12-31", IsActive: false},
-	}
-	admin.SettingsCampaigns(data, campaigns).Render(r.Context(), w)
+	// Redirect to settings campaigns page (which reads from database)
+	h.handleCampaignsSettings(w, r)
 }
 
 func (h *AdminHandler) handleReferrers(w http.ResponseWriter, r *http.Request) {
@@ -173,20 +172,6 @@ func (h *AdminHandler) handleInvalidReferralClaim(w http.ResponseWriter, r *http
 	w.Header().Set("HX-Refresh", "true")
 }
 
-func (h *AdminHandler) handleCommissions(w http.ResponseWriter, r *http.Request) {
-	data := NewPageDataWithUser(r.Context(), "Komisi")
-	commissions := []admin.CommissionItem{
-		{ID: "1", ReferrerName: "Pak Ahmad Fauzi", ReferrerType: "guru", CandidateName: "Dimas Pratama", CandidateNIM: "2026SI003", Amount: "Rp 750.000", Status: "pending", EnrolledAt: "10 Jan 2026", BankName: "BSI", BankAccount: "7123456789"},
-		{ID: "2", ReferrerName: "Siti Nurhaliza", ReferrerType: "alumni", CandidateName: "Rina Wulandari", CandidateNIM: "2026TI004", Amount: "Rp 500.000", Status: "approved", EnrolledAt: "8 Jan 2026", ApprovedAt: "12 Jan 2026", BankName: "BCA", BankAccount: "1234567890"},
-		{ID: "3", ReferrerName: "PT Edutech Indonesia", ReferrerType: "partner", CandidateName: "Bayu Setiawan", CandidateNIM: "2026SI005", Amount: "Rp 1.000.000", Status: "paid", EnrolledAt: "5 Jan 2026", ApprovedAt: "7 Jan 2026", PaidAt: "10 Jan 2026", BankName: "Mandiri", BankAccount: "0987654321"},
-	}
-	stats := admin.CommissionStats{
-		Pending: "3", PendingAmount: "Rp 2.250.000",
-		Approved: "2", ApprovedAmount: "Rp 1.500.000",
-		Paid: "5", PaidAmount: "Rp 4.000.000",
-	}
-	admin.Commissions(data, commissions, stats).Render(r.Context(), w)
-}
 
 func (h *AdminHandler) handleFunnelReport(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -450,38 +435,8 @@ func (h *AdminHandler) handleReferrersReport(w http.ResponseWriter, r *http.Requ
 }
 
 func (h *AdminHandler) handleConsultantDashboard(w http.ResponseWriter, r *http.Request) {
-	data := NewPageDataWithUser(r.Context(), "Dashboard Saya")
-
-	stats := admin.ConsultantDashboardStats{
-		ConsultantName:      "Siti Rahayu",
-		TodayDate:           "15 Januari 2026",
-		MyCandidates:        "5",
-		MyProspecting:       "2",
-		MyCommitted:         "1",
-		MyEnrolled:          "0",
-		OverdueCount:        "1",
-		TodayTasks:          "2",
-		UnreadSuggestions:   "1",
-		MonthlyNewLeads:     "8",
-		MonthlyInteractions: "25",
-		MonthlyCommits:      "2",
-		MonthlyEnrollments:  "1",
-	}
-
-	overdueList := []admin.CandidateSummary{
-		{ID: "1", Name: "Ahmad Pratama", ProdiName: "S1 Sistem Informasi", WhatsApp: "6281234567890", Status: "prospecting", LastContact: "10 Jan 2026"},
-	}
-
-	todayTasks := []admin.CandidateSummary{
-		{ID: "2", Name: "Siti Rahayu", ProdiName: "S1 Teknik Informatika", WhatsApp: "6281234567891", Status: "prospecting", LastContact: "14 Jan 2026"},
-		{ID: "3", Name: "Budi Santoso", ProdiName: "S1 Sistem Informasi", WhatsApp: "6281234567892", Status: "committed", LastContact: "13 Jan 2026"},
-	}
-
-	suggestions := []admin.SupervisorSuggestion{
-		{ID: "1", CandidateID: "1", CandidateName: "Ahmad Pratama", Suggestion: "Coba tawarkan program beasiswa untuk menarik minatnya.", SupervisorName: "Dr. Ahmad Fauzi", CreatedAt: "14 Jan 2026", IsRead: false},
-	}
-
-	admin.ConsultantDashboard(data, stats, overdueList, todayTasks, suggestions).Render(r.Context(), w)
+	// Redirect to real consultant dashboard
+	h.handleConsultantDashboardReal(w, r)
 }
 
 func (h *AdminHandler) handleSupervisorDashboard(w http.ResponseWriter, r *http.Request) {

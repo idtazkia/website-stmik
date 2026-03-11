@@ -1,0 +1,147 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/deploy-backend.yml'
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+          cache-dependency-path: backend/go.sum
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install templ
+        run: go install github.com/a-h/templ/cmd/templ@latest
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run full test suite
+        run: make clean-test
+
+  deploy:
+    name: Deploy
+    needs: test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+          cache-dependency-path: backend/go.sum
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install templ
+        run: go install github.com/a-h/templ/cmd/templ@latest
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build
+        run: make build-linux
+
+      - name: Prepare deployment package
+        run: |
+          mkdir -p /tmp/deploy
+          cp bin/server-linux /tmp/deploy/server
+          cp -r web/static /tmp/deploy/static
+          cp -r web/templates/email /tmp/deploy/email
+          cp -r migrations /tmp/deploy/migrations
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -T 5 spmb.stmik.tazkia.ac.id >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Upload binary and assets
+        run: |
+          SSH_OPTS="-i ~/.ssh/deploy_key -o StrictHostKeyChecking=no"
+          SSH_HOST="${{ secrets.VPS_USER }}@spmb.stmik.tazkia.ac.id"
+          APP_DIR="/opt/stmik-admission"
+
+          rsync -avz -e "ssh ${SSH_OPTS}" /tmp/deploy/server "${SSH_HOST}:${APP_DIR}/bin/server.new"
+          rsync -avz --delete -e "ssh ${SSH_OPTS}" /tmp/deploy/static/ "${SSH_HOST}:${APP_DIR}/web/static/"
+          rsync -avz --delete -e "ssh ${SSH_OPTS}" /tmp/deploy/email/ "${SSH_HOST}:${APP_DIR}/web/templates/email/"
+          rsync -avz --delete -e "ssh ${SSH_OPTS}" /tmp/deploy/migrations/ "${SSH_HOST}:${APP_DIR}/migrations/"
+
+      - name: Run migrations and restart
+        run: |
+          SSH_OPTS="-i ~/.ssh/deploy_key -o StrictHostKeyChecking=no"
+          SSH_HOST="${{ secrets.VPS_USER }}@spmb.stmik.tazkia.ac.id"
+          APP_DIR="/opt/stmik-admission"
+          APP_NAME="stmik-admission"
+
+          ssh ${SSH_OPTS} "${SSH_HOST}" bash -s << 'EOF'
+          set -euo pipefail
+          APP_DIR="/opt/stmik-admission"
+          APP_NAME="stmik-admission"
+
+          # Run migrations
+          set -a
+          source "${APP_DIR}/.env"
+          set +a
+          DB_URL="postgres://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}?sslmode=${DATABASE_SSL_MODE}"
+          for f in "${APP_DIR}"/migrations/*.up.sql; do
+              psql "${DB_URL}" -f "$f" 2>&1 || true
+          done
+
+          # Swap binary
+          if [ -f "${APP_DIR}/bin/server" ]; then
+              mv "${APP_DIR}/bin/server" "${APP_DIR}/bin/server.old"
+          fi
+          mv "${APP_DIR}/bin/server.new" "${APP_DIR}/bin/server"
+          chmod +x "${APP_DIR}/bin/server"
+
+          # Restart
+          sudo systemctl restart "${APP_NAME}"
+          sleep 2
+
+          # Health check
+          if curl -sf http://localhost:10002/health > /dev/null; then
+              echo "Health check passed"
+              rm -f "${APP_DIR}/bin/server.old"
+          else
+              echo "Health check FAILED — rolling back"
+              if [ -f "${APP_DIR}/bin/server.old" ]; then
+                  mv "${APP_DIR}/bin/server.old" "${APP_DIR}/bin/server"
+                  sudo systemctl restart "${APP_NAME}"
+              fi
+              exit 1
+          fi
+          EOF

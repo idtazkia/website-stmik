@@ -91,8 +91,9 @@ func (g *GoogleOAuth) ValidateEmailDomain(email string) error {
 		return fmt.Errorf("invalid email format")
 	}
 
-	if parts[1] != g.emailDomain {
-		return fmt.Errorf("email domain %s not allowed, must be @%s", parts[1], g.emailDomain)
+	domain := parts[1]
+	if domain != g.emailDomain && !strings.HasSuffix(domain, "."+g.emailDomain) {
+		return fmt.Errorf("email domain %s not allowed, must be @%s or a subdomain", domain, g.emailDomain)
 	}
 
 	return nil
