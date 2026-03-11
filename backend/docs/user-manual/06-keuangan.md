@@ -69,7 +69,7 @@ Kandidat mengupload bukti transfer pembayaran melalui portal.
 5. Pilih file bukti transfer (gambar atau PDF)
 6. Klik **Upload**
 
-![Upload Bukti](screenshots/portal/payment-proof.png)
+![Upload Bukti](screenshots/portal/payments.png)
 
 ### Setelah Upload
 

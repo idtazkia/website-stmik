@@ -43,6 +43,7 @@ const pages: PageDefinition[] = [
   { id: 'settings-fees', name: 'Struktur Biaya', url: '/admin/settings/fees', section: 'admin', description: 'Halaman pengaturan biaya', requiresAuth: 'admin' },
   { id: 'settings-assignment', name: 'Algoritma Assignment', url: '/admin/settings/assignment', section: 'admin', description: 'Halaman pengaturan assignment', requiresAuth: 'admin' },
   { id: 'settings-rewards', name: 'Reward Config', url: '/admin/settings/rewards', section: 'admin', description: 'Halaman pengaturan reward', requiresAuth: 'admin' },
+  { id: 'settings-document-types', name: 'Jenis Dokumen', url: '/admin/settings/document-types', section: 'admin', description: 'Halaman pengaturan jenis dokumen', requiresAuth: 'admin' },
 
   // --- Portal ---
   { id: 'login', name: 'Login Portal', url: '/login', section: 'portal', description: 'Halaman login calon mahasiswa', requiresAuth: 'none' },
@@ -94,4 +95,21 @@ test.describe('User Manual Screenshots', () => {
       expect(fs.existsSync(screenshotPath)).toBeTruthy();
     });
   }
+
+  // Candidate detail: navigate from list to get a real candidate ID
+  test('capture: admin/candidate-detail', async ({ page }) => {
+    page.setViewportSize({ width: 1280, height: 800 });
+    await loginAs(page, 'admin');
+
+    await page.goto(`${BASE_URL}/admin/candidates`);
+    await page.waitForLoadState('networkidle');
+
+    const firstLink = page.locator('[data-testid^="view-candidate-"]').first();
+    await firstLink.click();
+    await page.waitForLoadState('networkidle');
+
+    const screenshotPath = path.join(SCREENSHOT_DIR, 'admin', 'candidate-detail.png');
+    await page.screenshot({ path: screenshotPath, fullPage: false });
+    expect(fs.existsSync(screenshotPath)).toBeTruthy();
+  });
 });

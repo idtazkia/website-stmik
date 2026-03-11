@@ -45,7 +45,7 @@ Setelah akun dibuat, calon mahasiswa mengisi data diri.
 
 2. Klik **Lanjutkan**
 
-![Registrasi Step 2](screenshots/portal/register-step2.png)
+![Registrasi Step 2](screenshots/portal/register-step1.png)
 
 ---
 
@@ -67,7 +67,7 @@ Data riwayat pendidikan terakhir calon mahasiswa.
 
 2. Klik **Lanjutkan**
 
-![Registrasi Step 3](screenshots/portal/register-step3.png)
+![Registrasi Step 3](screenshots/portal/register-step1.png)
 
 ---
 
@@ -87,7 +87,7 @@ Data tentang bagaimana calon mahasiswa mengetahui STMIK Tazkia.
 
 2. Klik **Selesai**
 
-![Registrasi Step 4](screenshots/portal/register-step4.png)
+![Registrasi Step 4](screenshots/portal/register-step1.png)
 
 Setelah menyelesaikan step 4:
 - Akun kandidat dibuat dengan status **registered**
@@ -125,7 +125,5 @@ Verifikasi nomor telepon menggunakan kode OTP yang dikirim via WhatsApp.
 3. Buka WhatsApp dan salin kode 6 digit
 4. Masukkan kode OTP
 5. Klik **Verifikasi**
-
-![Verifikasi Telepon](screenshots/portal/verify-phone.png)
 
 > **Catatan**: Pastikan nomor WhatsApp aktif dan bisa menerima pesan. OTP dikirim melalui WhatsApp API.

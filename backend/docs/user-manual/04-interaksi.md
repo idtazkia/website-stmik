@@ -21,8 +21,6 @@ Bagian ini menjelaskan cara mencatat komunikasi dengan kandidat. Interaksi adala
 
 4. Klik **Simpan**
 
-![Form Interaksi](screenshots/admin/interaction-form.png)
-
 ### Efek Pencatatan Interaksi
 
 - Jika ini interaksi pertama, status kandidat otomatis berubah dari **registered** ke **prospecting**
@@ -116,8 +114,6 @@ Ketika kandidat tidak melanjutkan proses pendaftaran:
 3. Pilih **Alasan Lost** dari dropdown
 4. Tambahkan catatan (opsional)
 5. Klik **Simpan**
-
-![Mark as Lost](screenshots/admin/candidate-lost.png)
 
 ### Alasan Lost
 

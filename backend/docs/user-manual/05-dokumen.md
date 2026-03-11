@@ -14,7 +14,7 @@ Calon mahasiswa mengupload dokumen persyaratan melalui portal.
 4. Klik **Pilih File** dan pilih file dari perangkat
 5. Klik **Upload**
 
-![Upload Dokumen](screenshots/portal/documents-upload.png)
+![Upload Dokumen](screenshots/portal/documents.png)
 
 ### Ketentuan Upload
 

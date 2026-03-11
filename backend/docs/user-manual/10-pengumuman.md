@@ -25,8 +25,6 @@ Buka menu **Pengumuman** di sidebar admin.
 
 3. Klik **Simpan** (tersimpan sebagai draft)
 
-![Form Pengumuman](screenshots/admin/announcement-form.png)
-
 ### Edit Pengumuman
 
 1. Klik pengumuman di daftar

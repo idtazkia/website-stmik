@@ -90,8 +90,6 @@ Supervisor atau admin dapat memindahkan kandidat ke konsultan lain.
 4. Isi alasan reassign (opsional)
 5. Klik **Simpan**
 
-![Reassign Kandidat](screenshots/admin/candidate-reassign.png)
-
 ### Siapa yang Bisa Reassign?
 
 | Role | Akses |
