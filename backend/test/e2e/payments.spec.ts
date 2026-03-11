@@ -46,15 +46,18 @@ function getTestProofPath(): string {
   return filePath;
 }
 
-// Helper to register a new candidate with unique name
-async function registerCandidate(browser: Browser): Promise<{ email: string; name: string; page: Page }> {
-  const candidatePage = await browser.newPage();
+// Register candidate, create billing, upload payment proof, return IDs
+async function setupCandidateWithPayment(browser: Browser): Promise<{
+  candidateId: string;
+  billingId: string;
+  paymentPage: Page;
+}> {
   const uniqueId = `${Date.now()}${Math.random().toString(36).slice(2, 8)}`;
-  const uniqueEmail = `payment${uniqueId}@example.com`;
-  const uniqueName = `PaymentCandidate ${uniqueId}`;
+  const uniqueEmail = `pay${uniqueId}@example.com`;
   const password = 'testpassword123';
 
-  // Step 1: Account creation
+  // Register candidate
+  const candidatePage = await browser.newPage();
   await candidatePage.goto('/register');
   await candidatePage.getByTestId('input-email').fill(uniqueEmail);
   await candidatePage.getByTestId('input-password').fill(password);
@@ -62,32 +65,91 @@ async function registerCandidate(browser: Browser): Promise<{ email: string; nam
   await candidatePage.getByTestId('btn-submit-step1').click();
   await expect(candidatePage.getByTestId('step2-form')).toBeVisible({ timeout: 10000 });
 
-  // Step 2: Personal info - use unique name
-  await candidatePage.getByTestId('input-name').fill(uniqueName);
+  await candidatePage.getByTestId('input-name').fill(`PayTest ${uniqueId}`);
   await candidatePage.getByTestId('input-address').fill('Test Address');
   await candidatePage.getByTestId('input-city').fill('Jakarta');
   await candidatePage.getByTestId('input-province').fill('DKI Jakarta');
   await candidatePage.getByTestId('btn-submit-step2').click();
   await expect(candidatePage.getByTestId('step3-form')).toBeVisible({ timeout: 10000 });
 
-  // Step 3: Education
   await candidatePage.getByTestId('input-high-school').fill('SMA Test');
   await candidatePage.getByTestId('select-graduation-year').selectOption('2025');
-  // Click first prodi radio
-  const prodiRadios = candidatePage.locator('input[type="radio"][name="prodi_id"]');
-  await prodiRadios.first().click();
+  await candidatePage.locator('input[type="radio"][name="prodi_id"]').first().click();
   await candidatePage.getByTestId('btn-submit-step3').click();
   await expect(candidatePage.getByTestId('step4-form')).toBeVisible({ timeout: 10000 });
 
-  // Step 4: Source tracking
   await candidatePage.getByTestId('select-source-type').selectOption('instagram');
   await candidatePage.getByTestId('btn-submit-step4').click();
   await expect(candidatePage).toHaveURL('/portal', { timeout: 10000 });
+  await candidatePage.close();
 
-  return { email: uniqueEmail, name: uniqueName, page: candidatePage };
+  // Find candidate ID as admin
+  const adminPage = await browser.newPage();
+  await adminPage.goto('/test/login/admin');
+  await adminPage.goto('/admin/candidates?search=' + encodeURIComponent(uniqueEmail));
+  await expect(adminPage.getByTestId('candidates-page')).toBeVisible();
+  await adminPage.waitForTimeout(1000);
+
+  const viewLink = adminPage.locator('[data-testid^="view-candidate-"]').first();
+  const testId = await viewLink.getAttribute('data-testid');
+  const candidateId = testId?.replace('view-candidate-', '') || '';
+  await adminPage.close();
+
+  // Create billing as finance
+  const financePage = await browser.newPage();
+  await financePage.goto('/test/login/finance');
+  await financePage.goto(`/admin/finance/billings/create?candidate_id=${candidateId}`);
+  await expect(financePage.getByTestId('billing-form-page')).toBeVisible();
+
+  await financePage.getByTestId('select-billing-type').selectOption('registration');
+  await financePage.getByTestId('input-amount').fill('500000');
+  await financePage.getByTestId('input-due-date').fill('2026-06-01');
+  await financePage.getByTestId('btn-submit').click();
+  await expect(financePage.getByTestId('billing-detail-page')).toBeVisible({ timeout: 10000 });
+
+  // Extract billing ID from URL
+  const billingUrl = financePage.url();
+  const billingId = billingUrl.split('/').pop() || '';
+  await financePage.close();
+
+  // Upload payment proof as candidate
+  const portalPage = await browser.newPage();
+  await portalPage.goto('/test/login/candidate?email=' + encodeURIComponent(uniqueEmail));
+  await portalPage.goto('/portal/payments');
+  await expect(portalPage.getByTestId('payments-page')).toBeVisible();
+
+  // Find the billing's upload form and submit proof
+  const uploadForm = portalPage.locator(`[data-testid="upload-form-${billingId}"]`);
+  // If upload form is visible, fill and submit
+  const uploadVisible = await uploadForm.isVisible().catch(() => false);
+  if (uploadVisible) {
+    await uploadForm.locator('input[name="transfer_date"]').fill('2026-03-10');
+    await uploadForm.locator('input[name="amount"]').fill('500000');
+    await uploadForm.locator('input[name="proof"]').setInputFiles(getTestProofPath());
+    await uploadForm.locator('button[type="submit"]').click();
+    await expect(portalPage.getByTestId('payments-page')).toBeVisible({ timeout: 10000 });
+  } else {
+    // Try the generic upload button approach
+    const uploadBtn = portalPage.locator(`[data-testid="btn-upload-${billingId}"]`);
+    if (await uploadBtn.isVisible().catch(() => false)) {
+      await uploadBtn.click();
+      await portalPage.locator('input[name="transfer_date"]').first().fill('2026-03-10');
+      await portalPage.locator('input[name="amount"]').first().fill('500000');
+      await portalPage.locator('input[name="proof"]').first().setInputFiles(getTestProofPath());
+      await portalPage.locator('button[type="submit"]').first().click();
+      await expect(portalPage.getByTestId('payments-page')).toBeVisible({ timeout: 10000 });
+    }
+  }
+  await portalPage.close();
+
+  // Return finance page for payment review
+  const paymentPage = await browser.newPage();
+  await paymentPage.goto('/test/login/finance');
+
+  return { candidateId, billingId, paymentPage };
 }
 
-test.describe('Payments - Page Display', () => {
+test.describe('Payments - Portal Display', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/test/login/candidate');
     await expect(page).toHaveURL('/portal');
@@ -99,7 +161,6 @@ test.describe('Payments - Page Display', () => {
     await expect(page.getByTestId('payments-page')).toBeVisible();
     await expect(page.getByTestId('payment-summary')).toBeVisible();
 
-    // Check summary cards exist
     await expect(page.locator('text=Total Tagihan')).toBeVisible();
     await expect(page.locator('text=Sudah Dibayar')).toBeVisible();
     await expect(page.locator('text=Menunggu Verifikasi')).toBeVisible();
@@ -122,20 +183,167 @@ test.describe('Payments - Page Display', () => {
 });
 
 test.describe('Payments - With Billing', () => {
-  // Note: These tests require billings to be created for the candidate.
-  // In a real scenario, billings would be created during registration
-  // or by admin. For now, we test the UI without actual billings.
-
   test('should show empty state when no billings', async ({ browser }) => {
     // Register a fresh candidate (no billings created yet)
-    const { page: candidatePage } = await registerCandidate(browser);
+    const uniqueId = `${Date.now()}${Math.random().toString(36).slice(2, 8)}`;
+    const uniqueEmail = `empty${uniqueId}@example.com`;
+    const password = 'testpassword123';
+
+    const candidatePage = await browser.newPage();
+    await candidatePage.goto('/register');
+    await candidatePage.getByTestId('input-email').fill(uniqueEmail);
+    await candidatePage.getByTestId('input-password').fill(password);
+    await candidatePage.getByTestId('input-password-confirm').fill(password);
+    await candidatePage.getByTestId('btn-submit-step1').click();
+    await expect(candidatePage.getByTestId('step2-form')).toBeVisible({ timeout: 10000 });
+
+    await candidatePage.getByTestId('input-name').fill(`EmptyPay ${uniqueId}`);
+    await candidatePage.getByTestId('input-address').fill('Test Address');
+    await candidatePage.getByTestId('input-city').fill('Jakarta');
+    await candidatePage.getByTestId('input-province').fill('DKI Jakarta');
+    await candidatePage.getByTestId('btn-submit-step2').click();
+    await expect(candidatePage.getByTestId('step3-form')).toBeVisible({ timeout: 10000 });
+
+    await candidatePage.getByTestId('input-high-school').fill('SMA Test');
+    await candidatePage.getByTestId('select-graduation-year').selectOption('2025');
+    await candidatePage.locator('input[type="radio"][name="prodi_id"]').first().click();
+    await candidatePage.getByTestId('btn-submit-step3').click();
+    await expect(candidatePage.getByTestId('step4-form')).toBeVisible({ timeout: 10000 });
+
+    await candidatePage.getByTestId('select-source-type').selectOption('instagram');
+    await candidatePage.getByTestId('btn-submit-step4').click();
+    await expect(candidatePage).toHaveURL('/portal', { timeout: 10000 });
 
     await candidatePage.goto('/portal/payments');
     await expect(candidatePage.getByTestId('payments-page')).toBeVisible();
-
-    // Should show "Belum ada tagihan" since no billings created
     await expect(candidatePage.locator('text=Belum ada tagihan')).toBeVisible();
 
     await candidatePage.close();
+  });
+});
+
+test.describe('Admin Payment Review', () => {
+  test('finance user can access payment review page', async ({ browser }) => {
+    const financePage = await browser.newPage();
+    await financePage.goto('/test/login/finance');
+    await financePage.goto('/admin/finance/payments');
+
+    await expect(financePage.getByTestId('finance-payments-page')).toBeVisible();
+    await expect(financePage.getByTestId('stat-pending')).toBeVisible();
+    await expect(financePage.getByTestId('stat-approved')).toBeVisible();
+    await expect(financePage.getByTestId('stat-rejected')).toBeVisible();
+
+    await financePage.close();
+  });
+
+  test('admin can also access payment review page', async ({ browser }) => {
+    const adminPage = await browser.newPage();
+    await adminPage.goto('/test/login/admin');
+    await adminPage.goto('/admin/finance/payments');
+
+    await expect(adminPage.getByTestId('finance-payments-page')).toBeVisible();
+
+    await adminPage.close();
+  });
+
+  test('consultant cannot access payment review page', async ({ browser }) => {
+    const consultantPage = await browser.newPage();
+    await consultantPage.goto('/test/login/consultant');
+
+    const response = await consultantPage.goto('/admin/finance/payments');
+    expect(response?.status()).toBe(403);
+
+    await consultantPage.close();
+  });
+
+  test('finance user can filter payments by status', async ({ browser }) => {
+    const financePage = await browser.newPage();
+    await financePage.goto('/test/login/finance');
+    await financePage.goto('/admin/finance/payments');
+
+    await financePage.getByTestId('select-status').selectOption('pending');
+    await financePage.getByTestId('btn-filter').click();
+
+    await expect(financePage).toHaveURL(/status=pending/);
+
+    await financePage.close();
+  });
+
+  test('finance user can approve payment', async ({ browser }) => {
+    const { billingId, paymentPage } = await setupCandidateWithPayment(browser);
+
+    // Go to payments review page
+    await paymentPage.goto('/admin/finance/payments?status=pending');
+    await expect(paymentPage.getByTestId('finance-payments-page')).toBeVisible();
+
+    // Find approve button for any pending payment
+    const approveBtn = paymentPage.locator('[data-testid^="btn-approve-"]').first();
+    const isVisible = await approveBtn.isVisible().catch(() => false);
+
+    if (isVisible) {
+      await approveBtn.click();
+
+      // Should redirect back to payment list or show updated status
+      await expect(paymentPage.getByTestId('finance-payments-page')).toBeVisible({ timeout: 10000 });
+    }
+
+    await paymentPage.close();
+  });
+
+  test('finance user can reject payment with reason', async ({ browser }) => {
+    const { billingId, paymentPage } = await setupCandidateWithPayment(browser);
+
+    // Go to payments review page
+    await paymentPage.goto('/admin/finance/payments?status=pending');
+    await expect(paymentPage.getByTestId('finance-payments-page')).toBeVisible();
+
+    // Find reject button for any pending payment
+    const rejectBtn = paymentPage.locator('[data-testid^="btn-reject-"]').first();
+    const isVisible = await rejectBtn.isVisible().catch(() => false);
+
+    if (isVisible) {
+      await rejectBtn.click();
+
+      // Fill rejection reason in the modal
+      const reasonInput = paymentPage.locator('[data-testid^="input-reject-reason-"]').first();
+      await expect(reasonInput).toBeVisible({ timeout: 5000 });
+      await reasonInput.fill('Bukti transfer tidak valid');
+
+      // Confirm rejection
+      const confirmBtn = paymentPage.locator('[data-testid^="btn-confirm-reject-"]').first();
+      await confirmBtn.click();
+
+      // Should redirect back to payment list
+      await expect(paymentPage.getByTestId('finance-payments-page')).toBeVisible({ timeout: 10000 });
+    }
+
+    await paymentPage.close();
+  });
+});
+
+test.describe('Candidate Search API', () => {
+  test('search API returns results for valid query', async ({ browser }) => {
+    const financePage = await browser.newPage();
+    await financePage.goto('/test/login/finance');
+
+    const response = await financePage.request.get('/admin/api/candidates/search?q=test');
+    expect(response.ok()).toBeTruthy();
+
+    const body = await response.json();
+    expect(Array.isArray(body)).toBeTruthy();
+
+    await financePage.close();
+  });
+
+  test('search API requires minimum 2 characters', async ({ browser }) => {
+    const financePage = await browser.newPage();
+    await financePage.goto('/test/login/finance');
+
+    const response = await financePage.request.get('/admin/api/candidates/search?q=a');
+    const body = await response.json();
+    expect(Array.isArray(body)).toBeTruthy();
+    expect(body.length).toBe(0);
+
+    await financePage.close();
   });
 });

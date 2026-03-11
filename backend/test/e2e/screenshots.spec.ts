@@ -478,10 +478,12 @@ test.describe('User Manual Screenshots - Admin Dashboard', () => {
   // Admin Dashboard - Recent Candidates
   test('30e - Admin Dashboard Recent Candidates', async ({ page }) => {
     await page.goto('/admin');
-    await expect(page.getByTestId('recent-candidates-section')).toBeVisible();
+    const section = page.getByTestId('recent-candidates-section');
+    await expect(section).toBeVisible();
+    await section.scrollIntoViewIfNeeded();
     await page.screenshot({
       path: `${SCREENSHOT_DIR}/30e-admin-dashboard-recent-candidates.png`,
-      clip: await page.getByTestId('recent-candidates-section').boundingBox() || undefined
+      fullPage: true
     });
   });
 });

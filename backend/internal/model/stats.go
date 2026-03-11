@@ -826,3 +826,222 @@ func GetStuckCandidatesForTeam(ctx context.Context, supervisorID string, limit i
 	}
 	return result, nil
 }
+
+// AdminDashboardExtraStats contains extra stats for the admin dashboard
+type AdminDashboardExtraStats struct {
+	OverdueFollowups int
+	TodayFollowups   int
+	ThisMonthLeads   int
+}
+
+// GetAdminDashboardExtraStats returns extra dashboard statistics for the admin view
+func GetAdminDashboardExtraStats(ctx context.Context) (*AdminDashboardExtraStats, error) {
+	var stats AdminDashboardExtraStats
+
+	// Overdue: candidates with status NOT IN ('enrolled', 'lost') whose latest interaction is older than 7 days or no interaction
+	err := pool.QueryRow(ctx, `
+		SELECT COUNT(DISTINCT c.id)
+		FROM candidates c
+		LEFT JOIN LATERAL (
+			SELECT MAX(created_at) as last_contact
+			FROM interactions
+			WHERE id_candidate = c.id
+		) li ON true
+		WHERE c.status NOT IN ('enrolled', 'lost')
+		  AND (li.last_contact IS NULL OR li.last_contact < NOW() - INTERVAL '7 days')
+	`).Scan(&stats.OverdueFollowups)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get overdue followups count: %w", err)
+	}
+
+	// Today: candidates whose latest interaction has next_followup_date = today
+	err = pool.QueryRow(ctx, `
+		SELECT COUNT(DISTINCT i.id_candidate)
+		FROM interactions i
+		JOIN candidates c ON i.id_candidate = c.id
+		WHERE c.status NOT IN ('enrolled', 'lost')
+		  AND i.next_followup_date IS NOT NULL
+		  AND DATE(i.next_followup_date) = CURRENT_DATE
+		  AND i.id = (
+			SELECT id FROM interactions
+			WHERE id_candidate = i.id_candidate
+			ORDER BY created_at DESC
+			LIMIT 1
+		  )
+	`).Scan(&stats.TodayFollowups)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get today followups count: %w", err)
+	}
+
+	// This month leads
+	startOfMonth := time.Now().AddDate(0, 0, -time.Now().Day()+1)
+	startOfMonth = time.Date(startOfMonth.Year(), startOfMonth.Month(), startOfMonth.Day(), 0, 0, 0, 0, time.Local)
+
+	err = pool.QueryRow(ctx, `
+		SELECT COUNT(*)
+		FROM candidates
+		WHERE created_at >= $1
+	`, startOfMonth).Scan(&stats.ThisMonthLeads)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get this month leads count: %w", err)
+	}
+
+	return &stats, nil
+}
+
+// GetAdminOverdueCandidates returns candidates with overdue follow-ups across all consultants
+func GetAdminOverdueCandidates(ctx context.Context, limit int) ([]OverdueCandidate, error) {
+	rows, err := pool.Query(ctx, `
+		SELECT c.id, c.name, c.phone, p.name as prodi_name, c.status,
+		       COALESCE(li.last_contact, c.created_at) as last_contact,
+		       EXTRACT(DAY FROM NOW() - COALESCE(li.last_contact, c.created_at))::int as days_overdue
+		FROM candidates c
+		LEFT JOIN prodis p ON c.id_prodi = p.id
+		LEFT JOIN LATERAL (
+			SELECT MAX(created_at) as last_contact
+			FROM interactions
+			WHERE id_candidate = c.id
+		) li ON true
+		WHERE c.status NOT IN ('enrolled', 'lost')
+		  AND (li.last_contact IS NULL OR li.last_contact < NOW() - INTERVAL '7 days')
+		ORDER BY li.last_contact ASC NULLS FIRST
+		LIMIT $1
+	`, limit)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get admin overdue candidates: %w", err)
+	}
+	defer rows.Close()
+
+	var candidates []OverdueCandidate
+	for rows.Next() {
+		var c OverdueCandidate
+		var name, phone, prodiName *string
+		err := rows.Scan(&c.ID, &name, &phone, &prodiName, &c.Status, &c.LastContact, &c.DaysOverdue)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan admin overdue candidate: %w", err)
+		}
+		if name != nil {
+			if d, err := decryptName(*name); err == nil {
+				c.Name = d
+			} else {
+				c.Name = *name
+			}
+		}
+		if phone != nil {
+			if d, err := decryptNullableD(phone); err == nil && d != nil {
+				c.Phone = *d
+			} else {
+				c.Phone = *phone
+			}
+		}
+		if prodiName != nil {
+			c.ProdiName = *prodiName
+		}
+		candidates = append(candidates, c)
+	}
+
+	return candidates, nil
+}
+
+// GetAdminTodayTasks returns follow-up tasks scheduled for today across all consultants
+func GetAdminTodayTasks(ctx context.Context, limit int) ([]TodayTask, error) {
+	rows, err := pool.Query(ctx, `
+		SELECT DISTINCT ON (c.id) c.id, c.name, c.phone, p.name as prodi_name, c.status, i.next_followup_date
+		FROM candidates c
+		JOIN interactions i ON i.id_candidate = c.id
+		LEFT JOIN prodis p ON c.id_prodi = p.id
+		WHERE c.status NOT IN ('enrolled', 'lost')
+		  AND i.next_followup_date IS NOT NULL
+		  AND DATE(i.next_followup_date) = CURRENT_DATE
+		ORDER BY c.id, i.created_at DESC
+		LIMIT $1
+	`, limit)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get admin today tasks: %w", err)
+	}
+	defer rows.Close()
+
+	var tasks []TodayTask
+	for rows.Next() {
+		var t TodayTask
+		var name, phone, prodiName *string
+		err := rows.Scan(&t.ID, &name, &phone, &prodiName, &t.Status, &t.FollowupDate)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan admin today task: %w", err)
+		}
+		if name != nil {
+			if d, err := decryptName(*name); err == nil {
+				t.Name = d
+			} else {
+				t.Name = *name
+			}
+		}
+		if phone != nil {
+			if d, err := decryptNullableD(phone); err == nil && d != nil {
+				t.Phone = *d
+			} else {
+				t.Phone = *phone
+			}
+		}
+		if prodiName != nil {
+			t.ProdiName = *prodiName
+		}
+		tasks = append(tasks, t)
+	}
+
+	return tasks, nil
+}
+
+// RecentCandidate represents a recently created candidate
+type RecentCandidate struct {
+	ID             string
+	Name           string
+	ProdiName      string
+	Status         string
+	ConsultantName string
+	CreatedAt      time.Time
+}
+
+// GetRecentCandidates returns the most recently created candidates
+func GetRecentCandidates(ctx context.Context, limit int) ([]RecentCandidate, error) {
+	rows, err := pool.Query(ctx, `
+		SELECT c.id, c.name, COALESCE(p.name, '') as prodi_name, c.status,
+		       COALESCE(u.name, '') as consultant_name, c.created_at
+		FROM candidates c
+		LEFT JOIN prodis p ON c.id_prodi = p.id
+		LEFT JOIN users u ON c.id_assigned_consultant = u.id
+		ORDER BY c.created_at DESC
+		LIMIT $1
+	`, limit)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get recent candidates: %w", err)
+	}
+	defer rows.Close()
+
+	var result []RecentCandidate
+	for rows.Next() {
+		var rc RecentCandidate
+		var name *string
+		var consultantNameRaw string
+		err := rows.Scan(&rc.ID, &name, &rc.ProdiName, &rc.Status, &consultantNameRaw, &rc.CreatedAt)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan recent candidate: %w", err)
+		}
+		if name != nil {
+			if d, err := decryptName(*name); err == nil {
+				rc.Name = d
+			} else {
+				rc.Name = *name
+			}
+		}
+		if consultantNameRaw != "" {
+			if d, err := decryptName(consultantNameRaw); err == nil {
+				rc.ConsultantName = d
+			} else {
+				rc.ConsultantName = consultantNameRaw
+			}
+		}
+		result = append(result, rc)
+	}
+	return result, nil
+}

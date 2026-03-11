@@ -10,6 +10,8 @@ client_secret*.json
 *.dylib
 *.test
 *.out
+coverage.html
+coverage-e2e/
 
 # Dependencies
 node_modules/

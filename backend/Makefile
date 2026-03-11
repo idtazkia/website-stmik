@@ -1,4 +1,4 @@
-.PHONY: build dev test test-e2e clean clean-test css templ user-manual screenshots
+.PHONY: build dev test test-cover test-e2e clean clean-test css templ user-manual screenshots
 
 # Version info from git
 GIT_COMMIT := $(shell git rev-parse HEAD 2>/dev/null || echo "unknown")
@@ -22,9 +22,14 @@ build-linux: templ css
 dev: templ
 	go run -ldflags "$(LDFLAGS)" ./cmd/server
 
-# Run all tests
+# Run all tests with coverage
 test:
-	go test -v ./...
+	go test -v -coverprofile=coverage.out ./...
+
+# Generate HTML coverage report
+test-cover: test
+	go tool cover -html=coverage.out -o coverage.html
+	@echo "Coverage report: coverage.html"
 
 # Run E2E tests (requires running server)
 test-e2e:
@@ -52,7 +57,9 @@ clean:
 	rm -rf bin/
 	rm -rf playwright-report/
 	rm -rf test-results/
+	rm -rf coverage-e2e/
 	rm -f web/static/css/output.css
+	rm -f coverage.out coverage-e2e.out coverage-combined.out coverage.html
 	find web/templates -name "*_templ.go" -delete
 
 # Install dependencies

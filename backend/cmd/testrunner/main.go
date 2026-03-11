@@ -14,6 +14,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"syscall"
 	"time"
 
@@ -74,20 +75,30 @@ func run(ctx context.Context) error {
 		return fmt.Errorf("failed to seed test data: %w", err)
 	}
 
-	// Step 4: Find available port and start server
+	// Step 4: Build coverage-instrumented server binary
+	log.Println("Building coverage-instrumented server...")
+	if err := buildCoverServer(ctx); err != nil {
+		return fmt.Errorf("failed to build cover server: %w", err)
+	}
+
+	// Step 5: Find available port and start server
 	port, err := findAvailablePort()
 	if err != nil {
 		return fmt.Errorf("failed to find available port: %w", err)
 	}
 	log.Printf("Starting server on port %d...", port)
 
-	serverCtx, serverCancel := context.WithCancel(ctx)
-	defer serverCancel()
+	// Prepare coverage directory for E2E coverage data
+	coverDir := "coverage-e2e"
+	os.RemoveAll(coverDir)
+	if err := os.MkdirAll(coverDir, 0o755); err != nil {
+		return fmt.Errorf("failed to create coverage dir: %w", err)
+	}
 
-	serverDone := make(chan error, 1)
-	go func() {
-		serverDone <- startServer(serverCtx, pg.host, pg.port, port)
-	}()
+	server, err := startServerProcess(pg.host, pg.port, port, coverDir)
+	if err != nil {
+		return fmt.Errorf("failed to start server: %w", err)
+	}
 
 	// Wait for server to be ready
 	serverURL := fmt.Sprintf("http://localhost:%d", port)
@@ -96,24 +107,28 @@ func run(ctx context.Context) error {
 	}
 	log.Println("Server is ready")
 
-	// Step 5: Run Go unit tests
+	// Step 6: Run Go unit tests
 	log.Println("Running Go unit tests...")
 	if err := runGoTests(ctx); err != nil {
 		return fmt.Errorf("go tests failed: %w", err)
 	}
 
-	// Step 6: Run E2E tests
+	// Step 7: Run E2E tests
 	log.Println("Running E2E tests...")
 	if err := runE2ETests(ctx, serverURL); err != nil {
 		return fmt.Errorf("e2e tests failed: %w", err)
 	}
 
-	// Stop server
-	serverCancel()
-	select {
-	case <-serverDone:
-	case <-time.After(5 * time.Second):
-		log.Println("Warning: server did not stop gracefully")
+	// Stop server gracefully via SIGTERM so it flushes coverage data
+	log.Println("Stopping server...")
+	if err := server.stop(); err != nil {
+		log.Printf("Warning: server stop: %v", err)
+	}
+
+	// Step 8: Generate combined coverage report
+	log.Println("Generating coverage report...")
+	if err := generateCoverageReport(ctx, coverDir); err != nil {
+		log.Printf("Warning: failed to generate coverage report: %v", err)
 	}
 
 	duration := time.Since(startTime)
@@ -214,9 +229,23 @@ func findAvailablePort() (int, error) {
 	return listener.Addr().(*net.TCPAddr).Port, nil
 }
 
-func startServer(ctx context.Context, dbHost string, dbPort string, port int) error {
-	cmd := exec.CommandContext(ctx, "go", "run", "./cmd/server")
+func buildCoverServer(ctx context.Context) error {
+	cmd := exec.CommandContext(ctx, "go", "build", "-cover", "-o", "bin/server-cover", "./cmd/server")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
+}
+
+// serverProcess holds the running server process so we can send SIGTERM for graceful shutdown.
+// exec.CommandContext sends SIGKILL on cancel, which prevents coverage data from being flushed.
+type serverProcess struct {
+	cmd *exec.Cmd
+}
+
+func startServerProcess(dbHost string, dbPort string, port int, coverDir string) (*serverProcess, error) {
+	cmd := exec.Command("./bin/server-cover")
 	cmd.Env = append(os.Environ(),
+		"GOCOVERDIR="+coverDir,
 		"DATABASE_HOST="+dbHost,
 		"DATABASE_PORT="+dbPort,
 		"DATABASE_USER=test",
@@ -231,7 +260,67 @@ func startServer(ctx context.Context, dbHost string, dbPort string, port int) er
 	)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	return cmd.Run()
+	if err := cmd.Start(); err != nil {
+		return nil, err
+	}
+	return &serverProcess{cmd: cmd}, nil
+}
+
+func (s *serverProcess) stop() error {
+	// Send SIGTERM for graceful shutdown so coverage data gets flushed
+	if err := s.cmd.Process.Signal(syscall.SIGTERM); err != nil {
+		return fmt.Errorf("failed to send SIGTERM: %w", err)
+	}
+	return s.cmd.Wait()
+}
+
+func generateCoverageReport(ctx context.Context, coverDir string) error {
+	// Convert E2E coverage data to textfmt
+	e2eCovFile := "coverage-e2e.out"
+	cmd := exec.CommandContext(ctx, "go", "tool", "covdata", "textfmt", "-i="+coverDir, "-o="+e2eCovFile)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to convert E2E coverage: %w", err)
+	}
+
+	// Read unit test and E2E coverage files, merge into combined report
+	unitCov, unitErr := os.ReadFile("coverage.out")
+	e2eCov, e2eErr := os.ReadFile(e2eCovFile)
+
+	combined, err := os.Create("coverage-combined.out")
+	if err != nil {
+		return fmt.Errorf("failed to create combined coverage file: %w", err)
+	}
+	defer combined.Close()
+
+	// Write the mode line once, then all coverage lines from both files
+	combined.WriteString("mode: set\n")
+	if unitErr == nil {
+		writeProfileLines(combined, unitCov)
+	}
+	if e2eErr == nil {
+		writeProfileLines(combined, e2eCov)
+	}
+
+	// Print coverage summary
+	log.Println("Coverage report: coverage-combined.out")
+	summaryCmd := exec.CommandContext(ctx, "go", "tool", "cover", "-func=coverage-combined.out")
+	summaryCmd.Stdout = os.Stdout
+	summaryCmd.Stderr = os.Stderr
+	summaryCmd.Run()
+
+	return nil
+}
+
+// writeProfileLines writes all non-mode lines from a coverage profile to the writer.
+func writeProfileLines(w *os.File, data []byte) {
+	for _, line := range strings.Split(string(data), "\n") {
+		if line == "" || strings.HasPrefix(line, "mode:") {
+			continue
+		}
+		w.WriteString(line + "\n")
+	}
 }
 
 func waitForServer(ctx context.Context, url string, timeout time.Duration) error {
@@ -262,7 +351,7 @@ func waitForServer(ctx context.Context, url string, timeout time.Duration) error
 
 func runGoTests(ctx context.Context) error {
 	// Run unit tests - they use their own testcontainers
-	cmd := exec.CommandContext(ctx, "go", "test", "-v", "-short", "./internal/...")
+	cmd := exec.CommandContext(ctx, "go", "test", "-v", "-short", "-coverprofile=coverage.out", "./internal/...")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
