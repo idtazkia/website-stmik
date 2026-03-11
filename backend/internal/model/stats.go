@@ -214,10 +214,18 @@ func GetOverdueCandidates(ctx context.Context, consultantID string, limit int) (
 			return nil, fmt.Errorf("failed to scan overdue candidate: %w", err)
 		}
 		if name != nil {
-			c.Name = *name
+			if d, err := decryptName(*name); err == nil {
+				c.Name = d
+			} else {
+				c.Name = *name
+			}
 		}
 		if phone != nil {
-			c.Phone = *phone
+			if d, err := decryptNullableD(phone); err == nil && d != nil {
+				c.Phone = *d
+			} else {
+				c.Phone = *phone
+			}
 		}
 		if prodiName != nil {
 			c.ProdiName = *prodiName
@@ -256,10 +264,18 @@ func GetTodayTasks(ctx context.Context, consultantID string, limit int) ([]Today
 			return nil, fmt.Errorf("failed to scan today task: %w", err)
 		}
 		if name != nil {
-			t.Name = *name
+			if d, err := decryptName(*name); err == nil {
+				t.Name = d
+			} else {
+				t.Name = *name
+			}
 		}
 		if phone != nil {
-			t.Phone = *phone
+			if d, err := decryptNullableD(phone); err == nil && d != nil {
+				t.Phone = *d
+			} else {
+				t.Phone = *phone
+			}
 		}
 		if prodiName != nil {
 			t.ProdiName = *prodiName
@@ -301,13 +317,21 @@ func GetUnreadSuggestions(ctx context.Context, consultantID string, limit int) (
 		}
 		s.ID = s.InteractionID // Use interaction ID as the suggestion ID
 		if candidateName != nil {
-			s.CandidateName = *candidateName
+			if d, err := decryptName(*candidateName); err == nil {
+				s.CandidateName = d
+			} else {
+				s.CandidateName = *candidateName
+			}
 		}
 		if supervisorID != nil {
 			s.SupervisorID = *supervisorID
 		}
 		if supervisorName != nil {
-			s.SupervisorName = *supervisorName
+			if d, err := decryptName(*supervisorName); err == nil {
+				s.SupervisorName = d
+			} else {
+				s.SupervisorName = *supervisorName
+			}
 		} else {
 			s.SupervisorName = "Supervisor"
 		}
@@ -492,16 +516,32 @@ func GetConsultantPerformance(ctx context.Context, startDate, endDate *time.Time
 	for rows.Next() {
 		var cp ConsultantPerformanceData
 		var name, email *string
-		err := rows.Scan(&cp.ConsultantID, &name, &email, &cp.SupervisorName,
+		var supervisorNameRaw string
+		err := rows.Scan(&cp.ConsultantID, &name, &email, &supervisorNameRaw,
 			&cp.TotalLeads, &cp.Interactions, &cp.Commits, &cp.Enrollments, &cp.AvgDaysToCommit)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan consultant performance: %w", err)
 		}
 		if name != nil {
-			cp.ConsultantName = *name
+			if d, err := decryptName(*name); err == nil {
+				cp.ConsultantName = d
+			} else {
+				cp.ConsultantName = *name
+			}
 		}
 		if email != nil {
-			cp.ConsultantEmail = *email
+			if d, err := decryptNullableD(email); err == nil && d != nil {
+				cp.ConsultantEmail = *d
+			} else {
+				cp.ConsultantEmail = *email
+			}
+		}
+		if supervisorNameRaw != "" {
+			if d, err := decryptName(supervisorNameRaw); err == nil {
+				cp.SupervisorName = d
+			} else {
+				cp.SupervisorName = supervisorNameRaw
+			}
 		}
 		result = append(result, cp)
 	}
@@ -710,7 +750,12 @@ func GetTeamConsultants(ctx context.Context, supervisorID string) ([]TeamConsult
 			return nil, fmt.Errorf("failed to scan team consultant: %w", err)
 		}
 		if name != nil {
-			tc.ConsultantName = *name
+			decrypted, err := decryptName(*name)
+			if err != nil {
+				tc.ConsultantName = *name // fallback to raw value
+			} else {
+				tc.ConsultantName = decrypted
+			}
 		}
 		result = append(result, tc)
 	}
@@ -758,12 +803,24 @@ func GetStuckCandidatesForTeam(ctx context.Context, supervisorID string, limit i
 	for rows.Next() {
 		var sc StuckCandidate
 		var name *string
-		err := rows.Scan(&sc.CandidateID, &name, &sc.ProdiName, &sc.Status, &sc.ConsultantName, &sc.DaysStuck)
+		var consultantNameRaw string
+		err := rows.Scan(&sc.CandidateID, &name, &sc.ProdiName, &sc.Status, &consultantNameRaw, &sc.DaysStuck)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan stuck candidate: %w", err)
 		}
 		if name != nil {
-			sc.CandidateName = *name
+			if d, err := decryptName(*name); err == nil {
+				sc.CandidateName = d
+			} else {
+				sc.CandidateName = *name
+			}
+		}
+		if consultantNameRaw != "" {
+			if d, err := decryptName(consultantNameRaw); err == nil {
+				sc.ConsultantName = d
+			} else {
+				sc.ConsultantName = consultantNameRaw
+			}
 		}
 		result = append(result, sc)
 	}
