@@ -61,17 +61,11 @@ func CreateUser(ctx context.Context, email, name, googleID, role string) (*User,
 
 // FindUserByEmail finds a user by email
 func FindUserByEmail(ctx context.Context, email string) (*User, error) {
-	// Encrypt email for search (deterministic encryption allows equality match)
-	emailEnc, err := encryptEmail(email)
-	if err != nil {
-		return nil, fmt.Errorf("failed to encrypt email for search: %w", err)
-	}
-
 	var user User
-	err = pool.QueryRow(ctx, `
+	err := pool.QueryRow(ctx, `
 		SELECT id, email, name, google_id, role, id_supervisor, is_active, last_login_at, created_at, updated_at
 		FROM users WHERE email = $1
-	`, emailEnc).Scan(
+	`, email).Scan(
 		&user.ID, &user.Email, &user.Name, &user.GoogleID, &user.Role,
 		&user.IDSupervisor, &user.IsActive, &user.LastLoginAt, &user.CreatedAt, &user.UpdatedAt,
 	)
@@ -190,9 +184,8 @@ func ListUsers(ctx context.Context, role string, activeOnly bool) ([]UserWithSup
 			return nil, fmt.Errorf("failed to scan user: %w", err)
 		}
 
-		// Decrypt fields
+		// Decrypt encrypted fields (only google_id)
 		u.Email, u.Name, u.GoogleID, _ = decryptUserFields(u.Email, u.Name, u.GoogleID)
-		u.SupervisorName, _ = decryptNullableP(u.SupervisorName)
 
 		users = append(users, u)
 	}

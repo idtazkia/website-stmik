@@ -155,21 +155,12 @@ func decryptNullableD(s *string) (*string, error) {
 	return enc.DecryptNullableD(s)
 }
 
-// encryptUserFields encrypts sensitive user fields before storing
-func encryptUserFields(email, name, googleID string) (emailEnc, nameEnc string, googleIDEnc *string, err error) {
+// encryptUserFields encrypts only the google_id field.
+// Email and name are stored as plaintext (needed for identification and display).
+func encryptUserFields(email, name, googleID string) (emailOut, nameOut string, googleIDEnc *string, err error) {
 	enc := crypto.Get()
 	if enc == nil {
 		return "", "", nil, crypto.ErrNotInitialized
-	}
-
-	emailEnc, err = enc.EncryptDeterministic(email)
-	if err != nil {
-		return "", "", nil, err
-	}
-
-	nameEnc, err = enc.EncryptProbabilistic(name)
-	if err != nil {
-		return "", "", nil, err
 	}
 
 	if googleID != "" {
@@ -180,24 +171,15 @@ func encryptUserFields(email, name, googleID string) (emailEnc, nameEnc string, 
 		googleIDEnc = &g
 	}
 
-	return emailEnc, nameEnc, googleIDEnc, nil
+	return email, name, googleIDEnc, nil
 }
 
-// decryptUserFields decrypts sensitive user fields after reading
-func decryptUserFields(email, name string, googleID *string) (emailDec, nameDec string, googleIDDec *string, err error) {
+// decryptUserFields decrypts only the google_id field.
+// Email and name are stored as plaintext.
+func decryptUserFields(email, name string, googleID *string) (emailOut, nameOut string, googleIDDec *string, err error) {
 	enc := crypto.Get()
 	if enc == nil {
 		return "", "", nil, crypto.ErrNotInitialized
-	}
-
-	emailDec, err = enc.DecryptDeterministic(email)
-	if err != nil {
-		return "", "", nil, err
-	}
-
-	nameDec, err = enc.DecryptProbabilistic(name)
-	if err != nil {
-		return "", "", nil, err
 	}
 
 	if googleID != nil && *googleID != "" {
@@ -208,7 +190,7 @@ func decryptUserFields(email, name string, googleID *string) (emailDec, nameDec 
 		googleIDDec = &g
 	}
 
-	return emailDec, nameDec, googleIDDec, nil
+	return email, name, googleIDDec, nil
 }
 
 // encryptReferrerFields encrypts sensitive referrer fields
