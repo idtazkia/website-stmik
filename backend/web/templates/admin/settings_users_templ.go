@@ -110,7 +110,7 @@ func SettingsUsers(data layouts.PageData, users []UserItem, stats UserStats, sup
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</p></div><div class=\"bg-white rounded-lg border p-4\" data-testid=\"stat-consultant\"><p class=\"text-sm text-gray-500\">Konsultan</p><p class=\"text-2xl font-bold text-green-600\" data-testid=\"stat-consultant-value\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</p></div><div class=\"bg-white rounded-lg border p-4\" data-testid=\"stat-consultant\"><p class=\"text-sm text-gray-500\">Education Consultant</p><p class=\"text-2xl font-bold text-green-600\" data-testid=\"stat-consultant-value\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -354,7 +354,7 @@ func UserRow(user UserItem, supervisors []SupervisorOption) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, ">Konsultan</option> <option value=\"finance\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, ">Education Consultant</option> <option value=\"finance\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -660,7 +660,7 @@ test.describe('User Manual Screenshots - Candidate Management', () => {
   });
 });
 
-test.describe('User Manual Screenshots - AC (Academic Consultant) Features', () => {
+test.describe('User Manual Screenshots - Education Consultant Features', () => {
   test.beforeEach(async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto('/test/login/consultant');

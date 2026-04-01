@@ -36,7 +36,7 @@ func roleLabel(role string) string {
 	case "supervisor":
 		return "Supervisor"
 	case "consultant":
-		return "Konsultan"
+		return "Education Consultant"
 	case "finance":
 		return "Keuangan"
 	case "academic":
@@ -306,7 +306,7 @@ func Admin(data PageData) templ.Component {
 				}
 			}
 			if canAccessReports(data.UserRole) {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<div class=\"px-4 py-2 text-primary-400 text-xs uppercase tracking-wider mt-4\">Reports</div><a href=\"/admin/reports/funnel\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-funnel\"><span class=\"mr-2\">📈</span> Funnel</a> <a href=\"/admin/reports/consultants\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-consultants\"><span class=\"mr-2\">👤</span> Performa Konsultan</a> <a href=\"/admin/reports/campaigns\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-campaign-roi\"><span class=\"mr-2\">📊</span> ROI Kampanye</a> <a href=\"/admin/reports/referrers\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-referrer-leaderboard\"><span class=\"mr-2\">🏆</span> Leaderboard Referrer</a> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<div class=\"px-4 py-2 text-primary-400 text-xs uppercase tracking-wider mt-4\">Reports</div><a href=\"/admin/reports/funnel\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-funnel\"><span class=\"mr-2\">📈</span> Funnel</a> <a href=\"/admin/reports/consultants\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-consultants\"><span class=\"mr-2\">👤</span> Performa EC</a> <a href=\"/admin/reports/campaigns\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-campaign-roi\"><span class=\"mr-2\">📊</span> ROI Kampanye</a> <a href=\"/admin/reports/referrers\" class=\"block px-4 py-2 hover:bg-primary-800\" data-testid=\"nav-referrer-leaderboard\"><span class=\"mr-2\">🏆</span> Leaderboard Referrer</a> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

@@ -160,12 +160,12 @@ func SupervisorDashboard(data layouts.PageData, stats SupervisorDashboardStats, 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, " konsultan</span></div><div class=\"overflow-x-auto\"><table class=\"min-w-full divide-y divide-gray-200\"><thead class=\"bg-gray-50\"><tr><th class=\"px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase\">Konsultan</th><th class=\"px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase\">Aktif</th><th class=\"px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase\">Hari Ini</th><th class=\"px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase\">Overdue</th><th class=\"px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase\">Commit/Bln</th></tr></thead> <tbody class=\"bg-white divide-y divide-gray-200\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, " konsultan</span></div><div class=\"overflow-x-auto\"><table class=\"min-w-full divide-y divide-gray-200\"><thead class=\"bg-gray-50\"><tr><th class=\"px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase\">EC</th><th class=\"px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase\">Aktif</th><th class=\"px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase\">Hari Ini</th><th class=\"px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase\">Overdue</th><th class=\"px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase\">Commit/Bln</th></tr></thead> <tbody class=\"bg-white divide-y divide-gray-200\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(teamConsultants) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<tr><td colspan=\"5\" class=\"px-4 py-4 text-center text-gray-500\">Tidak ada konsultan dalam tim</td></tr>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<tr><td colspan=\"5\" class=\"px-4 py-4 text-center text-gray-500\">Tidak ada Education Consultant dalam tim</td></tr>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -353,14 +353,14 @@ func SupervisorDashboard(data layouts.PageData, stats SupervisorDashboardStats, 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</p><p class=\"text-xs text-gray-400\">Konsultan: ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</p><p class=\"text-xs text-gray-400\">EC: ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var25 string
 					templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(c.ConsultantName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/admin/supervisor_dashboard.templ`, Line: 115, Col: 73}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/templates/admin/supervisor_dashboard.templ`, Line: 115, Col: 66}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 					if templ_7745c5c3_Err != nil {
@@ -454,7 +454,7 @@ func SupervisorDashboard(data layouts.PageData, stats SupervisorDashboardStats, 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</div><div class=\"text-sm text-gray-500\">Perlu Perhatian</div></div></div></div></div><!-- Quick Actions --><div class=\"bg-white rounded-lg shadow p-6\" data-testid=\"quick-actions-section\"><h3 class=\"font-semibold text-gray-900 mb-4\">Aksi Cepat</h3><div class=\"flex flex-wrap gap-4\"><a href=\"/admin/candidates?filter=stuck\" class=\"inline-flex items-center px-4 py-2 border border-red-300 rounded-md text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100\"><span class=\"mr-2\">⚠️</span> Lihat Kandidat Stuck</a> <a href=\"/admin/reports/consultants\" class=\"inline-flex items-center px-4 py-2 border border-blue-300 rounded-md text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100\"><span class=\"mr-2\">📊</span> Lihat Report Konsultan</a> <a href=\"/admin/reports/funnel\" class=\"inline-flex items-center px-4 py-2 border border-green-300 rounded-md text-sm font-medium text-green-700 bg-green-50 hover:bg-green-100\"><span class=\"mr-2\">📈</span> Lihat Funnel Report</a></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</div><div class=\"text-sm text-gray-500\">Perlu Perhatian</div></div></div></div></div><!-- Quick Actions --><div class=\"bg-white rounded-lg shadow p-6\" data-testid=\"quick-actions-section\"><h3 class=\"font-semibold text-gray-900 mb-4\">Aksi Cepat</h3><div class=\"flex flex-wrap gap-4\"><a href=\"/admin/candidates?filter=stuck\" class=\"inline-flex items-center px-4 py-2 border border-red-300 rounded-md text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100\"><span class=\"mr-2\">⚠️</span> Lihat Kandidat Stuck</a> <a href=\"/admin/reports/consultants\" class=\"inline-flex items-center px-4 py-2 border border-blue-300 rounded-md text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100\"><span class=\"mr-2\">📊</span> Lihat Report EC</a> <a href=\"/admin/reports/funnel\" class=\"inline-flex items-center px-4 py-2 border border-green-300 rounded-md text-sm font-medium text-green-700 bg-green-50 hover:bg-green-100\"><span class=\"mr-2\">📈</span> Lihat Funnel Report</a></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

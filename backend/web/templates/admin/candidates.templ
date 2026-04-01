@@ -136,9 +136,9 @@ templ Candidates(data layouts.PageData, listData CandidateListData) {
 						</select>
 					</div>
 					<div>
-						<label class="block text-xs font-medium text-gray-500 mb-1">Konsultan</label>
+						<label class="block text-xs font-medium text-gray-500 mb-1">EC</label>
 						<select name="consultant_id" data-testid="filter-consultant" class="w-full px-3 py-2 border rounded-lg text-sm">
-							<option value="">Semua Konsultan</option>
+							<option value="">Semua EC</option>
 							for _, opt := range listData.Consultants {
 								<option value={ opt.Value } selected?={ opt.Value == listData.Filters.ConsultantID }>{ opt.Label }</option>
 							}
@@ -193,7 +193,7 @@ templ Candidates(data layouts.PageData, listData CandidateListData) {
 							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kandidat</th>
 							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Prodi</th>
 							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Konsultan</th>
+							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">EC</th>
 							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sumber</th>
 							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Terdaftar</th>
 							<th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Aksi</th>

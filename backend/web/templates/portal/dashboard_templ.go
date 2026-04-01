@@ -335,7 +335,7 @@ func Dashboard(data layouts.PageData, candidate DashboardCandidate, checklist []
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</div></div></div><!-- Sidebar --><div class=\"space-y-6\"><!-- Consultant Info --><div class=\"bg-white rounded-lg border\"><div class=\"p-4 border-b\"><h3 class=\"font-semibold text-gray-900\">Konsultan Anda</h3></div><div class=\"p-4\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</div></div></div><!-- Sidebar --><div class=\"space-y-6\"><!-- Consultant Info --><div class=\"bg-white rounded-lg border\"><div class=\"p-4 border-b\"><h3 class=\"font-semibold text-gray-900\">Education Consultant Anda</h3></div><div class=\"p-4\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -366,7 +366,7 @@ func Dashboard(data layouts.PageData, candidate DashboardCandidate, checklist []
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</p><p class=\"text-sm text-gray-500\">Academic Consultant</p></div></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</p><p class=\"text-sm text-gray-500\">Education Consultant</p></div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -390,7 +390,7 @@ func Dashboard(data layouts.PageData, candidate DashboardCandidate, checklist []
 					}
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<p class=\"text-sm text-gray-500\">Konsultan akan segera ditugaskan untuk membantu proses pendaftaran Anda.</p>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<p class=\"text-sm text-gray-500\">Education Consultant akan segera ditugaskan untuk membantu proses pendaftaran Anda.</p>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

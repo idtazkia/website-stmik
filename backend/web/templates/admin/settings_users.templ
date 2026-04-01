@@ -56,7 +56,7 @@ templ SettingsUsers(data layouts.PageData, users []UserItem, stats UserStats, su
 					<p class="text-2xl font-bold text-secondary-600" data-testid="stat-supervisor-value">{ fmt.Sprintf("%d", stats.Supervisor) }</p>
 				</div>
 				<div class="bg-white rounded-lg border p-4" data-testid="stat-consultant">
-					<p class="text-sm text-gray-500">Konsultan</p>
+					<p class="text-sm text-gray-500">Education Consultant</p>
 					<p class="text-2xl font-bold text-green-600" data-testid="stat-consultant-value">{ fmt.Sprintf("%d", stats.Consultant) }</p>
 				</div>
 				<div class="bg-white rounded-lg border p-4" data-testid="stat-finance">
@@ -119,7 +119,7 @@ templ UserRow(user UserItem, supervisors []SupervisorOption) {
 				>
 					<option value="admin" selected?={ user.Role == "admin" }>Admin</option>
 					<option value="supervisor" selected?={ user.Role == "supervisor" }>Supervisor</option>
-					<option value="consultant" selected?={ user.Role == "consultant" }>Konsultan</option>
+					<option value="consultant" selected?={ user.Role == "consultant" }>Education Consultant</option>
 					<option value="finance" selected?={ user.Role == "finance" }>Keuangan</option>
 					<option value="academic" selected?={ user.Role == "academic" }>Akademik</option>
 				</select>

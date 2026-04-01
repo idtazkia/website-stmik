@@ -56,7 +56,7 @@ func ConsultantDashboard(data layouts.PageData, stats ConsultantDashboardStats, 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</h2><p class=\"text-gray-500\">Dashboard Konsultan</p></div><div class=\"text-right\"><p class=\"text-sm text-gray-500\">Hari ini</p><p class=\"text-lg font-semibold text-gray-900\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</h2><p class=\"text-gray-500\">Dashboard Education Consultant</p></div><div class=\"text-right\"><p class=\"text-sm text-gray-500\">Hari ini</p><p class=\"text-lg font-semibold text-gray-900\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

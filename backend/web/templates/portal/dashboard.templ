@@ -135,7 +135,7 @@ templ Dashboard(data layouts.PageData, candidate DashboardCandidate, checklist [
 					<!-- Consultant Info -->
 					<div class="bg-white rounded-lg border">
 						<div class="p-4 border-b">
-							<h3 class="font-semibold text-gray-900">Konsultan Anda</h3>
+							<h3 class="font-semibold text-gray-900">Education Consultant Anda</h3>
 						</div>
 						<div class="p-4">
 							if candidate.ConsultantName != "" {
@@ -145,7 +145,7 @@ templ Dashboard(data layouts.PageData, candidate DashboardCandidate, checklist [
 									</div>
 									<div>
 										<p class="font-medium text-gray-900">{ candidate.ConsultantName }</p>
-										<p class="text-sm text-gray-500">Academic Consultant</p>
+										<p class="text-sm text-gray-500">Education Consultant</p>
 									</div>
 								</div>
 								if candidate.ConsultantPhone != "" {
@@ -157,7 +157,7 @@ templ Dashboard(data layouts.PageData, candidate DashboardCandidate, checklist [
 									</a>
 								}
 							} else {
-								<p class="text-sm text-gray-500">Konsultan akan segera ditugaskan untuk membantu proses pendaftaran Anda.</p>
+								<p class="text-sm text-gray-500">Education Consultant akan segera ditugaskan untuk membantu proses pendaftaran Anda.</p>
 							}
 						</div>
 					</div>

@@ -243,7 +243,7 @@ func Candidates(data layouts.PageData, listData CandidateListData) templ.Compone
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</select></div><div><label class=\"block text-xs font-medium text-gray-500 mb-1\">Konsultan</label> <select name=\"consultant_id\" data-testid=\"filter-consultant\" class=\"w-full px-3 py-2 border rounded-lg text-sm\"><option value=\"\">Semua Konsultan</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</select></div><div><label class=\"block text-xs font-medium text-gray-500 mb-1\">EC</label> <select name=\"consultant_id\" data-testid=\"filter-consultant\" class=\"w-full px-3 py-2 border rounded-lg text-sm\"><option value=\"\">Semua EC</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -440,7 +440,7 @@ func Candidates(data layouts.PageData, listData CandidateListData) templ.Compone
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "\" placeholder=\"Nama, email, telepon...\" data-testid=\"filter-search\" class=\"w-full px-3 py-2 border rounded-lg text-sm\"></div></form></div><!-- Table --><div class=\"bg-white rounded-lg border overflow-hidden\" data-testid=\"candidates-table\"><table class=\"w-full\"><thead class=\"bg-gray-50 border-b\"><tr><th class=\"px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase\">Kandidat</th><th class=\"px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase\">Prodi</th><th class=\"px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase\">Status</th><th class=\"px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase\">Konsultan</th><th class=\"px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase\">Sumber</th><th class=\"px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase\">Terdaftar</th><th class=\"px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase\">Aksi</th></tr></thead> <tbody id=\"candidates-table-body\" class=\"divide-y\" data-testid=\"candidates-list\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "\" placeholder=\"Nama, email, telepon...\" data-testid=\"filter-search\" class=\"w-full px-3 py-2 border rounded-lg text-sm\"></div></form></div><!-- Table --><div class=\"bg-white rounded-lg border overflow-hidden\" data-testid=\"candidates-table\"><table class=\"w-full\"><thead class=\"bg-gray-50 border-b\"><tr><th class=\"px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase\">Kandidat</th><th class=\"px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase\">Prodi</th><th class=\"px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase\">Status</th><th class=\"px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase\">EC</th><th class=\"px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase\">Sumber</th><th class=\"px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase\">Terdaftar</th><th class=\"px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase\">Aksi</th></tr></thead> <tbody id=\"candidates-table-body\" class=\"divide-y\" data-testid=\"candidates-list\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
