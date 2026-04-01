@@ -63,6 +63,20 @@ func (c *ResendClient) SendOTP(to, otp string) error {
 	return c.sendEmail(to, "Kode Verifikasi Pendaftaran STMIK Tazkia", html)
 }
 
+// SendPasswordReset sends a password reset OTP email
+func (c *ResendClient) SendPasswordReset(to, otp string) error {
+	if c == nil {
+		return fmt.Errorf("resend client not configured")
+	}
+
+	html, err := email.RenderPasswordReset(email.PasswordResetData{OTP: otp})
+	if err != nil {
+		return fmt.Errorf("failed to render password reset email: %w", err)
+	}
+
+	return c.sendEmail(to, "Reset Password - STMIK Tazkia", html)
+}
+
 // PaymentConfirmationData holds data for payment confirmation email
 type PaymentConfirmationData struct {
 	CandidateName string

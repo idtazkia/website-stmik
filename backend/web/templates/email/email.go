@@ -81,6 +81,16 @@ func RenderDocumentRejected(data DocumentRejectedData) (string, error) {
 	return render("document_rejected.html", data)
 }
 
+// PasswordResetData holds data for password reset email
+type PasswordResetData struct {
+	OTP string
+}
+
+// RenderPasswordReset renders the password reset email template
+func RenderPasswordReset(data PasswordResetData) (string, error) {
+	return render("password_reset.html", data)
+}
+
 func render(templateName string, data interface{}) (string, error) {
 	var buf bytes.Buffer
 	if err := templates.ExecuteTemplate(&buf, templateName, data); err != nil {

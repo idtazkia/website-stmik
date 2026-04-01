@@ -22,10 +22,12 @@ type VerificationToken struct {
 }
 
 const (
-	TokenTypeEmail = "email"
-	TokenTypePhone = "phone"
-	TokenLength    = 6
-	TokenExpiry    = 15 * time.Minute
+	TokenTypeEmail         = "email"
+	TokenTypePhone         = "phone"
+	TokenTypePasswordReset = "password_reset"
+	TokenLength            = 6
+	TokenExpiry            = 15 * time.Minute
+	PasswordResetExpiry    = 1 * time.Hour
 )
 
 // generateOTP generates a cryptographically secure 6-digit OTP
@@ -45,7 +47,7 @@ func generateOTP() (string, error) {
 // CreateVerificationToken creates a new OTP token for a candidate
 func CreateVerificationToken(ctx context.Context, candidateID, tokenType string) (string, error) {
 	// Validate token type
-	if tokenType != TokenTypeEmail && tokenType != TokenTypePhone {
+	if tokenType != TokenTypeEmail && tokenType != TokenTypePhone && tokenType != TokenTypePasswordReset {
 		return "", fmt.Errorf("invalid token type: %s", tokenType)
 	}
 
@@ -61,7 +63,11 @@ func CreateVerificationToken(ctx context.Context, candidateID, tokenType string)
 		return "", fmt.Errorf("failed to encrypt token: %w", err)
 	}
 
-	expiresAt := time.Now().Add(TokenExpiry)
+	expiry := TokenExpiry
+	if tokenType == TokenTypePasswordReset {
+		expiry = PasswordResetExpiry
+	}
+	expiresAt := time.Now().Add(expiry)
 
 	_, err = pool.Exec(ctx, `
 		INSERT INTO verification_tokens (id_candidate, token_type, token, expires_at)

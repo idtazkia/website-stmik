@@ -45,6 +45,12 @@ func (h *PublicHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /login", h.handleLoginSubmit)
 	mux.HandleFunc("POST /logout", h.handleLogout)
 
+	// Password reset routes
+	mux.HandleFunc("GET /forgot-password", h.handleForgotPassword)
+	mux.HandleFunc("POST /forgot-password", h.handleForgotPasswordSubmit)
+	mux.HandleFunc("GET /reset-password", h.handleResetPassword)
+	mux.HandleFunc("POST /reset-password", h.handleResetPasswordSubmit)
+
 	// Optional verification routes (can be used from portal later)
 	mux.HandleFunc("POST /portal/verify-email", h.handleRequestEmailOTP)
 	mux.HandleFunc("POST /portal/confirm-email", h.handleConfirmEmailOTP)
@@ -786,4 +792,131 @@ func (h *PublicHandler) renderRegistration(w http.ResponseWriter, r *http.Reques
 	}
 
 	portal.Registration(data, steps, currentStep, regData, programs, sourceTypes, errorMsg).Render(r.Context(), w)
+}
+
+// handleForgotPassword shows the forgot password form
+func (h *PublicHandler) handleForgotPassword(w http.ResponseWriter, r *http.Request) {
+	data := NewPageData("Lupa Password")
+	portal.ForgotPassword(data, "", "").Render(r.Context(), w)
+}
+
+// handleForgotPasswordSubmit processes the forgot password request
+func (h *PublicHandler) handleForgotPasswordSubmit(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		data := NewPageData("Lupa Password")
+		portal.ForgotPassword(data, "Data tidak valid.", "").Render(r.Context(), w)
+		return
+	}
+
+	emailAddr := strings.TrimSpace(r.FormValue("email"))
+	if emailAddr == "" {
+		data := NewPageData("Lupa Password")
+		portal.ForgotPassword(data, "Email wajib diisi.", "").Render(r.Context(), w)
+		return
+	}
+
+	// Find candidate by email — always redirect to reset page regardless of result
+	// to prevent email enumeration
+	candidate, err := model.FindCandidateByEmail(r.Context(), emailAddr)
+	if err != nil {
+		slog.Error("failed to find candidate by email for password reset", "error", err)
+	}
+
+	if candidate != nil {
+		// Invalidate existing password reset tokens
+		_ = model.InvalidatePendingTokens(r.Context(), candidate.ID, model.TokenTypePasswordReset)
+
+		// Create new password reset token
+		otp, err := model.CreateVerificationToken(r.Context(), candidate.ID, model.TokenTypePasswordReset)
+		if err != nil {
+			slog.Error("failed to create password reset token", "error", err)
+		} else {
+			// Send password reset email
+			if h.resend != nil {
+				if err := h.resend.SendPasswordReset(emailAddr, otp); err != nil {
+					slog.Error("failed to send password reset email", "error", err)
+				}
+			}
+		}
+	}
+
+	// Redirect to reset password page with email pre-filled
+	http.Redirect(w, r, "/reset-password?email="+emailAddr, http.StatusSeeOther)
+}
+
+// handleResetPassword shows the reset password form
+func (h *PublicHandler) handleResetPassword(w http.ResponseWriter, r *http.Request) {
+	emailAddr := r.URL.Query().Get("email")
+	data := NewPageData("Reset Password")
+	portal.ResetPassword(data, emailAddr, "").Render(r.Context(), w)
+}
+
+// handleResetPasswordSubmit processes the password reset
+func (h *PublicHandler) handleResetPasswordSubmit(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		data := NewPageData("Reset Password")
+		portal.ResetPassword(data, "", "Data tidak valid.").Render(r.Context(), w)
+		return
+	}
+
+	emailAddr := strings.TrimSpace(r.FormValue("email"))
+	otp := strings.TrimSpace(r.FormValue("otp"))
+	password := r.FormValue("password")
+	passwordConfirm := r.FormValue("password_confirm")
+
+	if emailAddr == "" || otp == "" || password == "" {
+		data := NewPageData("Reset Password")
+		portal.ResetPassword(data, emailAddr, "Semua field wajib diisi.").Render(r.Context(), w)
+		return
+	}
+
+	if password != passwordConfirm {
+		data := NewPageData("Reset Password")
+		portal.ResetPassword(data, emailAddr, "Password dan konfirmasi tidak cocok.").Render(r.Context(), w)
+		return
+	}
+
+	if len(password) < 8 {
+		data := NewPageData("Reset Password")
+		portal.ResetPassword(data, emailAddr, "Password minimal 8 karakter.").Render(r.Context(), w)
+		return
+	}
+
+	// Find candidate by email
+	candidate, err := model.FindCandidateByEmail(r.Context(), emailAddr)
+	if err != nil || candidate == nil {
+		data := NewPageData("Reset Password")
+		portal.ResetPassword(data, emailAddr, "Kode OTP tidak valid atau sudah kedaluwarsa.").Render(r.Context(), w)
+		return
+	}
+
+	// Verify OTP token
+	if err := model.VerifyToken(r.Context(), candidate.ID, model.TokenTypePasswordReset, otp); err != nil {
+		slog.Warn("password reset OTP verification failed", "email", emailAddr, "error", err)
+		data := NewPageData("Reset Password")
+		portal.ResetPassword(data, emailAddr, "Kode OTP tidak valid atau sudah kedaluwarsa.").Render(r.Context(), w)
+		return
+	}
+
+	// Hash new password
+	passwordHash, err := model.HashPassword(password)
+	if err != nil {
+		slog.Error("failed to hash new password", "error", err)
+		data := NewPageData("Reset Password")
+		portal.ResetPassword(data, emailAddr, "Gagal mereset password. Silakan coba lagi.").Render(r.Context(), w)
+		return
+	}
+
+	// Update password
+	if err := model.UpdateCandidatePassword(r.Context(), candidate.ID, passwordHash); err != nil {
+		slog.Error("failed to update candidate password", "error", err)
+		data := NewPageData("Reset Password")
+		portal.ResetPassword(data, emailAddr, "Gagal mereset password. Silakan coba lagi.").Render(r.Context(), w)
+		return
+	}
+
+	slog.Info("password reset successful", "candidate_id", candidate.ID)
+
+	// Redirect to login with success indication
+	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }

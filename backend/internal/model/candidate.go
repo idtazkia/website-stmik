@@ -64,6 +64,17 @@ func CheckPassword(password, hash string) bool {
 	return err == nil
 }
 
+// UpdateCandidatePassword updates a candidate's password hash
+func UpdateCandidatePassword(ctx context.Context, candidateID, newPasswordHash string) error {
+	_, err := pool.Exec(ctx, `
+		UPDATE candidates SET password_hash = $2, updated_at = NOW() WHERE id = $1
+	`, candidateID, newPasswordHash)
+	if err != nil {
+		return fmt.Errorf("failed to update password: %w", err)
+	}
+	return nil
+}
+
 // CreateCandidate creates a new candidate with email/phone and hashed password
 func CreateCandidate(ctx context.Context, email, phone, passwordHash string) (*Candidate, error) {
 	var candidate Candidate
