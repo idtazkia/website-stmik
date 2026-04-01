@@ -189,29 +189,8 @@ export class CandidateDetailPage extends BasePage {
     return this.page.getByTestId(`interaction-${id}`);
   }
 
-  // Interaction Modal
-  get modalInteraction(): Locator {
-    return this.page.getByTestId('modal-interaction');
-  }
-
-  get modalTitle(): Locator {
-    return this.page.getByTestId('modal-title');
-  }
-
-  get modalClose(): Locator {
-    return this.page.getByTestId('modal-close');
-  }
-
-  get formInteraction(): Locator {
-    return this.page.getByTestId('form-interaction');
-  }
-
-  get selectChannel(): Locator {
-    // This is for the modal on candidate detail page (uses select dropdown)
-    return this.page.getByTestId('select-channel');
-  }
-
-  // Method to select a channel by clicking the radio button (for interaction form page)
+  // Interaction Form (dedicated page at /admin/candidates/{id}/interaction)
+  // Method to select a channel by clicking the radio button
   selectChannelOption(value: string): Locator {
     return this.page.locator(`input[name="channel"][value="${value}"]`);
   }

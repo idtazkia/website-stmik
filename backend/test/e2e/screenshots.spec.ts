@@ -644,16 +644,16 @@ test.describe('User Manual Screenshots - Candidate Management', () => {
     }
   });
 
-  // Candidate Detail - Interaction Modal
-  test('32f - Candidate Interaction Modal', async ({ page }) => {
+  // Candidate Detail - Interaction Form Page
+  test('32f - Candidate Interaction Form', async ({ page }) => {
     await page.goto('/admin/candidates');
     const candidateLink = page.locator('[data-testid="candidate-name"]').first();
     if (await candidateLink.count() > 0) {
       await candidateLink.click();
       await expect(page.getByTestId('btn-log-interaction')).toBeVisible();
       await page.getByTestId('btn-log-interaction').click();
-      await expect(page.getByTestId('modal-interaction')).toBeVisible();
-      await page.screenshot({ path: `${SCREENSHOT_DIR}/32f-candidate-interaction-modal.png`, fullPage: true });
+      await expect(page.getByTestId('interaction-form')).toBeVisible();
+      await page.screenshot({ path: `${SCREENSHOT_DIR}/32f-candidate-interaction-form.png`, fullPage: true });
     } else {
       test.skip();
     }
