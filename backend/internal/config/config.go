@@ -8,15 +8,20 @@ import (
 )
 
 type Config struct {
-	Server     ServerConfig
-	Database   DatabaseConfig
-	JWT        JWTConfig
-	Google     GoogleConfig
-	WhatsApp   WhatsAppConfig
-	Resend     ResendConfig
-	Kafka      KafkaConfig
-	Upload     UploadConfig
-	Encryption EncryptionConfig
+	Server       ServerConfig
+	Database     DatabaseConfig
+	JWT          JWTConfig
+	Google       GoogleConfig
+	WhatsApp     WhatsAppConfig
+	Resend       ResendConfig
+	Kafka        KafkaConfig
+	Upload       UploadConfig
+	Encryption   EncryptionConfig
+	Assignment   AssignmentConfig
+}
+
+type AssignmentConfig struct {
+	DefaultAssigneeEmail string // Email of user to assign new candidates to (e.g., humas@stmik.tazkia.ac.id)
 }
 
 type EncryptionConfig struct {
@@ -137,6 +142,9 @@ func Load() (*Config, error) {
 		},
 		Encryption: EncryptionConfig{
 			Key: getEnvRequired("ENCRYPTION_KEY"),
+		},
+		Assignment: AssignmentConfig{
+			DefaultAssigneeEmail: getEnv("DEFAULT_ASSIGNEE_EMAIL", ""),
 		},
 	}, nil
 }

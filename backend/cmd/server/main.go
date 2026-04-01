@@ -115,7 +115,7 @@ func main() {
 	portalHandler.RegisterRoutes(mux)
 
 	// Public routes (registration and login)
-	publicHandler := handler.NewPublicHandler(sessionMgr, resendClient, whatsappClient)
+	publicHandler := handler.NewPublicHandler(sessionMgr, resendClient, whatsappClient, cfg.Assignment.DefaultAssigneeEmail)
 	publicHandler.RegisterRoutes(mux)
 
 	// Test routes for Playwright (only in development)

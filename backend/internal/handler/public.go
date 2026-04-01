@@ -15,17 +15,19 @@ import (
 
 // PublicHandler handles public routes for candidate registration and login
 type PublicHandler struct {
-	sessionMgr *auth.SessionManager
-	resend     *integration.ResendClient
-	whatsapp   *integration.WhatsAppClient
+	sessionMgr           *auth.SessionManager
+	resend               *integration.ResendClient
+	whatsapp             *integration.WhatsAppClient
+	defaultAssigneeEmail string
 }
 
 // NewPublicHandler creates a new public handler
-func NewPublicHandler(sessionMgr *auth.SessionManager, resend *integration.ResendClient, whatsapp *integration.WhatsAppClient) *PublicHandler {
+func NewPublicHandler(sessionMgr *auth.SessionManager, resend *integration.ResendClient, whatsapp *integration.WhatsAppClient, defaultAssigneeEmail string) *PublicHandler {
 	return &PublicHandler{
-		sessionMgr: sessionMgr,
-		resend:     resend,
-		whatsapp:   whatsapp,
+		sessionMgr:           sessionMgr,
+		resend:               resend,
+		whatsapp:             whatsapp,
+		defaultAssigneeEmail: defaultAssigneeEmail,
 	}
 }
 
@@ -349,16 +351,29 @@ func (h *PublicHandler) handleRegisterStep4(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	// Auto-assign consultant
-	consultantID, err := model.GetNextConsultantForAssignment(r.Context())
-	if err != nil {
-		slog.Warn("failed to get next consultant", "error", err)
-		// Non-fatal, continue without assignment
-	} else if consultantID != nil {
-		if err := model.AssignCandidateConsultant(r.Context(), claims.CandidateID, *consultantID); err != nil {
+	// Auto-assign to default assignee (e.g., Humas) if configured, otherwise use algorithm
+	var assigneeID *string
+	if h.defaultAssigneeEmail != "" {
+		defaultUser, findErr := model.FindUserByEmail(r.Context(), h.defaultAssigneeEmail)
+		if findErr != nil {
+			slog.Warn("failed to find default assignee", "email", h.defaultAssigneeEmail, "error", findErr)
+		} else if defaultUser != nil {
+			assigneeID = &defaultUser.ID
+		} else {
+			slog.Warn("default assignee not found", "email", h.defaultAssigneeEmail)
+		}
+	}
+	if assigneeID == nil {
+		assigneeID, err = model.GetNextConsultantForAssignment(r.Context())
+		if err != nil {
+			slog.Warn("failed to get next consultant", "error", err)
+		}
+	}
+	if assigneeID != nil {
+		if err := model.AssignCandidateConsultant(r.Context(), claims.CandidateID, *assigneeID); err != nil {
 			slog.Warn("failed to assign consultant", "error", err)
 		} else {
-			slog.Info("consultant assigned", "candidate_id", claims.CandidateID, "consultant_id", *consultantID)
+			slog.Info("consultant assigned", "candidate_id", claims.CandidateID, "consultant_id", *assigneeID)
 		}
 	}
 
