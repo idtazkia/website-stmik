@@ -179,7 +179,7 @@ test.describe('Admin Candidate Detail', () => {
       }
     });
 
-    test('should open interaction modal when clicking log interaction', async ({ page }) => {
+    test('should navigate to interaction form when clicking log interaction', async ({ page }) => {
       await page.goto('/admin/candidates');
       await candidatesPage.expectPageLoaded();
 
@@ -189,17 +189,14 @@ test.describe('Admin Candidate Detail', () => {
         await detailLink.click();
         await page.waitForURL(/\/admin\/candidates\/[a-f0-9-]+/);
 
-        // Open interaction modal
-        await detailPage.openInteractionModal();
+        // Click log interaction link (navigates to dedicated form page)
+        const logBtn = page.getByTestId('btn-log-interaction');
+        await expect(logBtn).toBeVisible();
+        await logBtn.click();
 
-        // Check modal is visible with form elements
-        await expect(detailPage.modalTitle).toBeVisible();
-        await expect(detailPage.selectChannel).toBeVisible();
-        await expect(detailPage.selectCategory).toBeVisible();
-        await expect(detailPage.inputRemarks).toBeVisible();
-
-        // Close modal
-        await detailPage.closeInteractionModal();
+        // Should navigate to interaction form page
+        await page.waitForURL(/\/admin\/candidates\/[a-f0-9-]+\/interaction/);
+        await expect(page.getByTestId('interaction-form')).toBeVisible();
       }
     });
 

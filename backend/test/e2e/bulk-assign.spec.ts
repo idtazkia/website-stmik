@@ -81,6 +81,17 @@ test.describe('Bulk EC Assignment', () => {
   });
 
   test('should display EC options in bulk assign dropdown', async ({ page }) => {
+    const checkboxes = page.locator('.candidate-checkbox');
+    const count = await checkboxes.count();
+    if (count === 0) {
+      test.skip();
+      return;
+    }
+
+    // Select a candidate to reveal the bulk action bar
+    await checkboxes.first().check();
+    await expect(page.locator('#bulk-action-bar')).toBeVisible();
+
     const select = page.locator('#bulk-consultant-select');
     await expect(select).toBeVisible();
     // Should have at least the placeholder option

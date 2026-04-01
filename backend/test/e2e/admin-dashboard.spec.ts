@@ -164,7 +164,7 @@ test.describe('Admin Dashboard', () => {
     await expect(recentSection.getByRole('columnheader', { name: /nama/i })).toBeVisible();
     await expect(recentSection.getByRole('columnheader', { name: /prodi/i })).toBeVisible();
     await expect(recentSection.getByRole('columnheader', { name: /status/i })).toBeVisible();
-    await expect(recentSection.getByRole('columnheader', { name: /konsultan/i })).toBeVisible();
+    await expect(recentSection.getByRole('columnheader', { name: /ec/i })).toBeVisible();
     await expect(recentSection.getByRole('columnheader', { name: /tanggal/i })).toBeVisible();
 
     // If there are candidate rows, verify each has a link to detail page

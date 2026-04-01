@@ -76,25 +76,17 @@ export class SettingsFeesPage extends BasePage {
     return this.page.getByTestId(`fee-edit-${feeId}`);
   }
 
-  // Edit Fee Modal elements by ID
-  getEditFeeModal(feeId: string): Locator {
-    return this.page.getByTestId(`edit-fee-modal-${feeId}`);
+  // Shared Edit Fee Modal elements
+  get editFeeModal(): Locator {
+    return this.page.locator('#edit-fee-modal');
   }
 
-  getEditFeeType(feeId: string): Locator {
-    return this.page.getByTestId(`edit-fee-type-${feeId}`);
+  get editFeeAmount(): Locator {
+    return this.page.locator('#edit-fee-amount');
   }
 
-  getEditFeeProdi(feeId: string): Locator {
-    return this.page.getByTestId(`edit-fee-prodi-${feeId}`);
-  }
-
-  getEditFeeAmount(feeId: string): Locator {
-    return this.page.getByTestId(`edit-fee-amount-${feeId}`);
-  }
-
-  getSubmitEditFeeButton(feeId: string): Locator {
-    return this.page.getByTestId(`submit-edit-fee-${feeId}`);
+  get submitEditFeeButton(): Locator {
+    return this.page.getByTestId('submit-edit-fee');
   }
 
   // Page assertions
@@ -187,21 +179,15 @@ export class SettingsFeesPage extends BasePage {
 
   async openEditFeeModal(feeId: string): Promise<void> {
     await this.getFeeEditButton(feeId).click();
-    await expect(this.getEditFeeModal(feeId)).toBeVisible();
+    await expect(this.editFeeModal).toBeVisible();
   }
 
-  async editFeeAmount(feeId: string, amount: number): Promise<void> {
+  async updateFeeAmount(feeId: string, amount: number): Promise<void> {
     await this.openEditFeeModal(feeId);
-    await this.getEditFeeAmount(feeId).fill(amount.toString());
-
-    const responsePromise = this.page.waitForResponse(response =>
-      response.url().includes(`/admin/settings/fees/${feeId}`) &&
-      response.request().method() === 'POST' &&
-      !response.url().includes('/toggle-active') &&
-      response.status() === 200
-    );
-    await this.getSubmitEditFeeButton(feeId).click();
-    await responsePromise;
+    await this.editFeeAmount.fill(amount.toString());
+    await this.submitEditFeeButton.click();
+    // Form uses regular POST + redirect, wait for navigation
+    await this.page.waitForURL(/\/admin\/settings\/fees/);
   }
 
   async toggleFeeStatus(feeId: string): Promise<void> {

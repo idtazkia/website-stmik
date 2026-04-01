@@ -267,16 +267,6 @@ export class CandidateDetailPage extends BasePage {
     await this.page.goto(`/admin/candidates/${candidateId}`);
   }
 
-  async openInteractionModal(): Promise<void> {
-    await this.btnLogInteraction.click();
-    await expect(this.modalInteraction).toBeVisible();
-  }
-
-  async closeInteractionModal(): Promise<void> {
-    await this.modalClose.click();
-    await expect(this.modalInteraction).toBeHidden();
-  }
-
   async goBackToCandidatesList(): Promise<void> {
     await this.backLink.click();
     await this.page.waitForURL(/\/admin\/candidates\/?$/);

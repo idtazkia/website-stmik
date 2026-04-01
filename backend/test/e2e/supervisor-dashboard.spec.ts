@@ -36,7 +36,7 @@ test.describe('Supervisor Dashboard', () => {
     await expect(page.getByTestId('team-performance-section')).toBeVisible();
 
     // Check for table headers
-    await expect(page.getByRole('columnheader', { name: /konsultan/i })).toBeVisible();
+    await expect(page.getByRole('columnheader', { name: /ec/i })).toBeVisible();
     await expect(page.getByRole('columnheader', { name: /aktif/i })).toBeVisible();
     await expect(page.getByRole('columnheader', { name: /hari ini/i })).toBeVisible();
     await expect(page.getByRole('columnheader', { name: /overdue/i })).toBeVisible();
@@ -71,7 +71,7 @@ test.describe('Supervisor Dashboard', () => {
 
     // Check for quick action links
     await expect(page.getByRole('link', { name: /lihat kandidat stuck/i })).toBeVisible();
-    await expect(page.getByRole('link', { name: /lihat report konsultan/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /lihat report ec/i })).toBeVisible();
     await expect(page.getByRole('link', { name: /lihat funnel report/i })).toBeVisible();
   });
 

@@ -100,7 +100,7 @@ test.describe('Settings - Fee Structure Management', () => {
       await feesPage.toggleFeeStatus(feeId);
     });
 
-    test('should edit fee amount via HTMX', async ({ page }) => {
+    test('should edit fee amount', async ({ page }) => {
       const feeIds = await feesPage.getAllFeeIds();
       if (feeIds.length === 0) {
         test.skip();
@@ -111,7 +111,7 @@ test.describe('Settings - Fee Structure Management', () => {
 
       // Edit with new amount
       const newAmount = 7500000;
-      await feesPage.editFeeAmount(feeId, newAmount);
+      await feesPage.updateFeeAmount(feeId, newAmount);
 
       // Verify amount changed (check for formatted amount)
       await feesPage.expectFeeAmountContains(feeId, '7.500.000');
