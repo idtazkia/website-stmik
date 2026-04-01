@@ -53,6 +53,7 @@ type CandidateListData struct {
 	Consultants  []FilterOption
 	Prodis       []FilterOption
 	Campaigns    []FilterOption
+	UserRole     string
 }
 
 var statusOptions = []FilterOption{
@@ -139,6 +140,7 @@ templ Candidates(data layouts.PageData, listData CandidateListData) {
 						<label class="block text-xs font-medium text-gray-500 mb-1">EC</label>
 						<select name="consultant_id" data-testid="filter-consultant" class="w-full px-3 py-2 border rounded-lg text-sm">
 							<option value="">Semua EC</option>
+							<option value="unassigned" selected?={ listData.Filters.ConsultantID == "unassigned" }>Belum Ditugaskan</option>
 							for _, opt := range listData.Consultants {
 								<option value={ opt.Value } selected?={ opt.Value == listData.Filters.ConsultantID }>{ opt.Label }</option>
 							}
@@ -185,25 +187,68 @@ templ Candidates(data layouts.PageData, listData CandidateListData) {
 				</form>
 			</div>
 
-			<!-- Table -->
-			<div class="bg-white rounded-lg border overflow-hidden" data-testid="candidates-table">
-				<table class="w-full">
-					<thead class="bg-gray-50 border-b">
-						<tr>
-							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kandidat</th>
-							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Prodi</th>
-							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">EC</th>
-							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sumber</th>
-							<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Terdaftar</th>
-							<th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Aksi</th>
-						</tr>
-					</thead>
-					<tbody id="candidates-table-body" class="divide-y" data-testid="candidates-list">
-						@CandidatesTableBody(listData.Candidates, listData.Total, listData.Limit, listData.Offset)
-					</tbody>
-				</table>
-			</div>
+			if listData.UserRole == "admin" || listData.UserRole == "supervisor" {
+				<!-- Bulk Action Bar -->
+				<form id="bulk-assign-form" method="POST" action="/admin/candidates/bulk-assign">
+					<div id="bulk-action-bar" class="hidden bg-primary-50 border border-primary-200 rounded-lg p-4 items-center gap-4" data-testid="bulk-action-bar">
+						<span id="bulk-count" class="text-sm font-medium text-primary-800">0 kandidat dipilih</span>
+						<select name="consultant_id" id="bulk-consultant-select" class="px-3 py-2 border rounded-lg text-sm" data-testid="bulk-consultant-select">
+							<option value="">Pilih EC...</option>
+							for _, opt := range listData.Consultants {
+								<option value={ opt.Value }>{ opt.Label }</option>
+							}
+						</select>
+						<button type="submit" id="bulk-assign-btn" disabled class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed" data-testid="bulk-assign-btn">
+							Tugaskan EC
+						</button>
+						<button type="button" id="bulk-cancel-btn" class="px-4 py-2 text-gray-600 text-sm hover:text-gray-800">Batal</button>
+					</div>
+
+					<!-- Table -->
+					<div class="bg-white rounded-lg border overflow-hidden" data-testid="candidates-table">
+						<table class="w-full">
+							<thead class="bg-gray-50 border-b">
+								<tr>
+									<th class="px-2 py-3 text-center w-8">
+										<input type="checkbox" id="select-all" class="rounded" data-testid="select-all-checkbox"/>
+									</th>
+									<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kandidat</th>
+									<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Prodi</th>
+									<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+									<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">EC</th>
+									<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sumber</th>
+									<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Terdaftar</th>
+									<th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Aksi</th>
+								</tr>
+							</thead>
+							<tbody id="candidates-table-body" class="divide-y" data-testid="candidates-list">
+								@CandidatesTableBody(listData.Candidates, listData.Total, listData.Limit, listData.Offset, listData.UserRole)
+							</tbody>
+						</table>
+					</div>
+				</form>
+				@bulkAssignScript()
+			} else {
+				<!-- Table (no bulk actions) -->
+				<div class="bg-white rounded-lg border overflow-hidden" data-testid="candidates-table">
+					<table class="w-full">
+						<thead class="bg-gray-50 border-b">
+							<tr>
+								<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kandidat</th>
+								<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Prodi</th>
+								<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+								<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">EC</th>
+								<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sumber</th>
+								<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Terdaftar</th>
+								<th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Aksi</th>
+							</tr>
+						</thead>
+						<tbody id="candidates-table-body" class="divide-y" data-testid="candidates-list">
+							@CandidatesTableBody(listData.Candidates, listData.Total, listData.Limit, listData.Offset, listData.UserRole)
+						</tbody>
+					</table>
+				</div>
+			}
 
 			<!-- Pagination -->
 			if listData.Total > listData.Limit {
@@ -213,22 +258,27 @@ templ Candidates(data layouts.PageData, listData CandidateListData) {
 	}
 }
 
-templ CandidatesTableBody(candidates []CandidateListItem, total, limit, offset int) {
+templ CandidatesTableBody(candidates []CandidateListItem, total, limit, offset int, userRole string) {
 	if len(candidates) == 0 {
 		<tr data-testid="empty-candidates-row">
-			<td colspan="7" class="px-4 py-8 text-center text-gray-500" data-testid="empty-candidates-message">
+			<td colspan="8" class="px-4 py-8 text-center text-gray-500" data-testid="empty-candidates-message">
 				Tidak ada kandidat yang ditemukan.
 			</td>
 		</tr>
 	} else {
 		for _, c := range candidates {
-			@CandidateRow(c)
+			@CandidateRow(c, userRole)
 		}
 	}
 }
 
-templ CandidateRow(c CandidateListItem) {
+templ CandidateRow(c CandidateListItem, userRole string) {
 	<tr data-testid={ "candidate-row-" + c.ID } class="hover:bg-gray-50">
+		if userRole == "admin" || userRole == "supervisor" {
+			<td class="px-2 py-3 text-center">
+				<input type="checkbox" name="candidate_ids" value={ c.ID } class="candidate-checkbox rounded" data-testid={ "checkbox-" + c.ID }/>
+			</td>
+		}
 		<td class="px-4 py-3">
 			<div class="flex items-center gap-3">
 				<div class="w-10 h-10 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center text-sm font-medium">
@@ -448,6 +498,70 @@ templ ReassignModal(candidateID string, currentConsultantID string, consultants 
 			</form>
 		</div>
 	</div>
+}
+
+templ bulkAssignScript() {
+	<script>
+	document.addEventListener('DOMContentLoaded', function() {
+		var selectAll = document.getElementById('select-all');
+		var bar = document.getElementById('bulk-action-bar');
+		var countEl = document.getElementById('bulk-count');
+		var consultantSelect = document.getElementById('bulk-consultant-select');
+		var assignBtn = document.getElementById('bulk-assign-btn');
+		var cancelBtn = document.getElementById('bulk-cancel-btn');
+
+		if (!selectAll || !bar) return;
+
+		function getCheckboxes() {
+			return document.querySelectorAll('.candidate-checkbox');
+		}
+
+		function updateBar() {
+			var checked = document.querySelectorAll('.candidate-checkbox:checked');
+			if (checked.length > 0) {
+				bar.classList.remove('hidden');
+				bar.classList.add('flex');
+				countEl.textContent = checked.length + ' kandidat dipilih';
+			} else {
+				bar.classList.add('hidden');
+				bar.classList.remove('flex');
+			}
+		}
+
+		selectAll.addEventListener('change', function() {
+			var boxes = getCheckboxes();
+			for (var i = 0; i < boxes.length; i++) {
+				boxes[i].checked = selectAll.checked;
+			}
+			updateBar();
+		});
+
+		document.addEventListener('change', function(e) {
+			if (e.target.classList.contains('candidate-checkbox')) {
+				updateBar();
+				var boxes = getCheckboxes();
+				var allChecked = true;
+				for (var i = 0; i < boxes.length; i++) {
+					if (!boxes[i].checked) { allChecked = false; break; }
+				}
+				selectAll.checked = allChecked;
+			}
+		});
+
+		consultantSelect.addEventListener('change', function() {
+			assignBtn.disabled = consultantSelect.value === '';
+		});
+
+		cancelBtn.addEventListener('click', function() {
+			selectAll.checked = false;
+			var boxes = getCheckboxes();
+			for (var i = 0; i < boxes.length; i++) {
+				boxes[i].checked = false;
+			}
+			updateBar();
+		});
+	});
+	</script>
 }
 
 // StatusBadge renders a status badge for candidates

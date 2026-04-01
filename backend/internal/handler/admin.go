@@ -41,6 +41,7 @@ func (h *AdminHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.Handle("GET /admin/candidates/{id}/interaction", protected(h.handleInteractionForm))
 	mux.Handle("POST /admin/candidates/{id}/interaction", protected(h.handleCreateInteraction))
 	mux.Handle("POST /admin/candidates/{id}/reassign", protected(h.handleReassignCandidate))
+	mux.Handle("POST /admin/candidates/bulk-assign", protected(h.handleBulkAssign))
 	mux.Handle("GET /admin/reassign-modal", protected(h.handleGetConsultantsForReassign))
 	mux.Handle("GET /admin/candidates/{id}/lost-modal", protected(h.handleGetLostModal))
 	mux.Handle("POST /admin/candidates/{id}/lost", protected(h.handleMarkLost))

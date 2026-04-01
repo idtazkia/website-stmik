@@ -162,11 +162,12 @@ func (h *AdminHandler) handleCandidates(w http.ResponseWriter, r *http.Request) 
 		Consultants: consultantOpts,
 		Prodis:      prodiOpts,
 		Campaigns:   campaignOpts,
+		UserRole:    claims.Role,
 	}
 
 	// Check if this is an HTMX request for table body only
 	if r.Header.Get("HX-Request") == "true" {
-		admin.CandidatesTableBody(candidateItems, result.Total, result.Limit, result.Offset).Render(ctx, w)
+		admin.CandidatesTableBody(candidateItems, result.Total, result.Limit, result.Offset, claims.Role).Render(ctx, w)
 		return
 	}
 
@@ -343,6 +344,44 @@ func (h *AdminHandler) handleReassignCandidate(w http.ResponseWriter, r *http.Re
 
 	// Redirect back to candidate detail
 	http.Redirect(w, r, "/admin/candidates/"+candidateID, http.StatusSeeOther)
+}
+
+func (h *AdminHandler) handleBulkAssign(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	claims := GetUserClaims(ctx)
+	if claims == nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	if claims.Role != "admin" && claims.Role != "supervisor" {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Invalid form data", http.StatusBadRequest)
+		return
+	}
+
+	consultantID := r.FormValue("consultant_id")
+	candidateIDs := r.Form["candidate_ids"]
+
+	if consultantID == "" || len(candidateIDs) == 0 {
+		http.Error(w, "Consultant ID and candidate IDs are required", http.StatusBadRequest)
+		return
+	}
+
+	for _, candidateID := range candidateIDs {
+		if err := model.ReassignCandidate(ctx, candidateID, consultantID, claims.UserID); err != nil {
+			log.Printf("Error bulk-assigning candidate %s: %v", candidateID, err)
+		}
+	}
+
+	log.Printf("Bulk assigned %d candidates to consultant %s by %s", len(candidateIDs), consultantID, claims.UserID)
+
+	http.Redirect(w, r, "/admin/candidates", http.StatusSeeOther)
 }
 
 func (h *AdminHandler) handleGetConsultantsForReassign(w http.ResponseWriter, r *http.Request) {

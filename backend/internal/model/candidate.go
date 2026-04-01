@@ -590,7 +590,9 @@ func ListCandidates(ctx context.Context, filters CandidateListFilters, visibilit
 		argNum++
 	}
 
-	if filters.ConsultantID != "" {
+	if filters.ConsultantID == "unassigned" {
+		whereClause += " AND c.id_assigned_consultant IS NULL"
+	} else if filters.ConsultantID != "" {
 		whereClause += fmt.Sprintf(" AND c.id_assigned_consultant = $%d", argNum)
 		args = append(args, filters.ConsultantID)
 		argNum++
