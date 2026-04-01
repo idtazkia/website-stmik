@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"log/slog"
 	"net/http"
+	"strings"
 
 	"github.com/idtazkia/stmik-admission-api/internal/auth"
 	"github.com/idtazkia/stmik-admission-api/internal/model"
@@ -20,13 +21,15 @@ const (
 type AdminAuthHandler struct {
 	googleOAuth *auth.GoogleOAuth
 	sessionMgr  *auth.SessionManager
+	adminEmails []string
 }
 
 // NewAdminAuthHandler creates a new admin auth handler
-func NewAdminAuthHandler(googleOAuth *auth.GoogleOAuth, sessionMgr *auth.SessionManager) *AdminAuthHandler {
+func NewAdminAuthHandler(googleOAuth *auth.GoogleOAuth, sessionMgr *auth.SessionManager, adminEmails []string) *AdminAuthHandler {
 	return &AdminAuthHandler{
 		googleOAuth: googleOAuth,
 		sessionMgr:  sessionMgr,
+		adminEmails: adminEmails,
 	}
 }
 
@@ -153,8 +156,12 @@ func (h *AdminAuthHandler) handleGoogleCallback(w http.ResponseWriter, r *http.R
 	}
 
 	if user == nil {
-		// Create new user with default role (consultant)
-		user, err = model.CreateUser(r.Context(), googleUser.Email, googleUser.Name, googleUser.ID, "consultant")
+		// Determine role: admin for configured admin emails, consultant for others
+		role := "consultant"
+		if h.isAdminEmail(googleUser.Email) {
+			role = "admin"
+		}
+		user, err = model.CreateUser(r.Context(), googleUser.Email, googleUser.Name, googleUser.ID, role)
 		if err != nil {
 			slog.Error("failed to create user", "error", err)
 			renderLoginError(w, r, "Gagal membuat akun pengguna.")
@@ -212,4 +219,14 @@ func generateRandomState() (string, error) {
 		return "", err
 	}
 	return base64.URLEncoding.EncodeToString(b), nil
+}
+
+// isAdminEmail checks if the email is in the configured admin emails list
+func (h *AdminAuthHandler) isAdminEmail(email string) bool {
+	for _, adminEmail := range h.adminEmails {
+		if strings.EqualFold(email, adminEmail) {
+			return true
+		}
+	}
+	return false
 }

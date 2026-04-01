@@ -97,7 +97,7 @@ func main() {
 	mux.Handle("GET /uploads/", http.StripPrefix("/uploads/", http.FileServer(http.Dir(cfg.Upload.Dir))))
 
 	// Auth routes
-	adminAuthHandler := handler.NewAdminAuthHandler(googleOAuth, sessionMgr)
+	adminAuthHandler := handler.NewAdminAuthHandler(googleOAuth, sessionMgr, cfg.Google.AdminEmails)
 	adminAuthHandler.RegisterRoutes(mux)
 
 	// Admin routes (protected)

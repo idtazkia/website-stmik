@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 )
 
 type Config struct {
@@ -53,10 +54,11 @@ type JWTConfig struct {
 }
 
 type GoogleConfig struct {
-	ClientID        string
-	ClientSecret    string
-	RedirectURL     string
+	ClientID         string
+	ClientSecret     string
+	RedirectURL      string
 	StaffEmailDomain string
+	AdminEmails      []string
 }
 
 type WhatsAppConfig struct {
@@ -111,10 +113,11 @@ func Load() (*Config, error) {
 			ExpirationHours: jwtExpHours,
 		},
 		Google: GoogleConfig{
-			ClientID:        getEnv("GOOGLE_CLIENT_ID", ""),
-			ClientSecret:    getEnv("GOOGLE_CLIENT_SECRET", ""),
-			RedirectURL:     getEnv("GOOGLE_REDIRECT_URL", "http://localhost:8080/auth/google/callback"),
+			ClientID:         getEnv("GOOGLE_CLIENT_ID", ""),
+			ClientSecret:     getEnv("GOOGLE_CLIENT_SECRET", ""),
+			RedirectURL:      getEnv("GOOGLE_REDIRECT_URL", "http://localhost:8080/auth/google/callback"),
 			StaffEmailDomain: getEnv("STAFF_EMAIL_DOMAIN", "tazkia.ac.id"),
+			AdminEmails:      parseCSV(getEnv("ADMIN_EMAILS", "")),
 		},
 		WhatsApp: WhatsAppConfig{
 			APIURL:   getEnv("WHATSAPP_API_URL", ""),
@@ -143,6 +146,21 @@ func getEnv(key, defaultValue string) string {
 		return value
 	}
 	return defaultValue
+}
+
+func parseCSV(s string) []string {
+	if s == "" {
+		return nil
+	}
+	parts := strings.Split(s, ",")
+	result := make([]string, 0, len(parts))
+	for _, p := range parts {
+		p = strings.TrimSpace(p)
+		if p != "" {
+			result = append(result, p)
+		}
+	}
+	return result
 }
 
 func getEnvRequired(key string) string {
