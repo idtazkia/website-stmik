@@ -24,7 +24,7 @@ const pages: PageDefinition[] = [
   // --- Admin ---
   { id: 'login', name: 'Login Admin', url: '/admin/login', section: 'admin', description: 'Halaman login admin', requiresAuth: 'none' },
   { id: 'dashboard', name: 'Dashboard Admin', url: '/admin', section: 'admin', description: 'Dashboard admin', requiresAuth: 'admin' },
-  { id: 'my-dashboard', name: 'Dashboard Konsultan', url: '/admin/my-dashboard', section: 'admin', description: 'Dashboard konsultan', requiresAuth: 'consultant' },
+  { id: 'my-dashboard', name: 'Dashboard EC', url: '/admin/my-dashboard', section: 'admin', description: 'Dashboard Education Consultant', requiresAuth: 'consultant' },
   { id: 'supervisor-dashboard', name: 'Dashboard Supervisor', url: '/admin/supervisor-dashboard', section: 'admin', description: 'Dashboard supervisor', requiresAuth: 'supervisor' },
   { id: 'candidates-list', name: 'Daftar Kandidat', url: '/admin/candidates', section: 'admin', description: 'Halaman daftar kandidat', requiresAuth: 'admin' },
   { id: 'documents-review', name: 'Review Dokumen', url: '/admin/documents', section: 'admin', description: 'Halaman review dokumen', requiresAuth: 'admin' },
@@ -33,7 +33,7 @@ const pages: PageDefinition[] = [
   { id: 'referral-claims', name: 'Referral Claims', url: '/admin/referral-claims', section: 'admin', description: 'Halaman referral claims', requiresAuth: 'admin' },
   { id: 'announcements-list', name: 'Daftar Pengumuman', url: '/admin/announcements', section: 'admin', description: 'Halaman daftar pengumuman', requiresAuth: 'admin' },
   { id: 'report-funnel', name: 'Laporan Funnel', url: '/admin/reports/funnel', section: 'admin', description: 'Laporan analisis funnel', requiresAuth: 'admin' },
-  { id: 'report-consultants', name: 'Laporan Konsultan', url: '/admin/reports/consultants', section: 'admin', description: 'Laporan performa konsultan', requiresAuth: 'admin' },
+  { id: 'report-consultants', name: 'Laporan EC', url: '/admin/reports/consultants', section: 'admin', description: 'Laporan performa Education Consultant', requiresAuth: 'admin' },
   { id: 'report-campaigns', name: 'Laporan Kampanye', url: '/admin/reports/campaigns', section: 'admin', description: 'Laporan efektivitas kampanye', requiresAuth: 'admin' },
   { id: 'report-referrers', name: 'Leaderboard Referrer', url: '/admin/reports/referrers', section: 'admin', description: 'Leaderboard referrer', requiresAuth: 'admin' },
   { id: 'finance-billings', name: 'Daftar Tagihan', url: '/admin/finance/billings', section: 'admin', description: 'Halaman daftar tagihan', requiresAuth: 'finance' },

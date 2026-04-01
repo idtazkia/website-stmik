@@ -101,7 +101,7 @@ export class PortalPage extends BasePage {
 
     this.announcements = page.locator('text=Pengumuman Terbaru').locator('..');
 
-    this.consultantSection = page.locator('text=Konsultan Anda').locator('..').locator('..');
+    this.consultantSection = page.locator('text=Education Consultant Anda').locator('..').locator('..');
     this.consultantName = this.consultantSection.locator('p.font-medium');
     this.emailButton = page.locator('text=Hubungi via Email');
 
@@ -142,7 +142,7 @@ export class PortalPage extends BasePage {
   }
 
   async expectNoConsultantAssigned() {
-    await expect(this.page.locator('text=Konsultan akan segera ditugaskan')).toBeVisible();
+    await expect(this.page.locator('text=Education Consultant akan segera ditugaskan')).toBeVisible();
   }
 
   async expectAnnouncementsVisible() {

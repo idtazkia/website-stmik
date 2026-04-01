@@ -101,7 +101,7 @@ test.describe('Report Pages', () => {
 
       // Check table headers using role
       await expect(adminPage.getByRole('columnheader', { name: 'Rank' })).toBeVisible();
-      await expect(adminPage.getByRole('columnheader', { name: 'Konsultan' })).toBeVisible();
+      await expect(adminPage.getByRole('columnheader', { name: 'EC' })).toBeVisible();
       await expect(adminPage.getByRole('columnheader', { name: 'Enrollments' })).toBeVisible();
 
       await adminPage.close();
