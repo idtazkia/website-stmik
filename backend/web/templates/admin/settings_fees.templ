@@ -113,6 +113,45 @@ templ SettingsFees(data layouts.PageData, feeStructures []FeeStructureItem, feeT
 				</div>
 			</div>
 
+			<!-- Edit Fee Modal (shared, populated via JS) -->
+			<dialog id="edit-fee-modal" class="rounded-lg p-0 backdrop:bg-black/50" data-testid="edit-fee-modal">
+				<div class="p-6 w-96">
+					<h3 class="text-lg font-semibold mb-4">Edit Biaya</h3>
+					<form id="edit-fee-form" method="POST">
+						<div class="space-y-4">
+							<div>
+								<label class="block text-sm font-medium text-gray-700 mb-1">Jenis Biaya</label>
+								<input type="text" id="edit-fee-type-display" class="w-full border rounded-lg px-3 py-2 bg-gray-50" disabled/>
+							</div>
+							<div>
+								<label class="block text-sm font-medium text-gray-700 mb-1">Program Studi</label>
+								<input type="text" id="edit-fee-prodi-display" class="w-full border rounded-lg px-3 py-2 bg-gray-50" disabled/>
+							</div>
+							<div>
+								<label class="block text-sm font-medium text-gray-700 mb-1">Nominal (Rp)</label>
+								<input
+									type="number"
+									name="amount"
+									id="edit-fee-amount"
+									data-testid="edit-fee-amount"
+									class="w-full border rounded-lg px-3 py-2"
+									min="0"
+									required
+								/>
+							</div>
+						</div>
+						<div class="flex justify-end gap-3 mt-6">
+							<button type="button" onclick="this.closest('dialog').close()" class="px-4 py-2 text-gray-600 hover:text-gray-800">
+								Batal
+							</button>
+							<button type="submit" data-testid="submit-edit-fee" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+								Simpan
+							</button>
+						</div>
+					</form>
+				</div>
+			</dialog>
+
 			<!-- Add Fee Modal -->
 			<dialog id="add-fee-modal" class="rounded-lg p-0 backdrop:bg-black/50" data-testid="add-fee-modal">
 				<div class="p-6 w-96">
@@ -167,12 +206,20 @@ templ SettingsFees(data layouts.PageData, feeStructures []FeeStructureItem, feeT
 					</form>
 				</div>
 			</dialog>
+			@feeEditScript()
 		</div>
 	}
 }
 
 templ FeeRow(fee FeeStructureItem, feeTypes []FeeTypeOption, prodis []ProdiOption) {
-	<tr data-testid={ "fee-row-" + fee.ID } id={ "fee-row-" + fee.ID }>
+	<tr
+		data-testid={ "fee-row-" + fee.ID }
+		id={ "fee-row-" + fee.ID }
+		data-fee-id={ fee.ID }
+		data-fee-type={ fee.FeeTypeName }
+		data-fee-prodi={ feeProdiDisplay(fee) }
+		data-fee-amount={ fmt.Sprintf("%d", fee.Amount) }
+	>
 		<td class="px-4 py-3">
 			<span class="font-medium" data-testid={ "fee-type-name-" + fee.ID }>{ fee.FeeTypeName }</span>
 			<span class="text-gray-500 text-sm ml-1">({ fee.FeeTypeCode })</span>
@@ -215,73 +262,34 @@ templ FeeRow(fee FeeStructureItem, feeTypes []FeeTypeOption, prodis []ProdiOptio
 				type="button"
 				data-testid={ "fee-edit-" + fee.ID }
 				class="text-primary-600 text-sm hover:text-primary-800 edit-fee-btn"
-				data-modal-id={ "edit-fee-modal-" + fee.ID }
 			>
 				Edit
 			</button>
 		</td>
-		<!-- Edit Modal for this fee -->
-		<dialog id={ "edit-fee-modal-" + fee.ID } class="rounded-lg p-0 backdrop:bg-black/50" data-testid={ "edit-fee-modal-" + fee.ID }>
-			<div class="p-6 w-96">
-				<h3 class="text-lg font-semibold mb-4">Edit Biaya</h3>
-				<form
-					hx-post={ "/admin/settings/fees/" + fee.ID }
-					hx-target={ "#fee-row-" + fee.ID }
-					hx-swap="outerHTML"
-					hx-on::after-request="if(event.detail.successful) this.closest('dialog').close()"
-				>
-					<div class="space-y-4">
-						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-1">Jenis Biaya</label>
-							<select name="fee_type_id" data-testid={ "edit-fee-type-" + fee.ID } class="w-full border rounded-lg px-3 py-2" required>
-								for _, ft := range feeTypes {
-									<option value={ ft.ID } selected?={ ft.ID == fee.IDFeeType }>{ ft.Name }</option>
-								}
-							</select>
-						</div>
-						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-1">Program Studi</label>
-							<select name="prodi_id" data-testid={ "edit-fee-prodi-" + fee.ID } class="w-full border rounded-lg px-3 py-2">
-								<option value="" selected?={ fee.IDProdi == "" }>Semua Prodi</option>
-								for _, p := range prodis {
-									<option value={ p.ID } selected?={ p.ID == fee.IDProdi }>{ p.Name } ({ p.Code })</option>
-								}
-							</select>
-						</div>
-						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-1">Nominal (Rp)</label>
-							<input
-								type="number"
-								name="amount"
-								data-testid={ "edit-fee-amount-" + fee.ID }
-								class="w-full border rounded-lg px-3 py-2"
-								value={ fmt.Sprintf("%d", fee.Amount) }
-								min="0"
-								required
-							/>
-						</div>
-					</div>
-					<div class="flex justify-end gap-3 mt-6">
-						<button type="button" onclick="this.closest('dialog').close()" class="px-4 py-2 text-gray-600 hover:text-gray-800">
-							Batal
-						</button>
-						<button type="submit" data-testid={ "submit-edit-fee-" + fee.ID } class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
-							Simpan
-						</button>
-					</div>
-				</form>
-			</div>
-		</dialog>
 	</tr>
+}
+
+templ feeEditScript() {
 	<script>
-		// Set up event listener for edit buttons using event delegation
-		document.addEventListener('click', function(e) {
-			if (e.target.classList.contains('edit-fee-btn')) {
-				var modalId = e.target.getAttribute('data-modal-id');
-				if (modalId) {
-					document.getElementById(modalId).showModal();
-				}
-			}
-		});
+	document.addEventListener('click', function(e) {
+		if (e.target.classList.contains('edit-fee-btn')) {
+			var row = e.target.closest('tr');
+			var feeId = row.getAttribute('data-fee-id');
+			var modal = document.getElementById('edit-fee-modal');
+			var form = document.getElementById('edit-fee-form');
+			form.action = '/admin/settings/fees/' + feeId;
+			document.getElementById('edit-fee-type-display').value = row.getAttribute('data-fee-type');
+			document.getElementById('edit-fee-prodi-display').value = row.getAttribute('data-fee-prodi');
+			document.getElementById('edit-fee-amount').value = row.getAttribute('data-fee-amount');
+			modal.showModal();
+		}
+	});
 	</script>
+}
+
+func feeProdiDisplay(fee FeeStructureItem) string {
+	if fee.ProdiName != "" {
+		return fee.ProdiName + " (" + fee.ProdiCode + ")"
+	}
+	return "Semua Prodi"
 }

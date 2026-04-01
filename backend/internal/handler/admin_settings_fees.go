@@ -183,8 +183,12 @@ func (h *AdminHandler) handleUpdateFeeStructure(w http.ResponseWriter, r *http.R
 
 	slog.Info("fee structure updated", "fee_id", id)
 
-	// Return updated fee row
-	h.renderFeeRow(w, r, id)
+	// Redirect back to fees page
+	academicYear := r.URL.Query().Get("academic_year")
+	if academicYear == "" {
+		academicYear = "2025/2026"
+	}
+	http.Redirect(w, r, "/admin/settings/fees?academic_year="+academicYear, http.StatusSeeOther)
 }
 
 // handleToggleFeeStructureActive handles POST /admin/settings/fees/{id}/toggle-active
