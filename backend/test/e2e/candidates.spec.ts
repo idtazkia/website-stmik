@@ -40,7 +40,7 @@ test.describe('Admin Candidates List', () => {
 
     test('should display candidates table with headers', async () => {
       const table = candidatesPage.candidatesTable;
-      await expect(table.locator('th')).toHaveCount(7); // Kandidat, Prodi, Status, Konsultan, Sumber, Terdaftar, Aksi
+      await expect(table.locator('th')).toHaveCount(8); // Checkbox, Kandidat, Prodi, Status, EC, Sumber, Terdaftar, Aksi
     });
   });
 
