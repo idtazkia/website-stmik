@@ -108,15 +108,6 @@ STMIK Tazkia, sebagai bagian dari [Tazkia Group](/about), menyediakan dukungan e
 - **Co-working space** - Fasilitas untuk pengembangan produk
 - **Legal dan administrasi** - Pendampingan pendirian perusahaan startup
 
-## Sukses Alumni: Ide Menjadi Realita
-
-Beberapa alumni STMIK Tazkia telah membuktikan bahwa kombinasi skill IT dan mindset entrepreneurship menghasilkan startup yang sukses:
-
-- **Startup EdTech** - Platform belajar programming untuk anak-anak
-- **Aplikasi AgriTech** - Solusi digital untuk petani lokal
-- **Sistem Informasi UMKM** - ERP sederhana untuk bisnis kecil menengah
-- **Jasa Pengembangan Aplikasi** - Digital agency yang melayani klien internasional
-
 ## Target Peserta
 
 Pelatihan ini ditujukan untuk:
