@@ -6,6 +6,7 @@ excerpt: Mahasiswa STMIK Tazkia menyerahkan website PIK-R SERASI kepada Keluraha
 images:
   - /images/news/penyerahan-website-pikr-serasi-kelurahan-sempur-01.jpeg
   - /images/news/penyerahan-website-pikr-serasi-kelurahan-sempur-02.jpeg
+  - /images/news/penyerahan-website-pikr-serasi-kelurahan-sempur-03.png
 tags:
   - pengabdian-masyarakat
   - pikr-serasi
@@ -15,7 +16,9 @@ tags:
   - teknik-informatika
 ---
 
-Mahasiswa **STMIK Tazkia** resmi menyerahkan website **PIK-R SERASI** (Pusat Informasi dan Konseling Remaja - Sempur Remaja Sehat dan Inspiratif) kepada pihak **Kelurahan Sempur, Kota Bogor**. Proyek ini merupakan hasil kerja mahasiswa dalam kegiatan pengabdian kepada masyarakat yang dilaksanakan di bawah bimbingan dosen **Hairul Umam, S.Si., M.Si.**, Ketua Program Studi [Teknik Informatika](/programs/computer-engineering) STMIK Tazkia.
+Mahasiswa **STMIK Tazkia** resmi menyerahkan website **PIK-R SERASI** (Pusat Informasi dan Konseling Remaja - Sempur Remaja Sehat dan Inspiratif) kepada pihak **PIK-R SERASI Kelurahan Sempur Kecamatan Bogor Tengah**. Proyek ini merupakan hasil kerja mahasiswa **Shanaya Balghis Riyona**, Program Studi [Teknik Informatika](/programs/computer-engineering), dalam kegiatan pengabdian kepada masyarakat yang dilaksanakan di bawah bimbingan dosen **Hairul Umam, S.Si., M.Si.**, Ketua Program Studi Teknik Informatika STMIK Tazkia.
+
+Website dapat diakses di [https://pik-r-serasi.vercel.app/](https://pik-r-serasi.vercel.app/).
 
 ![Penyerahan website PIK-R SERASI kepada Kelurahan Sempur Bogor oleh mahasiswa STMIK Tazkia](/images/news/penyerahan-website-pikr-serasi-kelurahan-sempur-01.jpeg)
 
@@ -25,9 +28,21 @@ PIK-R (Pusat Informasi dan Konseling Remaja) merupakan program nasional yang ber
 
 Melihat kebutuhan digitalisasi layanan ini, STMIK Tazkia melalui kegiatan pengabdian kepada masyarakat mengambil inisiatif untuk mengembangkan website PIK-R SERASI. Website ini diharapkan menjadi platform digital yang memperluas jangkauan informasi dan layanan konseling kepada remaja di wilayah Kelurahan Sempur dan sekitarnya.
 
+## Detail Proyek
+
+| Komponen | Keterangan |
+|----------|-----------|
+| **Nama Mahasiswa** | Shanaya Balghis Riyona |
+| **Program Studi** | Teknik Informatika |
+| **Dosen Pembimbing** | Hairul Umam, S.Si., M.Si. |
+| **Instansi/Client** | PIK-R SERASI Kelurahan Sempur Kecamatan Bogor Tengah |
+| **Alamat Website** | [https://pik-r-serasi.vercel.app/](https://pik-r-serasi.vercel.app/) |
+
+![Tampilan website PIK-R SERASI yang dikembangkan oleh mahasiswa STMIK Tazkia](/images/news/penyerahan-website-pikr-serasi-kelurahan-sempur-03.png)
+
 ## Pengembangan Website oleh Mahasiswa
 
-Pengembangan website PIK-R SERASI dilakukan oleh tim mahasiswa STMIK Tazkia di bawah bimbingan langsung **Hairul Umam, S.Si., M.Si.** Proses pengembangan mencakup beberapa tahapan:
+Pengembangan website PIK-R SERASI dilakukan oleh **Shanaya Balghis Riyona**, mahasiswa Program Studi Teknik Informatika STMIK Tazkia, di bawah bimbingan langsung **Hairul Umam, S.Si., M.Si.** Proses pengembangan mencakup beberapa tahapan:
 
 ### Analisis Kebutuhan
 
