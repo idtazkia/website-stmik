@@ -59,7 +59,9 @@ Digitalisasi layanan Posyandu melalui aplikasi Maryudi memberikan dampak signifi
 
 ## Dokumentasi Kegiatan
 
-Kegiatan peresmian ini dihadiri oleh berbagai pihak terkait termasuk perwakilan Kecamatan Bogor Barat, kader Posyandu, dan masyarakat setempat. Dokumentasi lengkap kegiatan dapat dilihat melalui [Instagram Kecamatan Bogor Barat](https://www.instagram.com/reel/Da7HQdPJcuU/).
+Kegiatan peresmian ini dihadiri oleh berbagai pihak terkait termasuk perwakilan Kecamatan Bogor Barat, kader Posyandu, dan masyarakat setempat. Liputan resmi kegiatan ini dipublikasikan oleh akun Instagram resmi Kecamatan Bogor Barat. Video dokumentasi peresmian dapat disaksikan melalui tautan berikut:
+
+> **Video Peresmian:** [Instagram Kecamatan Bogor Barat — Peresmian Aplikasi Maryudi Posyandu dan Dandelion](https://www.instagram.com/reel/Da7HQdPJcuU/)
 
 ![Foto bersama peserta peresmian aplikasi Maryudi Posyandu dan Dandelion](/images/news/denvi03.jpeg)
 
