@@ -30,6 +30,7 @@ Aplikasi **Maryudi (Margajaya Yuk Digital)** Posyandu merupakan sistem informasi
 | Komponen | Keterangan |
 |----------|-----------|
 | **Program Studi** | Teknik Informatika |
+| **Mahasiswa** | Denvi Sekartazi Iskandar |
 | **Dosen Pembimbing** | Hairul Umam, S.Si., M.Si. |
 | **Instansi/Client** | Posyandu Kelurahan Margajaya RW 05 Kecamatan Bogor Barat |
 | **Alamat Aplikasi** | [https://posyandu-margajaya-rw05.netlify.app](https://posyandu-margajaya-rw05.netlify.app) |
