@@ -1,28 +1,62 @@
 ---
-title: "Mahasiswa STMIK Tazkia Serahkan Website Melesat (Menuju Lansia Sehat) untuk Puskesmas Leuwisadeng Bogor"
+title: "Digitalisasi Layanan Lansia: Mahasiswa STMIK Tazkia Luncurkan Website Melesat untuk Puskesmas Leuwisadeng Kabupaten Bogor"
 date: 2026-07-28
 author: Tim Humas STMIK Tazkia
-excerpt: Nayla Elrazqya Putri, mahasiswa STMIK Tazkia, menyerahkan website Melesat (Menuju Lansia Sehat) kepada Puskesmas Leuwisadeng Kabupaten Bogor sebagai wujud nyata kolaborasi kampus dan layanan kesehatan masyarakat.
+excerpt: Mahasiswa STMIK Tazkia menyerahkan website Melesat (Menuju Lansia Sehat) kepada Puskesmas Leuwisadeng Kabupaten Bogor sebagai hasil proyek pengabdian masyarakat di bawah bimbingan dosen Hairul Umam, S.Si., M.Si. Website ini dirancang untuk mendukung digitalisasi layanan kesehatan lansia di tingkat puskesmas.
 images:
   - /images/news/mahasiswa-stmik-tazkia-website-melesat-puskesmas-serah-terima.jpg
   - /images/news/mahasiswa-stmik-tazkia-website-melesat-puskesmas-sertifikat.jpg
 tags:
-  - proyek-mahasiswa
   - pengabdian-masyarakat
   - kesehatan
-  - kerjasama
-  - sistem-informasi
+  - lansia
+  - puskesmas
+  - mahasiswa
+  - teknik-informatika
 ---
 
-Mahasiswa Program Studi [Sistem Informasi](/programs/information-systems) STMIK Tazkia, **Nayla Elrazqya Putri**, resmi menyerahkan website **Melesat (Menuju Lansia Sehat)** kepada Puskesmas Leuwisadeng, Kabupaten Bogor. Penyerahan ini merupakan hasil kolaborasi antara kampus IT di Bogor dengan fasilitas kesehatan masyarakat dalam upaya digitalisasi layanan kesehatan lansia.
+Mahasiswa **STMIK Tazkia** resmi menyerahkan website **Melesat (Menuju Lansia Sehat)** kepada **Puskesmas Leuwisadeng, Kabupaten Bogor**. Proyek ini merupakan hasil kerja mahasiswa **Nayla Elrazqya Putri**, Program Studi [Teknik Informatika](/programs/computer-engineering), dalam kegiatan pengabdian kepada masyarakat yang dilaksanakan di bawah bimbingan dosen **Hairul Umam, S.Si., M.Si.**, Ketua Program Studi Teknik Informatika STMIK Tazkia.
+
+Website dapat diakses di [https://melesat.netlify.app](https://melesat.netlify.app).
 
 ![Serah terima website Melesat — Nayla Elrazqya Putri bersama Kepala Puskesmas dan Bidan Puskesmas Leuwisadeng](/images/news/mahasiswa-stmik-tazkia-website-melesat-puskesmas-serah-terima.jpg)
 
-## Website Melesat: Digitalisasi Layanan Kesehatan Lansia
+## Latar Belakang Proyek Melesat
 
-Website Melesat (Menuju Lansia Sehat) dirancang untuk mendukung program kesehatan lansia di wilayah kerja Puskesmas Leuwisadeng. Melalui platform ini, informasi dan layanan kesehatan untuk lansia dapat diakses secara digital, memudahkan petugas kesehatan dalam monitoring dan edukasi kesehatan bagi masyarakat lanjut usia.
+Program kesehatan lansia merupakan salah satu program prioritas puskesmas dalam menjaga kualitas hidup masyarakat lanjut usia. Puskesmas Leuwisadeng sebagai fasilitas kesehatan tingkat pertama di Kabupaten Bogor selama ini masih mengandalkan pencatatan manual dan media konvensional dalam pengelolaan data dan penyebaran informasi layanan kesehatan lansia.
 
-Proyek ini dikerjakan oleh Nayla Elrazqya Putri sebagai bagian dari kurikulum [project-based learning](/about) STMIK Tazkia yang mengharuskan mahasiswa mengerjakan proyek untuk klien nyata. Berbeda dengan tugas kampus pada umumnya, website ini dikembangkan berdasarkan kebutuhan riil Puskesmas dan langsung digunakan untuk melayani masyarakat.
+Melihat kebutuhan digitalisasi layanan ini, STMIK Tazkia melalui kegiatan pengabdian kepada masyarakat mengambil inisiatif untuk mengembangkan website Melesat (Menuju Lansia Sehat). Website ini diharapkan menjadi platform digital yang mempermudah petugas kesehatan dalam monitoring dan edukasi kesehatan bagi masyarakat lanjut usia di wilayah kerja Puskesmas Leuwisadeng.
+
+## Detail Proyek
+
+| Komponen | Keterangan |
+|----------|-----------|
+| **Nama Mahasiswa** | Nayla Elrazqya Putri |
+| **Program Studi** | Teknik Informatika |
+| **Dosen Pembimbing** | Hairul Umam, S.Si., M.Si. |
+| **Instansi/Client** | Puskesmas Leuwisadeng, Kabupaten Bogor |
+| **Alamat Website** | [https://melesat.netlify.app](https://melesat.netlify.app) |
+
+## Pengembangan Website oleh Mahasiswa
+
+Pengembangan website Melesat dilakukan oleh **Nayla Elrazqya Putri**, mahasiswa Program Studi Teknik Informatika STMIK Tazkia, di bawah bimbingan langsung **Hairul Umam, S.Si., M.Si.** Proses pengembangan mencakup beberapa tahapan:
+
+### Analisis Kebutuhan
+
+Mahasiswa melakukan survei dan wawancara dengan petugas kesehatan Puskesmas Leuwisadeng untuk memahami kebutuhan digitalisasi layanan kesehatan lansia. Hasil analisis menjadi dasar perancangan website yang sesuai dengan kebutuhan pengguna di lapangan.
+
+### Perancangan dan Pengembangan
+
+Berdasarkan hasil analisis, mahasiswa merancang dan membangun website dengan fitur-fitur yang mendukung program kesehatan lansia:
+
+- **Sistem login berbasis peran** — akses terpisah untuk admin, petugas kesehatan, dan pengguna umum
+- **Manajemen data lansia** — pencatatan dan monitoring data kesehatan lansia secara digital
+- **Informasi layanan kesehatan** — edukasi dan informasi program kesehatan untuk masyarakat lanjut usia
+- **Dashboard monitoring** — visualisasi data untuk memudahkan pengambilan keputusan oleh petugas kesehatan
+
+### Pengujian dan Penyerahan
+
+Sebelum diserahkan, website melalui tahap pengujian untuk memastikan fungsionalitas berjalan dengan baik. Mahasiswa juga memberikan pelatihan kepada petugas Puskesmas Leuwisadeng tentang cara mengelola dan memperbarui data melalui website.
 
 ## Apresiasi dari Puskesmas Leuwisadeng
 
@@ -32,20 +66,52 @@ Kepala Puskesmas Leuwisadeng, **dr. Farida Indriawati**, bersama **Maya Muya Sar
 
 Pemberian sertifikat ini menunjukkan bahwa hasil karya mahasiswa STMIK Tazkia tidak hanya bernilai akademis, tetapi juga memberikan dampak nyata bagi institusi mitra dan masyarakat luas.
 
-## Kolaborasi Kampus dan Layanan Kesehatan
+## Peran Dosen Pembimbing
 
-Kerjasama antara STMIK Tazkia dan Puskesmas Leuwisadeng menjadi contoh sinergi antara dunia pendidikan tinggi dengan sektor kesehatan masyarakat. Mahasiswa mendapatkan pengalaman membangun sistem informasi untuk kebutuhan nyata, sementara puskesmas memperoleh solusi digital yang mendukung program layanan kesehatan.
+**Hairul Umam, S.Si., M.Si.** sebagai dosen pembimbing berperan penting dalam mengarahkan mahasiswa selama proses pengembangan. Beliau memastikan bahwa proyek ini tidak hanya memenuhi standar teknis, tetapi juga memberikan manfaat nyata bagi masyarakat. Pendampingan meliputi:
 
-Proyek ini juga memperkuat komitmen STMIK Tazkia dalam menerapkan metode pembelajaran berbasis proyek, di mana mahasiswa:
+- Pengarahan metodologi pengembangan perangkat lunak
+- Review kualitas kode dan desain antarmuka
+- Koordinasi dengan pihak Puskesmas Leuwisadeng
+- Evaluasi kesesuaian produk dengan kebutuhan pengguna
 
-- **Bekerja dengan klien nyata** — menganalisis kebutuhan langsung dari petugas kesehatan
-- **Mengembangkan solusi aplikatif** — membangun website yang siap digunakan, bukan sekadar tugas akademis
-- **Memberikan dampak sosial** — berkontribusi pada peningkatan kualitas layanan kesehatan masyarakat
+## Manfaat bagi Mahasiswa dan Masyarakat
+
+### Bagi Mahasiswa
+
+Proyek ini memberikan pengalaman langsung kepada mahasiswa dalam:
+
+- **Mengerjakan proyek nyata** — bukan simulasi, melainkan produk yang benar-benar digunakan oleh puskesmas
+- **Berinteraksi dengan klien** — belajar memahami kebutuhan petugas kesehatan dan berkomunikasi secara profesional
+- **Menerapkan ilmu kuliah** — mengaplikasikan pengetahuan pemrograman, desain UI/UX, dan manajemen proyek
+- **Membangun portofolio** — hasil karya yang dapat ditunjukkan kepada calon pemberi kerja
+
+### Bagi Masyarakat
+
+Website Melesat memberikan manfaat langsung bagi Puskesmas Leuwisadeng:
+
+- **Digitalisasi layanan lansia** — data kesehatan lansia tercatat secara digital dan mudah diakses
+- **Efisiensi kerja petugas** — monitoring kesehatan lansia menjadi lebih cepat dan terstruktur
+- **Peningkatan kualitas layanan** — pengambilan keputusan berbasis data untuk program kesehatan lansia
+- **Akses informasi lebih luas** — masyarakat dapat mengakses informasi kesehatan lansia secara digital
+
+## Komitmen STMIK Tazkia dalam Pengabdian Masyarakat
+
+Penyerahan website Melesat merupakan salah satu wujud komitmen STMIK Tazkia dalam Tri Dharma Perguruan Tinggi, khususnya pilar pengabdian kepada masyarakat. Sebagai kampus IT di Bogor yang menerapkan [project-based learning](/about), STMIK Tazkia secara konsisten mendorong mahasiswa untuk terlibat dalam proyek-proyek yang memberikan dampak positif bagi lingkungan sekitar.
+
+Kegiatan ini juga melengkapi berbagai inisiatif kerjasama yang telah berjalan, seperti [penyerahan website PIK-R SERASI untuk Kelurahan Sempur](/news/penyerahan-website-pikr-serasi-kelurahan-sempur-bogor-2026) dan [peresmian aplikasi Maryudi Posyandu di Bogor Barat](/news/peresmian-aplikasi-maryudi-posyandu-dandelion-bogor-barat-2026).
 
 ## Bergabung dengan STMIK Tazkia
 
-Tertarik kuliah IT dengan pendekatan project-based learning yang menghasilkan karya nyata? STMIK Tazkia membuka pendaftaran mahasiswa baru untuk program [Sistem Informasi](/programs/information-systems) dan [Teknik Informatika](/programs/computer-engineering).
+Tertarik kuliah IT sambil berkontribusi nyata bagi masyarakat? STMIK Tazkia membuka pendaftaran mahasiswa baru untuk dua program studi:
 
-Dengan bergabung di STMIK Tazkia, kamu tidak hanya belajar teori, tetapi langsung membangun solusi digital untuk mitra nyata — mulai dari lembaga kesehatan, pemerintahan, hingga industri.
+- [**S1 Sistem Informasi**](/programs/information-systems) — fokus pada analisis bisnis, pengembangan aplikasi, dan integrasi sistem
+- [**S1 Teknik Informatika**](/programs/computer-engineering) — fokus pada pengembangan perangkat lunak, kecerdasan buatan, dan keamanan siber
 
-[Daftar sekarang](/admissions) atau [hubungi kami](/contact) untuk informasi lebih lanjut.
+Di STMIK Tazkia, kamu tidak hanya belajar teori, tetapi langsung terlibat dalam proyek nyata yang bermanfaat bagi masyarakat.
+
+[Daftar sekarang](/admissions) atau [hubungi kami](/contact) untuk informasi lebih lanjut tentang program studi dan pendaftaran.
+
+---
+
+*STMIK Tazkia: Kampus IT di Bogor yang menghasilkan lulusan berkompetensi teknologi dan berdampak sosial.*
