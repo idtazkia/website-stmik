@@ -2,7 +2,11 @@
 title: "Dosen STMIK Tazkia Hendri Karisma Tampil sebagai Pembicara di Workshop APEC 2026 Chengdu, China"
 date: 2026-07-29
 author: Tim Humas STMIK Tazkia
-excerpt: Dosen STMIK Tazkia, Hendri Karisma, menjadi pembicara dalam APEC DESG Workshop bertajuk "Bridging That Gap: Capacity Building for Formalizing Businesses for Environmental Compliance in the Digital Age" yang diselenggarakan pada 28–29 Juli 2026 di Chengdu, China. Keikutsertaan ini menjadi bukti kontribusi STMIK Tazkia dalam forum internasional tingkat Asia-Pasifik.
+excerpt: >
+  Dosen STMIK Tazkia, Hendri Karisma, menjadi pembicara dalam APEC DESG Workshop bertajuk
+  "Bridging That Gap: Capacity Building for Formalizing Businesses for Environmental Compliance
+  in the Digital Age" yang diselenggarakan pada 28–29 Juli 2026 di Chengdu, China.
+  Keikutsertaan ini menjadi bukti kontribusi STMIK Tazkia dalam forum internasional tingkat Asia-Pasifik.
 images:
   - /images/news/Apec01.jpeg
   - /images/news/Apec02.jpeg
