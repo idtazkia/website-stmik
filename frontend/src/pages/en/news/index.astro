@@ -9,7 +9,7 @@ import { getLocaleFromUrl, t } from '../../../utils/i18n';
 const locale = getLocaleFromUrl(Astro.url);
 const translate = (key: string) => t(locale, key);
 
-const allNews = await getCollection('news');
+const allNews = await getCollection('news-en');
 const news = allNews.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 ---
 

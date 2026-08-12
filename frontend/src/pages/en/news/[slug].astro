@@ -8,7 +8,7 @@ import Card from '../../../components/Card.astro';
 import { getLocaleFromUrl, t, localizePath } from '../../../utils/i18n';
 
 export const getStaticPaths = (async () => {
-  const news = await getCollection('news');
+  const news = await getCollection('news-en');
   return news.map((article) => ({
     params: { slug: article.slug },
     props: { article },
