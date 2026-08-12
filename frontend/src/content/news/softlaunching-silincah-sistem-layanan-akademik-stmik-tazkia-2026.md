@@ -19,13 +19,13 @@ tags:
   - akademik
 ---
 
-**STMIK Tazkia** resmi memperkenalkan aplikasi **SILINCAH (Sistem Integrasi Layanan Campus Akademik Handal)** melalui kegiatan soft launching yang diselenggarakan di kampus STMIK Tazkia, Bogor. Acara ini dihadiri oleh seluruh mahasiswa penerima beasiswa **KIP-Kuliah (Kartu Indonesia Pintar Kuliah)** sebagai pengguna awal aplikasi.
+**STMIK Tazkia** resmi memperkenalkan aplikasi **SILINCAH (Sistem Integrasi Layanan Campus Akademik Handal)** melalui kegiatan soft launching yang diselenggarakan di kampus STMIK Tazkia, Bogor. Aplikasi ini diluncurkan langsung oleh Ketua STMIK Tazkia **Miftakhus Surur, S.E.I., M.Sc (Fin)., AWPS** bersama Wakil Ketua II **Galih Kurniawan Sidik, M.Kom.** serta para Ketua Program Studi, yaitu Ka. Prodi Teknik Informatika **Hairul Umam, S.Si., M.Si.** dan Ka. Prodi Sistem Informasi **Endy Muardin, S.T., M.E.** Acara ini dihadiri oleh seluruh mahasiswa penerima beasiswa **KIP-Kuliah (Kartu Indonesia Pintar Kuliah)** sebagai pengguna awal aplikasi.
 
 ![Logo SILINCAH — Sistem Integrasi Layanan Campus Akademik Handal](/images/news/logo-silincah-stmik-tazkia.png)
 
 ## Tentang Aplikasi SILINCAH
 
-**SILINCAH** merupakan platform digital terintegrasi yang dirancang untuk menyatukan seluruh layanan akademik kampus dalam satu sistem yang handal, efisien, dan mudah diakses. Aplikasi ini dikembangkan sebagai bagian dari komitmen STMIK Tazkia dalam transformasi digital layanan pendidikan tinggi.
+**SILINCAH** merupakan platform digital terintegrasi yang dirancang untuk menyatukan seluruh layanan akademik kampus dalam satu sistem yang handal, efisien, dan mudah diakses. Aplikasi ini dapat diakses melalui [https://silincah.stmik.tazkia.ac.id](https://silincah.stmik.tazkia.ac.id/login). Aplikasi ini dikembangkan sebagai bagian dari komitmen STMIK Tazkia dalam transformasi digital layanan pendidikan tinggi.
 
 ### Fitur Utama SILINCAH
 
