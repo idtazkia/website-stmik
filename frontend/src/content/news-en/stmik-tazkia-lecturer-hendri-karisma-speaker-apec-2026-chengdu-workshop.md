@@ -8,8 +8,10 @@ excerpt: >
   in the Digital Age" held on July 28–29, 2026 in Chengdu, China.
   This participation demonstrates STMIK Tazkia's contribution to international forums at the Asia-Pacific level.
 images:
-  - /images/news/Apec01.jpeg
-  - /images/news/Apec02.jpeg
+  - /images/news/Hen01.jpeg
+  - /images/news/Hen02.jpeg
+  - /images/news/Hen03.jpeg
+  - /images/news/Hen04.jpeg
 tags:
   - apec
   - international
@@ -21,7 +23,7 @@ tags:
 
 **STMIK Tazkia** lecturer **Hendri Karisma** served as a speaker at the prestigious **Asia-Pacific Economic Cooperation (APEC)** workshop held in **Chengdu, China** on **July 28–29, 2026**. The workshop was part of the **APEC China 2026** series of events under the overarching theme of Asia-Pacific economic cooperation.
 
-![Hendri Karisma as a panel speaker at the APEC DESG Workshop in Chengdu, China](/images/news/Apec01.jpeg)
+![Hendri Karisma as a panel speaker at the APEC DESG Workshop in Chengdu, China](/images/news/Hen01.jpeg)
 
 ## About the APEC DESG 2026 Workshop
 
@@ -38,7 +40,11 @@ Key topics discussed included:
 
 **Hendri Karisma** was invited as a panel speaker at the workshop, representing the perspective of Indonesian academics. During the panel session, he shared insights on the role of information technology and digitalization in supporting environmental compliance, particularly for businesses in developing countries.
 
-![Panel discussion at the APEC DESG Workshop "Bridging That Gap" in Chengdu, China, July 28–29, 2026](/images/news/Apec02.jpeg)
+![Panel discussion at the APEC DESG Workshop "Bridging That Gap" in Chengdu, China, July 28–29, 2026](/images/news/Hen02.jpeg)
+
+![Hendri Karisma with APEC DESG Workshop participants in Chengdu, China](/images/news/Hen03.jpeg)
+
+![Documentation of APEC DESG Workshop 2026 activities in Chengdu, China](/images/news/Hen04.jpeg)
 
 Hendri Karisma's participation in this international forum demonstrates that STMIK Tazkia lecturers are not only active in domestic academic activities but also contribute to global policy discussions across the Asia-Pacific region.
 

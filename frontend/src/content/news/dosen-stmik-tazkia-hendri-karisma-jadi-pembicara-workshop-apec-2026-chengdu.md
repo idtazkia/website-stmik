@@ -8,8 +8,10 @@ excerpt: >
   in the Digital Age" yang diselenggarakan pada 28–29 Juli 2026 di Chengdu, China.
   Keikutsertaan ini menjadi bukti kontribusi STMIK Tazkia dalam forum internasional tingkat Asia-Pasifik.
 images:
-  - /images/news/Apec01.jpeg
-  - /images/news/Apec02.jpeg
+  - /images/news/Hen01.jpeg
+  - /images/news/Hen02.jpeg
+  - /images/news/Hen03.jpeg
+  - /images/news/Hen04.jpeg
 tags:
   - apec
   - internasional
@@ -21,7 +23,7 @@ tags:
 
 Dosen **STMIK Tazkia**, **Hendri Karisma**, tampil sebagai pembicara dalam workshop bergengsi **Asia-Pacific Economic Cooperation (APEC)** yang diselenggarakan di **Chengdu, China** pada **28–29 Juli 2026**. Workshop ini merupakan bagian dari rangkaian kegiatan **APEC China 2026** yang mengusung tema besar kerja sama ekonomi kawasan Asia-Pasifik.
 
-![Hendri Karisma menjadi pembicara panel dalam APEC DESG Workshop di Chengdu, China](/images/news/Apec01.jpeg)
+![Hendri Karisma menjadi pembicara panel dalam APEC DESG Workshop di Chengdu, China](/images/news/Hen01.jpeg)
 
 ## Tentang Workshop APEC DESG 2026
 
@@ -38,7 +40,11 @@ Topik utama yang dibahas meliputi:
 
 **Hendri Karisma** diundang sebagai salah satu pembicara panel dalam workshop ini, mewakili perspektif akademisi Indonesia. Dalam sesi panel, beliau berbagi pandangan mengenai peran teknologi informasi dan digitalisasi dalam mendukung kepatuhan lingkungan, khususnya bagi pelaku usaha di negara berkembang.
 
-![Suasana panel diskusi APEC DESG Workshop "Bridging That Gap" di Chengdu, China, 28–29 Juli 2026](/images/news/Apec02.jpeg)
+![Suasana panel diskusi APEC DESG Workshop "Bridging That Gap" di Chengdu, China, 28–29 Juli 2026](/images/news/Hen02.jpeg)
+
+![Hendri Karisma bersama peserta workshop APEC DESG di Chengdu, China](/images/news/Hen03.jpeg)
+
+![Dokumentasi kegiatan APEC DESG Workshop 2026 di Chengdu, China](/images/news/Hen04.jpeg)
 
 Kehadiran Hendri Karisma dalam forum internasional ini menunjukkan bahwa dosen STMIK Tazkia tidak hanya aktif dalam kegiatan akademik di tingkat nasional, tetapi juga berkontribusi dalam diskusi kebijakan global di kawasan Asia-Pasifik.
 
