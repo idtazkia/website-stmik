@@ -4,6 +4,7 @@ import Container from '../components/Container.astro';
 import Section from '../components/Section.astro';
 import Card from '../components/Card.astro';
 import { getLocaleFromUrl, t, localizePath } from '../utils/i18n';
+import ScrollAnimations from '../components/ScrollAnimations.astro';
 
 const locale = getLocaleFromUrl(Astro.url);
 const translate = (key: string) => t(locale, key);
@@ -79,10 +80,11 @@ const faqs = [
 ---
 
 <MarketingLayout title={translate('admissions.title')} description={translate('admissions.description')}>
+  <ScrollAnimations />
   <!-- Hero Section -->
   <Section background="gradient" class="pt-32 pb-20">
     <Container>
-      <div class="max-w-3xl mx-auto text-center">
+      <div class="max-w-3xl mx-auto text-center anim-fade-in">
         <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
           {translate('admissions.title')}
         </h1>
@@ -116,8 +118,8 @@ const faqs = [
         </div>
 
         <div class="grid md:grid-cols-5 gap-4">
-          {steps.map((step) => (
-            <div class="text-center">
+          {steps.map((step, index) => (
+            <div class="text-center anim-fade-up" style={`--delay: ${index}`}>
               <div class="w-14 h-14 bg-primary-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
                 {step.number}
               </div>
@@ -134,7 +136,7 @@ const faqs = [
   <Section background="white">
     <Container>
       <div class="max-w-4xl mx-auto">
-        <div class="text-center mb-12">
+        <div class="text-center mb-12 anim-fade-in">
           <h2 class="text-3xl font-bold text-gray-900 mb-4">
             {translate('admissions.requirements_title')}
           </h2>
@@ -175,7 +177,8 @@ const faqs = [
         </div>
 
         <div class="grid md:grid-cols-3 gap-6">
-          {scholarships.map((scholarship) => (
+          {scholarships.map((scholarship, index) => (
+            <div class="anim-fade-up" style={`--delay: ${index}`}>
             <Card hover={true}>
               <div class="p-6 text-center">
                 <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" class:list={[
@@ -203,6 +206,7 @@ const faqs = [
                 <p class="text-sm text-gray-600">{scholarship.description}</p>
               </div>
             </Card>
+            </div>
           ))}
         </div>
       </div>
@@ -224,6 +228,7 @@ const faqs = [
 
         <div class="space-y-4">
           {faqs.map((faq, index) => (
+            <div class="anim-fade-up" style={`--delay: ${index}`}>
             <Card>
               <details class="group">
                 <summary class="flex items-center justify-between p-6 cursor-pointer list-none">
@@ -237,6 +242,7 @@ const faqs = [
                 </div>
               </details>
             </Card>
+            </div>
           ))}
         </div>
       </div>
@@ -246,7 +252,7 @@ const faqs = [
   <!-- CTA Section -->
   <Section background="gray">
     <Container>
-      <div class="max-w-3xl mx-auto text-center">
+      <div class="max-w-3xl mx-auto text-center anim-fade-in">
         <h2 class="text-3xl font-bold text-gray-900 mb-4">
           {translate('admissions.cta_title')}
         </h2>

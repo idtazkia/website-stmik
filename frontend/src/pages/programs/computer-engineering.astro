@@ -5,6 +5,7 @@ import Section from '../../components/Section.astro';
 import Card from '../../components/Card.astro';
 import Breadcrumb from '../../components/Breadcrumb.astro';
 import { getLocaleFromUrl, t, localizePath } from '../../utils/i18n';
+import ScrollAnimations from '../../components/ScrollAnimations.astro';
 
 const locale = getLocaleFromUrl(Astro.url);
 const translate = (key: string) => t(locale, key);
@@ -217,6 +218,7 @@ const courseSchema = {
 >
   <!-- Course JSON-LD -->
   <script type="application/ld+json" set:html={JSON.stringify(courseSchema)} slot="head" />
+  <ScrollAnimations />
 
   <!-- Breadcrumb Navigation -->
   <div class="bg-gray-50 pt-24">
@@ -228,7 +230,7 @@ const courseSchema = {
   <!-- Hero Section -->
   <Section background="gradient" class="pt-8 pb-20">
     <Container>
-      <div class="max-w-4xl mx-auto text-center">
+      <div class="max-w-4xl mx-auto text-center anim-fade-in">
         <span class="inline-block px-4 py-2 bg-primary-100 text-primary-700 rounded-full text-sm font-medium mb-4">
           S1 - {translate('programs.ti.degree')}
         </span>
@@ -266,10 +268,10 @@ const courseSchema = {
   <Section background="white">
     <Container>
       <div class="max-w-4xl mx-auto">
-        <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">
+        <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center anim-fade-in">
           {translate('programs.ti.overview_title')}
         </h2>
-        <div class="prose prose-lg max-w-none text-gray-700">
+        <div class="prose prose-lg max-w-none text-gray-700 anim-fade-up">
           <p>{translate('programs.ti.overview_1')}</p>
           <p>{translate('programs.ti.overview_2')}</p>
         </div>
@@ -318,7 +320,7 @@ const courseSchema = {
   <Section background="gray">
     <Container>
       <div class="max-w-6xl mx-auto">
-        <div class="text-center mb-12">
+        <div class="text-center mb-12 anim-fade-in">
           <h2 class="text-3xl font-bold text-gray-900 mb-4">
             {translate('programs.ti.specializations_title')}
           </h2>
@@ -328,7 +330,8 @@ const courseSchema = {
         </div>
 
         <div class="grid md:grid-cols-2 gap-8">
-          {specializations.map((spec) => (
+          {specializations.map((spec, index) => (
+            <div class="anim-fade-up" style={`--delay: ${index}`}>
             <Card hover={true}>
               <div class="p-6">
                 <div class="flex items-start gap-4">
@@ -372,6 +375,7 @@ const courseSchema = {
                 </div>
               </div>
             </Card>
+            </div>
           ))}
         </div>
       </div>
@@ -382,7 +386,7 @@ const courseSchema = {
   <Section background="white">
     <Container>
       <div class="max-w-6xl mx-auto">
-        <div class="text-center mb-12">
+        <div class="text-center mb-12 anim-fade-in">
           <h2 class="text-3xl font-bold text-gray-900 mb-4">
             {translate('programs.ti.curriculum_title')}
           </h2>
@@ -464,7 +468,7 @@ const courseSchema = {
   <Section background="gradient">
     <Container>
       <div class="max-w-6xl mx-auto">
-        <div class="text-center mb-12">
+        <div class="text-center mb-12 anim-fade-in">
           <h2 class="text-3xl font-bold text-gray-900 mb-4">
             {translate('programs.ti.careers_title')}
           </h2>
@@ -490,7 +494,7 @@ const courseSchema = {
   <!-- CTA Section -->
   <Section background="white">
     <Container>
-      <div class="max-w-3xl mx-auto text-center">
+      <div class="max-w-3xl mx-auto text-center anim-fade-in">
         <h2 class="text-3xl font-bold text-gray-900 mb-4">
           {translate('programs.ti.cta_title')}
         </h2>

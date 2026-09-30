@@ -4,6 +4,7 @@ import Container from '../components/Container.astro';
 import Section from '../components/Section.astro';
 import Card from '../components/Card.astro';
 import { getLocaleFromUrl, t, localizePath } from '../utils/i18n';
+import ScrollAnimations from '../components/ScrollAnimations.astro';
 
 const locale = getLocaleFromUrl(Astro.url);
 const translate = (key: string) => t(locale, key);
@@ -29,10 +30,11 @@ const socialLinks = [
 ---
 
 <MarketingLayout title={translate('contact.title')} description={translate('contact.description')}>
+  <ScrollAnimations />
   <!-- Hero Section -->
   <Section background="gradient" class="pt-32 pb-20">
     <Container>
-      <div class="max-w-3xl mx-auto text-center">
+      <div class="max-w-3xl mx-auto text-center anim-fade-in">
         <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
           {translate('contact.title')}
         </h1>
@@ -48,7 +50,7 @@ const socialLinks = [
     <Container>
       <div class="grid lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
         <!-- Contact Information -->
-        <div>
+        <div class="anim-slide-right">
           <h2 class="text-2xl font-bold text-gray-900 mb-8">
             {translate('contact.info_title')}
           </h2>
@@ -147,7 +149,7 @@ const socialLinks = [
         </div>
 
         <!-- Contact Form -->
-        <div>
+        <div class="anim-slide-left">
           <Card>
             <div class="p-8">
               <h2 class="text-2xl font-bold text-gray-900 mb-2">
@@ -253,7 +255,7 @@ const socialLinks = [
   <!-- Map Section -->
   <Section background="gray">
     <Container>
-      <div class="max-w-6xl mx-auto">
+      <div class="max-w-6xl mx-auto anim-fade-up">
         <h2 class="text-2xl font-bold text-gray-900 mb-8 text-center">
           {translate('contact.map_title')}
         </h2>
@@ -276,7 +278,7 @@ const socialLinks = [
   <!-- CTA Section -->
   <Section background="white">
     <Container>
-      <div class="max-w-3xl mx-auto text-center">
+      <div class="max-w-3xl mx-auto text-center anim-fade-in">
         <h2 class="text-3xl font-bold text-gray-900 mb-4">
           {translate('contact.cta_title')}
         </h2>

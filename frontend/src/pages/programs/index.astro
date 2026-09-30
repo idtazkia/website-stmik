@@ -4,6 +4,7 @@ import Container from '../../components/Container.astro';
 import Section from '../../components/Section.astro';
 import Card from '../../components/Card.astro';
 import { getLocaleFromUrl, t, localizePath } from '../../utils/i18n';
+import ScrollAnimations from '../../components/ScrollAnimations.astro';
 
 const locale = getLocaleFromUrl(Astro.url);
 const translate = (key: string) => t(locale, key);
@@ -46,10 +47,11 @@ const programs = [
 ---
 
 <MarketingLayout title={translate('programs.title')} description={translate('programs.description')}>
+  <ScrollAnimations />
   <!-- Hero Section -->
   <Section background="gradient" class="pt-32 pb-20">
     <Container>
-      <div class="max-w-3xl mx-auto text-center">
+      <div class="max-w-3xl mx-auto text-center anim-fade-in">
         <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
           {translate('programs.title')}
         </h1>
@@ -64,8 +66,8 @@ const programs = [
   <Section background="white">
     <Container>
       <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-        {programs.map((program) => (
-          <a href={localPath(`/programs/${program.slug}`)} class="group block">
+        {programs.map((program, index) => (
+          <a href={localPath(`/programs/${program.slug}`)} class="group block anim-fade-up" style={`--delay: ${index}`}>
             <Card hover={true} class="h-full">
               <div class="p-8">
                 <!-- Icon -->
@@ -149,7 +151,7 @@ const programs = [
   <!-- Why Choose Us Section -->
   <Section background="gray">
     <Container>
-      <div class="max-w-4xl mx-auto text-center mb-12">
+      <div class="max-w-4xl mx-auto text-center mb-12 anim-fade-in">
         <h2 class="text-3xl font-bold text-gray-900 mb-4">
           {translate('about.unique_approach_title')}
         </h2>
@@ -204,7 +206,7 @@ const programs = [
   <!-- CTA Section -->
   <Section background="white">
     <Container>
-      <div class="max-w-3xl mx-auto text-center">
+      <div class="max-w-3xl mx-auto text-center anim-fade-in">
         <h2 class="text-3xl font-bold text-gray-900 mb-4">
           {translate('programs.si.cta_title')}
         </h2>
