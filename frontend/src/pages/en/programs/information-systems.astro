@@ -149,11 +149,11 @@ const specializations = [
 ];
 
 const careerPaths = [
-  { title: translate('programs.si.careers.systems_analyst'), description: translate('programs.si.careers.systems_analyst_desc') },
-  { title: translate('programs.si.careers.software_quality'), description: translate('programs.si.careers.software_quality_desc') },
-  { title: translate('programs.si.careers.data_professional'), description: translate('programs.si.careers.data_professional_desc') },
-  { title: translate('programs.si.careers.enterprise_professional'), description: translate('programs.si.careers.enterprise_professional_desc') },
-  { title: translate('programs.si.careers.it_project_manager'), description: translate('programs.si.careers.it_project_manager_desc') },
+  { title: translate('programs.si.careers.systems_analyst'), description: translate('programs.si.careers.systems_analyst_desc'), icon: 'diagram', color: 'primary' },
+  { title: translate('programs.si.careers.software_quality'), description: translate('programs.si.careers.software_quality_desc'), icon: 'check-shield', color: 'secondary' },
+  { title: translate('programs.si.careers.data_professional'), description: translate('programs.si.careers.data_professional_desc'), icon: 'database', color: 'primary' },
+  { title: translate('programs.si.careers.enterprise_professional'), description: translate('programs.si.careers.enterprise_professional_desc'), icon: 'building', color: 'secondary' },
+  { title: translate('programs.si.careers.it_project_manager'), description: translate('programs.si.careers.it_project_manager_desc'), icon: 'clipboard', color: 'primary' },
 ];
 
 const totalSKS = 147;
@@ -454,7 +454,37 @@ const courseSchema = {
           {careerPaths.map((career, index) => (
             <div class="anim-fade-up" style={`--delay: ${index}`}>
             <Card hover={true}>
-              <div class="p-6">
+              <div class="p-6 text-center">
+                <div class:list={[
+                  'w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 anim-icon',
+                  career.color === 'primary' ? 'bg-primary-100' : 'bg-secondary-100'
+                ]}>
+                  {career.icon === 'diagram' && (
+                    <svg class="w-7 h-7 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path>
+                    </svg>
+                  )}
+                  {career.icon === 'check-shield' && (
+                    <svg class="w-7 h-7 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                    </svg>
+                  )}
+                  {career.icon === 'database' && (
+                    <svg class="w-7 h-7 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path>
+                    </svg>
+                  )}
+                  {career.icon === 'building' && (
+                    <svg class="w-7 h-7 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                    </svg>
+                  )}
+                  {career.icon === 'clipboard' && (
+                    <svg class="w-7 h-7 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                    </svg>
+                  )}
+                </div>
                 <h3 class="font-bold text-gray-900 mb-2">{career.title}</h3>
                 <p class="text-sm text-gray-600">{career.description}</p>
               </div>
