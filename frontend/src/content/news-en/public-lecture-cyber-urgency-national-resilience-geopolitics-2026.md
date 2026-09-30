@@ -6,6 +6,8 @@ excerpt: STMIK Tazkia held a Public Lecture on "The Urgency of Cybersecurity in 
 images:
   - /images/news/kuliah-umum-urgensi-siber-stmik-tazkia-foto-bersama.jpg
   - /images/news/kuliah-umum-urgensi-siber-stmik-tazkia-penyerahan-sertifikat.jpg
+  - /images/news/kuliah-umum-urgensi-siber-stmik-tazkia-iwan-suryanawan.jpg
+  - /images/news/kuliah-umum-urgensi-siber-stmik-tazkia-adityawarman-adil.jpg
   - /images/news/kuliah-umum-urgensi-siber-stmik-tazkia-ricky-setiadi.jpg
   - /images/news/kuliah-umum-urgensi-siber-stmik-tazkia-nihrawati.jpg
 tags:
@@ -37,11 +39,15 @@ H. Iwan Suryanawan opened the session with a legislative perspective on the role
 
 "Cyber resilience is not solely the responsibility of the central government. Every region must have the capacity to protect its digital infrastructure. Young people like STMIK Tazkia students are at the forefront of building cyber defense from the local to the national level," stated H. Iwan Suryanawan.
 
+![H. Iwan Suryanawan delivering his speech at the Bogor City DPRD podium](/images/news/kuliah-umum-urgensi-siber-stmik-tazkia-iwan-suryanawan.jpg)
+
 ### 2. Dr. Adityawarman Adil, S.Si., M.Si — Chairman of the Bogor City DPRD
 
 As the host welcoming the event at the Bogor City DPRD building, Dr. Adityawarman Adil shared his perspective on how digital transformation in government must be balanced with strengthened cybersecurity. He also highlighted the importance of synergy between higher education institutions and the government in building a secure digital ecosystem.
 
 "Bogor is transforming into a smart city. But a smart city without strong cyber defense is like a house without a lock. We greatly appreciate STMIK Tazkia for educating its students about the urgency of cybersecurity in a geopolitical context. This is an investment in the future of the nation," said Dr. Adityawarman Adil.
+
+![Dr. Adityawarman Adil delivering his welcome remarks as Chairman of Bogor City DPRD](/images/news/kuliah-umum-urgensi-siber-stmik-tazkia-adityawarman-adil.jpg)
 
 ### 3. Ricky Setiadi, S.Kom., M.Kom — Indonesian Cyber Security Expert, STMIK Tazkia Lecturer
 

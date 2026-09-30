@@ -6,6 +6,8 @@ excerpt: STMIK Tazkia menggelar Kuliah Umum bertema "Urgensi Siber dalam Ketahan
 images:
   - /images/news/kuliah-umum-urgensi-siber-stmik-tazkia-foto-bersama.jpg
   - /images/news/kuliah-umum-urgensi-siber-stmik-tazkia-penyerahan-sertifikat.jpg
+  - /images/news/kuliah-umum-urgensi-siber-stmik-tazkia-iwan-suryanawan.jpg
+  - /images/news/kuliah-umum-urgensi-siber-stmik-tazkia-adityawarman-adil.jpg
   - /images/news/kuliah-umum-urgensi-siber-stmik-tazkia-ricky-setiadi.jpg
   - /images/news/kuliah-umum-urgensi-siber-stmik-tazkia-nihrawati.jpg
 tags:
@@ -37,11 +39,15 @@ H. Iwan Suryanawan membuka sesi dengan perspektif legislatif tentang peran kebij
 
 "Ketahanan siber bukan hanya tanggung jawab pemerintah pusat. Setiap daerah harus memiliki kapasitas untuk melindungi infrastruktur digitalnya. Generasi muda seperti mahasiswa STMIK Tazkia adalah garda terdepan dalam membangun pertahanan siber dari tingkat lokal hingga nasional," tegas H. Iwan Suryanawan.
 
+![H. Iwan Suryanawan menyampaikan materi di podium DPRD Kota Bogor](/images/news/kuliah-umum-urgensi-siber-stmik-tazkia-iwan-suryanawan.jpg)
+
 ### 2. Dr. Adityawarman Adil, S.Si., M.Si — Ketua DPRD Kota Bogor
 
 Sebagai tuan rumah yang menyambut kegiatan di gedung DPRD Kota Bogor, Dr. Adityawarman Adil memberikan pandangan tentang bagaimana transformasi digital di pemerintahan harus diimbangi dengan penguatan keamanan siber. Beliau juga menyoroti pentingnya sinergi antara perguruan tinggi dan pemerintah dalam membangun ekosistem digital yang aman.
 
 "Kota Bogor sedang bertransformasi menuju kota cerdas. Tetapi smart city tanpa pertahanan siber yang kuat ibarat rumah tanpa kunci. Kami sangat mengapresiasi STMIK Tazkia yang mengedukasi mahasiswanya tentang urgensi keamanan siber dalam konteks geopolitik. Ini adalah investasi untuk masa depan bangsa," ujar Dr. Adityawarman Adil.
+
+![Dr. Adityawarman Adil menyampaikan sambutan sebagai Ketua DPRD Kota Bogor](/images/news/kuliah-umum-urgensi-siber-stmik-tazkia-adityawarman-adil.jpg)
 
 ### 3. Ricky Setiadi, S.Kom., M.Kom — Ahli Cyber Security Indonesia, Dosen STMIK Tazkia
 
