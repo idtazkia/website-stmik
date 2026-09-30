@@ -16,7 +16,7 @@ const translate = (key: string) => t(locale, key);
   <!-- Hero Section -->
   <Section background="gradient" class="pt-32 pb-20">
     <Container>
-      <div class="max-w-4xl mx-auto text-center">
+      <div class="anim-fade-in max-w-4xl mx-auto text-center">
         <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
           {translate('about.title')}
         </h1>
@@ -36,15 +36,17 @@ const translate = (key: string) => t(locale, key);
   <!-- Name Meaning Section -->
   <Section background="white">
     <Container>
-      <div class="max-w-3xl mx-auto">
+      <div class="anim-fade-up max-w-3xl mx-auto">
         <Card>
-          <div class="p-8">
-            <h2 class="text-3xl font-bold text-primary-600 mb-6 text-center">
+          <div class="p-10 text-center relative overflow-hidden">
+            <div class="absolute top-4 left-6 text-primary-100 text-8xl font-serif leading-none select-none" aria-hidden="true">&ldquo;</div>
+            <h2 class="text-3xl font-bold text-primary-600 mb-6 relative z-10">
               {translate('about.name_meaning_title')}
             </h2>
-            <p class="text-lg text-gray-700 text-center">
+            <p class="text-lg text-gray-700 relative z-10 italic">
               {translate('about.name_meaning')}
             </p>
+            <div class="absolute bottom-4 right-6 text-primary-100 text-8xl font-serif leading-none select-none" aria-hidden="true">&rdquo;</div>
           </div>
         </Card>
       </div>
@@ -55,13 +57,20 @@ const translate = (key: string) => t(locale, key);
   <Section background="gray">
     <Container>
       <div class="max-w-4xl mx-auto">
-        <div class="text-center mb-12">
-          <h2 class="text-3xl font-bold text-gray-900 mb-6">
+        <div class="text-center mb-8">
+          <h2 class="anim-fade-up text-3xl font-bold text-gray-900 mb-2">
             {translate('about.vision_title')}
           </h2>
+          <div class="anim-fade-up w-16 h-1 bg-secondary-500 mx-auto rounded-full mb-8"></div>
+        </div>
+        <div class="anim-fade-up">
           <Card>
-            <div class="p-8">
-              <p class="text-xl text-gray-700">
+            <div class="p-10 text-center border-l-4 border-primary-500">
+              <svg class="w-10 h-10 text-primary-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+              </svg>
+              <p class="text-xl text-gray-700 font-medium">
                 {translate('about.vision')}
               </p>
             </div>
@@ -75,27 +84,32 @@ const translate = (key: string) => t(locale, key);
   <Section background="white">
     <Container>
       <div class="max-w-4xl mx-auto">
-        <h2 class="text-3xl font-bold text-gray-900 mb-12 text-center">
-          {translate('about.mission_title')}
-        </h2>
+        <div class="text-center mb-8">
+          <h2 class="anim-fade-up text-3xl font-bold text-gray-900 mb-2">
+            {translate('about.mission_title')}
+          </h2>
+          <div class="anim-fade-up w-16 h-1 bg-secondary-500 mx-auto rounded-full mb-12"></div>
+        </div>
         <div class="grid md:grid-cols-2 gap-6">
           {[1, 2, 3, 4, 5, 6].map((num) => (
-            <Card hover={true}>
-              <div class="p-6">
-                <div class="flex items-start space-x-4">
-                  <div class="flex-shrink-0">
-                    <div class="w-10 h-10 rounded-full bg-primary-500 text-white flex items-center justify-center font-bold text-lg">
-                      {num}
+            <div class="anim-fade-up" style={`--delay: ${num - 1}`}>
+              <Card hover={true}>
+                <div class="p-6">
+                  <div class="flex items-start space-x-4">
+                    <div class="flex-shrink-0">
+                      <div class="anim-icon w-10 h-10 rounded-full bg-primary-500 text-white flex items-center justify-center font-bold text-lg shadow-md">
+                        {num}
+                      </div>
+                    </div>
+                    <div class="flex-1">
+                      <p class="text-gray-700">
+                        {translate(`about.mission_${num}`)}
+                      </p>
                     </div>
                   </div>
-                  <div class="flex-1">
-                    <p class="text-gray-700">
-                      {translate(`about.mission_${num}`)}
-                    </p>
-                  </div>
                 </div>
-              </div>
-            </Card>
+              </Card>
+            </div>
           ))}
         </div>
       </div>
@@ -106,63 +120,80 @@ const translate = (key: string) => t(locale, key);
   <Section background="gradient">
     <Container>
       <div class="max-w-4xl mx-auto text-center">
-        <h2 class="text-3xl font-bold text-gray-900 mb-12">
-          {translate('nav.programs')}
-        </h2>
+        <div class="mb-8">
+          <h2 class="anim-fade-up text-3xl font-bold text-gray-900 mb-2">
+            {translate('nav.programs')}
+          </h2>
+          <div class="anim-fade-up w-16 h-1 bg-secondary-500 mx-auto rounded-full mb-12"></div>
+        </div>
         <div class="grid md:grid-cols-2 gap-8">
           <!-- Sistem Informasi -->
-          <Card hover={true}>
-            <div class="p-8">
-              <h3 class="text-2xl font-bold text-primary-600 mb-4">
-                {translate('programs.information_systems')}
-              </h3>
-              <ul class="text-left space-y-2 text-gray-700">
-                <li class="flex items-start">
-                  <span class="text-primary-500 mr-2">•</span>
-                  <span>Project Management</span>
-                </li>
-                <li class="flex items-start">
-                  <span class="text-primary-500 mr-2">•</span>
-                  <span>Machine Learning</span>
-                </li>
-                <li class="flex items-start">
-                  <span class="text-primary-500 mr-2">•</span>
-                  <span>Data Analytics</span>
-                </li>
-                <li class="flex items-start">
-                  <span class="text-primary-500 mr-2">•</span>
-                  <span>Business Information Systems</span>
-                </li>
-              </ul>
-            </div>
-          </Card>
+          <div class="anim-slide-right">
+            <Card hover={true}>
+              <div class="p-8">
+                <div class="w-14 h-14 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg class="w-7 h-7 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  </svg>
+                </div>
+                <h3 class="text-2xl font-bold text-primary-600 mb-4">
+                  {translate('programs.information_systems')}
+                </h3>
+                <ul class="text-left space-y-3 text-gray-700">
+                  <li class="flex items-center">
+                    <span class="w-2 h-2 bg-primary-500 rounded-full mr-3 flex-shrink-0"></span>
+                    <span>Project Management</span>
+                  </li>
+                  <li class="flex items-center">
+                    <span class="w-2 h-2 bg-primary-500 rounded-full mr-3 flex-shrink-0"></span>
+                    <span>Machine Learning</span>
+                  </li>
+                  <li class="flex items-center">
+                    <span class="w-2 h-2 bg-primary-500 rounded-full mr-3 flex-shrink-0"></span>
+                    <span>Data Analytics</span>
+                  </li>
+                  <li class="flex items-center">
+                    <span class="w-2 h-2 bg-primary-500 rounded-full mr-3 flex-shrink-0"></span>
+                    <span>Business Information Systems</span>
+                  </li>
+                </ul>
+              </div>
+            </Card>
+          </div>
 
           <!-- Teknik Informatika -->
-          <Card hover={true}>
-            <div class="p-8">
-              <h3 class="text-2xl font-bold text-primary-600 mb-4">
-                {translate('programs.computer_engineering')}
-              </h3>
-              <ul class="text-left space-y-2 text-gray-700">
-                <li class="flex items-start">
-                  <span class="text-primary-500 mr-2">•</span>
-                  <span>Cybersecurity</span>
-                </li>
-                <li class="flex items-start">
-                  <span class="text-primary-500 mr-2">•</span>
-                  <span>Artificial Intelligence</span>
-                </li>
-                <li class="flex items-start">
-                  <span class="text-primary-500 mr-2">•</span>
-                  <span>Web Development</span>
-                </li>
-                <li class="flex items-start">
-                  <span class="text-primary-500 mr-2">•</span>
-                  <span>Software Engineering</span>
-                </li>
-              </ul>
-            </div>
-          </Card>
+          <div class="anim-slide-left">
+            <Card hover={true}>
+              <div class="p-8">
+                <div class="w-14 h-14 bg-secondary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg class="w-7 h-7 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                  </svg>
+                </div>
+                <h3 class="text-2xl font-bold text-primary-600 mb-4">
+                  {translate('programs.computer_engineering')}
+                </h3>
+                <ul class="text-left space-y-3 text-gray-700">
+                  <li class="flex items-center">
+                    <span class="w-2 h-2 bg-secondary-500 rounded-full mr-3 flex-shrink-0"></span>
+                    <span>Cybersecurity</span>
+                  </li>
+                  <li class="flex items-center">
+                    <span class="w-2 h-2 bg-secondary-500 rounded-full mr-3 flex-shrink-0"></span>
+                    <span>Artificial Intelligence</span>
+                  </li>
+                  <li class="flex items-center">
+                    <span class="w-2 h-2 bg-secondary-500 rounded-full mr-3 flex-shrink-0"></span>
+                    <span>Web Development</span>
+                  </li>
+                  <li class="flex items-center">
+                    <span class="w-2 h-2 bg-secondary-500 rounded-full mr-3 flex-shrink-0"></span>
+                    <span>Software Engineering</span>
+                  </li>
+                </ul>
+              </div>
+            </Card>
+          </div>
         </div>
       </div>
     </Container>
@@ -172,108 +203,184 @@ const translate = (key: string) => t(locale, key);
   <Section background="white">
     <Container>
       <div class="max-w-4xl mx-auto">
-        <div class="text-center mb-12">
-          <h2 class="text-3xl font-bold text-gray-900 mb-4">
+        <div class="text-center mb-8">
+          <h2 class="anim-fade-up text-3xl font-bold text-gray-900 mb-2">
             {translate('about.unique_approach_title')}
           </h2>
-          <p class="text-xl text-primary-600 font-semibold mb-6">
+          <div class="anim-fade-up w-16 h-1 bg-secondary-500 mx-auto rounded-full mb-6"></div>
+          <p class="anim-fade-up text-xl text-primary-600 font-semibold mb-4">
             {translate('about.unique_approach_subtitle')}
           </p>
-          <p class="text-lg text-gray-700">
+          <p class="anim-fade-up text-lg text-gray-700">
             {translate('about.unique_approach_intro')}
           </p>
         </div>
 
-        <div class="grid md:grid-cols-2 gap-6">
-          <Card hover={true}>
-            <div class="p-6">
-              <div class="flex items-start space-x-4">
-                <div class="flex-shrink-0">
-                  <div class="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center">
-                    <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                    </svg>
+        <div class="grid md:grid-cols-2 gap-6 mt-12">
+          <div class="anim-fade-up" style="--delay: 0">
+            <Card hover={true}>
+              <div class="p-6">
+                <div class="flex items-start space-x-4">
+                  <div class="flex-shrink-0">
+                    <div class="anim-icon w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center">
+                      <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="flex-1">
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">
+                      {translate('about.unique_approach_integration_title')}
+                    </h3>
+                    <p class="text-gray-700">
+                      {translate('about.unique_approach_integration_desc')}
+                    </p>
                   </div>
                 </div>
-                <div class="flex-1">
-                  <h3 class="text-xl font-bold text-gray-900 mb-2">
-                    {translate('about.unique_approach_integration_title')}
-                  </h3>
-                  <p class="text-gray-700">
-                    {translate('about.unique_approach_integration_desc')}
-                  </p>
-                </div>
               </div>
-            </div>
-          </Card>
+            </Card>
+          </div>
 
-          <Card hover={true}>
-            <div class="p-6">
-              <div class="flex items-start space-x-4">
-                <div class="flex-shrink-0">
-                  <div class="w-12 h-12 rounded-full bg-secondary-100 flex items-center justify-center">
-                    <svg class="w-6 h-6 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                    </svg>
+          <div class="anim-fade-up" style="--delay: 1">
+            <Card hover={true}>
+              <div class="p-6">
+                <div class="flex items-start space-x-4">
+                  <div class="flex-shrink-0">
+                    <div class="anim-icon w-12 h-12 rounded-full bg-secondary-100 flex items-center justify-center">
+                      <svg class="w-6 h-6 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="flex-1">
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">
+                      {translate('about.unique_approach_industry_title')}
+                    </h3>
+                    <p class="text-gray-700">
+                      {translate('about.unique_approach_industry_desc')}
+                    </p>
                   </div>
                 </div>
-                <div class="flex-1">
-                  <h3 class="text-xl font-bold text-gray-900 mb-2">
-                    {translate('about.unique_approach_industry_title')}
-                  </h3>
-                  <p class="text-gray-700">
-                    {translate('about.unique_approach_industry_desc')}
-                  </p>
-                </div>
               </div>
-            </div>
-          </Card>
+            </Card>
+          </div>
 
-          <Card hover={true}>
-            <div class="p-6">
-              <div class="flex items-start space-x-4">
-                <div class="flex-shrink-0">
-                  <div class="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center">
-                    <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                    </svg>
+          <div class="anim-fade-up" style="--delay: 2">
+            <Card hover={true}>
+              <div class="p-6">
+                <div class="flex items-start space-x-4">
+                  <div class="flex-shrink-0">
+                    <div class="anim-icon w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center">
+                      <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="flex-1">
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">
+                      {translate('about.unique_approach_quality_title')}
+                    </h3>
+                    <p class="text-gray-700">
+                      {translate('about.unique_approach_quality_desc')}
+                    </p>
                   </div>
                 </div>
-                <div class="flex-1">
-                  <h3 class="text-xl font-bold text-gray-900 mb-2">
-                    {translate('about.unique_approach_quality_title')}
-                  </h3>
-                  <p class="text-gray-700">
-                    {translate('about.unique_approach_quality_desc')}
-                  </p>
-                </div>
               </div>
-            </div>
-          </Card>
+            </Card>
+          </div>
 
-          <Card hover={true}>
-            <div class="p-6">
-              <div class="flex items-start space-x-4">
-                <div class="flex-shrink-0">
-                  <div class="w-12 h-12 rounded-full bg-secondary-100 flex items-center justify-center">
-                    <svg class="w-6 h-6 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                    </svg>
+          <div class="anim-fade-up" style="--delay: 3">
+            <Card hover={true}>
+              <div class="p-6">
+                <div class="flex items-start space-x-4">
+                  <div class="flex-shrink-0">
+                    <div class="anim-icon w-12 h-12 rounded-full bg-secondary-100 flex items-center justify-center">
+                      <svg class="w-6 h-6 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="flex-1">
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">
+                      {translate('about.unique_approach_outcomes_title')}
+                    </h3>
+                    <p class="text-gray-700">
+                      {translate('about.unique_approach_outcomes_desc')}
+                    </p>
                   </div>
                 </div>
-                <div class="flex-1">
-                  <h3 class="text-xl font-bold text-gray-900 mb-2">
-                    {translate('about.unique_approach_outcomes_title')}
-                  </h3>
-                  <p class="text-gray-700">
-                    {translate('about.unique_approach_outcomes_desc')}
-                  </p>
-                </div>
               </div>
-            </div>
-          </Card>
+            </Card>
+          </div>
         </div>
       </div>
     </Container>
   </Section>
 </MarketingLayout>
+
+<style>
+  /* Fade in (no movement) */
+  .anim-fade-in {
+    opacity: 0;
+    transition: opacity 0.8s ease-out;
+  }
+  .anim-fade-in.visible { opacity: 1; }
+
+  /* Fade up */
+  .anim-fade-up {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    transition-delay: calc(var(--delay, 0) * 0.12s);
+  }
+  .anim-fade-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Slide from right */
+  .anim-slide-right {
+    opacity: 0;
+    transform: translateX(-40px);
+    transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+  }
+  .anim-slide-right.visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  /* Slide from left */
+  .anim-slide-left {
+    opacity: 0;
+    transform: translateX(40px);
+    transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+    transition-delay: 0.15s;
+  }
+  .anim-slide-left.visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  /* Icon pop */
+  .anim-fade-up.visible .anim-icon {
+    animation: icon-pop 0.4s ease-out calc(var(--delay, 0) * 0.12s + 0.3s) both;
+  }
+  @keyframes icon-pop {
+    0% { transform: scale(0.5); opacity: 0; }
+    70% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+</style>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.anim-fade-in, .anim-fade-up, .anim-slide-right, .anim-slide-left')
+    .forEach((el) => observer.observe(el));
+</script>
