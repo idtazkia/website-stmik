@@ -15,7 +15,7 @@ const localPath = (path: string) => localizePath(locale, path);
   <Section background="gradient" spacing="xl">
     <Container>
       <div class="text-center space-y-8">
-        <div class="flex justify-center">
+        <div class="flex justify-center hero-logo">
           <img
             src="/images/logo-stmik-tazkia.svg"
             alt={translate('site.name')}
@@ -24,16 +24,16 @@ const localPath = (path: string) => localizePath(locale, path);
             height="128"
           />
         </div>
-        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-primary-500">
+        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-primary-500 hero-title">
           {translate('site.name')}
         </h1>
-        <p class="text-xl md:text-2xl text-gray-700 max-w-3xl mx-auto">
+        <p class="text-xl md:text-2xl text-gray-700 max-w-3xl mx-auto hero-tagline">
           {translate('site.tagline')}
         </p>
-        <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+        <p class="text-lg text-gray-600 max-w-2xl mx-auto hero-mission">
           {translate('site.mission')}
         </p>
-        <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+        <div class="flex flex-col sm:flex-row gap-4 justify-center items-center hero-cta">
           <Button href={localPath('/register')} variant="primary" size="lg">
             {translate('button.apply_now')}
           </Button>
@@ -233,6 +233,38 @@ const localPath = (path: string) => localizePath(locale, path);
 </MarketingLayout>
 
 <style>
+  /* Hero entrance animations */
+  .hero-logo {
+    opacity: 0;
+    transform: scale(0.5);
+    animation: hero-logo-enter 0.8s ease-out 0.2s both;
+  }
+  @keyframes hero-logo-enter {
+    0% { opacity: 0; transform: scale(0.5); }
+    60% { transform: scale(1.08); opacity: 1; }
+    100% { opacity: 1; transform: scale(1); }
+  }
+  .hero-title {
+    opacity: 0;
+    animation: hero-fade-up 0.7s ease-out 0.7s both;
+  }
+  .hero-tagline {
+    opacity: 0;
+    animation: hero-fade-up 0.6s ease-out 1.0s both;
+  }
+  .hero-mission {
+    opacity: 0;
+    animation: hero-fade-up 0.6s ease-out 1.2s both;
+  }
+  .hero-cta {
+    opacity: 0;
+    animation: hero-fade-up 0.6s ease-out 1.4s both;
+  }
+  @keyframes hero-fade-up {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
   .feature-card {
     opacity: 0;
     transform: translateY(30px);

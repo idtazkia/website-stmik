@@ -396,7 +396,8 @@ const courseSchema = {
         </div>
 
         <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {semesters.map((sem) => (
+          {semesters.map((sem, index) => (
+            <div class="anim-fade-up" style={`--delay: ${index}`}>
             <Card>
               <div class="p-4">
                 <div class="flex items-center justify-between mb-4">
@@ -430,11 +431,12 @@ const courseSchema = {
                 </ul>
               </div>
             </Card>
+            </div>
           ))}
         </div>
 
         <!-- Legend -->
-        <div class="flex flex-wrap justify-center gap-6 mt-8 text-sm">
+        <div class="flex flex-wrap justify-center gap-6 mt-8 text-sm anim-fade-in">
           <div class="flex items-center gap-2">
             <span class="w-3 h-3 bg-gray-400 rounded"></span>
             <span class="text-gray-600">MKWU</span>
