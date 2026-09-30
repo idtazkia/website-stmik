@@ -31,7 +31,7 @@ Di tengah lanskap geopolitik global yang semakin kompleks, keamanan siber bukan 
 
 Kuliah umum ini menghadirkan empat pembicara yang mewakili perspektif legislatif, media, dan keamanan siber:
 
-### 1. H. Iwan Suryanawan, S.Sos — Anggota DPRD Provinsi Jawa Barat
+### 1. H. Iwan Suryanawan, S.Sos — Wakil Ketua DPRD Provinsi Jawa Barat
 
 H. Iwan Suryanawan membuka sesi dengan perspektif legislatif tentang peran kebijakan publik dalam memperkuat pertahanan siber nasional. Beliau menekankan bahwa pemerintah daerah memiliki tanggung jawab besar dalam mendorong literasi digital dan keamanan siber di tingkat masyarakat.
 
