@@ -451,13 +451,15 @@ const courseSchema = {
         </div>
 
         <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {careerPaths.map((career) => (
+          {careerPaths.map((career, index) => (
+            <div class="anim-fade-up" style={`--delay: ${index}`}>
             <Card hover={true}>
               <div class="p-6">
                 <h3 class="font-bold text-gray-900 mb-2">{career.title}</h3>
                 <p class="text-sm text-gray-600">{career.description}</p>
               </div>
             </Card>
+            </div>
           ))}
         </div>
       </div>
