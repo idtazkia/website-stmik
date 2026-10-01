@@ -12,76 +12,89 @@ const translate = (key: string) => t(locale, key);
 const localPath = (path: string) => localizePath(locale, path);
 
 // Curriculum data - 2026 curriculum based on IS2020 (ACM/AIS) and KKNI Level 6
-// University-wide courses (Ketazkiaan, Bahasa, Pancasila, Agama, etc.) excluded from display
 const semesters = [
   {
     semester: 1,
     courses: [
-      { code: 'MISI.101', name: translate('programs.si.courses.business_logic_programming'), sks: 3, category: 'core' },
-      { code: 'MISI.102', name: translate('programs.si.courses.org_info_systems'), sks: 3, category: 'core' },
-      { code: 'MISI.103', name: translate('programs.si.courses.it_infrastructure'), sks: 3, category: 'core' },
+      { code: 'MKWK.101', name: translate('programs.si.courses.indonesian'), sks: 2, category: 'mkwu' },
+      { code: 'MKUT.101', name: translate('programs.si.courses.ketazkian'), sks: 2, category: 'campus' },
+      { code: 'MKUT.102', name: translate('programs.si.courses.entrepreneurship'), sks: 3, category: 'campus' },
       { code: 'MKST.101', name: translate('programs.si.courses.basic_math'), sks: 2, category: 'core' },
       { code: 'MKST.102', name: translate('programs.si.courses.discrete_math'), sks: 3, category: 'core' },
+      { code: 'MISI.101', name: translate('programs.si.courses.business_logic_programming'), sks: 3, category: 'core' },
+      { code: 'MISI.102', name: translate('programs.si.courses.org_info_systems'), sks: 2, category: 'core' },
+      { code: 'MISI.103', name: translate('programs.si.courses.it_infrastructure'), sks: 3, category: 'core' },
     ]
   },
   {
     semester: 2,
     courses: [
+      { code: 'MKUT.201', name: translate('programs.si.courses.fiqh_muamalah'), sks: 3, category: 'campus' },
+      { code: 'MKUT.202', name: translate('programs.si.courses.english'), sks: 2, category: 'mkwu' },
+      { code: 'MKST.201', name: translate('programs.si.courses.statistics'), sks: 3, category: 'core' },
+      { code: 'MKST.202', name: translate('programs.si.courses.linear_algebra'), sks: 3, category: 'core' },
       { code: 'MISI.201', name: translate('programs.si.courses.data_info_management'), sks: 3, category: 'core' },
       { code: 'MISI.202', name: translate('programs.si.courses.os_drone_gis'), sks: 3, category: 'core' },
       { code: 'MISI.203', name: translate('programs.si.courses.integration_deployment'), sks: 3, category: 'core' },
-      { code: 'MKST.201', name: translate('programs.si.courses.statistics'), sks: 3, category: 'core' },
-      { code: 'MKST.202', name: translate('programs.si.courses.linear_algebra'), sks: 3, category: 'core' },
     ]
   },
   {
     semester: 3,
     courses: [
-      { code: 'MISI.301', name: translate('programs.si.courses.system_analysis'), sks: 3, category: 'core' },
-      { code: 'MISI.302', name: translate('programs.si.courses.integrated_db_management'), sks: 3, category: 'core' },
-      { code: 'MISI.303', name: translate('programs.si.courses.business_process_management'), sks: 3, category: 'core' },
-      { code: 'MISI.304', name: translate('programs.si.courses.oop'), sks: 3, category: 'core' },
-      { code: 'MISI.305', name: translate('programs.si.courses.web_info_systems'), sks: 3, category: 'project' },
+      { code: 'MKUT.301', name: translate('programs.si.courses.islamic_economy'), sks: 3, category: 'campus' },
+      { code: 'MISI.301', name: translate('programs.si.courses.integrated_db_management'), sks: 3, category: 'core' },
+      { code: 'MISI.302', name: translate('programs.si.courses.web_info_systems'), sks: 3, category: 'project' },
+      { code: 'MISI.303', name: translate('programs.si.courses.oop'), sks: 3, category: 'core' },
+      { code: 'MISI.304', name: translate('programs.si.courses.system_analysis'), sks: 3, category: 'core' },
+      { code: 'MISI.305', name: translate('programs.si.courses.business_process_management'), sks: 3, category: 'core' },
       { code: 'MISI.306', name: translate('programs.si.courses.hci'), sks: 3, category: 'core' },
     ]
   },
   {
     semester: 4,
     courses: [
-      { code: 'MISI.401', name: translate('programs.si.courses.business_intelligence'), sks: 3, category: 'core' },
-      { code: 'MISI.402', name: translate('programs.si.courses.software_qa'), sks: 3, category: 'core' },
+      { code: 'MKWK.401', name: translate('programs.si.courses.religion'), sks: 2, category: 'mkwu' },
+      { code: 'MKST.401', name: translate('programs.si.courses.research_methods'), sks: 3, category: 'core' },
+      { code: 'MISI.400', name: translate('programs.si.courses.enterprise_systems'), sks: 3, category: 'core' },
+      { code: 'MISI.401', name: translate('programs.si.courses.software_qa'), sks: 3, category: 'core' },
+      { code: 'MISI.402', name: translate('programs.si.courses.business_info_security'), sks: 3, category: 'core' },
       { code: 'MISI.403', name: translate('programs.si.courses.ux_design'), sks: 3, category: 'core' },
-      { code: 'MISI.404', name: translate('programs.si.courses.business_info_security'), sks: 3, category: 'core' },
-      { code: 'MISI.405', name: translate('programs.si.courses.enterprise_systems'), sks: 3, category: 'core' },
-      { code: 'MISI.406', name: translate('programs.si.courses.research_methods'), sks: 3, category: 'core' },
+      { code: 'MISI.404', name: translate('programs.si.courses.business_intelligence'), sks: 3, category: 'core' },
+      { code: 'MPSI.401', name: translate('programs.si.courses.elective') + ' 1', sks: 2, category: 'elective' },
     ]
   },
   {
     semester: 5,
     courses: [
+      { code: 'MKWK.402', name: translate('programs.si.courses.pancasila'), sks: 2, category: 'mkwu' },
       { code: 'MISI.501', name: translate('programs.si.courses.business_project_management'), sks: 3, category: 'core' },
       { code: 'MISI.502', name: translate('programs.si.courses.applied_ai'), sks: 3, category: 'core' },
-      { code: 'MISI.503', name: translate('programs.si.courses.system_integration_cloud'), sks: 3, category: 'core' },
-      { code: 'MISI.504', name: translate('programs.si.courses.data_architecture'), sks: 3, category: 'core' },
-      { code: 'MISI.505', name: translate('programs.si.courses.software_architecture_design'), sks: 3, category: 'core' },
-      { code: 'MISI.506', name: translate('programs.si.courses.mobile_iot'), sks: 3, category: 'core' },
+      { code: 'MISI.503', name: translate('programs.si.courses.mobile_iot'), sks: 3, category: 'core' },
+      { code: 'MISI.504', name: translate('programs.si.courses.system_integration_cloud'), sks: 3, category: 'core' },
+      { code: 'MISI.505', name: translate('programs.si.courses.data_architecture'), sks: 3, category: 'core' },
+      { code: 'MISI.506', name: translate('programs.si.courses.software_architecture_design'), sks: 3, category: 'core' },
+      { code: 'MPSI.501', name: translate('programs.si.courses.elective') + ' 2', sks: 2, category: 'elective' },
     ]
   },
   {
     semester: 6,
     courses: [
-      { code: 'MISI.601', name: translate('programs.si.courses.enterprise_data_arch'), sks: 3, category: 'core' },
-      { code: 'MISI.602', name: translate('programs.si.courses.cyber_security_ops'), sks: 3, category: 'core' },
-      { code: 'MISI.603', name: translate('programs.si.courses.professional_ethics'), sks: 2, category: 'core' },
-      { code: 'MPSI.601', name: translate('programs.si.courses.elective') + ' 1', sks: 3, category: 'elective' },
-      { code: 'MPSI.602', name: translate('programs.si.courses.elective') + ' 2', sks: 3, category: 'elective' },
+      { code: 'MKWK.601', name: translate('programs.si.courses.citizenship'), sks: 2, category: 'mkwu' },
+      { code: 'MKST.601', name: translate('programs.si.courses.professional_ethics'), sks: 2, category: 'core' },
+      { code: 'MISI.601', name: translate('programs.si.courses.cyber_security_ops'), sks: 3, category: 'core' },
+      { code: 'MISI.602', name: translate('programs.si.courses.enterprise_data_arch'), sks: 3, category: 'core' },
+      { code: 'MPSI.601', name: translate('programs.si.courses.elective') + ' 3', sks: 3, category: 'elective' },
+      { code: 'MPSI.602', name: translate('programs.si.courses.elective') + ' 4', sks: 3, category: 'elective' },
+      { code: 'MPSI.603', name: translate('programs.si.courses.elective') + ' 5', sks: 3, category: 'elective' },
+      { code: 'MPSI.605', name: translate('programs.si.courses.elective') + ' 7', sks: 2, category: 'elective' },
     ]
   },
   {
     semester: 7,
     courses: [
+      { code: 'MKST.701', name: translate('programs.si.courses.thesis_proposal'), sks: 2, category: 'final' },
       { code: 'MISI.701', name: translate('programs.si.courses.internship_mbkm'), sks: 12, category: 'mbkm' },
-      { code: 'MISI.702', name: translate('programs.si.courses.thesis_proposal'), sks: 2, category: 'final' },
+      { code: 'MPSI.701', name: translate('programs.si.courses.elective') + ' 6', sks: 3, category: 'elective' },
     ]
   },
   {
@@ -389,6 +402,8 @@ const courseSchema = {
                       <span class:list={[
                         'w-2 h-2 rounded-full mt-1.5 shrink-0',
                         course.category === 'core' && 'bg-gray-600',
+                        course.category === 'mkwu' && 'bg-amber-500',
+                        course.category === 'campus' && 'bg-teal-500',
                         course.category === 'project' && 'bg-primary-500',
                         course.category === 'elective' && 'bg-secondary-500',
                         course.category === 'mbkm' && 'bg-green-500',
@@ -414,6 +429,14 @@ const courseSchema = {
           <div class="flex items-center gap-1.5">
             <span class="w-2.5 h-2.5 bg-gray-600 rounded-full"></span>
             <span class="text-gray-600">{translate('programs.si.legend_core')}</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 bg-amber-500 rounded-full"></span>
+            <span class="text-gray-600">{translate('programs.si.legend_mkwu')}</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 bg-teal-500 rounded-full"></span>
+            <span class="text-gray-600">{translate('programs.si.legend_campus')}</span>
           </div>
           <div class="flex items-center gap-1.5">
             <span class="w-2.5 h-2.5 bg-primary-500 rounded-full"></span>
