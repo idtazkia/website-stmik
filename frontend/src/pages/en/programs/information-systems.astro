@@ -370,66 +370,65 @@ const courseSchema = {
           </p>
         </div>
 
-        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
           {semesters.map((sem, index) => (
-            <div class="anim-fade-up" style={`--delay: ${index}`}>
-            <Card>
-              <div class="p-4">
-                <div class="flex items-center justify-between mb-4">
-                  <h3 class="font-bold text-primary-600">
+            <div class="anim-fade-up h-full" style={`--delay: ${index}`}>
+              <div class="bg-white rounded-xl shadow-md h-full border-t-4 border-primary-400 flex flex-col">
+                <div class="flex items-center justify-between px-4 pt-4 pb-3">
+                  <h3 class="font-bold text-primary-700">
                     {translate('programs.si.semester')} {sem.semester}
                   </h3>
-                  <span class="text-sm text-gray-500">
+                  <span class="text-xs font-semibold bg-primary-50 text-primary-700 px-2.5 py-1 rounded-full">
                     {sem.courses.reduce((acc, c) => acc + c.sks, 0)} SKS
                   </span>
                 </div>
-                <ul class="space-y-2">
+                <div class="border-t border-gray-100 mx-4"></div>
+                <ul class="px-4 py-3 space-y-2 flex-1">
                   {sem.courses.map((course) => (
-                    <li class="text-sm">
-                      <div class="flex justify-between items-start">
-                        <span class:list={[
-                          'flex-1',
-                          course.category === 'mkwu' && 'text-gray-500',
-                          course.category === 'campus' && 'text-purple-600',
-                          course.category === 'core' && 'text-gray-700',
-                          course.category === 'project' && 'text-primary-600 font-medium',
-                          course.category === 'elective' && 'text-secondary-600',
-                          course.category === 'mbkm' && 'text-green-600',
-                          course.category === 'final' && 'text-primary-700 font-bold',
-                        ]}>
-                          {course.name}
-                        </span>
-                        <span class="text-gray-400 ml-2">{course.sks}</span>
-                      </div>
+                    <li class="flex items-start gap-2 text-sm">
+                      <span class:list={[
+                        'w-2 h-2 rounded-full mt-1.5 shrink-0',
+                        course.category === 'core' && 'bg-gray-600',
+                        course.category === 'project' && 'bg-primary-500',
+                        course.category === 'elective' && 'bg-secondary-500',
+                        course.category === 'mbkm' && 'bg-green-500',
+                        course.category === 'final' && 'bg-primary-700',
+                      ]}></span>
+                      <span class:list={[
+                        'flex-1 text-gray-700',
+                        (course.category === 'mbkm' || course.category === 'final') && 'font-semibold',
+                      ]}>
+                        {course.name}
+                      </span>
+                      <span class="text-gray-400 shrink-0 tabular-nums">{course.sks}</span>
                     </li>
                   ))}
                 </ul>
               </div>
-            </Card>
             </div>
           ))}
         </div>
 
         <!-- Legend -->
-        <div class="flex flex-wrap justify-center gap-6 mt-8 text-sm anim-fade-in">
-          <div class="flex items-center gap-2">
-            <span class="w-3 h-3 bg-gray-700 rounded"></span>
+        <div class="flex flex-wrap justify-center gap-x-5 gap-y-2 mt-8 text-sm anim-fade-in">
+          <div class="flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 bg-gray-600 rounded-full"></span>
             <span class="text-gray-600">{translate('programs.si.legend_core')}</span>
           </div>
-          <div class="flex items-center gap-2">
-            <span class="w-3 h-3 bg-primary-500 rounded"></span>
+          <div class="flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 bg-primary-500 rounded-full"></span>
             <span class="text-gray-600">{translate('programs.si.legend_project')}</span>
           </div>
-          <div class="flex items-center gap-2">
-            <span class="w-3 h-3 bg-secondary-500 rounded"></span>
+          <div class="flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 bg-secondary-500 rounded-full"></span>
             <span class="text-gray-600">{translate('programs.si.legend_elective')}</span>
           </div>
-          <div class="flex items-center gap-2">
-            <span class="w-3 h-3 bg-green-500 rounded"></span>
+          <div class="flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 bg-green-500 rounded-full"></span>
             <span class="text-gray-600">MBKM</span>
           </div>
-          <div class="flex items-center gap-2">
-            <span class="w-3 h-3 bg-primary-700 rounded"></span>
+          <div class="flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 bg-primary-700 rounded-full"></span>
             <span class="text-gray-600">{translate('programs.si.legend_final')}</span>
           </div>
         </div>
