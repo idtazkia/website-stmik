@@ -92,10 +92,10 @@ const translate = (key: string) => t(locale, key);
         </div>
         <div class="grid md:grid-cols-2 gap-6">
           {[1, 2, 3, 4, 5, 6].map((num) => (
-            <div class="anim-fade-up" style={`--delay: ${num - 1}`}>
-              <Card hover={true}>
-                <div class="p-6">
-                  <div class="flex items-start space-x-4">
+            <div class="anim-fade-up h-full" style={`--delay: ${num - 1}`}>
+              <Card hover={true} class="h-full">
+                <div class="p-6 h-full">
+                  <div class="flex items-start space-x-4 h-full">
                     <div class="flex-shrink-0">
                       <div class="anim-icon w-10 h-10 rounded-full bg-primary-500 text-white flex items-center justify-center font-bold text-lg shadow-md">
                         {num}

@@ -39,7 +39,7 @@ const lecturers = allLecturers.sort((a, b) => a.data.order - b.data.order);
           <a href={`/lecturers/${lecturer.slug}`} class="group anim-fade-up" style={`--delay: ${index % 3}`}>
             <div class="bg-white rounded-xl shadow-md overflow-hidden h-full flex flex-col group-hover:shadow-lg transition-shadow">
               {lecturer.data.photo ? (
-                <div class="aspect-[4/3] overflow-hidden bg-gray-100">
+                <div class="aspect-[4/3] overflow-hidden bg-white">
                   <img
                     src={lecturer.data.photo}
                     alt={lecturer.data.name}
