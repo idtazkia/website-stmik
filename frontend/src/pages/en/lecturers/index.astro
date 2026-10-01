@@ -38,29 +38,31 @@ const lecturers = allLecturers.sort((a, b) => a.data.order - b.data.order);
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
         {lecturers.map((lecturer, index) => (
           <a href={`/en/lecturers/${lecturer.slug}`} class="group anim-fade-up" style={`--delay: ${index % 3}`}>
-            <Card hover={true} class="h-full">
-              <div class="text-center">
-                {lecturer.data.photo ? (
+            <div class="bg-white rounded-xl shadow-md overflow-hidden h-full flex flex-col group-hover:shadow-lg transition-shadow">
+              {lecturer.data.photo ? (
+                <div class="aspect-[4/3] overflow-hidden bg-gray-100">
                   <img
                     src={lecturer.data.photo}
                     alt={lecturer.data.name}
-                    class="w-32 h-32 rounded-full mx-auto mb-4 object-cover border-4 border-primary-100"
+                    class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
                     loading="lazy"
                   />
-                ) : (
-                  <div class="w-32 h-32 rounded-full mx-auto mb-4 bg-primary-100 flex items-center justify-center border-4 border-primary-200">
-                    <span class="text-4xl font-bold text-primary-600">
-                      {lecturer.data.name.charAt(0)}
-                    </span>
-                  </div>
-                )}
+                </div>
+              ) : (
+                <div class="aspect-[4/3] bg-primary-50 flex items-center justify-center">
+                  <span class="text-5xl font-bold text-primary-300">
+                    {lecturer.data.name.charAt(0)}
+                  </span>
+                </div>
+              )}
 
-                <h3 class="text-xl font-bold text-gray-900 mb-1 group-hover:text-primary-600 transition-colors">
+              <div class="p-5 text-center flex-1 flex flex-col">
+                <h3 class="text-lg font-bold text-gray-900 mb-1 group-hover:text-primary-600 transition-colors">
                   {lecturer.data.name}
                 </h3>
 
                 {lecturer.data.title && (
-                  <p class="text-sm text-primary-600 font-medium mb-2">
+                  <p class="text-sm text-primary-600 font-medium mb-1">
                     {lecturer.data.title}
                   </p>
                 )}
@@ -71,7 +73,7 @@ const lecturers = allLecturers.sort((a, b) => a.data.order - b.data.order);
                   </p>
                 )}
 
-                <div class="flex flex-wrap gap-2 justify-center mt-4">
+                <div class="flex flex-wrap gap-2 justify-center mt-auto pt-3">
                   {lecturer.data.expertise.slice(0, 3).map((skill) => (
                     <span class="px-2 py-1 text-xs bg-primary-50 text-primary-700 rounded">
                       {skill}
@@ -79,7 +81,7 @@ const lecturers = allLecturers.sort((a, b) => a.data.order - b.data.order);
                   ))}
                 </div>
               </div>
-            </Card>
+            </div>
           </a>
         ))}
       </div>
