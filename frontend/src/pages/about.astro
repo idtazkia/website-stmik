@@ -93,22 +93,18 @@ const translate = (key: string) => t(locale, key);
         <div class="grid md:grid-cols-2 gap-6">
           {[1, 2, 3, 4, 5, 6].map((num) => (
             <div class="anim-fade-up h-full" style={`--delay: ${num - 1}`}>
-              <Card hover={true} class="h-full">
-                <div class="p-6 h-full">
-                  <div class="flex items-start space-x-4 h-full">
-                    <div class="flex-shrink-0">
-                      <div class="anim-icon w-10 h-10 rounded-full bg-primary-500 text-white flex items-center justify-center font-bold text-lg shadow-md">
-                        {num}
-                      </div>
-                    </div>
-                    <div class="flex-1">
-                      <p class="text-gray-700">
-                        {translate(`about.mission_${num}`)}
-                      </p>
+              <div class="bg-white rounded-xl shadow-md h-full border-l-4 border-primary-500 hover:shadow-lg transition-shadow">
+                <div class="p-5 flex items-start gap-4">
+                  <div class="flex-shrink-0">
+                    <div class="anim-icon w-9 h-9 rounded-full bg-primary-500 text-white flex items-center justify-center font-bold text-sm shadow-sm">
+                      {num}
                     </div>
                   </div>
+                  <p class="text-gray-700 text-sm leading-relaxed flex-1">
+                    {translate(`about.mission_${num}`)}
+                  </p>
                 </div>
-              </Card>
+              </div>
             </div>
           ))}
         </div>
