@@ -45,6 +45,7 @@ const lecturers = defineCollection({
     github: z.string().optional(),
     linkedin: z.string().optional(),
     youtube: z.string().optional(),
+    scholar: z.string().optional(),
     photo: z.string().optional(),
     order: z.number().default(999), // For sorting
   }),

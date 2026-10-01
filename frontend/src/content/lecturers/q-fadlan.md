@@ -1,6 +1,6 @@
 ---
 name: Q Fadlan
-title: Dosen
+title: Dosen Tetap
 position: Cybersecurity and Governance at INPEX Indonesia
 expertise:
   - Cyber Security

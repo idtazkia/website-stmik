@@ -1,6 +1,6 @@
 ---
 name: Agus Sulaiman
-title: Dosen
+title: Dosen Tetap
 position: DevOps Engineer
 expertise:
   - DevOps

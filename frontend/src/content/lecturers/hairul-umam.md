@@ -14,6 +14,7 @@ education:
     institution: Institut Pertanian Bogor (IPB)
   - degree: S1 Matematika
     institution: Institut Pertanian Bogor (IPB)
+scholar: https://scholar.google.com/citations?hl=id&user=34JuTe4AAAAJ
 photo: /images/lecturers/hairul-umam.png
 order: 6
 ---
