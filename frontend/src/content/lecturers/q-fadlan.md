@@ -18,6 +18,7 @@ education:
   - degree: D4 Telecommunications Engineering
     institution: Politeknik Elektronika Negeri Surabaya
 linkedin: q-f-7a907654
+photo: /images/lecturers/q-fadlan.png
 order: 3
 ---
 

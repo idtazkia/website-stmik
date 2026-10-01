@@ -18,6 +18,7 @@ education:
     institution: Universitas Gadjah Mada (UGM)
     year: "1999-2005"
 linkedin: https://www.linkedin.com/in/rickysetiadi/
+photo: /images/lecturers/ricky-setiadi.png
 order: 5
 ---
 

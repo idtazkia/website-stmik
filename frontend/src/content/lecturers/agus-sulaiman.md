@@ -17,6 +17,7 @@ education:
   - degree: D3 Teknologi Informasi
     institution: Universitas Bina Sarana Informatika
 linkedin: https://id.linkedin.com/in/agus-sulaiman-54620a109
+photo: /images/lecturers/agus-sulaiman.png
 order: 4
 ---
 

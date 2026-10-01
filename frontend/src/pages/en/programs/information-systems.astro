@@ -474,9 +474,9 @@ const courseSchema = {
 
         <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {careerPaths.map((career, index) => (
-            <div class="anim-fade-up" style={`--delay: ${index}`}>
-            <Card hover={true}>
-              <div class="p-6 text-center">
+            <div class="anim-fade-up h-full" style={`--delay: ${index}`}>
+            <Card hover={true} class="h-full">
+              <div class="p-6 text-center h-full flex flex-col">
                 <div class:list={[
                   'w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 anim-icon',
                   career.color === 'primary' ? 'bg-primary-100' : 'bg-secondary-100'
@@ -508,7 +508,7 @@ const courseSchema = {
                   )}
                 </div>
                 <h3 class="font-bold text-gray-900 mb-2">{career.title}</h3>
-                <p class="text-sm text-gray-600">{career.description}</p>
+                <p class="text-sm text-gray-600 flex-1">{career.description}</p>
               </div>
             </Card>
             </div>

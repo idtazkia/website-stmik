@@ -20,6 +20,7 @@ education:
 website: https://software.endy.muhardin.com
 github: endymuhardin
 youtube: https://youtube.com/artivisi
+photo: /images/lecturers/endy-muhardin.png
 order: 1
 ---
 

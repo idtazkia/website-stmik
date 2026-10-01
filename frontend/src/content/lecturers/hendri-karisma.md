@@ -17,6 +17,7 @@ education:
     institution: Universitas Komputer Indonesia
 github: situkangsayur
 linkedin: hendriKarisma
+photo: /images/lecturers/hendri-karisma.png
 order: 2
 ---
 
