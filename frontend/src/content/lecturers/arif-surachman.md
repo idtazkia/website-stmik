@@ -6,10 +6,10 @@ expertise:
   - Enterprise Systems
   - Business Process Management
 education:
-  - degree: S2 Sistem Informasi
-    institution: Universitas Indonesia
-  - degree: S1 Sistem Informasi
-    institution: Universitas Indonesia
+  - degree: S2
+    institution: Institut Teknologi Bandung
+  - degree: S1
+    institution: Institut Teknologi Bandung
 photo: /images/lecturers/arif-surachman.png
 order: 8
 ---

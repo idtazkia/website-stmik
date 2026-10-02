@@ -6,10 +6,8 @@ expertise:
   - Software Engineering
   - Full Stack Development
 education:
-  - degree: S2 Ilmu Komputer
-    institution: Institut Pertanian Bogor (IPB)
-  - degree: S1 Ilmu Komputer
-    institution: Institut Pertanian Bogor (IPB)
+  - degree: S1
+    institution: Sekolah Tinggi Ekonomi Islam (STEI) Tazkia
 photo: /images/lecturers/galih-kurniawan-sidik.png
 order: 7
 ---

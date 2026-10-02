@@ -10,10 +10,10 @@ expertise:
   - Statistical Modeling
   - Data Analysis
 education:
-  - degree: S2 Matematika
-    institution: Institut Pertanian Bogor (IPB)
-  - degree: S1 Matematika
-    institution: Institut Pertanian Bogor (IPB)
+  - degree: S2
+    institution: Institut Teknologi Bandung
+  - degree: S1
+    institution: Universitas Gadjah Mada
 scholar: https://scholar.google.com/citations?hl=id&user=34JuTe4AAAAJ
 photo: /images/lecturers/hairul-umam.png
 order: 6

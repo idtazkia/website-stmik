@@ -6,10 +6,10 @@ expertise:
   - Cloud Computing
   - System Administration
 education:
-  - degree: S2 Teknik Informatika
-    institution: Institut Teknologi Bandung (ITB)
-  - degree: S1 Teknik Informatika
-    institution: Institut Teknologi Bandung (ITB)
+  - degree: S2
+    institution: Universitas Indonesia
+  - degree: S1
+    institution: Universitas Budi Luhur
 photo: /images/lecturers/kus-andriadi.png
 order: 9
 ---

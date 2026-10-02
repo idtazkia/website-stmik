@@ -6,10 +6,10 @@ expertise:
   - Software Engineering
   - UI/UX Design
 education:
-  - degree: S2 Ilmu Komputer
-    institution: Institut Pertanian Bogor (IPB)
-  - degree: S1 Ilmu Komputer
-    institution: Institut Pertanian Bogor (IPB)
+  - degree: S2
+    institution: Universitas Indonesia
+  - degree: S1
+    institution: Universitas Pendidikan Indonesia
 photo: /images/lecturers/muhammad-singgih-zulfikar-ansori.png
 order: 10
 ---
