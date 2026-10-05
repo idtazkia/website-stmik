@@ -145,24 +145,24 @@ const localPath = (path: string) => localizePath(locale, path);
           {translate('stats.subtitle')}
         </p>
       </div>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
-        <div class="text-center space-y-2">
-          <div class="text-5xl font-bold text-secondary-500">16</div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto" id="stats-section">
+        <div class="stat-item text-center space-y-2">
+          <div class="text-5xl font-bold text-secondary-500 stat-number" data-target="16">0</div>
           <div class="text-xl font-semibold text-gray-900">{translate('stats.weeks')}</div>
           <p class="text-sm text-gray-600">{translate('stats.weeks_label')}</p>
         </div>
-        <div class="text-center space-y-2">
-          <div class="text-5xl font-bold text-primary-500">4</div>
+        <div class="stat-item text-center space-y-2">
+          <div class="text-5xl font-bold text-primary-500 stat-number" data-target="4">0</div>
           <div class="text-xl font-semibold text-gray-900">{translate('stats.courses')}</div>
           <p class="text-sm text-gray-600">{translate('stats.courses_label')}</p>
         </div>
-        <div class="text-center space-y-2">
-          <div class="text-5xl font-bold text-secondary-500">1</div>
+        <div class="stat-item text-center space-y-2">
+          <div class="text-5xl font-bold text-secondary-500 stat-number" data-target="1">0</div>
           <div class="text-xl font-semibold text-gray-900">{translate('stats.products')}</div>
           <p class="text-sm text-gray-600">{translate('stats.products_label')}</p>
         </div>
-        <div class="text-center space-y-2">
-          <div class="text-5xl font-bold text-primary-500">100%</div>
+        <div class="stat-item text-center space-y-2">
+          <div class="text-5xl font-bold text-primary-500 stat-number" data-target="100" data-suffix="%">0%</div>
           <div class="text-xl font-semibold text-gray-900">{translate('stats.practical')}</div>
           <p class="text-sm text-gray-600">{translate('stats.practical_label')}</p>
         </div>
@@ -283,9 +283,32 @@ const localPath = (path: string) => localizePath(locale, path);
     60% { transform: scale(1.15); }
     100% { transform: scale(1); }
   }
+
+  /* Stats count-up animation */
+  .stat-item {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+  .stat-item.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .stat-number {
+    display: inline-block;
+  }
+  @keyframes stat-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+  }
+  .stat-number.done {
+    animation: stat-pulse 0.4s ease-out;
+  }
 </style>
 
 <script>
+  // Feature cards observer
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
@@ -295,4 +318,49 @@ const localPath = (path: string) => localizePath(locale, path);
     });
   }, { threshold: 0.15 });
   document.querySelectorAll('.feature-card').forEach((el) => observer.observe(el));
+
+  // Stats count-up animation
+  function animateCountUp(el: Element) {
+    const target = parseInt(el.getAttribute('data-target') || '0');
+    const suffix = el.getAttribute('data-suffix') || '';
+    const duration = 1500;
+    const startTime = performance.now();
+
+    function update(currentTime: number) {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = Math.round(eased * target);
+      el.textContent = current + suffix;
+
+      if (progress < 1) {
+        requestAnimationFrame(update);
+      } else {
+        el.textContent = target + suffix;
+        el.classList.add('done');
+      }
+    }
+    requestAnimationFrame(update);
+  }
+
+  const statsObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const items = entry.target.querySelectorAll('.stat-item');
+        items.forEach((item, index) => {
+          setTimeout(() => {
+            item.classList.add('visible');
+            const numEl = item.querySelector('.stat-number');
+            if (numEl) {
+              setTimeout(() => animateCountUp(numEl), 300);
+            }
+          }, index * 200);
+        });
+        statsObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.2 });
+
+  const statsSection = document.getElementById('stats-section');
+  if (statsSection) statsObserver.observe(statsSection);
 </script>

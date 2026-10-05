@@ -178,10 +178,10 @@ const faqs = [
 
         <div class="grid md:grid-cols-3 gap-6">
           {scholarships.map((scholarship, index) => (
-            <div class="anim-fade-up" style={`--delay: ${index}`}>
-            <Card hover={true}>
-              <div class="p-6 text-center">
-                <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" class:list={[
+            <div class="anim-fade-up h-full" style={`--delay: ${index}`}>
+            <Card hover={true} class="h-full">
+              <div class="p-6 text-center h-full flex flex-col items-center">
+                <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 flex-shrink-0" class:list={[
                   scholarship.icon === 'platinum' && 'bg-gradient-to-br from-slate-300 to-slate-500',
                   scholarship.icon === 'gold' && 'bg-gradient-to-br from-yellow-300 to-yellow-500',
                   scholarship.icon === 'silver' && 'bg-gradient-to-br from-gray-200 to-gray-400'
@@ -203,7 +203,7 @@ const faqs = [
                   )}
                 </div>
                 <h3 class="text-lg font-bold text-gray-900 mb-2">{scholarship.name}</h3>
-                <p class="text-sm text-gray-600">{scholarship.description}</p>
+                <p class="text-sm text-gray-600 flex-grow">{scholarship.description}</p>
               </div>
             </Card>
             </div>
