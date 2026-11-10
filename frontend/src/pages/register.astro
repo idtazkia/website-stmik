@@ -1,0 +1,411 @@
+---
+import MarketingLayout from '../layouts/MarketingLayout.astro';
+import Container from '../components/Container.astro';
+import Section from '../components/Section.astro';
+import Card from '../components/Card.astro';
+import Button from '../components/Button.astro';
+import { getLocaleFromUrl, t, localizePath } from '../utils/i18n';
+import ScrollAnimations from '../components/ScrollAnimations.astro';
+
+const locale = getLocaleFromUrl(Astro.url);
+const translate = (key: string) => t(locale, key);
+const localPath = (path: string) => localizePath(locale, path);
+
+const currentYear = new Date().getFullYear();
+const graduationYears = Array.from({ length: 6 }, (_, i) => currentYear - i);
+
+const whatsappNumber = '6285123123119';
+---
+
+<MarketingLayout title={translate('register.title')} description={translate('register.description')}>
+  <ScrollAnimations />
+
+  <!-- Hero Section -->
+  <Section background="gradient" class="pt-32 pb-20">
+    <Container>
+      <div class="max-w-3xl mx-auto text-center anim-fade-in">
+        <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+          {translate('register.title')}
+        </h1>
+        <p class="text-xl text-gray-600 mb-8">
+          {translate('register.subtitle')}
+        </p>
+        <a
+          href="#register-form"
+          class="inline-flex items-center px-6 py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-colors"
+        >
+          {translate('register.cta_button')}
+          <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+          </svg>
+        </a>
+      </div>
+    </Container>
+  </Section>
+
+  <!-- Form Section -->
+  <Section background="white" id="register-form">
+    <Container>
+      <div class="grid lg:grid-cols-5 gap-12 max-w-6xl mx-auto">
+        <!-- Benefits Sidebar -->
+        <div class="lg:col-span-2 anim-slide-right">
+          <h2 class="text-2xl font-bold text-gray-900 mb-8">
+            {translate('register.benefits_title')}
+          </h2>
+
+          <div class="space-y-5">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div class="flex gap-4">
+                <div class="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                </div>
+                <p class="text-gray-700 pt-2">{translate(`register.benefit_${i}`)}</p>
+              </div>
+            ))}
+          </div>
+
+          <!-- WhatsApp Shortcut -->
+          <div class="mt-10 p-5 bg-green-50 rounded-xl border border-green-200">
+            <p class="text-sm text-gray-600 mb-3">{translate('register.wa_shortcut')}</p>
+            <a
+              href={`https://wa.me/${whatsappNumber}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-2 px-5 py-2.5 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors text-sm"
+            >
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+              </svg>
+              WhatsApp
+            </a>
+          </div>
+        </div>
+
+        <!-- Registration Form -->
+        <div class="lg:col-span-3 anim-slide-left">
+          <Card>
+            <div class="p-8">
+              <h2 class="text-2xl font-bold text-gray-900 mb-2">
+                {translate('register.form_title')}
+              </h2>
+              <p class="text-gray-600 mb-6">
+                {translate('register.form_subtitle')}
+              </p>
+
+              <form
+                id="registration-form"
+                class="space-y-5"
+                data-wa-number={whatsappNumber}
+                data-msg-title={translate('register.wa_msg_title')}
+                data-label-name={translate('register.wa_label_name')}
+                data-label-email={translate('register.wa_label_email')}
+                data-label-whatsapp={translate('register.wa_label_whatsapp')}
+                data-label-birth={translate('register.wa_label_birth')}
+                data-label-gender={translate('register.wa_label_gender')}
+                data-label-school={translate('register.wa_label_school')}
+                data-label-major={translate('register.wa_label_major')}
+                data-label-grad-year={translate('register.wa_label_grad_year')}
+                data-label-program={translate('register.wa_label_program')}
+                data-label-notes={translate('register.wa_label_notes')}
+              >
+                <!-- Name -->
+                <div>
+                  <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                    {translate('register.form_name')} <span class="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                  />
+                </div>
+
+                <!-- Email & WhatsApp -->
+                <div class="grid sm:grid-cols-2 gap-5">
+                  <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                      {translate('register.form_email')} <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      required
+                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label for="whatsapp" class="block text-sm font-medium text-gray-700 mb-2">
+                      {translate('register.form_whatsapp')} <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      id="whatsapp"
+                      name="whatsapp"
+                      required
+                      placeholder={translate('register.form_whatsapp_placeholder')}
+                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                    />
+                  </div>
+                </div>
+
+                <!-- Birth Place & Date -->
+                <div class="grid sm:grid-cols-2 gap-5">
+                  <div>
+                    <label for="birth_place" class="block text-sm font-medium text-gray-700 mb-2">
+                      {translate('register.form_birth_place')} <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="birth_place"
+                      name="birth_place"
+                      required
+                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label for="birth_date" class="block text-sm font-medium text-gray-700 mb-2">
+                      {translate('register.form_birth_date')} <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="date"
+                      id="birth_date"
+                      name="birth_date"
+                      required
+                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                    />
+                  </div>
+                </div>
+
+                <!-- Gender -->
+                <div>
+                  <label for="gender" class="block text-sm font-medium text-gray-700 mb-2">
+                    {translate('register.form_gender')} <span class="text-red-500">*</span>
+                  </label>
+                  <select
+                    id="gender"
+                    name="gender"
+                    required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                  >
+                    <option value="">{translate('register.form_gender_select')}</option>
+                    <option value={translate('register.form_gender_male')}>{translate('register.form_gender_male')}</option>
+                    <option value={translate('register.form_gender_female')}>{translate('register.form_gender_female')}</option>
+                  </select>
+                </div>
+
+                <!-- School & Major -->
+                <div class="grid sm:grid-cols-2 gap-5">
+                  <div>
+                    <label for="school" class="block text-sm font-medium text-gray-700 mb-2">
+                      {translate('register.form_school')} <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="school"
+                      name="school"
+                      required
+                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label for="school_major" class="block text-sm font-medium text-gray-700 mb-2">
+                      {translate('register.form_school_major')}
+                    </label>
+                    <input
+                      type="text"
+                      id="school_major"
+                      name="school_major"
+                      placeholder={translate('register.form_school_major_placeholder')}
+                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                    />
+                  </div>
+                </div>
+
+                <!-- Graduation Year & Program -->
+                <div class="grid sm:grid-cols-2 gap-5">
+                  <div>
+                    <label for="graduation_year" class="block text-sm font-medium text-gray-700 mb-2">
+                      {translate('register.form_graduation_year')} <span class="text-red-500">*</span>
+                    </label>
+                    <select
+                      id="graduation_year"
+                      name="graduation_year"
+                      required
+                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                    >
+                      <option value="">{translate('register.form_graduation_year_select')}</option>
+                      {graduationYears.map((year) => (
+                        <option value={year}>{year}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label for="program" class="block text-sm font-medium text-gray-700 mb-2">
+                      {translate('register.form_program')} <span class="text-red-500">*</span>
+                    </label>
+                    <select
+                      id="program"
+                      name="program"
+                      required
+                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                    >
+                      <option value="">{translate('register.form_program_select')}</option>
+                      <option value={translate('register.form_program_si')}>{translate('register.form_program_si')}</option>
+                      <option value={translate('register.form_program_ti')}>{translate('register.form_program_ti')}</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Notes -->
+                <div>
+                  <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">
+                    {translate('register.form_notes')}
+                  </label>
+                  <textarea
+                    id="notes"
+                    name="notes"
+                    rows="3"
+                    placeholder={translate('register.form_notes_placeholder')}
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors resize-none"
+                  ></textarea>
+                </div>
+
+                <!-- Submit -->
+                <button
+                  type="submit"
+                  class="w-full px-6 py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-colors flex items-center justify-center gap-2"
+                >
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                  </svg>
+                  {translate('register.form_submit')}
+                </button>
+
+                <p class="text-sm text-gray-500 text-center">
+                  {translate('register.form_privacy')}
+                </p>
+              </form>
+
+              <!-- Success State -->
+              <div id="success-message" class="hidden text-center py-8">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-3">
+                  {translate('register.success_title')}
+                </h3>
+                <p class="text-gray-600 mb-8 max-w-md mx-auto">
+                  {translate('register.success_message')}
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                  <button
+                    id="retry-whatsapp"
+                    class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors"
+                  >
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                    </svg>
+                    {translate('register.success_retry')}
+                  </button>
+                  <button
+                    id="back-to-form"
+                    class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    {translate('register.success_back')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </div>
+    </Container>
+  </Section>
+
+  <!-- CTA Section -->
+  <Section background="gray">
+    <Container>
+      <div class="max-w-3xl mx-auto text-center anim-fade-in">
+        <h2 class="text-3xl font-bold text-gray-900 mb-4">
+          {translate('register.cta_title')}
+        </h2>
+        <p class="text-lg text-gray-600 mb-8">
+          {translate('register.cta_subtitle')}
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <Button href={localPath('/admissions')} variant="primary">
+            {translate('register.cta_admissions')}
+          </Button>
+          <Button href={localPath('/contact')} variant="outline">
+            {translate('register.cta_contact')}
+          </Button>
+        </div>
+      </div>
+    </Container>
+  </Section>
+</MarketingLayout>
+
+<script>
+  let lastWhatsAppUrl = '';
+
+  const form = document.getElementById('registration-form') as HTMLFormElement | null;
+  const successMessage = document.getElementById('success-message');
+  const retryButton = document.getElementById('retry-whatsapp');
+  const backButton = document.getElementById('back-to-form');
+
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const formData = new FormData(form);
+    const d = form.dataset;
+
+    const name = formData.get('name') || '';
+    const email = formData.get('email') || '';
+    const whatsapp = formData.get('whatsapp') || '';
+    const birthPlace = formData.get('birth_place') || '';
+    const birthDate = formData.get('birth_date') || '';
+    const gender = formData.get('gender') || '';
+    const school = formData.get('school') || '';
+    const schoolMajor = formData.get('school_major') || '-';
+    const gradYear = formData.get('graduation_year') || '';
+    const program = formData.get('program') || '';
+    const notes = formData.get('notes') || '-';
+
+    const message = `*${d.msgTitle}*
+
+${d.labelName}: ${name}
+${d.labelEmail}: ${email}
+${d.labelWhatsapp}: ${whatsapp}
+${d.labelBirth}: ${birthPlace}, ${birthDate}
+${d.labelGender}: ${gender}
+${d.labelSchool}: ${school}
+${d.labelMajor}: ${schoolMajor}
+${d.labelGradYear}: ${gradYear}
+${d.labelProgram}: ${program}
+${d.labelNotes}: ${notes}`;
+
+    const encoded = encodeURIComponent(message.trim());
+    lastWhatsAppUrl = `https://wa.me/${d.waNumber}?text=${encoded}`;
+    window.open(lastWhatsAppUrl, '_blank');
+
+    form.classList.add('hidden');
+    successMessage?.classList.remove('hidden');
+  });
+
+  retryButton?.addEventListener('click', () => {
+    if (lastWhatsAppUrl) {
+      window.location.href = lastWhatsAppUrl;
+    }
+  });
+
+  backButton?.addEventListener('click', () => {
+    form?.classList.remove('hidden');
+    successMessage?.classList.add('hidden');
+  });
+</script>
